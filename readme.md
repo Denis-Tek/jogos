@@ -5,7 +5,7 @@
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](#tecnologias-utilizadas)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES2020+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](#tecnologias-utilizadas)
 
-Uma coleção interativa de brinquedos eletrônicos retrô e jogos de tabuleiro clássicos recriados para a web com **zero dependências externas**, foco em **design tátil realista**, **síntese sonora em tempo real** e **arquitetura autônoma em arquivo único**.
+Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabuleiro e puzzles casuais recriados para a web com **foco em design tátil**, **síntese sonora em tempo real** e **arquitetura autônoma em arquivo único**.
 
 🔗 **Acesse o Launcher Principal:** [https://denis-tek.github.io/jogos/](https://denis-tek.github.io/jogos/)
 
@@ -17,6 +17,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô e jogos de tabuleiro 
 | :--- | :--- | :--- | :--- |
 | **[Genius Estrela](./genius-estrela/)** | Memória & Som | Recriação fiel do brinquedo eletrônico dos anos 80 com 4 arcos luminosos, visor LED de 4 segmentos, 3 modos de jogo e 4 níveis de dificuldade. | [Jogar Genius Estrela](https://denis-tek.github.io/jogos/genius-estrela/) |
 | **[Resta Um](./resta-um/)** | Raciocínio & Tabuleiro | O clássico *Peg Solitaire* em tabuleiro circular de madeira nobre com 5 variantes, 4 acabamentos de peças e solucionador inteligente integrado. | [Jogar Resta Um](https://denis-tek.github.io/jogos/resta-um/) |
+| **[Food Hunt](./food-hunt/)** | Puzzle & Estratégia | Quebra-cabeça casual onde você gerencia 5 slots de cores para comandar formigas pixeladas que escavam desenhos e fotos enviadas pelo jogador. | [Jogar Food Hunt](https://denis-tek.github.io/jogos/food-hunt/) |
 
 ---
 
@@ -24,10 +25,10 @@ Uma coleção interativa de brinquedos eletrônicos retrô e jogos de tabuleiro 
 
 Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Architecture** (cada aplicação encapsulada em seu próprio `index.html`), garantindo portabilidade instantânea, carregamento ultrarrápido e compatibilidade nativa com qualquer navegador moderno ou hospedagem estática:
 
-* **HTML5 Semântico & SVG Vetorial:** Estruturação acessível e ilustrações vetoriais embutidas para os ícones e componentes gráficos do menu inicial.
-* **CSS3 Moderno:** Uso intensivo de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, gradientes radiais e cônicos multicamada para simular texturas físicas (plástico chanfrado, madeira entalhada, baquelite e visores LED) e animações fluidas via GPU.
-* **JavaScript Nativo (ES2020+):** Lógica de estados, máquinas de turno, manipulação de eventos unificados (`Pointer Events` para mouse e toque), atalhos de teclado e uso de `BigInt` para operações bit-a-bit de alta performance.
-* **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores e envelopes ADSR) que gera em tempo real os tons musicais do Genius, o som de erro característico, o estalo de peças de madeira/baquelite e fanfarras de vitória — sem depender de arquivos `.mp3` ou `.wav`.
+* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível, ilustrações vetoriais embutidas para o menu inicial e renderização acelerada em 60 FPS no `<canvas>` para animações complexas.
+* **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, gradientes radiais multicamada para texturas físicas (plástico chanfrado, madeira entalhada e baquelite) e utilitários responsivos.
+* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca em grafos (`DFS` com `BigInt` Bitboard, `BFS` e *Flood-Fill*), clusterização de cores (*K-Means*), eventos unificados (`Pointer Events`) e atalhos de teclado.
+* **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores e envelopes ADSR) que gera em tempo real os tons musicais, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes obtidos em cada jogo, sincronizados tanto dentro das partidas quanto nos selos exibidos no menu principal.
 
 ---
@@ -42,10 +43,14 @@ jogos/
 │   ├── index.html             # Aplicação completa do Genius da Estrela
 │   ├── imagem.png             # Captura de tela do jogo em execução
 │   └── README.md              # Documentação técnica e regras do Genius
-└── resta-um/
-    ├── index.html             # Aplicação completa do Resta Um (Peg Solitaire)
+├── resta-um/
+│   ├── index.html             # Aplicação completa do Resta Um (Peg Solitaire)
+│   ├── imagem.png             # Captura de tela do jogo em execução
+│   └── README.md              # Documentação técnica, variantes e algoritmos do Resta Um
+└── food-hunt/
+    ├── index.html             # Aplicação completa do Food Hunt: Formigas Pixeladas
     ├── imagem.png             # Captura de tela do jogo em execução
-    └── README.md              # Documentação técnica, variantes e algoritmos do Resta Um
+    └── README.md              # Documentação técnica, regras e algoritmos do Food Hunt
 ```
 
 ---
