@@ -15,7 +15,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô e jogos de tabuleiro 
 
 | Jogo | Categoria | Descrição | Link Direto |
 | :--- | :--- | :--- | :--- |
-| **[Genius Estrela](./genius-estrela/)** | Memória & Som | Recriação fiel do brinquedo eletrônico dos anos 80 com 4 arcos luminosos, visor LED de 7 segmentos, 3 modos de jogo e 4 níveis de dificuldade. | [Jogar Genius Estrela](https://denis-tek.github.io/jogos/genius-estrela/) |
+| **[Genius Estrela](./genius-estrela/)** | Memória & Som | Recriação fiel do brinquedo eletrônico dos anos 80 com 4 arcos luminosos, visor LED de 4 segmentos, 3 modos de jogo e 4 níveis de dificuldade. | [Jogar Genius Estrela](https://denis-tek.github.io/jogos/genius-estrela/) |
 | **[Resta Um](./resta-um/)** | Raciocínio & Tabuleiro | O clássico *Peg Solitaire* em tabuleiro circular de madeira nobre com 5 variantes, 4 acabamentos de peças e solucionador inteligente integrado. | [Jogar Resta Um](https://denis-tek.github.io/jogos/resta-um/) |
 
 ---
