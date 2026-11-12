@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coleção de Jogos Clássicos | Denis-Tek</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0c0e14;
+      --bg-surface: #151923;
+      --bg-card: linear-gradient(165deg, #1b202e 0%, #12151f 100%);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.22);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-cyan: #38bdf8;
+      --accent-amber: #fbbf24;
+      --accent-emerald: #34d399;
+      --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.75);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(56, 189, 248, 0.09) 0%, transparent 42%),
+        radial-gradient(circle at 82% 88%, rgba(251, 191, 36, 0.08) 0%, transparent 45%),
+        radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 24px 24px;
+      color: var(--text-main);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 28px 18px 42px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1080px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* CABEÇALHO */
+    .hero-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      background: rgba(21, 25, 35, 0.78);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 22px;
+      padding: 22px 26px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero-brand {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .arcade-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      color: var(--accent-cyan);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .arcade-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 8px var(--accent-cyan);
+      animation: pulseDot 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.85); }
+    }
+
+    .hero-brand h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: clamp(1.65rem, 3.4vw, 2.35rem);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(95deg, #ffffff 10%, #cbd5e1 60%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.15;
+    }
+
+    .hero-brand p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      max-width: 560px;
+      line-height: 1.45;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+    }
+
+    .icon-btn.sound-active {
+      border-color: rgba(52, 211, 153, 0.35);
+      color: var(--accent-emerald);
+    }
+
+    /* BARRA DE FILTROS E BUSCA */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      background: rgba(21, 25, 35, 0.72);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .filter-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.38);
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 230px;
+      max-width: 320px;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      border-radius: 13px;
+      background: rgba(21, 25, 35, 0.85);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input::placeholder {
+      color: #64748b;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    /* GRID DE CARTÕES */
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(305px, 1fr));
+      gap: 24px;
+    }
+
+    .game-card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 22px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-card);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  border-color 0.28s ease,
+                  box-shadow 0.28s ease;
+    }
+
+    .game-card:not(.coming-soon):hover {
+      transform: translateY(-7px);
+      border-color: var(--card-accent, rgba(56, 189, 248, 0.5));
+      box-shadow:
+        0 26px 48px -12px rgba(0, 0, 0, 0.85),
+        0 0 28px -6px var(--card-glow, rgba(56, 189, 248, 0.28));
+    }
+
+    /* Palco da Ilustração SVG */
+    .card-artwork {
+      position: relative;
+      height: 205px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.05) 0%, rgba(10, 12, 18, 0.65) 100%);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .card-artwork svg {
+      width: 156px;
+      height: 156px;
+      filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.65));
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .game-card:not(.coming-soon):hover .card-artwork svg {
+      transform: scale(1.07) rotate(-2deg);
+    }
+
+    /* Selo de Recorde Dinâmico */
+    .record-ribbon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(12, 14, 20, 0.82);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(251, 191, 36, 0.38);
+      color: var(--accent-amber);
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+    }
+
+    .card-body {
+      padding: 20px 22px 22px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 12px;
+    }
+
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-pill {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      letter-spacing: 0.2px;
+    }
+
+    .card-title {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.38rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.3px;
+    }
+
+    .card-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .play-cta {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 18px;
+      border-radius: 13px;
+      background: var(--btn-gradient, linear-gradient(135deg, #2563eb, #1d4ed8));
+      color: #ffffff;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.96rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      text-decoration: none;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.28);
+      transition: filter 0.18s ease, transform 0.15s ease;
+    }
+
+    .play-cta:hover {
+      filter: brightness(1.12);
+    }
+
+    .play-cta:active {
+      transform: scale(0.98);
+    }
+
+    /* Cartão "Em Breve" */
+    .game-card.coming-soon {
+      background: rgba(18, 21, 31, 0.45);
+      border: 2px dashed rgba(148, 163, 184, 0.22);
+      box-shadow: none;
+    }
+
+    .game-card.coming-soon .card-artwork {
+      background: transparent;
+      border-bottom: 1px dashed rgba(148, 163, 184, 0.16);
+    }
+
+    .coming-soon-badge {
+      padding: 10px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      color: #64748b;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .empty-state {
+      display: none;
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 46px 20px;
+      background: rgba(21, 25, 35, 0.6);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 20px;
+      color: var(--text-muted);
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .footer-note a {
+      color: var(--text-muted);
+      text-decoration: none;
+      border-bottom: 1px dotted #64748b;
+    }
+
+    .footer-note a:hover {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
+    }
+
+    @media (max-width: 600px) {
+      .hero-header {
+        padding: 18px;
+      }
+      .search-box {
+        max-width: 100%;
+        width: 100%;
+      }
+      .filter-pills {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .filter-btn {
+        flex: 1;
+        text-align: center;
+        padding: 8px 8px;
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Cabeçalho -->
+    <header class="hero-header">
+      <div class="hero-brand">
+        <div class="arcade-badge">
+          <span class="dot" aria-hidden="true"></span>
+          Arcade &amp; Tabuleiro Web
+        </div>
+        <h1>Coleção de Jogos Clássicos</h1>
+        <p>Recriações interativas de brinquedos eletrônicos e passatempos atemporais com física tátil e áudio sintetizado diretamente no navegador.</p>
+      </div>
+
+      <div class="header-actions">
+        <button type="button" class="icon-btn sound-active" id="btnToggleAudio" aria-pressed="true" title="Alternar efeitos sonoros do menu">
+          <svg id="iconSoundOn" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="iconSoundOff" style="display:none;" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+          <span id="soundLabel">Som Ativo</span>
+        </button>
+
+        <a href="https://github.com/Denis-Tek/jogos" target="_blank" rel="noopener noreferrer" class="icon-btn" title="Ver código-fonte no GitHub">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Barra de Filtros e Busca -->
+    <section class="toolbar" aria-label="Filtrar e pesquisar jogos">
+      <div class="filter-pills" role="tablist">
+        <button type="button" class="filter-btn active" data-filter="all">Todos</button>
+        <button type="button" class="filter-btn" data-filter="memory">Memória &amp; Som</button>
+        <button type="button" class="filter-btn" data-filter="board">Raciocínio &amp; Tabuleiro</button>
+      </div>
+
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="search" id="searchInput" class="search-input" placeholder="Buscar jogo ou recurso..." aria-label="Buscar jogo">
+      </div>
+    </section>
+
+    <!-- Grid de Jogos -->
+    <main class="games-grid" id="gamesGrid">
+
+      <!-- CARTÃO 1: GENIUS ESTRELA -->
+      <article class="game-card"
+               data-category="memory"
+               data-keywords="genius estrela memoria audio sintetizado luzes som sequencia 1 a 4 jogadores"
+               style="--card-accent: rgba(56, 189, 248, 0.55); --card-glow: rgba(56, 189, 248, 0.28); --btn-gradient: linear-gradient(135deg, #0284c7, #1d4ed8);">
+        <div class="card-artwork">
+          <div class="record-ribbon" id="geniusRecordBadge" style="display:none;"></div>
+
+          <!-- Ilustração SVG Detalhada do Genius Estrela -->
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração do brinquedo Genius Estrela">
+            <defs>
+              <radialGradient id="chassisGrad" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#3a3f4d"/>
+                <stop offset="65%" stop-color="#181a20"/>
+                <stop offset="100%" stop-color="#0b0c10"/>
+              </radialGradient>
+              <radialGradient id="greenPad" cx="70%" cy="70%" r="75%">
+                <stop offset="0%" stop-color="#4ade80"/>
+                <stop offset="65%" stop-color="#15803d"/>
+                <stop offset="100%" stop-color="#064e3b"/>
+              </radialGradient>
+              <radialGradient id="redPad" cx="30%" cy="70%" r="75%">
+                <stop offset="0%" stop-color="#f87171"/>
+                <stop offset="65%" stop-color="#b91c1c"/>
+                <stop offset="100%" stop-color="#7f1d1d"/>
+              </radialGradient>
+              <radialGradient id="yellowPad" cx="70%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#fde047"/>
+                <stop offset="65%" stop-color="#ca8a04"/>
+                <stop offset="100%" stop-color="#713f12"/>
+              </radialGradient>
+              <radialGradient id="bluePad" cx="30%" cy="30%" r="75%">
+                <stop offset="0%" stop-color="#60a5fa"/>
+                <stop offset="65%" stop-color="#1d4ed8"/>
+                <stop offset="100%" stop-color="#1e3a8a"/>
+              </radialGradient>
+            </defs>
+
+            <!-- Base Circular -->
+            <circle cx="100" cy="100" r="94" fill="url(#chassisGrad)" stroke="#2b303c" stroke-width="3"/>
+            <circle cx="100" cy="100" r="82" fill="#090a0e"/>
+
+            <!-- 4 Arcos Coloridos -->
+            <!-- Verde (Superior Esquerdo) -->
+            <path d="M 94 22 A 78 78 0 0 0 22 94 L 54 94 A 46 46 0 0 1 94 54 Z" fill="url(#greenPad)" stroke="#22c55e" stroke-width="1"/>
+            <!-- Vermelho (Superior Direito) -->
+            <path d="M 106 22 A 78 78 0 0 1 178 94 L 146 94 A 46 46 0 0 0 106 54 Z" fill="url(#redPad)" stroke="#ef4444" stroke-width="1"/>
+            <!-- Amarelo (Inferior Esquerdo) -->
+            <path d="M 22 106 A 78 78 0 0 0 94 178 L 94 146 A 46 46 0 0 1 54 106 Z" fill="url(#yellowPad)" stroke="#eab308" stroke-width="1"/>
+            <!-- Azul (Inferior Direito) -->
+            <path d="M 178 106 A 78 78 0 0 1 106 178 L 106 146 A 46 46 0 0 0 146 106 Z" fill="url(#bluePad)" stroke="#3b82f6" stroke-width="1"/>
+
+            <!-- Miolo Central -->
+            <circle cx="100" cy="100" r="43" fill="#181b22" stroke="#090a0e" stroke-width="5"/>
+            <text x="100" y="81" text-anchor="middle" fill="#e2e8f0" font-family="Chakra Petch, sans-serif" font-weight="800" font-size="11" letter-spacing="1.5">GENIUS</text>
+
+            <!-- Visor LED Digital -->
+            <rect x="78" y="89" width="44" height="20" rx="4" fill="#120406" stroke="#2d3340" stroke-width="1.5"/>
+            <text x="100" y="103" text-anchor="middle" fill="#ff2a44" font-family="monospace" font-weight="900" font-size="13" letter-spacing="2">31</text>
+
+            <!-- Botão Start e Chave Power -->
+            <circle cx="88" cy="121" r="6.5" fill="#dc2626" stroke="#450a0a" stroke-width="1.5"/>
+            <rect x="104" y="117" width="16" height="8" rx="4" fill="#090a0e" stroke="#334155" stroke-width="1"/>
+            <circle cx="115" cy="121" r="3" fill="#10b981"/>
+          </svg>
+        </div>
+
+        <div class="card-body">
+          <div class="tags-row">
+            <span class="tag-pill">Memória</span>
+            <span class="tag-pill">Áudio Sintetizado</span>
+            <span class="tag-pill">1 a 4 Jogadores</span>
+          </div>
+          <h2 class="card-title">Genius Estrela</h2>
+          <p class="card-desc">
+            O ícone eletrônico dos anos 80. Repita sequências progressivas de luz e som nos modos Comanda, Inventa ou Escolha sua Cor com 4 níveis de desafio.
+          </p>
+          <a href="./genius-estrela/" class="play-cta" data-play-link>
+            <span>Jogar Agora</span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- CARTÃO 2: RESTA UM -->
+      <article class="game-card"
+               data-category="board"
+               data-keywords="resta um peg solitaire raciocinio tabuleiro madeira 5 tabuleiros dica inteligente"
+               style="--card-accent: rgba(230, 184, 125, 0.55); --card-glow: rgba(217, 119, 6, 0.28); --btn-gradient: linear-gradient(135deg, #b45309, #78350f);">
+        <div class="card-artwork">
+          <div class="record-ribbon" id="restaUmRecordBadge" style="display:none;"></div>
+
+          <!-- Ilustração SVG Detalhada do Tabuleiro Circular de Resta Um -->
+          <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração do tabuleiro Resta Um em madeira">
+            <defs>
+              <radialGradient id="woodBase" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#9c5d2e"/>
+                <stop offset="65%" stop-color="#6b3b18"/>
+                <stop offset="100%" stop-color="#3b1d09"/>
+              </radialGradient>
+              <radialGradient id="woodPlinth" cx="38%" cy="32%" r="68%">
+                <stop offset="0%" stop-color="#a86736"/>
+                <stop offset="70%" stop-color="#75411c"/>
+                <stop offset="100%" stop-color="#4b260d"/>
+              </radialGradient>
+              <radialGradient id="ivoryPeg" cx="32%" cy="28%" r="70%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="40%" stop-color="#f3e8d2"/>
+                <stop offset="80%" stop-color="#cbb292"/>
+                <stop offset="100%" stop-color="#7c664a"/>
+              </radialGradient>
+            </defs>
+
+            <!-- Base Circular em Madeira -->
+            <circle cx="100" cy="100" r="94" fill="url(#woodBase)" stroke="#2b1406" stroke-width="3"/>
+            <!-- Calha Periférica Escavada -->
+            <circle cx="100" cy="100" r="83" fill="none" stroke="#241004" stroke-width="11"/>
+            <!-- Peças capturadas na calha -->
+            <circle cx="100" cy="17" r="4.2" fill="url(#ivoryPeg)"/>
+            <circle cx="115" cy="18.5" r="4.2" fill="url(#ivoryPeg)"/>
+            <circle cx="129" cy="22.5" r="4.2" fill="url(#ivoryPeg)"/>
+
+            <!-- Ilha Central -->
+            <circle cx="100" cy="100" r="74" fill="url(#woodPlinth)" stroke="#3b1d09" stroke-width="2"/>
+
+            <!-- Cruz de Furos e Pinos (7x7 simplificado) -->
+            <!-- Linha 1 & 2 (topo) -->
+            <circle cx="84" cy="46" r="5.5" fill="url(#ivoryPeg)"/><circle cx="100" cy="46" r="5.5" fill="url(#ivoryPeg)"/><circle cx="116" cy="46" r="5.5" fill="url(#ivoryPeg)"/>
+            <circle cx="84" cy="64" r="5.5" fill="url(#ivoryPeg)"/><circle cx="100" cy="64" r="5.5" fill="url(#ivoryPeg)"/><circle cx="116" cy="64" r="5.5" fill="url(#ivoryPeg)"/>
+
+            <!-- Linha 3 -->
+            <circle cx="48" cy="82" r="5.5" fill="url(#ivoryPeg)"/><circle cx="66" cy="82" r="5.5" fill="url(#ivoryPeg)"/><circle cx="84" cy="82" r="5.5" fill="url(#ivoryPeg)"/>
+            <circle cx="100" cy="82" r="5.5" fill="url(#ivoryPeg)"/><circle cx="116" cy="82" r="5.5" fill="url(#ivoryPeg)"/><circle cx="134" cy="82" r="5.5" fill="url(#ivoryPeg)"/><circle cx="152" cy="82" r="5.5" fill="url(#ivoryPeg)"/>
+
+            <!-- Linha 4 (Centro Vazio) -->
+            <circle cx="48" cy="100" r="5.5" fill="url(#ivoryPeg)"/><circle cx="66" cy="100" r="5.5" fill="url(#ivoryPeg)"/><circle cx="84" cy="100" r="5.5" fill="url(#ivoryPeg)"/>
+            <circle cx="100" cy="100" r="4.5" fill="#231004" stroke="#e6b87d" stroke-width="1"/>
+            <circle cx="116" cy="100" r="5.5" fill="url(#ivoryPeg)"/><circle cx="134" cy="100" r="5.5" fill="url(#ivoryPeg)"/><circle cx="152" cy="100" r="5.5" fill="url(#ivoryPeg)"/>
+
+            <!-- Linha 5 -->
+            <circle cx="48" cy="118" r="5.5" fill="url(#ivoryPeg)"/><circle cx="66" cy="118" r="5.5" fill="url(#ivoryPeg)"/><circle cx="84" cy="118" r="5.5" fill="url(#ivoryPeg)"/>
+            <circle cx="100" cy="118" r="5.5" fill="url(#ivoryPeg)"/><circle cx="116" cy="118" r="5.5" fill="url(#ivoryPeg)"/><circle cx="134" cy="118" r="5.5" fill="url(#ivoryPeg)"/><circle cx="152" cy="118" r="5.5" fill="url(#ivoryPeg)"/>
+
+            <!-- Linha 6 & 7 (base) -->
+            <circle cx="84" cy="136" r="5.5" fill="url(#ivoryPeg)"/><circle cx="100" cy="136" r="5.5" fill="url(#ivoryPeg)"/><circle cx="116" cy="136" r="5.5" fill="url(#ivoryPeg)"/>
+            <circle cx="84" cy="154" r="5.5" fill="url(#ivoryPeg)"/><circle cx="100" cy="154" r="5.5" fill="url(#ivoryPeg)"/><circle cx="116" cy="154" r="5.5" fill="url(#ivoryPeg)"/>
+          </svg>
+        </div>
+
+        <div class="card-body">
+          <div class="tags-row">
+            <span class="tag-pill">Raciocínio</span>
+            <span class="tag-pill">5 Tabuleiros</span>
+            <span class="tag-pill">Dica Inteligente</span>
+          </div>
+          <h2 class="card-title">Resta Um</h2>
+          <p class="card-desc">
+            O tradicional Peg Solitaire em tabuleiro de madeira nobre. Inclui variantes Inglês, Europeu, Diamante, Triângulo, Modo Desafio e solucionador integrado.
+          </p>
+          <a href="./resta-um/" class="play-cta" data-play-link>
+            <span>Jogar Agora</span>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- CARTÃO 3: PRÓXIMO CLÁSSICO EM BREVE -->
+      <article class="game-card coming-soon"
+               data-category="all"
+               data-keywords="em breve futuro catalogo">
+        <div class="card-artwork">
+          <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Novo jogo em desenvolvimento">
+            <rect x="24" y="24" width="112" height="112" rx="26" fill="none" stroke="#475569" stroke-width="3" stroke-dasharray="8 8"/>
+            <circle cx="80" cy="80" r="32" fill="rgba(56, 189, 248, 0.06)" stroke="#64748b" stroke-width="2"/>
+            <line x1="80" y1="66" x2="80" y2="94" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="66" y1="80" x2="94" y2="80" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <div class="card-body">
+          <div class="tags-row">
+            <span class="tag-pill">Expansão</span>
+            <span class="tag-pill">Catálogo</span>
+          </div>
+          <h2 class="card-title" style="color:#cbd5e1;">Próximo Clássico em Breve</h2>
+          <p class="card-desc">
+            Novo título retrô em preparação para integrar a coleção. Sugestões como Senha (Mastermind), Batalha Naval ou Brick Game LCD entrarão aqui.
+          </p>
+          <div class="coming-soon-badge">Em Desenvolvimento</div>
+        </div>
+      </article>
+
+      <!-- Estado Vazio de Busca -->
+      <div class="empty-state" id="emptyState">
+        Nenhum jogo encontrado para o filtro ou termo pesquisado.
+      </div>
+    </main>
+
+    <footer class="footer-note">
+      Desenvolvido por <a href="https://github.com/Denis-Tek/jogos" target="_blank" rel="noopener noreferrer">Denis-Tek</a> &bull; 100% HTML5, CSS3 &amp; JavaScript Nativo
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // 1. ÁUDIO SUTIL VIA WEB AUDIO API
+      let audioCtx = null;
+      let soundEnabled = true;
+
+      const btnToggleAudio = document.getElementById('btnToggleAudio');
+      const iconSoundOn = document.getElementById('iconSoundOn');
+      const iconSoundOff = document.getElementById('iconSoundOff');
+      const soundLabel = document.getElementById('soundLabel');
+
+      function getContext() {
+        if (!soundEnabled) return null;
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      function playHoverTick() {
+        const ctx = getContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(620, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.025);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.05, now + 0.005);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.035);
+      }
+
+      function playSelectChime() {
+        const ctx = getContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        [523.25, 783.99].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.045);
+          gain.gain.setValueAtTime(0.001, now + i * 0.045);
+          gain.gain.exponentialRampToValueAtTime(0.11, now + i * 0.045 + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.045 + 0.14);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.045);
+          osc.stop(now + i * 0.045 + 0.15);
+        });
+      }
+
+      btnToggleAudio.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        btnToggleAudio.setAttribute('aria-pressed', String(soundEnabled));
+        btnToggleAudio.classList.toggle('sound-active', soundEnabled);
+        iconSoundOn.style.display = soundEnabled ? 'inline' : 'none';
+        iconSoundOff.style.display = soundEnabled ? 'none' : 'inline';
+        soundLabel.textContent = soundEnabled ? 'Som Ativo' : 'Mudo';
+        if (soundEnabled) playHoverTick();
+      });
+
+      document.querySelectorAll('.game-card:not(.coming-soon)').forEach((card) => {
+        card.addEventListener('mouseenter', playHoverTick);
+      });
+
+      document.querySelectorAll('[data-play-link]').forEach((link) => {
+        link.addEventListener('click', playSelectChime);
+      });
+
+      // 2. LEITURA DINÂMICA DE RECORDES DO LOCALSTORAGE
+      function loadSavedRecords() {
+        try {
+          // Recorde do Genius Estrela
+          const geniusRaw = localStorage.getItem('genius_high_score');
+          const geniusScore = geniusRaw ? parseInt(geniusRaw, 10) : 0;
+          if (geniusScore > 0) {
+            const badge = document.getElementById('geniusRecordBadge');
+            badge.textContent = `★ Recorde: ${String(geniusScore).padStart(2, '0')} passos`;
+            badge.style.display = 'inline-flex';
+          }
+
+          // Melhor recorde entre os tabuleiros do Resta Um
+          const restaKeys = ['restaum_rec_english', 'restaum_rec_european', 'restaum_rec_diamond', 'restaum_rec_triangle'];
+          let bestPegs = Infinity;
+          let bestTime = Infinity;
+
+          restaKeys.forEach((k) => {
+            const raw = localStorage.getItem(k);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed.pegs === 'number') {
+              if (parsed.pegs < bestPegs || (parsed.pegs === bestPegs && parsed.time < bestTime)) {
+                bestPegs = parsed.pegs;
+                bestTime = parsed.time;
+              }
+            }
+          });
+
+          if (bestPegs !== Infinity) {
+            const badge = document.getElementById('restaUmRecordBadge');
+            badge.textContent = bestPegs === 1
+              ? '★ Vitória Conquistada!'
+              : `★ Melhor: ${bestPegs} peças`;
+            badge.style.display = 'inline-flex';
+          }
+        } catch (e) {
+          // Ignora indisponibilidade de localStorage
+        }
+      }
+
+      // 3. FILTROS POR CATEGORIA E BUSCA RÁPIDA
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const searchInput = document.getElementById('searchInput');
+      const cards = document.querySelectorAll('.game-card');
+      const emptyState = document.getElementById('emptyState');
+
+      let activeCategory = 'all';
+      let searchQuery = '';
+
+      function applyFilters() {
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const cat = card.dataset.category;
+          const keywords = (card.dataset.keywords || '') + ' ' + card.textContent.toLowerCase();
+
+          const matchesCategory =
+            activeCategory === 'all' ||
+            cat === activeCategory ||
+            (cat === 'all' && searchQuery === '');
+
+          const matchesSearch =
+            searchQuery === '' ||
+            keywords.toLowerCase().includes(searchQuery);
+
+          const shouldShow = matchesCategory && matchesSearch;
+          card.style.display = shouldShow ? 'flex' : 'none';
+          if (shouldShow) visibleCount++;
+        });
+
+        emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+      }
+
+      filterButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeCategory = btn.dataset.filter;
+          playHoverTick();
+          applyFilters();
+        });
+      });
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim().toLowerCase();
+        applyFilters();
+      });
+
+      loadSavedRecords();
+    })();
+  </script>
+</body>
+</html>
