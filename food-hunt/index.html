@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Hunt - Formigas Pixeladas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-sand-light: #F7D6B5;
+            --bg-sand: #F3C69F;
+            --bg-sand-dark: #E8B58B;
+            --tray-outer: #E8D8C8;
+            --tray-inner: #F7EDE2;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            background: radial-gradient(circle at 50% 20%, var(--bg-sand-light) 0%, var(--bg-sand) 55%, var(--bg-sand-dark) 100%);
+            font-family: 'Fredoka', 'Nunito', sans-serif;
+            color: #3d2817;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Texto numérico estilo Mobile Casual (Contorno nítido escuro) */
+        .game-number {
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            color: #FFFFFF;
+            text-shadow:
+                -1.8px -1.8px 0 #1f1610,
+                 1.8px -1.8px 0 #1f1610,
+                -1.8px  1.8px 0 #1f1610,
+                 1.8px  1.8px 0 #1f1610,
+                 0px    2.5px 0 #1f1610;
+            letter-spacing: 0.3px;
+            line-height: 1;
+        }
+
+        /* Logo estilo Food Hunt */
+        .logo-pill {
+            background: linear-gradient(180deg, #38bdf8 0%, #1d4ed8 100%);
+            border: 2.5px solid #f59e0b;
+            box-shadow: 0 3px 0 #b45309, 0 5px 10px rgba(0,0,0,0.18);
+            border-radius: 14px;
+            padding: 3px 10px;
+            line-height: 1.05;
+            text-align: center;
+        }
+
+        /* Botões 3D Superiores */
+        .btn-3d {
+            position: relative;
+            transition: transform 0.1s ease, filter 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-3d:active {
+            transform: translateY(3px);
+        }
+
+        .btn-green {
+            background: linear-gradient(180deg, #8CE22E 0%, #48B009 100%);
+            border: 2px solid #2C7302;
+            box-shadow: 0 4px 0 #235902, inset 0 2px 1px rgba(255,255,255,0.55);
+            color: #fff;
+            text-shadow: 0 1.5px 0 #235902;
+        }
+
+        .btn-blue {
+            background: linear-gradient(180deg, #56C8FF 0%, #1683DC 100%);
+            border: 2px solid #0C5594;
+            box-shadow: 0 4px 0 #083E6B, inset 0 2px 1px rgba(255,255,255,0.55);
+            color: #fff;
+            text-shadow: 0 1.5px 0 #083E6B;
+        }
+
+        .btn-cream {
+            background: linear-gradient(180deg, #FFFDFB 0%, #F1E3D3 100%);
+            border: 2px solid #C8B29B;
+            box-shadow: 0 4px 0 #A89078, inset 0 2px 1px #FFFFFF;
+            color: #4E3622;
+        }
+
+        /* 5 Potes / Slots Ativos */
+        .slot-base {
+            width: 58px;
+            height: 62px;
+            background: linear-gradient(180deg, #FFFFFF 0%, #EDE2D7 100%);
+            border-radius: 14px;
+            border: 2px solid #D8C7B6;
+            box-shadow: 0 5px 0 #C2B09E, 0 7px 12px rgba(90, 55, 25, 0.15);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease;
+        }
+
+        .slot-jar {
+            width: 48px;
+            height: 52px;
+            border-radius: 12px;
+            position: relative;
+            top: -5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+            transition: transform 0.15s ease;
+        }
+
+        .slot-jar-locked {
+            outline: 3px solid #EF4444;
+            outline-offset: 1px;
+        }
+
+        .slot-jar-neck {
+            position: absolute;
+            top: -6px;
+            width: 28px;
+            height: 8px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .slot-jar-gloss {
+            position: absolute;
+            top: 4px;
+            left: 5px;
+            right: 5px;
+            height: 9px;
+            border-radius: 6px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        /* Blocos das 5 Colunas */
+        .supply-block {
+            width: 56px;
+            height: 52px;
+            border-radius: 14px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.16s ease, filter 0.16s ease;
+        }
+
+        .supply-block-gloss {
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            right: 5px;
+            height: 10px;
+            border-radius: 7px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+
+        .supply-block.top-active {
+            border: 3px solid #FFFFFF;
+            cursor: pointer;
+            transform: scale(1.03);
+            z-index: 2;
+        }
+        .supply-block.top-active:hover {
+            transform: scale(1.07) translateY(-2px);
+        }
+        .supply-block.top-active:active {
+            transform: scale(0.95) translateY(2px);
+        }
+
+        /* Estado quando todos os 5 slots estão cheios */
+        .supply-block.top-disabled {
+            border: 2.5px solid rgba(255,255,255,0.65);
+            cursor: not-allowed;
+            filter: saturate(0.75) brightness(0.93);
+        }
+
+        .supply-block.queued {
+            opacity: 0.9;
+            transform: scale(0.94);
+            pointer-events: none;
+        }
+
+        .empty-col-placeholder {
+            width: 56px;
+            height: 52px;
+            border-radius: 14px;
+            border: 2px dashed rgba(130, 85, 50, 0.22);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(130, 85, 50, 0.35);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* Animações */
+        @keyframes popIn {
+            0% { transform: scale(0.4); opacity: 0; }
+            80% { transform: scale(1.07); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.22s ease-out forwards;
+        }
+
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px) rotate(-2deg); }
+            40% { transform: translateX(6px) rotate(2deg); }
+            60% { transform: translateX(-5px) rotate(-1deg); }
+            80% { transform: translateX(5px) rotate(1deg); }
+        }
+        .animate-shake {
+            animation: shakeError 0.36s ease-in-out;
+        }
+
+        /* Scrollbar limpa nos modais */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(140, 95, 60, 0.3);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="pb-10">
+
+    <!-- Container Central Responsivo -->
+    <main class="w-full max-w-[430px] mx-auto px-3 pt-2.5 flex flex-col items-center">
+
+        <!-- Header Compacto com Ícones SVG Vetoriais -->
+        <header class="w-full flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+                <div class="logo-pill select-none">
+                    <div class="text-[12px] font-black text-amber-300 tracking-wider" style="text-shadow: 1px 1px 0 #000;">FOOD</div>
+                    <div class="text-[12px] font-black text-white tracking-wider" style="text-shadow: 1px 1px 0 #000;">HUNT</div>
+                </div>
+
+                <!-- Pílula de Progresso Exato -->
+                <div class="bg-amber-950/15 backdrop-blur-xs px-2.5 py-1 rounded-full flex items-center gap-1.5 text-xs font-extrabold text-amber-950 border border-amber-900/10">
+                    <svg class="w-3.5 h-3.5 text-amber-900 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+                    </svg>
+                    <span id="progressText">0%</span>
+                    <span class="opacity-40">|</span>
+                    <span id="remainingPixelsText">0 px</span>
+                </div>
+            </div>
+
+            <!-- Botões de Ação com SVG -->
+            <div class="flex items-center gap-1.5">
+                <!-- Botão Abrir Config / Imagem -->
+                <button id="openConfigBtn" class="btn-3d btn-green px-3 py-1.5 rounded-full text-xs">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                    </svg>
+                    <span>Imagem</span>
+                </button>
+
+                <!-- Botão Velocidade 1x / 2x / 4x -->
+                <button id="speedBtn" class="btn-3d btn-blue px-2.5 py-1.5 rounded-full text-xs" title="Alternar Velocidade">
+                    <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/>
+                    </svg>
+                    <span id="speedLabel">1x</span>
+                </button>
+
+                <!-- Botão Som On/Off -->
+                <button id="soundBtn" class="btn-3d btn-cream p-1.5 rounded-full" title="Ativar/Desativar Som">
+                    <svg id="soundIconOn" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                    </svg>
+                    <svg id="soundIconOff" class="w-4 h-4 hidden text-red-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Quadro do Jogo (Canvas permite rolagem natural no mobile) -->
+        <div class="w-full relative flex justify-center">
+            <canvas id="gameCanvas" width="380" height="395" class="w-full max-w-[375px] h-auto rounded-2xl block"></canvas>
+
+            <!-- Aviso Flutuante Suave -->
+            <div id="statusToast" class="pointer-events-none opacity-0 transition-all duration-300 transform translate-y-1 absolute bottom-10 bg-[#2b1d12]/90 text-amber-50 text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 z-20">
+                <svg class="w-3.5 h-3.5 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+                </svg>
+                <span id="statusToastText">Mensagem</span>
+            </div>
+        </div>
+
+        <!-- Barra de Controle dos 5 Slots Ativos -->
+        <div class="w-full flex items-center justify-between px-1.5 mb-1 mt-0.5 gap-1">
+            <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-extrabold text-amber-950/85 uppercase tracking-wider">
+                    Slots (<span id="occupiedSlotsCount">0</span>/5)
+                </span>
+                <!-- Seletor Rápido de Dificuldade -->
+                <button id="quickDifficultyBtn" class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-950 border border-amber-800/20 hover:bg-amber-500/30 transition active:scale-95" title="Alternar Nível de Dificuldade">
+                    Nível: <span id="quickDifficultyLabel">Médio</span>
+                </button>
+            </div>
+
+            <button id="unblockSlotsBtn" class="text-[11px] font-extrabold text-amber-950 bg-white/85 hover:bg-white px-2.5 py-0.5 rounded-full shadow-2xs border border-amber-900/20 flex items-center gap-1 transition active:scale-95" title="Usa 1 Booster para devolver um slot travado ao topo da coluna">
+                <svg class="w-3 h-3 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                </svg>
+                <span>Destravar</span>
+                <span id="undoBoosterBadge" class="bg-amber-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full leading-tight">2</span>
+            </button>
+        </div>
+
+        <!-- 5 Slots Ativos (Potes de Tinta/Comida) -->
+        <section id="activeSlotsContainer" class="w-full flex justify-center items-center gap-2 my-1 px-1">
+            <!-- Gerado via JS -->
+        </section>
+
+        <!-- Barra de Informação das 5 Colunas -->
+        <div class="w-full flex items-center justify-between px-2 mt-1.5 mb-1.5">
+            <span class="text-[11px] font-bold text-amber-950/80 flex items-center gap-1">
+                <span>Observe as bordas livres antes de escolher!</span>
+            </span>
+            <span class="text-[11px] font-extrabold text-amber-950/85 bg-amber-950/10 px-2 py-0.5 rounded-full">
+                Fila: <span id="remainingBlocksCount">0</span> blocos
+            </span>
+        </div>
+
+        <!-- 5 Colunas de Suprimento Finito -->
+        <section id="columnsContainer" class="w-full grid grid-cols-5 gap-2 px-1.5 justify-items-center pb-4">
+            <!-- Gerado via JS (5 colunas mostrando até 4 blocos visíveis cada) -->
+        </section>
+
+    </main>
+
+    <!-- MODAL / DRAWER DE IMAGEM E CONFIGURAÇÕES (Rolável no Mobile) -->
+    <div id="configModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+        <div class="bg-[#FDF7F0] border-4 border-[#DFCBB8] rounded-3xl max-w-md w-full p-5 shadow-2xl my-auto max-h-[90dvh] overflow-y-auto custom-scroll flex flex-col gap-4">
+            
+            <!-- Cabeçalho do Modal -->
+            <div class="flex items-center justify-between border-b border-amber-900/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-900 flex items-center justify-center">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-base font-extrabold text-amber-950 leading-tight">Imagem e Configurações</h2>
+                        <p class="text-[11px] font-semibold text-amber-900/70">Escolha um desenho ou envie sua foto</p>
+                    </div>
+                </div>
+                <button id="closeConfigBtn" class="w-8 h-8 rounded-full bg-amber-900/10 hover:bg-amber-900/20 text-amber-950 flex items-center justify-center transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Desenhos Predefinidos -->
+            <div>
+                <label class="block text-xs font-extrabold text-amber-950 mb-2 uppercase tracking-wider">Desenhos Clássicos</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="selectPresetAndClose('mouse')" class="flex flex-col items-center gap-1.5 p-2.5 rounded-2xl bg-white border-2 border-amber-200 hover:border-amber-500 shadow-xs transition active:scale-95">
+                        <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-xs">26×26</span>
+                        <span class="text-xs font-extrabold text-amber-950">Ratinho</span>
+                    </button>
+                    <button onclick="selectPresetAndClose('watermelon')" class="flex flex-col items-center gap-1.5 p-2.5 rounded-2xl bg-white border-2 border-amber-200 hover:border-amber-500 shadow-xs transition active:scale-95">
+                        <span class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-black text-xs">22×22</span>
+                        <span class="text-xs font-extrabold text-amber-950">Melancia</span>
+                    </button>
+                    <button onclick="selectPresetAndClose('burger')" class="flex flex-col items-center gap-1.5 p-2.5 rounded-2xl bg-white border-2 border-amber-200 hover:border-amber-500 shadow-xs transition active:scale-95">
+                        <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-black text-xs">22×22</span>
+                        <span class="text-xs font-extrabold text-amber-950">Hambúrguer</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Upload de Imagem Personalizada -->
+            <div>
+                <label class="block text-xs font-extrabold text-amber-950 mb-2 uppercase tracking-wider">Carregar Foto do Aparelho</label>
+                <label class="w-full border-2 border-dashed border-amber-500/80 bg-amber-50/70 hover:bg-amber-100/60 transition rounded-2xl p-4 flex flex-col items-center justify-center cursor-pointer text-center gap-1">
+                    <div class="w-10 h-10 rounded-full bg-amber-500/20 text-amber-900 flex items-center justify-center mb-1">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-extrabold text-amber-950">Toque para escolher uma imagem</span>
+                    <span class="text-[11px] font-semibold text-amber-800/80">Converte automaticamente em pixels com contagem exata</span>
+                    <input type="file" id="imageInput" accept="image/*" class="hidden">
+                </label>
+            </div>
+
+            <!-- Ajustes de Conversão e Visualização -->
+            <div class="bg-amber-950/5 p-3.5 rounded-2xl flex flex-col gap-3">
+                <div>
+                    <label class="block text-[11px] font-extrabold text-amber-950 mb-1 uppercase tracking-wider">Dificuldade do Quebra-Cabeça:</label>
+                    <select id="difficultySelect" class="w-full rounded-xl border-2 border-amber-400 bg-white px-2.5 py-2 text-xs font-extrabold text-amber-950 focus:outline-none">
+                        <option value="easy">Fácil (Camadas suaves • 3 Destravadores)</option>
+                        <option value="medium" selected>Médio - Padrão (Armadilhas nos topos • 2 Destravadores)</option>
+                        <option value="hard">Difícil - Mestre (Intercalação profunda • 1 Destravador)</option>
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-amber-950 mb-1">Resolução da Grade:</label>
+                        <select id="gridSizeSelect" class="w-full rounded-xl border border-amber-300 bg-white px-2.5 py-2 text-xs font-extrabold text-amber-950 focus:outline-none">
+                            <option value="20">20 × 20 (Rápido)</option>
+                            <option value="26" selected>26 × 26 (Padrão)</option>
+                            <option value="32">32 × 32 (Detalhado)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-extrabold text-amber-950 mb-1">Limite de Cores:</label>
+                        <select id="colorCountSelect" class="w-full rounded-xl border border-amber-300 bg-white px-2.5 py-2 text-xs font-extrabold text-amber-950 focus:outline-none">
+                            <option value="6">6 Cores</option>
+                            <option value="8" selected>8 Cores</option>
+                            <option value="10">10 Cores</option>
+                        </select>
+                    </div>
+                </div>
+
+                <label class="flex items-center gap-2.5 text-xs font-bold text-amber-950 cursor-pointer">
+                    <input type="checkbox" id="removeBgCheckbox" checked class="w-4 h-4 rounded text-amber-600">
+                    <span>Remover fundo branco/transparente das bordas</span>
+                </label>
+
+                <label class="flex items-center gap-2.5 text-xs font-bold text-amber-950 cursor-pointer">
+                    <input type="checkbox" id="highlightExposedCheckbox" checked class="w-4 h-4 rounded text-amber-600">
+                    <span>Destacar pixels liberados nas bordas da imagem</span>
+                </label>
+            </div>
+
+            <!-- Botões de Ação do Modal -->
+            <div class="flex gap-2 pt-1">
+                <button id="restartMatchBtn" class="btn-3d btn-cream flex-1 py-2.5 rounded-xl text-xs">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                    </svg>
+                    <span>Reiniciar Partida</span>
+                </button>
+                <button id="doneConfigBtn" class="btn-3d btn-green flex-1 py-2.5 rounded-xl text-xs">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    <span>Voltar ao Jogo</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA -->
+    <div id="victoryModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#FDF7F0] border-4 border-amber-400 rounded-3xl max-w-xs w-full p-6 shadow-2xl flex flex-col items-center text-center gap-3 animate-pop">
+            <div class="w-16 h-16 rounded-2xl bg-amber-400/20 text-amber-600 flex items-center justify-center">
+                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                </svg>
+            </div>
+            <h2 class="text-2xl font-black text-amber-950">Quadro Completo!</h2>
+            <p class="text-xs font-semibold text-amber-900/80 leading-relaxed">
+                Estratégia perfeita! As formigas devoraram todos os pixels da imagem sem travar os slots!
+            </p>
+            <div class="w-full flex flex-col gap-2 mt-2">
+                <button onclick="restartCurrentGame()" class="btn-3d btn-green w-full py-2.5 rounded-xl text-sm">
+                    Jogar Novamente
+                </button>
+                <button onclick="openConfigFromVictory()" class="btn-3d btn-blue w-full py-2.5 rounded-xl text-sm">
+                    Escolher Outra Imagem
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE IMPASSE / GAME OVER (DEADLOCK NOS 5 SLOTS) -->
+    <div id="deadlockModal" class="fixed inset-0 bg-black/65 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#FDF7F0] border-4 border-red-500 rounded-3xl max-w-xs w-full p-6 shadow-2xl flex flex-col items-center text-center gap-3 animate-pop">
+            <div class="w-16 h-16 rounded-2xl bg-red-500/15 text-red-600 flex items-center justify-center">
+                <svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="12" x2="12" y1="15" y2="17"/>
+                </svg>
+            </div>
+            <h2 class="text-xl font-black text-red-950 leading-tight">Sem Espaço!<br>Formigueiro Travado!</h2>
+            <p class="text-xs font-semibold text-amber-950/80 leading-relaxed">
+                Todos os <strong>5 slots ativos</strong> estão ocupados por cores soterradas no interior da imagem e não há pixels expostos para elas comerem agora!
+            </p>
+            <div class="w-full flex flex-col gap-2 mt-1">
+                <button id="deadlockUseBoosterBtn" onclick="useBoosterFromDeadlockModal()" class="btn-3d btn-blue w-full py-2.5 rounded-xl text-xs">
+                    <span>Usar Destravador (<span id="deadlockBoosterCount">0</span> rest.)</span>
+                </button>
+                <button onclick="restartCurrentGame()" class="btn-3d btn-green w-full py-2.5 rounded-xl text-sm">
+                    Tentar Novamente
+                </button>
+                <button onclick="changeDifficultyFromDeadlock()" class="btn-3d btn-cream w-full py-2 rounded-xl text-xs">
+                    Mudar Dificuldade / Imagem
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas oculto para processamento de imagem -->
+    <canvas id="hiddenProcessorCanvas" class="hidden"></canvas>
+
+    <script>
+        /********************************************************************
+         * SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API - SEM ARQUIVOS EXTERNOS)
+         ********************************************************************/
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioContextClass) audioCtx = new AudioContextClass();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playTone(freq, type, duration, vol = 0.08, slideFreq = null) {
+            if (!soundEnabled) return;
+            try {
+                const ctxAudio = getAudioContext();
+                if (!ctxAudio) return;
+                const osc = ctxAudio.createOscillator();
+                const gain = ctxAudio.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctxAudio.currentTime);
+                if (slideFreq) {
+                    osc.frequency.exponentialRampToValueAtTime(slideFreq, ctxAudio.currentTime + duration);
+                }
+                gain.gain.setValueAtTime(vol, ctxAudio.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctxAudio.destination);
+                osc.start();
+                osc.stop(ctxAudio.currentTime + duration);
+            } catch (e) {
+                // Ignorar caso bloqueado pelo navegador antes de interação
+            }
+        }
+
+        function sfxSelectBlock() { playTone(420, 'sine', 0.11, 0.09, 640); }
+        function sfxBlockedFull() { playTone(170, 'sawtooth', 0.16, 0.07, 120); }
+        function sfxEatPixel() { playTone(680 + Math.random() * 180, 'triangle', 0.05, 0.035); }
+        function sfxSlotFinished() { playTone(520, 'sine', 0.18, 0.08, 880); }
+        function sfxVictory() {
+            [523, 659, 783, 1046].forEach((f, idx) => {
+                setTimeout(() => playTone(f, 'triangle', 0.22, 0.1), idx * 110);
+            });
+        }
+        function sfxDeadlock() {
+            [310, 260, 210, 165].forEach((f, idx) => {
+                setTimeout(() => playTone(f, 'sawtooth', 0.22, 0.08), idx * 120);
+            });
+        }
+
+        /********************************************************************
+         * CONFIGURAÇÕES E GEOMETRIA DO CANVAS
+         ********************************************************************/
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const procCanvas = document.getElementById('hiddenProcessorCanvas');
+        const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+
+        // Dimensões compactas para caber perfeitamente em telas mobile
+        const TRAY_RECT = { x: 14, y: 8, w: 352, h: 318 };
+        // Deixamos uma margem interna livre ao redor de GRID_AREA dentro da bandeja para o corredor perimetral (-1 até gridSize)
+        const GRID_AREA = { x: 36, y: 30, w: 308, h: 274 };
+        const ANTHILL_POS = { x: 190, y: 364, radius: 18 };
+
+        let gridSize = 26;
+        let maxPaletteColors = 8;
+        let highlightExposed = true;
+        let speedMultiplier = 1;
+        let currentDifficulty = 'medium'; // 'easy' | 'medium' | 'hard'
+        let undoBoostersLeft = 2;
+        let isDeadlockModalOpen = false;
+        let deadlockCheckTimer = 0;
+
+        // Estado do Jogo
+        let grid = [];
+        let palette = []; // [{ id, r, g, b, hex, darkHex, lightHex }]
+        let totalInitialPixels = 0;
+        let remainingPixels = 0;
+
+        // 5 Slots Ativos (NUNCA somam/fundem cores iguais; cada clique ocupa um slot vazio)
+        const NUM_SLOTS = 5;
+        let activeSlots = [null, null, null, null, null];
+        // Estrutura de cada slot ocupado:
+        // { colorId, remainingCount, inFlightCount, cooldown }
+        // onde remainingCount = pixels que ainda faltam chegar/comer no tabuleiro;
+        // e (remainingCount - inFlightCount) = pixels ainda precisando de formigas para sair do formigueiro.
+
+        // 5 Colunas de Suprimento Finito (Soma exata dos pixels da imagem)
+        const NUM_COLS = 5;
+        const VISIBLE_ROWS = 4;
+        let supplyColumns = [[], [], [], [], []];
+
+        let ants = [];
+        let particles = [];
+        let lastUploadedImage = null;
+        let currentPresetName = 'mouse';
+
+        /********************************************************************
+         * FUNÇÕES AUXILIARES DE COR
+         ********************************************************************/
+        function rgbToHex(r, g, b) {
+            return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+        }
+
+        function hexToRgb(hex) {
+            const clean = hex.replace('#', '');
+            const num = parseInt(clean, 16);
+            return { r: (num >> 16) & 255, g: (num >> 8) & 255, b: num & 255 };
+        }
+
+        function adjustBrightness(r, g, b, factor) {
+            return rgbToHex(r * factor, g * factor, b * factor);
+        }
+
+        function colorDistanceSq(c1, c2) {
+            const dr = c1.r - c2.r;
+            const dg = c1.g - c2.g;
+            const db = c1.b - c2.b;
+            return dr * dr * 0.3 + dg * dg * 0.59 + db * db * 0.11;
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('statusToast');
+            const textEl = document.getElementById('statusToastText');
+            textEl.textContent = msg;
+            toast.classList.remove('opacity-0', 'translate-y-1');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-1');
+            }, 2400);
+        }
+
+        /********************************************************************
+         * DESENHOS PREDEFINIDOS (RATINHO NA FOLHA, MELANCIA, HAMBÚRGUER)
+         ********************************************************************/
+        function createPresetMatrix(presetName) {
+            if (presetName === 'mouse') {
+                const charMap = {
+                    '.': null,
+                    'D': '#28666B', // Verde-petróleo escuro
+                    'G': '#2AD866', // Verde folha vivo
+                    'L': '#A8E638', // Verde lima
+                    'M': '#93859B', // Cinza-lilás ratinho
+                    'P': '#F9C4F0', // Rosa claro orelha
+                    'R': '#F472B6', // Rosa escuro
+                    'K': '#2D2530', // Contorno escuro / olhos
+                    'W': '#FFFFFF', // Branco bigode
+                    'Y': '#FDE09B', // Creme focinho
+                    'B': '#22B8CF', // Azul gravata
+                    'T': '#B85D43'  // Marrom galho
+                };
+                const art26 = [
+                    "..DDDD....GGGGGG....DDDD..",
+                    ".DGGGGD..GLLLLLLG..DGGGGD.",
+                    ".DGLLGGD.GKKKKKKG.DGGLLGD.",
+                    "DDGGGGGDKKPPPPPPKKDGGGGGGD",
+                    "DGGDDDDKPPMMMMMMPPKDDDDGGD",
+                    "DDDD..KPPPMMMMMMPPPK..DDDD",
+                    ".....KPRRPMMMMMMPPRPK.....",
+                    "..GG.KPRRPMMMMMMPPRPK.GG..",
+                    ".GGG.KPPPPMMMMMMPPPPK.GGG.",
+                    ".GGGDKMMMMKWMMMMWKMMMDGGG.",
+                    "..GDDKMMMMKKMMMMKKMMMDGG..",
+                    "...DDWWMMMMRRRRMMMMWWDD...",
+                    "..G..KWWYYYYYYYYYYWWK..G..",
+                    ".GG.WWYYYYGGGGGGYYYYWW.GG.",
+                    ".GG..WWYYGLLLLLLGYYWW..GG.",
+                    ".GGD..KYYGLLKKLLGYYK..DGG.",
+                    "..GDD.KMMGLLLLLLGMMK.DDG..",
+                    "..DDD.KMMMGLLLLGMMMK.DDD..",
+                    ".DDDD..KMMBBBBBBMMK..DDDD.",
+                    ".DGGD...KBBBBTTBBK...DGGD.",
+                    ".DGGLD...KYYTTTTYYK.DLGGD.",
+                    ".DGGLLGGGGGGGGGGGGGGLLGGD.",
+                    "..DGGGGGGGGGGGGGGGGGGGGD..",
+                    "..DDDDGGGGGG....GGGGDDDD..",
+                    "......DDDD........DDDD....",
+                    ".........................."
+                ];
+                return { map: charMap, rows: art26 };
+            }
+
+            if (presetName === 'watermelon') {
+                const charMap = {
+                    '.': null,
+                    'D': '#15803D',
+                    'G': '#4ADE80',
+                    'W': '#FEFCE8',
+                    'R': '#F43F5E',
+                    'P': '#FB7185',
+                    'K': '#1E293B'
+                };
+                const art22 = [
+                    "......................",
+                    ".........RRRR.........",
+                    "........RRRRRR........",
+                    ".......RRRRRRRR.......",
+                    "......RRRRKRRRRR......",
+                    ".....RRRRRRRRKRRR.....",
+                    "....RRRRKRRRRRRRRR....",
+                    "...RRRRRRRRKRRRRRRR...",
+                    "..RRRRKRRRRRRRRKRRRR..",
+                    "..PPPPPPPPPPPPPPPPPP..",
+                    ".WWWWWWWWWWWWWWWWWWWW.",
+                    ".GGGGGGGGGGGGGGGGGGGG.",
+                    "..DDDDDDDDDDDDDDDDDD..",
+                    "....DDDDDDDDDDDDDD....",
+                    "......................"
+                ];
+                return { map: charMap, rows: art22 };
+            }
+
+            const charMap = {
+                '.': null,
+                'B': '#F59E0B',
+                'S': '#FEF3C7',
+                'G': '#22C55E',
+                'T': '#EF4444',
+                'Y': '#FACC15',
+                'M': '#78350F'
+            };
+            const art22 = [
+                "......................",
+                "......BBBBBBBBBB......",
+                "....BBBSBBBBBSBBBB....",
+                "...BBBBBBBBBBBBBBBB...",
+                "..BBBBBSBBBBBBBSBBBB..",
+                "..BBBBBBBBBBBBBBBBBB..",
+                ".GGGGGGGGGGGGGGGGGGGG.",
+                "..GTTTTTTTGGTTTTTTTG..",
+                "..YYYYYYYYYYYYYYYYYY..",
+                "..MMMMMMMMMMMMMMMMMM..",
+                "..MMMMYYYYYYYYYYMMMM..",
+                "..MMMMMMMMMMMMMMMMMM..",
+                "...BBBBBBBBBBBBBBBB...",
+                "....BBBBBBBBBBBBBB....",
+                "......................"
+            ];
+            return { map: charMap, rows: art22 };
+        }
+
+        function loadPreset(presetName) {
+            currentPresetName = presetName;
+            lastUploadedImage = null;
+            const preset = createPresetMatrix(presetName);
+            const rows = preset.rows;
+            const h = rows.length;
+            const w = rows[0].length;
+            gridSize = Math.max(w, h);
+
+            const colorMap = new Map();
+            palette = [];
+
+            Object.entries(preset.map).forEach(([ch, hex]) => {
+                if (!hex) return;
+                const rgb = hexToRgb(hex);
+                const id = palette.length;
+                const colorObj = {
+                    id,
+                    r: rgb.r,
+                    g: rgb.g,
+                    b: rgb.b,
+                    hex,
+                    darkHex: adjustBrightness(rgb.r, rgb.g, rgb.b, 0.72),
+                    lightHex: adjustBrightness(rgb.r, rgb.g, rgb.b, 1.18)
+                };
+                palette.push(colorObj);
+                colorMap.set(ch, colorObj);
+            });
+
+            grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+            const offsetY = Math.floor((gridSize - h) / 2);
+            const offsetX = Math.floor((gridSize - w) / 2);
+
+            totalInitialPixels = 0;
+            for (let r = 0; r < h; r++) {
+                for (let c = 0; c < w; c++) {
+                    const ch = rows[r][c];
+                    const cObj = colorMap.get(ch);
+                    if (cObj) {
+                        grid[r + offsetY][c + offsetX] = {
+                            r: cObj.r,
+                            g: cObj.g,
+                            b: cObj.b,
+                            hex: cObj.hex,
+                            darkHex: cObj.darkHex,
+                            lightHex: cObj.lightHex,
+                            colorId: cObj.id,
+                            exposed: false,
+                            targetedByAnt: false
+                        };
+                        totalInitialPixels++;
+                    }
+                }
+            }
+
+            remainingPixels = totalInitialPixels;
+            initializeExactMatchSupply();
+        }
+
+        /********************************************************************
+         * CONVERSÃO DE IMAGEM ENVIADA PELO USUÁRIO (K-MEANS + FUNDO LIMPO)
+         ********************************************************************/
+        function processUploadedImage(imgElement) {
+            gridSize = parseInt(document.getElementById('gridSizeSelect').value, 10) || 26;
+            maxPaletteColors = parseInt(document.getElementById('colorCountSelect').value, 10) || 8;
+            const removeBg = document.getElementById('removeBgCheckbox').checked;
+
+            procCanvas.width = gridSize;
+            procCanvas.height = gridSize;
+            procCtx.clearRect(0, 0, gridSize, gridSize);
+
+            const scale = Math.min(gridSize / imgElement.width, gridSize / imgElement.height);
+            const drawW = Math.max(1, Math.round(imgElement.width * scale));
+            const drawH = Math.max(1, Math.round(imgElement.height * scale));
+            const dx = Math.floor((gridSize - drawW) / 2);
+            const dy = Math.floor((gridSize - drawH) / 2);
+
+            procCtx.drawImage(imgElement, dx, dy, drawW, drawH);
+            const imgData = procCtx.getImageData(0, 0, gridSize, gridSize).data;
+
+            const rawCells = [];
+            const validSamples = [];
+
+            for (let r = 0; r < gridSize; r++) {
+                const row = [];
+                for (let c = 0; c < gridSize; c++) {
+                    const idx = (r * gridSize + c) * 4;
+                    const red = imgData[idx];
+                    const green = imgData[idx + 1];
+                    const blue = imgData[idx + 2];
+                    const alpha = imgData[idx + 3];
+
+                    const isNearWhite = red > 242 && green > 242 && blue > 242;
+                    if (alpha < 90 || (removeBg && isNearWhite)) {
+                        row.push(null);
+                    } else {
+                        const px = { r: red, g: green, b: blue };
+                        row.push(px);
+                        validSamples.push(px);
+                    }
+                }
+                rawCells.push(row);
+            }
+
+            if (validSamples.length < 10) {
+                loadPreset('mouse');
+                return;
+            }
+
+            // Quantização K-means simplificada
+            let centroids = [];
+            const step = Math.max(1, Math.floor(validSamples.length / maxPaletteColors));
+            for (let i = 0; i < maxPaletteColors && i * step < validSamples.length; i++) {
+                const sample = validSamples[i * step];
+                centroids.push({ r: sample.r, g: sample.g, b: sample.b });
+            }
+
+            for (let iter = 0; iter < 7; iter++) {
+                const sums = centroids.map(() => ({ r: 0, g: 0, b: 0, count: 0 }));
+                for (const s of validSamples) {
+                    let bestIdx = 0;
+                    let bestDist = Infinity;
+                    for (let i = 0; i < centroids.length; i++) {
+                        const d = colorDistanceSq(s, centroids[i]);
+                        if (d < bestDist) {
+                            bestDist = d;
+                            bestIdx = i;
+                        }
+                    }
+                    sums[bestIdx].r += s.r;
+                    sums[bestIdx].g += s.g;
+                    sums[bestIdx].b += s.b;
+                    sums[bestIdx].count++;
+                }
+
+                for (let i = 0; i < centroids.length; i++) {
+                    if (sums[i].count > 0) {
+                        centroids[i].r = Math.round(sums[i].r / sums[i].count);
+                        centroids[i].g = Math.round(sums[i].g / sums[i].count);
+                        centroids[i].b = Math.round(sums[i].b / sums[i].count);
+                    }
+                }
+            }
+
+            // Mesclar cores muito parecidas
+            const filteredCentroids = [];
+            for (const c of centroids) {
+                const tooClose = filteredCentroids.some(fc => colorDistanceSq(c, fc) < 550);
+                if (!tooClose) filteredCentroids.push(c);
+            }
+
+            palette = filteredCentroids.map((c, idx) => ({
+                id: idx,
+                r: c.r,
+                g: c.g,
+                b: c.b,
+                hex: rgbToHex(c.r, c.g, c.b),
+                darkHex: adjustBrightness(c.r, c.g, c.b, 0.72),
+                lightHex: adjustBrightness(c.r, c.g, c.b, 1.18)
+            }));
+
+            grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(null));
+            totalInitialPixels = 0;
+
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const raw = rawCells[r][c];
+                    if (!raw) continue;
+
+                    let bestColor = palette[0];
+                    let minDist = Infinity;
+                    for (const p of palette) {
+                        const d = colorDistanceSq(raw, p);
+                        if (d < minDist) {
+                            minDist = d;
+                            bestColor = p;
+                        }
+                    }
+
+                    grid[r][c] = {
+                        r: bestColor.r,
+                        g: bestColor.g,
+                        b: bestColor.b,
+                        hex: bestColor.hex,
+                        darkHex: bestColor.darkHex,
+                        lightHex: bestColor.lightHex,
+                        colorId: bestColor.id,
+                        exposed: false,
+                        targetedByAnt: false
+                    };
+                    totalInitialPixels++;
+                }
+            }
+
+            remainingPixels = totalInitialPixels;
+            initializeExactMatchSupply();
+        }
+
+        /********************************************************************
+         * REGRA 1: FLOOD-FILL DE CAMINHOS ABERTOS E PIXELS LIBERADOS
+         ********************************************************************/
+        function computeOutsideReachableEmpty(sourceGrid) {
+            const N = gridSize + 2;
+            const reachable = Array.from({ length: N }, () => new Uint8Array(N));
+            const queue = [0, 0];
+            reachable[0][0] = 1;
+
+            let head = 0;
+            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+            while (head < queue.length) {
+                const pr = queue[head++];
+                const pc = queue[head++];
+
+                for (let d = 0; d < 4; d++) {
+                    const nr = pr + dirs[d][0];
+                    const nc = pc + dirs[d][1];
+                    if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+                    if (reachable[nr][nc]) continue;
+
+                    const gr = nr - 1;
+                    const gc = nc - 1;
+                    const isInside = (gr >= 0 && gr < gridSize && gc >= 0 && gc < gridSize);
+                    const isEmpty = !isInside || sourceGrid[gr][gc] === null;
+
+                    if (isEmpty) {
+                        reachable[nr][nc] = 1;
+                        queue.push(nr, nc);
+                    }
+                }
+            }
+            return reachable;
+        }
+
+        function updateExposedPixels() {
+            const reachableEmpty = computeOutsideReachableEmpty(grid);
+            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = grid[r][c];
+                    if (!cell) continue;
+
+                    let isExposed = false;
+                    for (let d = 0; d < 4; d++) {
+                        const nr = r + dirs[d][0];
+                        const nc = c + dirs[d][1];
+                        if (reachableEmpty[nr + 1][nc + 1] === 1) {
+                            isExposed = true;
+                            break;
+                        }
+                    }
+                    cell.exposed = isExposed;
+                }
+            }
+        }
+
+        /********************************************************************
+         * REGRA 2 E 3: DISTRIBUIÇÃO ESTRATÉGICA NAS 5 COLUNAS
+         ********************************************************************/
+        function splitColorCountIntoPackages(totalCount, difficulty = currentDifficulty) {
+            // Divide um número exato de pixels em blocos conforme a dificuldade escolhida
+            const packages = [];
+            let rem = totalCount;
+
+            // No modo difícil, cria blocos maiores misturados com blocos menores para exigir cálculo fino
+            const preferredSizes = difficulty === 'hard'
+                ? [35, 25, 20, 12, 8, 5, 4]
+                : (difficulty === 'easy' ? [18, 15, 12, 10, 8, 6] : [25, 20, 15, 10, 8, 5]);
+
+            while (rem > 0) {
+                const minThreshold = difficulty === 'hard' ? 7 : 11;
+                if (rem <= minThreshold) {
+                    packages.push(rem);
+                    rem = 0;
+                } else {
+                    const validSizes = preferredSizes.filter(s => s <= rem - 3);
+                    const pick = validSizes.length > 0
+                        ? validSizes[Math.floor(Math.random() * validSizes.length)]
+                        : rem;
+                    packages.push(pick);
+                    rem -= pick;
+                }
+            }
+            return packages;
+        }
+
+        function getInitialBoostersForDifficulty(diff) {
+            if (diff === 'easy') return 3;
+            if (diff === 'hard') return 1;
+            return 2; // medium
+        }
+
+        function updateDifficultyUI() {
+            const labels = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
+            document.getElementById('quickDifficultyLabel').textContent = labels[currentDifficulty] || 'Médio';
+            document.getElementById('difficultySelect').value = currentDifficulty;
+            document.getElementById('undoBoosterBadge').textContent = undoBoostersLeft;
+            const boosterBtn = document.getElementById('unblockSlotsBtn');
+            if (undoBoostersLeft <= 0) {
+                boosterBtn.classList.add('opacity-50');
+            } else {
+                boosterBtn.classList.remove('opacity-50');
+            }
+        }
+
+        function initializeExactMatchSupply() {
+            ants = [];
+            particles = [];
+            activeSlots = [null, null, null, null, null];
+            isDeadlockModalOpen = false;
+            deadlockCheckTimer = 0;
+            document.getElementById('deadlockModal').classList.add('hidden');
+            document.getElementById('deadlockModal').classList.remove('flex');
+
+            undoBoostersLeft = getInitialBoostersForDifficulty(currentDifficulty);
+            updateDifficultyUI();
+            updateExposedPixels();
+
+            // 1. Simular descascamento por ondas (waves) de fora para dentro para obter a profundidade real de cada lote
+            const simGrid = grid.map(row => row.map(cell => cell ? cell.colorId : null));
+            let simRemaining = totalInitialPixels;
+            const waves = []; // waves[0] = borda imediata, waves[1] = camada seguinte, etc.
+
+            const getSimExposed = (sGrid) => {
+                const reach = computeOutsideReachableEmpty(sGrid);
+                const expList = [];
+                const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+                for (let r = 0; r < gridSize; r++) {
+                    for (let c = 0; c < gridSize; c++) {
+                        if (sGrid[r][c] === null) continue;
+                        let exp = false;
+                        for (let d = 0; d < 4; d++) {
+                            if (reach[r + dirs[d][0] + 1][c + dirs[d][1] + 1] === 1) {
+                                exp = true;
+                                break;
+                            }
+                        }
+                        if (exp) expList.push({ r, c, colorId: sGrid[r][c] });
+                    }
+                }
+                return expList;
+            };
+
+            let waveIndex = 0;
+            while (simRemaining > 0) {
+                const exposedCoords = getSimExposed(simGrid);
+                if (exposedCoords.length === 0) break;
+
+                const waveCounts = new Map();
+                for (const coord of exposedCoords) {
+                    simGrid[coord.r][coord.c] = null;
+                    simRemaining--;
+                    waveCounts.set(coord.colorId, (waveCounts.get(coord.colorId) || 0) + 1);
+                }
+
+                // Agrupar ondas muito pequenas
+                if (exposedCoords.length < 24 && simRemaining > 0) {
+                    const secondWave = getSimExposed(simGrid);
+                    for (const coord of secondWave) {
+                        simGrid[coord.r][coord.c] = null;
+                        simRemaining--;
+                        waveCounts.set(coord.colorId, (waveCounts.get(coord.colorId) || 0) + 1);
+                    }
+                }
+
+                const currentWaveBlocks = [];
+                waveCounts.forEach((count, colorId) => {
+                    const pkgs = splitColorCountIntoPackages(count, currentDifficulty);
+                    pkgs.forEach(amount => {
+                        currentWaveBlocks.push({
+                            colorId,
+                            amount,
+                            waveIndex,
+                            uid: Math.random().toString(36).substring(2, 9)
+                        });
+                    });
+                });
+
+                // Embaralhar dentro da própria onda
+                for (let i = currentWaveBlocks.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [currentWaveBlocks[i], currentWaveBlocks[j]] = [currentWaveBlocks[j], currentWaveBlocks[i]];
+                }
+
+                waves.push(currentWaveBlocks);
+                waveIndex++;
+            }
+
+            // 2. Distribuir inicialmente nas 5 colunas respeitando a ordem de camadas
+            supplyColumns = [[], [], [], [], []];
+            let globalIdx = 0;
+            waves.forEach(wBlocks => {
+                wBlocks.forEach(blk => {
+                    supplyColumns[globalIdx % NUM_COLS].push(blk);
+                    globalIdx++;
+                });
+            });
+
+            // 3. INTERCALAÇÃO ESTRATÉGICA DE CAMADAS (Cria o desafio real de Puzzle!)
+            // Em vez de deixar todas as 5 colunas com blocos fáceis da borda no topo,
+            // puxamos blocos de camadas mais profundas para cima de blocos da camada externa em várias colunas.
+            // Assim, o jogador é OBRIGADO a olhar quais cores estão expostas no desenho, usar algumas colunas abertas
+            // e guardar temporariamente no máximo 1-3 blocos bloqueados nos 5 slots ativos para desenterrar os de baixo!
+            applyStrategicColumnInterleaving(supplyColumns, currentDifficulty);
+
+            updateHUD();
+            renderSlotsDOM();
+            renderColumnsDOM();
+        }
+
+        function applyStrategicColumnInterleaving(columns, difficulty) {
+            const exposedAtStart = getExposedColorsSet();
+
+            // Quantidade de trocas verticais por coluna conforme a dificuldade
+            const swapPasses = difficulty === 'easy' ? 1 : (difficulty === 'medium' ? 3 : 6);
+            const maxJumpDistance = difficulty === 'easy' ? 1 : (difficulty === 'medium' ? 2 : 4);
+
+            for (let pass = 0; pass < swapPasses; pass++) {
+                for (let c = 0; c < NUM_COLS; c++) {
+                    const col = columns[c];
+                    if (col.length < 3) continue;
+
+                    for (let i = 0; i < col.length - 1; i++) {
+                        const jump = 1 + Math.floor(Math.random() * Math.min(maxJumpDistance, col.length - 1 - i));
+                        const targetIdx = i + jump;
+
+                        // Evitar que a distância de onda fique impossível (> 3 ondas de diferença no início)
+                        const waveDiff = Math.abs(col[targetIdx].waveIndex - col[i].waveIndex);
+                        const maxAllowedWaveDiff = difficulty === 'easy' ? 1 : (difficulty === 'medium' ? 2 : 3);
+
+                        if (waveDiff <= maxAllowedWaveDiff && Math.random() < (difficulty === 'easy' ? 0.35 : 0.72)) {
+                            const temp = col[i];
+                            col[i] = col[targetIdx];
+                            col[targetIdx] = temp;
+                            i++; // pula um elemento para não desfazer imediatamente
+                        }
+                    }
+                }
+            }
+
+            // No Médio e Difícil, posicionar deliberadamente "blocos-armadilha" (cores de camadas internas ou
+            // lotes que exigem guardar no slot) no topo de 2 ou 3 colunas, garantindo que pelo menos
+            // 2 colunas no Médio (ou 1-2 no Difícil) tenham jogadas imediatamente válidas da borda externa!
+            if (difficulty === 'medium' || difficulty === 'hard') {
+                const targetTrapCols = difficulty === 'hard' ? 3 : 2;
+                const colIndices = [0, 1, 2, 3, 4].sort(() => Math.random() - 0.5);
+                let trapsPlaced = 0;
+
+                for (const cIdx of colIndices) {
+                    if (trapsPlaced >= targetTrapCols) break;
+                    const col = columns[cIdx];
+                    if (col.length < 3) continue;
+
+                    // Procurar um bloco mais abaixo na mesma coluna (entre posições 1 e 3) que seja de uma camada mais interna
+                    let innerPos = -1;
+                    const searchLimit = Math.min(col.length - 1, difficulty === 'hard' ? 4 : 3);
+                    for (let r = 1; r <= searchLimit; r++) {
+                        if (!exposedAtStart.has(col[r].colorId) || col[r].waveIndex > col[0].waveIndex) {
+                            innerPos = r;
+                            break;
+                        }
+                    }
+
+                    if (innerPos !== -1) {
+                        // Coloca o bloco interno no topo (índice 0) e empurra o bloco externo para a posição 1!
+                        const [innerBlock] = col.splice(innerPos, 1);
+                        col.unshift(innerBlock);
+                        trapsPlaced++;
+                    }
+                }
+            }
+
+            // GARANTIA DE SOLUBILIDADE INICIAL:
+            // Pelo menos 2 colunas (no Fácil/Médio) ou 1 coluna (no Difícil) DEVEM ter no topo (índice 0)
+            // uma cor que já possui pixels expostos na borda inicial da imagem.
+            const minPlayableTops = difficulty === 'hard' ? 1 : 2;
+            let currentPlayableTops = 0;
+            for (let c = 0; c < NUM_COLS; c++) {
+                if (columns[c].length > 0 && exposedAtStart.has(columns[c][0].colorId)) {
+                    currentPlayableTops++;
+                }
+            }
+
+            for (let c = 0; c < NUM_COLS && currentPlayableTops < minPlayableTops; c++) {
+                const col = columns[c];
+                if (col.length === 0 || exposedAtStart.has(col[0].colorId)) continue;
+
+                const validIdx = col.findIndex(blk => exposedAtStart.has(blk.colorId));
+                if (validIdx > 0) {
+                    const [validBlk] = col.splice(validIdx, 1);
+                    col.unshift(validBlk);
+                    currentPlayableTops++;
+                }
+            }
+        }
+
+        function getExposedColorsSet() {
+            const set = new Set();
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = grid[r][c];
+                    if (cell && cell.exposed && !cell.targetedByAnt) {
+                        set.add(cell.colorId);
+                    }
+                }
+            }
+            return set;
+        }
+
+        function getExposedPixelCountByColor(colorId) {
+            let count = 0;
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = grid[r][c];
+                    if (cell && cell.colorId === colorId && cell.exposed && !cell.targetedByAnt) {
+                        count++;
+                    }
+                }
+            }
+            return count;
+        }
+
+        /********************************************************************
+         * REGRA 4: 5 SLOTS ATIVOS ESTRITOS (SEM DEVOLUÇÃO LIVRE + DETECÇÃO DE IMPASSE)
+         ********************************************************************/
+        function selectColumnBlock(colIndex) {
+            if (isDeadlockModalOpen) return;
+            const col = supplyColumns[colIndex];
+            if (!col || col.length === 0) return;
+
+            // Procurar exclusivamente o primeiro slot VAZIO (NÃO soma mesmo que já exista a mesma cor!)
+            const emptySlotIndex = activeSlots.findIndex(slot => slot === null);
+
+            if (emptySlotIndex === -1) {
+                // Todos os 5 slots estão ocupados: bloquear clique!
+                sfxBlockedFull();
+                const slotsContainer = document.getElementById('activeSlotsContainer');
+                slotsContainer.classList.remove('animate-shake');
+                void slotsContainer.offsetWidth;
+                slotsContainer.classList.add('animate-shake');
+                showToast('Os 5 slots estão cheios! Aguarde as formigas ou use um Destravador.');
+                return;
+            }
+
+            const chosenBlock = col.shift();
+            sfxSelectBlock();
+
+            activeSlots[emptySlotIndex] = {
+                colorId: chosenBlock.colorId,
+                remainingCount: chosenBlock.amount,
+                inFlightCount: 0,
+                cooldown: 0,
+                justAdded: true
+            };
+
+            const exposedForChosen = getExposedPixelCountByColor(chosenBlock.colorId);
+            if (exposedForChosen === 0) {
+                showToast('Cor ainda bloqueada no interior! Ela ficará aguardando no slot.');
+            }
+
+            updateHUD();
+            renderSlotsDOM();
+            renderColumnsDOM();
+        }
+
+        // Em um jogo real, tocar em um slot ativo NÃO devolve de graça!
+        function onActiveSlotClicked(slotIndex) {
+            const slot = activeSlots[slotIndex];
+            if (!slot) return;
+            const exposedCount = getExposedPixelCountByColor(slot.colorId);
+
+            if (exposedCount === 0 && slot.inFlightCount === 0) {
+                sfxBlockedFull();
+                showToast(`Slot aguardando liberar a cor no desenho! Use o botão "Destravar" (${undoBoostersLeft} rest.) se precisar.`);
+            } else {
+                showToast('As formigas estão coletando os pixels liberados desta cor!');
+            }
+        }
+
+        // Usa 1 Booster limitado ("Destravar") para devolver o slot travado mais antigo para o topo de uma coluna
+        function useUndoBooster() {
+            if (undoBoostersLeft <= 0) {
+                sfxBlockedFull();
+                showToast('Você não tem mais Destravadores nesta partida!');
+                return false;
+            }
+
+            const exposedSet = getExposedColorsSet();
+            // Prioriza devolver um slot que esteja 100% travado (sem pixels expostos e sem formigas em trânsito)
+            let targetSlotIdx = activeSlots.findIndex(
+                s => s !== null && (s.remainingCount - s.inFlightCount) > 0 && !exposedSet.has(s.colorId)
+            );
+
+            // Se todos têm alguma cor exposta, permite devolver qualquer slot ocupado com saldo
+            if (targetSlotIdx === -1) {
+                targetSlotIdx = activeSlots.findIndex(s => s !== null && (s.remainingCount - s.inFlightCount) > 0);
+            }
+
+            if (targetSlotIdx === -1) {
+                showToast('Nenhum slot travado para devolver agora!');
+                return false;
+            }
+
+            const slot = activeSlots[targetSlotIdx];
+            const cancelable = slot.remainingCount - slot.inFlightCount;
+
+            // Coloca de volta no topo da coluna com menos itens
+            let bestColIdx = 0;
+            for (let c = 1; c < NUM_COLS; c++) {
+                if (supplyColumns[c].length < supplyColumns[bestColIdx].length) {
+                    bestColIdx = c;
+                }
+            }
+
+            supplyColumns[bestColIdx].unshift({
+                colorId: slot.colorId,
+                amount: cancelable,
+                waveIndex: 0,
+                uid: Math.random().toString(36).substring(2, 9)
+            });
+
+            if (slot.inFlightCount > 0) {
+                slot.remainingCount = slot.inFlightCount;
+            } else {
+                activeSlots[targetSlotIdx] = null;
+            }
+
+            undoBoostersLeft--;
+            isDeadlockModalOpen = false;
+            deadlockCheckTimer = 0;
+            document.getElementById('deadlockModal').classList.add('hidden');
+            document.getElementById('deadlockModal').classList.remove('flex');
+
+            sfxSelectBlock();
+            updateDifficultyUI();
+            updateHUD();
+            renderSlotsDOM();
+            renderColumnsDOM();
+            showToast(`Slot destravado! Restam ${undoBoostersLeft} destravador(es).`);
+            return true;
+        }
+
+        function useBoosterFromDeadlockModal() {
+            useUndoBooster();
+        }
+
+        function checkTrueDeadlockState(dt) {
+            if (isDeadlockModalOpen || remainingPixels <= 0) return;
+
+            // Condição de Impasse Real (Deadlock):
+            // 1. Todos os 5 slots ativos estão ocupados
+            const allFiveOccupied = activeSlots.every(s => s !== null);
+            if (!allFiveOccupied) {
+                deadlockCheckTimer = 0;
+                return;
+            }
+
+            // 2. Nenhuma formiga está em trânsito no tabuleiro (pois uma formiga chegando ainda poderia abrir caminho)
+            if (ants.length > 0) {
+                deadlockCheckTimer = 0;
+                return;
+            }
+
+            // 3. Nenhum dos 5 slots ativos possui sequer 1 pixel exposto disponível na imagem agora
+            const exposedSet = getExposedColorsSet();
+            const anySlotCanSpawn = activeSlots.some(s => s && exposedSet.has(s.colorId));
+            if (anySlotCanSpawn) {
+                deadlockCheckTimer = 0;
+                return;
+            }
+
+            // Aguarda 0.65s para o jogador visualizar os 5 potes travados antes de exibir o modal de Impasse
+            deadlockCheckTimer += dt;
+            if (deadlockCheckTimer >= 0.65) {
+                isDeadlockModalOpen = true;
+                sfxDeadlock();
+                renderSlotsDOM();
+
+                const boosterBtn = document.getElementById('deadlockUseBoosterBtn');
+                document.getElementById('deadlockBoosterCount').textContent = undoBoostersLeft;
+                if (undoBoostersLeft > 0) {
+                    boosterBtn.classList.remove('hidden');
+                } else {
+                    boosterBtn.classList.add('hidden');
+                }
+
+                const modal = document.getElementById('deadlockModal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        /********************************************************************
+         * RENDERIZAÇÃO DOS 5 SLOTS ATIVOS E DAS 5 COLUNAS NO DOM
+         ********************************************************************/
+        function renderSlotsDOM() {
+            const container = document.getElementById('activeSlotsContainer');
+            const exposedSet = getExposedColorsSet();
+            container.innerHTML = '';
+
+            let occupied = 0;
+
+            for (let i = 0; i < NUM_SLOTS; i++) {
+                const slot = activeSlots[i];
+                const base = document.createElement('div');
+                base.className = 'slot-base';
+
+                if (slot) {
+                    occupied++;
+                    const colorObj = palette[slot.colorId] || palette[0];
+                    const canWorkNow = exposedSet.has(slot.colorId) || slot.inFlightCount > 0;
+
+                    const jar = document.createElement('div');
+                    const popClass = slot.justAdded ? 'animate-pop' : '';
+                    slot.justAdded = false;
+
+                    jar.id = `slot-jar-${i}`;
+                    jar.className = `slot-jar ${popClass} ${canWorkNow ? '' : 'slot-jar-locked'}`.trim();
+                    jar.style.backgroundColor = colorObj.hex;
+                    jar.style.boxShadow = `0 6px 0 ${colorObj.darkHex}, 0 8px 10px rgba(0,0,0,0.22)`;
+                    jar.title = canWorkNow
+                        ? 'Formigas coletando pixels desta cor'
+                        : 'Cor bloqueada no interior! Libere as cores ao redor primeiro.';
+                    jar.onclick = () => onActiveSlotClicked(i);
+
+                    const neck = document.createElement('div');
+                    neck.className = 'slot-jar-neck';
+                    neck.style.backgroundColor = colorObj.hex;
+                    neck.style.boxShadow = `inset 0 2px 0 ${colorObj.lightHex}`;
+
+                    const gloss = document.createElement('div');
+                    gloss.className = 'slot-jar-gloss';
+
+                    const num = document.createElement('span');
+                    num.className = 'game-number text-xl z-10';
+                    num.id = `slot-num-${i}`;
+                    num.textContent = slot.remainingCount;
+
+                    jar.appendChild(neck);
+                    jar.appendChild(gloss);
+                    jar.appendChild(num);
+
+                    // Badge de Cadeado fixo (oculto quando destravado, visível quando bloqueado)
+                    const badge = document.createElement('div');
+                    badge.id = `slot-lock-${i}`;
+                    badge.className = `absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-600 text-white border border-white flex items-center justify-center shadow-md ${canWorkNow ? 'hidden' : ''}`;
+                    badge.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
+                    jar.appendChild(badge);
+
+                    base.appendChild(jar);
+                }
+
+                container.appendChild(base);
+            }
+
+            document.getElementById('occupiedSlotsCount').textContent = occupied;
+        }
+
+        function updateSlotsLockStatusInPlace() {
+            const exposedSet = getExposedColorsSet();
+            for (let i = 0; i < NUM_SLOTS; i++) {
+                const slot = activeSlots[i];
+                if (!slot) continue;
+                const jar = document.getElementById(`slot-jar-${i}`);
+                const badge = document.getElementById(`slot-lock-${i}`);
+                const num = document.getElementById(`slot-num-${i}`);
+                if (!jar) continue;
+
+                if (num) num.textContent = slot.remainingCount;
+
+                const canWorkNow = exposedSet.has(slot.colorId) || slot.inFlightCount > 0;
+                jar.classList.toggle('slot-jar-locked', !canWorkNow);
+                if (badge) {
+                    badge.classList.toggle('hidden', canWorkNow);
+                }
+            }
+        }
+
+        function updateSingleSlotDOM(slotIndex) {
+            updateSlotsLockStatusInPlace();
+        }
+
+        function renderColumnsDOM() {
+            const container = document.getElementById('columnsContainer');
+            container.innerHTML = '';
+
+            const allSlotsFull = activeSlots.every(s => s !== null);
+            let totalQueuedBlocks = 0;
+
+            for (let colIdx = 0; colIdx < NUM_COLS; colIdx++) {
+                const colItems = supplyColumns[colIdx];
+                totalQueuedBlocks += colItems.length;
+
+                const colDiv = document.createElement('div');
+                colDiv.className = 'flex flex-col gap-2.5 items-center';
+
+                if (colItems.length === 0) {
+                    const emptyBox = document.createElement('div');
+                    emptyBox.className = 'empty-col-placeholder';
+                    emptyBox.textContent = 'Vazio';
+                    colDiv.appendChild(emptyBox);
+                } else {
+                    const visibleCount = Math.min(VISIBLE_ROWS, colItems.length);
+                    for (let rowIdx = 0; rowIdx < visibleCount; rowIdx++) {
+                        const item = colItems[rowIdx];
+                        const colorObj = palette[item.colorId] || palette[0];
+                        const isTop = rowIdx === 0;
+
+                        const block = document.createElement('div');
+                        if (isTop) {
+                            block.className = `supply-block ${allSlotsFull ? 'top-disabled' : 'top-active'}`;
+                            block.style.boxShadow = `0 6px 0 ${colorObj.darkHex}, 0 8px 12px rgba(0,0,0,0.2)`;
+                            block.onclick = () => selectColumnBlock(colIdx);
+                        } else {
+                            block.className = 'supply-block queued';
+                            block.style.boxShadow = `0 5px 0 ${colorObj.darkHex}`;
+                        }
+
+                        block.style.backgroundColor = colorObj.hex;
+
+                        const gloss = document.createElement('div');
+                        gloss.className = 'supply-block-gloss';
+
+                        const num = document.createElement('span');
+                        num.className = 'game-number text-lg z-10 pointer-events-none';
+                        num.textContent = item.amount;
+
+                        block.appendChild(gloss);
+                        block.appendChild(num);
+                        colDiv.appendChild(block);
+                    }
+
+                    // Indicador de quantos blocos ainda restam ocultos abaixo nesta coluna
+                    if (colItems.length > VISIBLE_ROWS) {
+                        const moreBadge = document.createElement('div');
+                        moreBadge.className = 'text-[10px] font-extrabold text-amber-950/60 -mt-1';
+                        moreBadge.textContent = `+${colItems.length - VISIBLE_ROWS}`;
+                        colDiv.appendChild(moreBadge);
+                    }
+                }
+
+                container.appendChild(colDiv);
+            }
+
+            document.getElementById('remainingBlocksCount').textContent = totalQueuedBlocks;
+        }
+
+        function updateHUD() {
+            const eaten = Math.max(0, totalInitialPixels - remainingPixels);
+            const pct = totalInitialPixels > 0 ? Math.floor((eaten / totalInitialPixels) * 100) : 0;
+            document.getElementById('progressText').textContent = `${pct}%`;
+            document.getElementById('remainingPixelsText').textContent = `${remainingPixels} px`;
+        }
+
+        /********************************************************************
+         * MECÂNICA DAS FORMIGAS TRABALHANDO E CONTABILIDADE POR SLOT
+         * COM PATHFINDING BFS ESTRITO POR CAMINHOS ABERTOS (SEM PISAR EM PIXELS)
+         ********************************************************************/
+        function getCellPixelCenter(r, c) {
+            const cellW = GRID_AREA.w / gridSize;
+            const cellH = GRID_AREA.h / gridSize;
+            return {
+                x: GRID_AREA.x + c * cellW + cellW / 2,
+                y: GRID_AREA.y + r * cellH + cellH / 2
+            };
+        }
+
+        // Calcula o menor caminho ortogonal (BFS) exclusivamente por células vazias
+        // desde a entrada inferior da bandeja (r = gridSize) até o pixel alvo (targetR, targetC),
+        // parando na célula vazia adjacente ao pixel e dando a mordida na borda do pixel!
+        function buildOpenCorridorPathToPixel(targetR, targetC, laneJitter = 0) {
+            const N = gridSize + 2; // Coordenadas deslocadas +1: 0..-1 (margem), 1..gridSize (grade), gridSize+1 (margem)
+            const visited = Array.from({ length: N }, () => new Uint8Array(N));
+            const parentR = Array.from({ length: N }, () => new Int16Array(N).fill(-1));
+            const parentC = Array.from({ length: N }, () => new Int16Array(N).fill(-1));
+
+            const entryCols = [
+                Math.floor(gridSize / 2),
+                Math.max(0, Math.floor(gridSize / 2) - 1),
+                Math.min(gridSize - 1, Math.floor(gridSize / 2) + 1)
+            ];
+            const startGr = gridSize; // Linha imediatamente abaixo da matriz de pixels (corredor inferior da bandeja)
+            const startGc = entryCols[Math.floor(Math.random() * entryCols.length)];
+
+            const sR = startGr + 1;
+            const sC = startGc + 1;
+            const tR = targetR + 1;
+            const tC = targetC + 1;
+
+            const queue = [sR, sC];
+            visited[sR][sC] = 1;
+
+            // Alternar levemente a preferência de direções para distribuir as formigas pelos corredores
+            const dirs = Math.random() < 0.5
+                ? [[-1, 0], [0, -1], [0, 1], [1, 0]]
+                : [[-1, 0], [0, 1], [0, -1], [1, 0]];
+
+            let head = 0;
+            let foundEmptyNeighborR = -1;
+            let foundEmptyNeighborC = -1;
+
+            while (head < queue.length) {
+                const ur = queue[head++];
+                const uc = queue[head++];
+
+                // Verificar se esta célula vazia é ortogonalmente adjacente ao pixel alvo
+                if (Math.abs(ur - tR) + Math.abs(uc - tC) === 1) {
+                    foundEmptyNeighborR = ur;
+                    foundEmptyNeighborC = uc;
+                    break;
+                }
+
+                for (let d = 0; d < 4; d++) {
+                    const vr = ur + dirs[d][0];
+                    const vc = uc + dirs[d][1];
+                    if (vr < 0 || vr >= N || vc < 0 || vc >= N) continue;
+                    if (visited[vr][vc]) continue;
+
+                    const gr = vr - 1;
+                    const gc = vc - 1;
+                    const isInside = (gr >= 0 && gr < gridSize && gc >= 0 && gc < gridSize);
+                    const isEmpty = !isInside || grid[gr][gc] === null;
+
+                    if (isEmpty) {
+                        visited[vr][vc] = 1;
+                        parentR[vr][vc] = ur;
+                        parentC[vr][vc] = uc;
+                        queue.push(vr, vc);
+                    }
+                }
+            }
+
+            if (foundEmptyNeighborR === -1) return null;
+
+            // Reconstruir a sequência de células vazias do corredor até o vizinho livre do pixel
+            const gridCells = [];
+            let currR = foundEmptyNeighborR;
+            let currC = foundEmptyNeighborC;
+            while (currR !== -1 && currC !== -1) {
+                gridCells.push({ r: currR - 1, c: currC - 1 });
+                const pr = parentR[currR][currC];
+                const pc = parentC[currR][currC];
+                currR = pr;
+                currC = pc;
+            }
+            gridCells.reverse();
+
+            // Simplificar pontos colineares para deixar o movimento fluido nos corredores retos,
+            // mantendo todos os pontos de curva (quinas de 90 graus) para NUNCA cortar caminho sobre um pixel!
+            const simplifiedCells = [];
+            for (let i = 0; i < gridCells.length; i++) {
+                if (i === 0 || i === gridCells.length - 1) {
+                    simplifiedCells.push(gridCells[i]);
+                } else {
+                    const prev = gridCells[i - 1];
+                    const curr = gridCells[i];
+                    const next = gridCells[i + 1];
+                    const dir1R = curr.r - prev.r;
+                    const dir1C = curr.c - prev.c;
+                    const dir2R = next.r - curr.r;
+                    const dir2C = next.c - curr.c;
+                    if (dir1R !== dir2R || dir1C !== dir2C) {
+                        simplifiedCells.push(curr);
+                    }
+                }
+            }
+
+            // Converter células vazias em coordenadas (x, y) no Canvas
+            const waypoints = [];
+            // Ponto de saída da borda da bandeja logo acima do formigueiro
+            const entryPixelPos = getCellPixelCenter(startGr, startGc);
+            waypoints.push({
+                x: entryPixelPos.x + laneJitter,
+                y: TRAY_RECT.y + TRAY_RECT.h - 4
+            });
+
+            for (const cellCoord of simplifiedCells) {
+                const pt = getCellPixelCenter(cellCoord.r, cellCoord.c);
+                waypoints.push({
+                    x: pt.x + laneJitter,
+                    y: pt.y + laneJitter
+                });
+            }
+
+            // Ponto final de mordida: na borda entre a célula vazia e o pixel alvo (sem pisar em outros pixels)
+            const lastEmptyPos = getCellPixelCenter(foundEmptyNeighborR - 1, foundEmptyNeighborC - 1);
+            const targetPos = getCellPixelCenter(targetR, targetC);
+            waypoints.push({
+                x: lastEmptyPos.x + (targetPos.x - lastEmptyPos.x) * 0.65,
+                y: lastEmptyPos.y + (targetPos.y - lastEmptyPos.y) * 0.65
+            });
+
+            return waypoints;
+        }
+
+        function findExposedUntargetedPixel(colorId) {
+            const candidates = [];
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = grid[r][c];
+                    if (cell && cell.colorId === colorId && cell.exposed && !cell.targetedByAnt) {
+                        candidates.push({ r, c, cell });
+                    }
+                }
+            }
+            if (candidates.length === 0) return null;
+
+            // Priorizar pixels expostos mais próximos da entrada inferior ou das laterais
+            candidates.sort((a, b) => {
+                const posA = getCellPixelCenter(a.r, a.c);
+                const posB = getCellPixelCenter(b.r, b.c);
+                const distA = Math.hypot(posA.x - ANTHILL_POS.x, posA.y - ANTHILL_POS.y);
+                const distB = Math.hypot(posB.x - ANTHILL_POS.x, posB.y - ANTHILL_POS.y);
+                return distA - distB;
+            });
+
+            const limit = Math.min(6, candidates.length);
+            for (let attempt = 0; attempt < limit; attempt++) {
+                const idx = (attempt === 0) ? Math.floor(Math.random() * Math.min(3, limit)) : attempt;
+                const pick = candidates[idx];
+                const jitter = (Math.random() - 0.5) * Math.min(3.2, (GRID_AREA.w / gridSize) * 0.25);
+                const pathWaypoints = buildOpenCorridorPathToPixel(pick.r, pick.c, jitter);
+                if (pathWaypoints && pathWaypoints.length > 0) {
+                    return { ...pick, waypoints: pathWaypoints, jitter };
+                }
+            }
+            return null;
+        }
+
+        function spawnAntsFromActiveSlots(dt) {
+            for (let i = 0; i < NUM_SLOTS; i++) {
+                const slot = activeSlots[i];
+                if (!slot) continue;
+
+                // Quantos pixels deste slot ainda precisam que uma formiga seja despachada
+                const neededToDispatch = slot.remainingCount - slot.inFlightCount;
+                if (neededToDispatch <= 0) continue;
+
+                slot.cooldown -= dt * speedMultiplier;
+                if (slot.cooldown > 0) continue;
+
+                const target = findExposedUntargetedPixel(slot.colorId);
+                if (target) {
+                    target.cell.targetedByAnt = true;
+                    slot.inFlightCount++;
+                    slot.cooldown = 0.20;
+
+                    ants.push({
+                        x: ANTHILL_POS.x + (Math.random() * 6 - 3),
+                        y: ANTHILL_POS.y + (Math.random() * 4 - 2),
+                        targetR: target.r,
+                        targetC: target.c,
+                        waypoints: target.waypoints,
+                        wpIndex: 0,
+                        jitter: target.jitter,
+                        slotRef: slot,
+                        slotIndex: i,
+                        colorId: slot.colorId,
+                        hex: target.cell.hex,
+                        darkHex: target.cell.darkHex,
+                        lightHex: target.cell.lightHex,
+                        legHex: adjustBrightness(target.cell.r, target.cell.g, target.cell.b, 0.45),
+                        state: 'TO_PIXEL',
+                        speed: 135 + Math.random() * 25,
+                        wobblePhase: Math.random() * Math.PI * 2,
+                        angle: -Math.PI / 2
+                    });
+                }
+            }
+        }
+
+        function spawnCrumbs(x, y, hex) {
+            for (let i = 0; i < 5; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = 25 + Math.random() * 45;
+                particles.push({
+                    x,
+                    y,
+                    vx: Math.cos(angle) * spd,
+                    vy: Math.sin(angle) * spd,
+                    size: 2.5 + Math.random() * 2,
+                    hex,
+                    life: 0.32
+                });
+            }
+        }
+
+        // Move a formiga ao longo da lista de waypoints ortogonais sem nunca cortar por cima de pixels
+        function advanceAntAlongWaypoints(ant, stepDist) {
+            let remainingStep = stepDist;
+            while (remainingStep > 0 && ant.wpIndex < ant.waypoints.length) {
+                const wp = ant.waypoints[ant.wpIndex];
+                const dx = wp.x - ant.x;
+                const dy = wp.y - ant.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist <= remainingStep) {
+                    ant.x = wp.x;
+                    ant.y = wp.y;
+                    remainingStep -= dist;
+                    ant.wpIndex++;
+                    if (dist > 0.01) {
+                        ant.angle = Math.atan2(dy, dx);
+                    }
+                } else {
+                    ant.angle = Math.atan2(dy, dx);
+                    ant.x += (dx / dist) * remainingStep;
+                    ant.y += (dy / dist) * remainingStep;
+                    remainingStep = 0;
+                }
+            }
+            return ant.wpIndex >= ant.waypoints.length;
+        }
+
+        function updateAntsAndParticles(dt) {
+            const effDt = dt * speedMultiplier;
+
+            for (let i = ants.length - 1; i >= 0; i--) {
+                const ant = ants[i];
+                ant.wobblePhase += effDt * 18;
+
+                if (ant.state === 'TO_PIXEL') {
+                    const reachedTarget = advanceAntAlongWaypoints(ant, ant.speed * effDt);
+
+                    if (reachedTarget) {
+                        // A formiga chegou ao pixel liberado seguindo exclusivamente o caminho aberto!
+                        const cell = grid[ant.targetR] && grid[ant.targetR][ant.targetC];
+                        const pixelCenter = getCellPixelCenter(ant.targetR, ant.targetC);
+
+                        if (cell) {
+                            grid[ant.targetR][ant.targetC] = null;
+                            remainingPixels = Math.max(0, remainingPixels - 1);
+                            sfxEatPixel();
+                            spawnCrumbs(pixelCenter.x, pixelCenter.y, ant.hex);
+                            updateExposedPixels();
+                            updateHUD();
+
+                            // Decrementa exatamente o slot que despachou esta formiga
+                            const slot = ant.slotRef;
+                            if (slot) {
+                                slot.remainingCount = Math.max(0, slot.remainingCount - 1);
+                                slot.inFlightCount = Math.max(0, slot.inFlightCount - 1);
+
+                                if (slot.remainingCount <= 0) {
+                                    // O lote terminou! Libera imediatamente o slot ativo
+                                    if (activeSlots[ant.slotIndex] === slot) {
+                                        activeSlots[ant.slotIndex] = null;
+                                    }
+                                    sfxSlotFinished();
+                                    renderSlotsDOM();
+                                    renderColumnsDOM();
+                                } else {
+                                    updateSingleSlotDOM(ant.slotIndex);
+                                }
+                            }
+
+                            // Atualiza o estado de bloqueio sem recriar os elementos do DOM (evita piscar)
+                            updateSlotsLockStatusInPlace();
+
+                            if (remainingPixels === 0 && totalInitialPixels > 0) {
+                                sfxVictory();
+                                setTimeout(() => {
+                                    document.getElementById('victoryModal').classList.remove('hidden');
+                                    document.getElementById('victoryModal').classList.add('flex');
+                                }, 450);
+                            }
+                        }
+
+                        // Construir o caminho de volta para o formigueiro pelo corredor aberto
+                        const returnWaypoints = ant.waypoints.slice(0, -1).reverse();
+                        returnWaypoints.push({ x: ANTHILL_POS.x, y: ANTHILL_POS.y });
+                        ant.waypoints = returnWaypoints;
+                        ant.wpIndex = 0;
+                        ant.state = 'RETURNING';
+                    }
+                } else if (ant.state === 'RETURNING') {
+                    const reachedAnthill = advanceAntAlongWaypoints(ant, ant.speed * 1.18 * effDt);
+                    if (reachedAnthill) {
+                        ants.splice(i, 1);
+                    }
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx * effDt;
+                p.y += p.vy * effDt;
+                p.life -= effDt;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        /********************************************************************
+         * RENDERIZAÇÃO DO CANVAS (QUADRO 3D, PIXELS, BURACO E FORMIGAS)
+         ********************************************************************/
+        function drawRoundedRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function drawGameCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Moldura Creme 3D do Tabuleiro
+            ctx.save();
+            drawRoundedRect(ctx, TRAY_RECT.x, TRAY_RECT.y + 5, TRAY_RECT.w, TRAY_RECT.h, 20);
+            ctx.fillStyle = 'rgba(105, 65, 35, 0.2)';
+            ctx.fill();
+
+            drawRoundedRect(ctx, TRAY_RECT.x, TRAY_RECT.y, TRAY_RECT.w, TRAY_RECT.h, 20);
+            ctx.fillStyle = '#E6D6C6';
+            ctx.fill();
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = '#CEB9A4';
+            ctx.stroke();
+
+            drawRoundedRect(ctx, TRAY_RECT.x + 8, TRAY_RECT.y + 8, TRAY_RECT.w - 16, TRAY_RECT.h - 16, 14);
+            ctx.fillStyle = '#F7EDE2';
+            ctx.fill();
+            ctx.restore();
+
+            // 2. Desenhar Pixels 3D
+            const cellW = GRID_AREA.w / gridSize;
+            const cellH = GRID_AREA.h / gridSize;
+            const bevel = Math.max(1.5, cellH * 0.22);
+
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    const cell = grid[r][c];
+                    if (!cell) continue;
+
+                    const px = GRID_AREA.x + c * cellW;
+                    const py = GRID_AREA.y + r * cellH;
+
+                    // Sombra lateral 3D do pixel
+                    ctx.fillStyle = cell.darkHex;
+                    ctx.fillRect(px + 0.35, py + 0.35, cellW - 0.7, cellH - 0.7);
+
+                    // Face superior do pixel
+                    ctx.fillStyle = cell.hex;
+                    ctx.fillRect(px + 0.35, py + 0.35, cellW - 0.7, cellH - bevel);
+
+                    // Destaque de pixels liberados vs internos
+                    if (!cell.exposed && highlightExposed) {
+                        ctx.fillStyle = 'rgba(35, 20, 10, 0.12)';
+                        ctx.fillRect(px + 0.35, py + 0.35, cellW - 0.7, cellH - 0.7);
+                    } else if (cell.exposed && highlightExposed) {
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+                        ctx.lineWidth = 0.9;
+                        ctx.strokeRect(px + 0.9, py + 0.9, cellW - 1.8, cellH - bevel - 0.9);
+                    }
+                }
+            }
+
+            // 3. Buraco do Formigueiro
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(ANTHILL_POS.x, ANTHILL_POS.y, ANTHILL_POS.radius + 5, ANTHILL_POS.radius - 1, 0, 0, Math.PI * 2);
+            ctx.fillStyle = '#D9A177';
+            ctx.fill();
+
+            const holeGrad = ctx.createRadialGradient(
+                ANTHILL_POS.x - 2, ANTHILL_POS.y - 2, 2,
+                ANTHILL_POS.x, ANTHILL_POS.y, ANTHILL_POS.radius
+            );
+            holeGrad.addColorStop(0, '#B59B8C');
+            holeGrad.addColorStop(0.55, '#5E3A2A');
+            holeGrad.addColorStop(1, '#331D12');
+
+            ctx.beginPath();
+            ctx.ellipse(ANTHILL_POS.x, ANTHILL_POS.y, ANTHILL_POS.radius, ANTHILL_POS.radius - 3.5, 0, 0, Math.PI * 2);
+            ctx.fillStyle = holeGrad;
+            ctx.fill();
+            ctx.restore();
+
+            // 4. Partículas
+            for (const p of particles) {
+                ctx.fillStyle = p.hex;
+                ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+            }
+
+            // 5. Formigas Trabalhadoras (Coloridas com a mesma cor do pixel alvo)
+            for (const ant of ants) {
+                ctx.save();
+                ctx.translate(ant.x, ant.y);
+                const wobble = Math.sin(ant.wobblePhase) * 0.14;
+                ctx.rotate(ant.angle + Math.PI / 2 + wobble);
+
+                // Sombra suave da formiga no chão da bandeja
+                ctx.fillStyle = 'rgba(40, 22, 10, 0.18)';
+                ctx.beginPath();
+                ctx.ellipse(0, 1, 4.5, 7.2, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Patas articuladas (contorno escuro + tom escuro da cor do pixel)
+                ctx.lineCap = 'round';
+                for (let leg = -1; leg <= 1; leg++) {
+                    const ly = leg * 3.4;
+                    const swing = Math.sin(ant.wobblePhase + leg * 1.3) * 1.6;
+                    ctx.beginPath();
+                    ctx.moveTo(-6.2, ly + swing);
+                    ctx.lineTo(6.2, ly - swing);
+                    ctx.strokeStyle = '#231710';
+                    ctx.lineWidth = 2.4;
+                    ctx.stroke();
+                    ctx.strokeStyle = ant.legHex || ant.darkHex;
+                    ctx.lineWidth = 1.2;
+                    ctx.stroke();
+                }
+
+                // Antenas na cabeça
+                ctx.beginPath();
+                ctx.moveTo(-1.3, -6.2);
+                ctx.quadraticCurveTo(-3.2, -8.8, -4.2, -9.2);
+                ctx.moveTo(1.3, -6.2);
+                ctx.quadraticCurveTo(3.2, -8.8, 4.2, -9.2);
+                ctx.strokeStyle = '#231710';
+                ctx.lineWidth = 1.8;
+                ctx.stroke();
+                ctx.strokeStyle = ant.darkHex;
+                ctx.lineWidth = 0.9;
+                ctx.stroke();
+
+                // Segmentos do corpo (Abdômen, Tórax e Cabeça) com a cor exata do pixel e borda de alto contraste
+                const segments = [
+                    { y: 5.3, r: 3.7 },  // Abdômen
+                    { y: 0.2, r: 2.6 },  // Tórax
+                    { y: -4.4, r: 3.1 }  // Cabeça
+                ];
+
+                for (const seg of segments) {
+                    ctx.beginPath();
+                    ctx.arc(0, seg.y, seg.r, 0, Math.PI * 2);
+                    ctx.fillStyle = ant.hex;
+                    ctx.fill();
+                    ctx.lineWidth = 1.35;
+                    ctx.strokeStyle = '#231710';
+                    ctx.stroke();
+
+                    // Sombreamento 3D inferior em cada segmento
+                    ctx.beginPath();
+                    ctx.arc(0, seg.y + seg.r * 0.22, seg.r * 0.72, 0.15 * Math.PI, 0.85 * Math.PI);
+                    ctx.strokeStyle = ant.darkHex;
+                    ctx.lineWidth = 1.1;
+                    ctx.stroke();
+                }
+
+                // Brilho 3D especular no abdômen e na cabeça
+                ctx.fillStyle = ant.lightHex || 'rgba(255,255,255,0.65)';
+                ctx.beginPath();
+                ctx.arc(-1.1, 4.3, 1.25, 0, Math.PI * 2);
+                ctx.arc(-0.9, -5.2, 0.95, 0, Math.PI * 2);
+                ctx.fill();
+
+                if (ant.state === 'RETURNING') {
+                    const s = 8.8;
+                    ctx.fillStyle = '#231710';
+                    ctx.fillRect(-s / 2 - 0.8, -s / 2 - 4.6, s + 1.6, s + 1.6);
+                    ctx.fillStyle = ant.darkHex;
+                    ctx.fillRect(-s / 2, -s / 2 - 2, s, s);
+                    ctx.fillStyle = ant.hex;
+                    ctx.fillRect(-s / 2, -s / 2 - 3.8, s, s - 1.8);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+                    ctx.lineWidth = 0.9;
+                    ctx.strokeRect(-s / 2 + 0.4, -s / 2 - 3.4, s - 0.8, s - 2.6);
+                }
+
+                ctx.restore();
+            }
+        }
+
+        /********************************************************************
+         * LOOP DE ANIMAÇÃO E CONTROLES DE INTERFACE
+         ********************************************************************/
+        let lastTime = performance.now();
+        function gameLoop(now) {
+            const dt = Math.min(0.05, (now - lastTime) / 1000);
+            lastTime = now;
+
+            spawnAntsFromActiveSlots(dt);
+            updateAntsAndParticles(dt);
+            checkTrueDeadlockState(dt);
+            drawGameCanvas();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Funções de Controle de Modal e Partida
+        const configModal = document.getElementById('configModal');
+        function openConfigModal() {
+            configModal.classList.remove('hidden');
+            configModal.classList.add('flex');
+        }
+        function closeConfigModal() {
+            configModal.classList.add('hidden');
+            configModal.classList.remove('flex');
+        }
+
+        function selectPresetAndClose(name) {
+            loadPreset(name);
+            closeConfigModal();
+            showToast('Novo quadro carregado com contagem exata!');
+        }
+
+        function restartCurrentGame() {
+            document.getElementById('victoryModal').classList.add('hidden');
+            document.getElementById('victoryModal').classList.remove('flex');
+            document.getElementById('deadlockModal').classList.add('hidden');
+            document.getElementById('deadlockModal').classList.remove('flex');
+            isDeadlockModalOpen = false;
+            if (lastUploadedImage) {
+                processUploadedImage(lastUploadedImage);
+            } else {
+                loadPreset(currentPresetName);
+            }
+            showToast('Partida reiniciada com novo embaralhamento estratégico!');
+        }
+
+        function changeDifficultyFromDeadlock() {
+            document.getElementById('deadlockModal').classList.add('hidden');
+            document.getElementById('deadlockModal').classList.remove('flex');
+            openConfigModal();
+        }
+
+        function openConfigFromVictory() {
+            document.getElementById('victoryModal').classList.add('hidden');
+            document.getElementById('victoryModal').classList.remove('flex');
+            openConfigModal();
+        }
+
+        // Listeners de Botões
+        document.getElementById('openConfigBtn').addEventListener('click', openConfigModal);
+        document.getElementById('closeConfigBtn').addEventListener('click', closeConfigModal);
+        document.getElementById('doneConfigBtn').addEventListener('click', closeConfigModal);
+
+        document.getElementById('restartMatchBtn').addEventListener('click', () => {
+            restartCurrentGame();
+            closeConfigModal();
+        });
+
+        document.getElementById('speedBtn').addEventListener('click', () => {
+            if (speedMultiplier === 1) speedMultiplier = 2;
+            else if (speedMultiplier === 2) speedMultiplier = 4;
+            else speedMultiplier = 1;
+            document.getElementById('speedLabel').textContent = `${speedMultiplier}x`;
+            sfxSelectBlock();
+        });
+
+        document.getElementById('soundBtn').addEventListener('click', () => {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIconOn').classList.toggle('hidden', !soundEnabled);
+            document.getElementById('soundIconOff').classList.toggle('hidden', soundEnabled);
+            if (soundEnabled) sfxSelectBlock();
+        });
+
+        document.getElementById('unblockSlotsBtn').addEventListener('click', useUndoBooster);
+
+        // Alternar dificuldade rapidamente na barra de slots ou no seletor do modal
+        document.getElementById('quickDifficultyBtn').addEventListener('click', () => {
+            const order = ['easy', 'medium', 'hard'];
+            const nextIdx = (order.indexOf(currentDifficulty) + 1) % order.length;
+            currentDifficulty = order[nextIdx];
+            restartCurrentGame();
+        });
+
+        document.getElementById('difficultySelect').addEventListener('change', (e) => {
+            currentDifficulty = e.target.value;
+            restartCurrentGame();
+        });
+
+        document.getElementById('highlightExposedCheckbox').addEventListener('change', (e) => {
+            highlightExposed = e.target.checked;
+        });
+
+        document.getElementById('gridSizeSelect').addEventListener('change', () => {
+            if (lastUploadedImage) processUploadedImage(lastUploadedImage);
+        });
+
+        document.getElementById('colorCountSelect').addEventListener('change', () => {
+            if (lastUploadedImage) processUploadedImage(lastUploadedImage);
+        });
+
+        document.getElementById('removeBgCheckbox').addEventListener('change', () => {
+            if (lastUploadedImage) processUploadedImage(lastUploadedImage);
+        });
+
+        document.getElementById('imageInput').addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const img = new Image();
+                img.onload = () => {
+                    lastUploadedImage = img;
+                    processUploadedImage(img);
+                    closeConfigModal();
+                    showToast('Sua imagem foi convertida com contagem exata de pixels!');
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        window.onload = () => {
+            loadPreset('mouse');
+            requestAnimationFrame(gameLoop);
+        };
+    </script>
+</body>
+</html>
