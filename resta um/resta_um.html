@@ -1,0 +1,2018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Resta Um - Peg Solitaire Clássico</title>
+  <style>
+    :root {
+      --bg-app: #14110f;
+      --bg-panel: rgba(30, 23, 18, 0.88);
+      --border-panel: rgba(212, 163, 115, 0.22);
+      --text-primary: #f5ebe0;
+      --text-secondary: #cbb8a6;
+      --accent-gold: #e6b87d;
+      --accent-gold-bright: #ffd699;
+
+      /* Madeira do tabuleiro */
+      --wood-light: #8c5327;
+      --wood-mid: #683917;
+      --wood-dark: #42210b;
+      --wood-rim: #2b1406;
+      --groove-bg: #261205;
+
+      /* Tema de Peças Padrão: Marfim (Ivory) */
+      --peg-highlight: #fffdf9;
+      --peg-light: #f4ebd9;
+      --peg-mid: #d8c3a5;
+      --peg-dark: #8e795e;
+      --peg-shadow: rgba(15, 8, 2, 0.72);
+    }
+
+    /* Temas de Peças */
+    body[data-peg-theme="ivory"] {
+      --peg-highlight: #ffffff;
+      --peg-light: #f6eedf;
+      --peg-mid: #d7c2a3;
+      --peg-dark: #887255;
+    }
+
+    body[data-peg-theme="emerald"] {
+      --peg-highlight: #d8fff0;
+      --peg-light: #34d399;
+      --peg-mid: #059669;
+      --peg-dark: #024933;
+    }
+
+    body[data-peg-theme="ruby"] {
+      --peg-highlight: #ffe0e4;
+      --peg-light: #fb7185;
+      --peg-mid: #be123c;
+      --peg-dark: #58061a;
+    }
+
+    body[data-peg-theme="ebony"] {
+      --peg-highlight: #cbd5e1;
+      --peg-light: #64748b;
+      --peg-mid: #27272a;
+      --peg-dark: #09090b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 25%, #2b211a 0%, #16110e 65%, #0d0a08 100%);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px 18px;
+      overflow-x: hidden;
+    }
+
+    /* CABEÇALHO */
+    .top-header {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      border-radius: 16px;
+      padding: 10px 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(10px);
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .emblem {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 30%, var(--peg-highlight) 0%, var(--peg-light) 35%, var(--peg-mid) 72%, var(--peg-dark) 100%);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.6);
+      flex-shrink: 0;
+    }
+
+    .title-group h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: var(--accent-gold-bright);
+      text-transform: uppercase;
+    }
+
+    .title-group p {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+    }
+
+    /* HUD DE ESTATÍSTICAS */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .stat-chip {
+      background: rgba(14, 10, 8, 0.65);
+      border: 1px solid rgba(230, 184, 125, 0.16);
+      border-radius: 10px;
+      padding: 5px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 66px;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+    }
+
+    .stat-value {
+      font-size: 1rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+    }
+
+    .stat-value.highlight {
+      color: var(--accent-gold-bright);
+    }
+
+    /* SELETORES DE VARIANTES E TEMAS */
+    .selectors-bar {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .board-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      background: rgba(20, 15, 11, 0.75);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-panel);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(230, 184, 125, 0.1);
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #8c5327, #5c3112);
+      color: #fff6ea;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+    }
+
+    .theme-and-record {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-swatches {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(20, 15, 11, 0.75);
+      padding: 5px 9px;
+      border-radius: 12px;
+      border: 1px solid var(--border-panel);
+    }
+
+    .theme-swatches span {
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      margin-right: 2px;
+    }
+
+    .swatch-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .swatch-btn:hover {
+      transform: scale(1.15);
+    }
+
+    .swatch-btn.active {
+      border-color: var(--accent-gold-bright);
+      transform: scale(1.15);
+      box-shadow: 0 0 8px rgba(255, 214, 153, 0.5);
+    }
+
+    .swatch-ivory { background: radial-gradient(circle at 30% 30%, #fff, #d7c2a3 65%, #887255); }
+    .swatch-emerald { background: radial-gradient(circle at 30% 30%, #d8fff0, #059669 65%, #024933); }
+    .swatch-ruby { background: radial-gradient(circle at 30% 30%, #ffe0e4, #be123c 65%, #58061a); }
+    .swatch-ebony { background: radial-gradient(circle at 30% 30%, #cbd5e1, #27272a 65%, #09090b); }
+
+    /* ÁREA CENTRAL DO TABULEIRO CIRCULAR EM MADEIRA */
+    .board-stage {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 12px 0;
+      flex: 1;
+      width: 100%;
+    }
+
+    .wooden-board {
+      position: relative;
+      width: min(90vw, 490px);
+      height: min(90vw, 490px);
+      border-radius: 50%;
+      /* Veios sutis de madeira + iluminação direcional */
+      background:
+        repeating-radial-gradient(
+          circle at 30% 25%,
+          rgba(255, 210, 160, 0.03) 0px,
+          rgba(255, 210, 160, 0.03) 3px,
+          rgba(20, 8, 2, 0.04) 4px,
+          rgba(20, 8, 2, 0.04) 9px
+        ),
+        radial-gradient(circle at 35% 28%, var(--wood-light) 0%, var(--wood-mid) 58%, var(--wood-dark) 92%, var(--wood-rim) 100%);
+      box-shadow:
+        0 26px 55px rgba(0, 0, 0, 0.85),
+        0 8px 18px rgba(0, 0, 0, 0.7),
+        inset 0 4px 8px rgba(255, 222, 185, 0.28),
+        inset 0 -10px 20px rgba(15, 6, 1, 0.9);
+      border: 6px solid #301708;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Calha periférica escavada para armazenar peças capturadas */
+    .capture-groove {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 50%, transparent 78%, rgba(16, 7, 2, 0.85) 84%, rgba(12, 5, 1, 0.95) 93%, rgba(255, 210, 165, 0.16) 100%);
+      box-shadow:
+        inset 0 4px 10px rgba(0, 0, 0, 0.85),
+        inset 0 -2px 5px rgba(255, 215, 175, 0.14);
+      pointer-events: none;
+    }
+
+    /* Ilha central elevada do tabuleiro */
+    .inner-plinth {
+      position: relative;
+      width: 79%;
+      height: 79%;
+      border-radius: 50%;
+      background:
+        repeating-linear-gradient(
+          108deg,
+          rgba(255, 215, 170, 0.025) 0px,
+          rgba(255, 215, 170, 0.025) 4px,
+          rgba(18, 7, 1, 0.045) 5px,
+          rgba(18, 7, 1, 0.045) 12px
+        ),
+        radial-gradient(circle at 38% 32%, #965b2d 0%, #6b3b18 65%, #4a260d 100%);
+      box-shadow:
+        0 6px 14px rgba(0, 0, 0, 0.75),
+        inset 0 2px 4px rgba(255, 224, 188, 0.3),
+        inset 0 -4px 8px rgba(20, 8, 2, 0.75);
+      border: 2px solid rgba(36, 16, 4, 0.8);
+      z-index: 2;
+    }
+
+    /* Contêiner das peças capturadas na calha */
+    .captured-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .captured-peg {
+      position: absolute;
+      width: 5.4%;
+      height: 5.4%;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 32% 28%, var(--peg-highlight) 0%, var(--peg-light) 32%, var(--peg-mid) 70%, var(--peg-dark) 100%);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.5);
+      animation: dropInGroove 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes dropInGroove {
+      0% { transform: translate(-50%, -50%) scale(1.45); opacity: 0.2; }
+      70% { transform: translate(-50%, -50%) scale(0.92); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    /* CAMADA DE CASAS / CAVIDADES E PEÇAS ATIVAS */
+    .holes-layer {
+      position: absolute;
+      inset: 7%;
+      z-index: 3;
+    }
+
+    .hole-slot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      touch-action: none;
+    }
+
+    /* Cavidade rebaixada na madeira */
+    .hole-recess {
+      width: 64%;
+      height: 64%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 55% 60%, #3b1d09 0%, #241004 65%, #160902 100%);
+      box-shadow:
+        inset 0 3px 6px rgba(0, 0, 0, 0.92),
+        0 1px 2px rgba(255, 218, 178, 0.24);
+      transition: all 0.2s ease;
+    }
+
+    /* Marcação sutil do centro do tabuleiro */
+    .hole-slot.is-center .hole-recess {
+      box-shadow:
+        inset 0 3px 6px rgba(0, 0, 0, 0.92),
+        0 0 0 2px rgba(230, 184, 125, 0.28);
+    }
+
+    /* Destino válido quando uma peça está selecionada */
+    .hole-slot.valid-target .hole-recess {
+      background: radial-gradient(circle at 50% 50%, rgba(255, 224, 145, 0.55) 0%, rgba(180, 120, 40, 0.35) 60%, #241004 100%);
+      box-shadow:
+        0 0 12px rgba(255, 214, 130, 0.75),
+        inset 0 0 6px rgba(255, 240, 200, 0.8);
+      transform: scale(1.16);
+      animation: targetPulse 1.2s infinite ease-in-out;
+    }
+
+    @keyframes targetPulse {
+      0%, 100% { transform: scale(1.12); opacity: 0.88; }
+      50% { transform: scale(1.24); opacity: 1; }
+    }
+
+    /* Indicador de Dica Inteligente */
+    .hole-slot.hint-from .peg-ball {
+      box-shadow:
+        0 0 0 4px #38bdf8,
+        0 0 20px rgba(56, 189, 248, 0.9),
+        0 6px 10px var(--peg-shadow);
+    }
+
+    .hole-slot.hint-to .hole-recess {
+      background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.7) 0%, rgba(14, 116, 144, 0.45) 70%, #160902 100%);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.95);
+      transform: scale(1.24);
+    }
+
+    /* PINO / PEÇA ESFÉRICA EM BAQUELITE / MÁRMORE */
+    .peg-ball {
+      position: absolute;
+      width: 82%;
+      height: 82%;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 32% 28%,
+        var(--peg-highlight) 0%,
+        var(--peg-light) 28%,
+        var(--peg-mid) 68%,
+        var(--peg-dark) 100%
+      );
+      box-shadow:
+        0 6px 10px var(--peg-shadow),
+        0 2px 3px rgba(0, 0, 0, 0.85),
+        inset 0 -3px 5px rgba(0, 0, 0, 0.35),
+        inset 0 2px 3px rgba(255, 255, 255, 0.55);
+      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.16s ease;
+      pointer-events: none;
+    }
+
+    .hole-slot:hover .peg-ball {
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    /* Peça Selecionada com Anel Luminoso Pulsante */
+    .hole-slot.selected .peg-ball {
+      transform: translateY(-5px) scale(1.11);
+      box-shadow:
+        0 0 0 3px var(--accent-gold-bright),
+        0 0 18px rgba(255, 214, 153, 0.85),
+        0 12px 16px rgba(0, 0, 0, 0.8);
+      animation: selectedRing 1.1s infinite ease-in-out;
+    }
+
+    @keyframes selectedRing {
+      0%, 100% {
+        box-shadow:
+          0 0 0 3px var(--accent-gold-bright),
+          0 0 14px rgba(255, 214, 153, 0.7),
+          0 12px 16px rgba(0, 0, 0, 0.8);
+      }
+      50% {
+        box-shadow:
+          0 0 0 5px #fff3db,
+          0 0 24px rgba(255, 214, 153, 1),
+          0 14px 18px rgba(0, 0, 0, 0.85);
+      }
+    }
+
+    /* Peça fantasma flutuante durante o arrasto (Drag & Drop) */
+    .drag-ghost {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 32% 28%,
+        var(--peg-highlight) 0%,
+        var(--peg-light) 28%,
+        var(--peg-mid) 68%,
+        var(--peg-dark) 100%
+      );
+      box-shadow:
+        0 0 0 3px var(--accent-gold-bright),
+        0 16px 26px rgba(0, 0, 0, 0.85);
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(1.12);
+      z-index: 1000;
+      display: none;
+    }
+
+    /* Animação de Salto da Peça */
+    .jump-clone {
+      position: fixed;
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 32% 28%,
+        var(--peg-highlight) 0%,
+        var(--peg-light) 28%,
+        var(--peg-mid) 68%,
+        var(--peg-dark) 100%
+      );
+      box-shadow: 0 14px 22px rgba(0, 0, 0, 0.75);
+      pointer-events: none;
+      z-index: 900;
+      transition: left 0.22s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  top 0.22s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  transform 0.22s ease;
+    }
+
+    /* BARRA DE MENSAGENS E CONTROLES INFERIORES */
+    .status-strip {
+      width: 100%;
+      max-width: 760px;
+      text-align: center;
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      min-height: 24px;
+      margin-bottom: 8px;
+      padding: 0 8px;
+    }
+
+    .status-strip strong {
+      color: var(--accent-gold-bright);
+    }
+
+    .controls-dock {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-panel);
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    }
+
+    .ctrl-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(180deg, #34271e 0%, #221913 100%);
+      border: 1px solid rgba(230, 184, 125, 0.28);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 8px 13px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+    }
+
+    .ctrl-btn:hover:not(:disabled) {
+      border-color: var(--accent-gold-bright);
+      background: linear-gradient(180deg, #453428 0%, #2b2018 100%);
+      transform: translateY(-1px);
+    }
+
+    .ctrl-btn:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .ctrl-btn.btn-hint {
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #bae6fd;
+    }
+
+    .ctrl-btn.btn-hint:hover:not(:disabled) {
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+    }
+
+    .ctrl-btn.btn-primary {
+      background: linear-gradient(180deg, #8c5327 0%, #5e3415 100%);
+      border-color: rgba(255, 214, 153, 0.45);
+      color: #fff7eb;
+    }
+
+    .record-pill {
+      width: 100%;
+      max-width: 760px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      margin-top: 8px;
+      padding: 0 6px;
+    }
+
+    .record-pill span strong {
+      color: var(--accent-gold);
+    }
+
+    /* MODAL DE FIM DE JOGO */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 7, 5, 0.78);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.22s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      background: linear-gradient(160deg, #2b2018 0%, #19120d 100%);
+      border: 1px solid rgba(230, 184, 125, 0.4);
+      border-radius: 20px;
+      max-width: 400px;
+      width: 100%;
+      padding: 24px 20px;
+      text-align: center;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.85);
+    }
+
+    .modal-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .badge-perfect { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.45); }
+    .badge-win { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.45); }
+    .badge-over { background: rgba(248, 113, 113, 0.18); color: #fca5a5; border: 1px solid rgba(248, 113, 113, 0.4); }
+
+    .modal-card h2 {
+      font-size: 1.45rem;
+      color: var(--accent-gold-bright);
+      margin-bottom: 8px;
+    }
+
+    .modal-card p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 18px;
+    }
+
+    .modal-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .metric-box {
+      background: rgba(12, 8, 5, 0.65);
+      border: 1px solid rgba(230, 184, 125, 0.18);
+      border-radius: 12px;
+      padding: 10px 6px;
+    }
+
+    .metric-box .val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .metric-box .lbl {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    @media (max-width: 540px) {
+      .top-header {
+        padding: 8px 12px;
+      }
+      .title-group h1 {
+        font-size: 1.02rem;
+      }
+      .stat-chip {
+        min-width: 56px;
+        padding: 4px 7px;
+      }
+      .stat-value {
+        font-size: 0.9rem;
+      }
+      .tab-btn {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+      }
+      .ctrl-btn {
+        font-size: 0.75rem;
+        padding: 7px 10px;
+      }
+    }
+  </style>
+</head>
+<body data-peg-theme="ivory">
+
+  <!-- Cabeçalho e Placar -->
+  <header class="top-header">
+    <div class="title-group">
+      <div class="emblem" aria-hidden="true"></div>
+      <div>
+        <h1>Resta Um</h1>
+        <p>Peg Solitaire Clássico em Madeira</p>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat-chip">
+        <span class="stat-label">Restantes</span>
+        <span class="stat-value highlight" id="statPegs">32</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-label">Jogadas</span>
+        <span class="stat-value" id="statMoves">0</span>
+      </div>
+      <div class="stat-chip">
+        <span class="stat-label">Tempo</span>
+        <span class="stat-value" id="statTimer">00:00</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Seletores de Variantes e Temas -->
+  <nav class="selectors-bar" aria-label="Configurações de Tabuleiro e Peças">
+    <div class="board-tabs" id="variantTabs">
+      <button class="tab-btn active" data-variant="english">Inglês (33)</button>
+      <button class="tab-btn" data-variant="european">Europeu (37)</button>
+      <button class="tab-btn" data-variant="diamond">Diamante (41)</button>
+      <button class="tab-btn" data-variant="triangle">Triângulo (15)</button>
+      <button class="tab-btn" data-variant="puzzle">Desafio</button>
+    </div>
+
+    <div class="theme-and-record">
+      <div class="theme-swatches" title="Acabamento das Peças">
+        <span>Peças:</span>
+        <button class="swatch-btn swatch-ivory active" data-theme="ivory" aria-label="Marfim Clássico" title="Marfim Clássico"></button>
+        <button class="swatch-btn swatch-emerald" data-theme="emerald" aria-label="Esmeralda" title="Esmeralda"></button>
+        <button class="swatch-btn swatch-ruby" data-theme="ruby" aria-label="Rubi" title="Rubi"></button>
+        <button class="swatch-btn swatch-ebony" data-theme="ebony" aria-label="Madeira Escura" title="Madeira Escura"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Tabuleiro Circular -->
+  <main class="board-stage">
+    <div class="wooden-board" id="woodenBoard">
+      <div class="capture-groove"></div>
+      <div class="captured-ring" id="capturedRing"></div>
+      <div class="inner-plinth">
+        <div class="holes-layer" id="holesLayer"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mensagem de Orientação -->
+  <div class="status-strip" id="statusMessage">
+    Selecione uma peça e salte sobre outra adjacente para um furo vazio.
+  </div>
+
+  <!-- Barra de Ações -->
+  <section class="controls-dock" aria-label="Controles da Partida">
+    <button class="ctrl-btn" id="btnUndo" disabled title="Desfazer jogada (Ctrl+Z)">
+      ↶ Desfazer
+    </button>
+    <button class="ctrl-btn" id="btnRedo" disabled title="Refazer jogada (Ctrl+Y)">
+      ↷ Refazer
+    </button>
+    <button class="ctrl-btn btn-hint" id="btnHint" title="Sugerir movimento vencedor">
+      💡 Dica
+    </button>
+    <button class="ctrl-btn btn-primary" id="btnRestart" title="Reiniciar tabuleiro atual">
+      ↻ Reiniciar
+    </button>
+    <button class="ctrl-btn" id="btnAudio" title="Ativar ou silenciar sons">
+      🔊 Som: On
+    </button>
+  </section>
+
+  <!-- Recordes e Atalhos -->
+  <footer class="record-pill">
+    <span id="recordDisplay">Recorde neste tabuleiro: <strong>—</strong></span>
+    <span>Teclado: <strong>Setas</strong> movem peça selecionada</span>
+  </footer>
+
+  <!-- Peça flutuante para Drag & Drop -->
+  <div class="drag-ghost" id="dragGhost"></div>
+
+  <!-- Modal de Fim de Partida -->
+  <div class="modal-backdrop" id="endModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <span class="modal-badge badge-win" id="modalBadge">Fim de Jogo</span>
+      <h2 id="modalTitle">Vitória!</h2>
+      <p id="modalDesc">Você concluiu o desafio com maestria.</p>
+      <div class="modal-metrics">
+        <div class="metric-box">
+          <div class="val" id="modalPegs">1</div>
+          <div class="lbl">Restantes</div>
+        </div>
+        <div class="metric-box">
+          <div class="val" id="modalMoves">31</div>
+          <div class="lbl">Jogadas</div>
+        </div>
+        <div class="metric-box">
+          <div class="val" id="modalTime">01:12</div>
+          <div class="lbl">Tempo</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="ctrl-btn" id="btnModalUndo">↶ Desfazer Última</button>
+        <button class="ctrl-btn btn-primary" id="btnModalRestart">Jogar Novamente</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /**
+       * =========================================================================
+       * 1. DEFINIÇÃO DAS VARIANTES DE TABULEIRO E DESAFIOS
+       * =========================================================================
+       */
+      const PUZZLE_PRESETS = [
+        {
+          name: 'Desafio 1 — Cruz Rápida (6 peças)',
+          rows: 7,
+          cols: 7,
+          isTriangle: false,
+          center: [3, 3],
+          layout: [
+            '  ...  ',
+            '  ...  ',
+            '...O...',
+            '.OO.OO.',
+            '...O...',
+            '  ...  ',
+            '  ...  '
+          ]
+        },
+        {
+          name: 'Desafio 2 — Flecha (8 peças)',
+          rows: 7,
+          cols: 7,
+          isTriangle: false,
+          center: [3, 3],
+          layout: [
+            '  .O.  ',
+            '  OOO  ',
+            '..OOO..',
+            '...O...',
+            '.......',
+            '  ...  ',
+            '  ...  '
+          ]
+        },
+        {
+          name: 'Desafio 3 — Templo (10 peças)',
+          rows: 7,
+          cols: 7,
+          isTriangle: false,
+          center: [3, 3],
+          layout: [
+            '  ...  ',
+            '  .O.  ',
+            '..OOO..',
+            '.OO.OO.',
+            '..OO...',
+            '  ...  ',
+            '  ...  '
+          ]
+        },
+        {
+          name: 'Desafio 4 — Estrela Final (12 peças)',
+          rows: 7,
+          cols: 7,
+          isTriangle: false,
+          center: [3, 3],
+          layout: [
+            '  .O.  ',
+            '  OOO  ',
+            '..OOO..',
+            '..O.O..',
+            '...O...',
+            '  OO.  ',
+            '  ...  '
+          ]
+        }
+      ];
+
+      const VARIANTS = {
+        english: {
+          id: 'english',
+          label: 'Inglês (33)',
+          rows: 7,
+          cols: 7,
+          isTriangle: false,
+          center: [3, 3],
+          layout: [
+            '  OOO  ',
+            '  OOO  ',
+            'OOOOOOO',
+            'OOO.OOO',
+            'OOOOOOO',
+            '  OOO  ',
+            '  OOO  '
+          ]
+        },
+        european: {
+          id: 'european',
+          label: 'Europeu (37)',
+          rows: 7,
+          cols: 7,
+          isTriangle: false,
+          center: [3, 3],
+          // No Europeu clássico (37 furos), deixar (2,3) vazio garante solução até o centro
+          layout: [
+            '  OOO  ',
+            ' OOOOO ',
+            'OOO.OOO',
+            'OOOOOOO',
+            'OOOOOOO',
+            ' OOOOO ',
+            '  OOO  '
+          ]
+        },
+        diamond: {
+          id: 'diamond',
+          label: 'Diamante (41)',
+          rows: 9,
+          cols: 9,
+          isTriangle: false,
+          center: [4, 4],
+          layout: [
+            '    O    ',
+            '   OOO   ',
+            '  OOOOO  ',
+            ' OOOOOOO ',
+            'OOOO.OOOO',
+            ' OOOOOOO ',
+            '  OOOOO  ',
+            '   OOO   ',
+            '    O    '
+          ]
+        },
+        triangle: {
+          id: 'triangle',
+          label: 'Triângulo (15)',
+          rows: 5,
+          cols: 5,
+          isTriangle: true,
+          center: [2, 1],
+          // Coordenadas triangulares (r, c) onde 0 <= c <= r < 5
+          // Topo (0,0) vazio: padrão clássico Cracker Barrel
+          layout: [
+            '.    ',
+            'OO   ',
+            'OOO  ',
+            'OOOO ',
+            'OOOOO'
+          ]
+        }
+      };
+
+      /**
+       * =========================================================================
+       * 2. MOTOR DE ÁUDIO TÁTIL (WEB AUDIO API)
+       * =========================================================================
+       */
+      class WoodSoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.enabled = true;
+        }
+
+        ensureContext() {
+          if (!this.enabled) return null;
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+          return this.ctx;
+        }
+
+        // Clique leve ao tocar/selecionar peça de baquelite
+        playPickup() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(520, now);
+          osc.frequency.exponentialRampToValueAtTime(980, now + 0.035);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + 0.006);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        }
+
+        // Batida oca de madeira + encaixe firme no furo
+        playPlace() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+
+          // Corpo ressonante da madeira
+          const oscWood = ctx.createOscillator();
+          const gainWood = ctx.createGain();
+          oscWood.type = 'sine';
+          oscWood.frequency.setValueAtTime(210, now);
+          oscWood.frequency.exponentialRampToValueAtTime(95, now + 0.085);
+
+          gainWood.gain.setValueAtTime(0.001, now);
+          gainWood.gain.exponentialRampToValueAtTime(0.35, now + 0.008);
+          gainWood.gain.exponentialRampToValueAtTime(0.0001, now + 0.095);
+
+          oscWood.connect(gainWood);
+          gainWood.connect(ctx.destination);
+          oscWood.start(now);
+          oscWood.stop(now + 0.1);
+
+          // Estalo agudo da baquelite encaixando
+          const oscClick = ctx.createOscillator();
+          const gainClick = ctx.createGain();
+          oscClick.type = 'triangle';
+          oscClick.frequency.setValueAtTime(1250, now);
+          oscClick.frequency.exponentialRampToValueAtTime(420, now + 0.025);
+
+          gainClick.gain.setValueAtTime(0.001, now);
+          gainClick.gain.exponentialRampToValueAtTime(0.2, now + 0.003);
+          gainClick.gain.exponentialRampToValueAtTime(0.0001, now + 0.03);
+
+          oscClick.connect(gainClick);
+          gainClick.connect(ctx.destination);
+          oscClick.start(now);
+          oscClick.stop(now + 0.035);
+        }
+
+        // Peça capturada rolando/caindo na calha periférica
+        playCaptureGroove() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+
+          const baseTime = ctx.currentTime + 0.14;
+          const bounces = [0, 0.075, 0.135];
+          const amps = [0.16, 0.09, 0.04];
+
+          bounces.forEach((offset, idx) => {
+            const t = baseTime + offset;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(340 + idx * 55, t);
+            osc.frequency.exponentialRampToValueAtTime(160, t + 0.04);
+
+            gain.gain.setValueAtTime(0.001, t);
+            gain.gain.exponentialRampToValueAtTime(amps[idx], t + 0.004);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.045);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.05);
+          });
+        }
+
+        // Som suave de desfazer/refazer
+        playUndo() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(380, now);
+          osc.frequency.exponentialRampToValueAtTime(240, now + 0.07);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.16, now + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.085);
+        }
+
+        // Fanfarra harmônica de vitória
+        playVictory(isPerfect) {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+
+          const notes = isPerfect
+            ? [523.25, 659.25, 783.99, 1046.50, 1318.51]
+            : [440.00, 554.37, 659.25, 880.00];
+
+          notes.forEach((freq, i) => {
+            const t = ctx.currentTime + i * 0.11;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, t);
+
+            gain.gain.setValueAtTime(0.001, t);
+            gain.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.42);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.45);
+          });
+        }
+      }
+
+      /**
+       * =========================================================================
+       * 3. SOLUCIONADOR INTELIGENTE (BITBOARD DFS + MEMOIZAÇÃO ZOBRIST/BIGINT)
+       * =========================================================================
+       */
+      class PegSolver {
+        constructor(holes, movesList) {
+          this.holes = holes; // Array de { id, r, c }
+          this.moves = movesList; // Array de { from, over, to, maskFrom, maskOver, maskTo, delta }
+        }
+
+        /**
+         * Busca um movimento que leve à vitória (1 peça restante).
+         * Usa DFS com podas e tabela de estados visitados via BigInt Bitboard.
+         */
+        findWinningMove(currentBoardState, maxVisited = 140000) {
+          let initialMask = 0n;
+          let pegCount = 0;
+
+          for (let i = 0; i < currentBoardState.length; i++) {
+            if (currentBoardState[i] === 1) {
+              initialMask |= (1n << BigInt(i));
+              pegCount++;
+            }
+          }
+
+          if (pegCount <= 1) return null;
+
+          const visited = new Set();
+          let iterations = 0;
+          let bestFirstMove = null;
+          let bestMinPegs = pegCount;
+
+          const dfs = (mask, count, firstMove) => {
+            if (count === 1) {
+              bestFirstMove = firstMove;
+              bestMinPegs = 1;
+              return true;
+            }
+
+            if (iterations++ > maxVisited) {
+              return false;
+            }
+
+            if (visited.has(mask)) {
+              return false;
+            }
+            visited.add(mask);
+
+            if (count < bestMinPegs && firstMove) {
+              bestMinPegs = count;
+              bestFirstMove = firstMove;
+            }
+
+            // Ordena jogadas heuristicamente priorizando movimentos em direção ao centro
+            for (let i = 0; i < this.moves.length; i++) {
+              const m = this.moves[i];
+              // Verifica se 'from' e 'over' estão ocupados e 'to' está vazio
+              if ((mask & m.maskFrom) !== 0n &&
+                  (mask & m.maskOver) !== 0n &&
+                  (mask & m.maskTo) === 0n) {
+                const nextMask = mask ^ m.delta;
+                if (dfs(nextMask, count - 1, firstMove || m)) {
+                  return true;
+                }
+              }
+            }
+
+            return false;
+          };
+
+          const solved = dfs(initialMask, pegCount, null);
+          return {
+            solved,
+            move: bestFirstMove,
+            exhausted: iterations <= maxVisited && !solved
+          };
+        }
+      }
+
+      /**
+       * =========================================================================
+       * 4. CONTROLADOR PRINCIPAL DO JOGO
+       * =========================================================================
+       */
+      const sound = new WoodSoundEngine();
+
+      // Elementos do DOM
+      const holesLayer = document.getElementById('holesLayer');
+      const capturedRing = document.getElementById('capturedRing');
+      const statPegs = document.getElementById('statPegs');
+      const statMoves = document.getElementById('statMoves');
+      const statTimer = document.getElementById('statTimer');
+      const statusMessage = document.getElementById('statusMessage');
+      const recordDisplay = document.getElementById('recordDisplay');
+      const dragGhost = document.getElementById('dragGhost');
+
+      const btnUndo = document.getElementById('btnUndo');
+      const btnRedo = document.getElementById('btnRedo');
+      const btnHint = document.getElementById('btnHint');
+      const btnRestart = document.getElementById('btnRestart');
+      const btnAudio = document.getElementById('btnAudio');
+
+      const endModal = document.getElementById('endModal');
+      const modalBadge = document.getElementById('modalBadge');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalDesc = document.getElementById('modalDesc');
+      const modalPegs = document.getElementById('modalPegs');
+      const modalMoves = document.getElementById('modalMoves');
+      const modalTime = document.getElementById('modalTime');
+      const btnModalUndo = document.getElementById('btnModalUndo');
+      const btnModalRestart = document.getElementById('btnModalRestart');
+
+      // Estado da Partida
+      let currentVariantKey = 'english';
+      let puzzleIndex = 0;
+      let boardConfig = null;
+      let holes = [];          // Lista linear de furos válidos: { id, r, c, xPct, yPct, isCenter }
+      let coordToId = new Map();
+      let allLegalMoves = [];  // Todas as triplas { from, over, to, dir, maskFrom, maskOver, maskTo, delta }
+      let solver = null;
+
+      let boardState = [];     // 1 = pino presente, 0 = furo vazio
+      let initialPegCount = 0;
+      let selectedHoleId = null;
+      let hintMove = null;
+
+      let undoStack = [];
+      let redoStack = [];
+
+      let elapsedSeconds = 0;
+      let timerInterval = null;
+      let timerStarted = false;
+
+      // Estado de Drag & Drop
+      let dragSourceId = null;
+      let isDragging = false;
+      let dragStartPos = { x: 0, y: 0 };
+
+      /**
+       * Constrói a geometria de furos e transições válidas do tabuleiro atual
+       */
+      function buildBoardGeometry(config) {
+        holes = [];
+        coordToId.clear();
+        allLegalMoves = [];
+
+        const { rows, cols, layout, isTriangle, center } = config;
+        let idCounter = 0;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const ch = layout[r] && layout[r][c];
+            if (ch === 'O' || ch === '.') {
+              let xPct, yPct;
+
+              if (isTriangle) {
+                // Posicionamento triangular equilibrado
+                const rowWidth = r;
+                xPct = 50 + (c - rowWidth / 2) * 16.5;
+                yPct = 17 + r * 16.5;
+              } else {
+                const step = 100 / Math.max(rows, cols);
+                xPct = (c + 0.5) * step;
+                yPct = (r + 0.5) * step;
+              }
+
+              const isCenter = center && center[0] === r && center[1] === c;
+              const holeObj = {
+                id: idCounter,
+                r,
+                c,
+                xPct,
+                yPct,
+                isCenter,
+                initialHasPeg: ch === 'O' ? 1 : 0
+              };
+
+              holes.push(holeObj);
+              coordToId.set(`${r},${c}`, idCounter);
+              idCounter++;
+            }
+          }
+        }
+
+        // Direções de salto válidas
+        const directions = isTriangle
+          ? [
+              { dr: 0, dc: -1, key: 'ArrowLeft' },
+              { dr: 0, dc: 1, key: 'ArrowRight' },
+              { dr: -1, dc: 0, key: 'ArrowUp' },
+              { dr: 1, dc: 0, key: 'ArrowDown' },
+              { dr: -1, dc: -1, key: null },
+              { dr: 1, dc: 1, key: null }
+            ]
+          : [
+              { dr: -1, dc: 0, key: 'ArrowUp' },
+              { dr: 1, dc: 0, key: 'ArrowDown' },
+              { dr: 0, dc: -1, key: 'ArrowLeft' },
+              { dr: 0, dc: 1, key: 'ArrowRight' }
+            ];
+
+        holes.forEach((h) => {
+          directions.forEach((d) => {
+            const overKey = `${h.r + d.dr},${h.c + d.dc}`;
+            const toKey = `${h.r + d.dr * 2},${h.c + d.dc * 2}`;
+
+            if (coordToId.has(overKey) && coordToId.has(toKey)) {
+              const from = h.id;
+              const over = coordToId.get(overKey);
+              const to = coordToId.get(toKey);
+
+              const maskFrom = 1n << BigInt(from);
+              const maskOver = 1n << BigInt(over);
+              const maskTo = 1n << BigInt(to);
+
+              allLegalMoves.push({
+                from,
+                over,
+                to,
+                key: d.key,
+                maskFrom,
+                maskOver,
+                maskTo,
+                delta: maskFrom | maskOver | maskTo
+              });
+            }
+          });
+        });
+
+        // Ordena movimentos priorizando saltos que terminam mais próximos ao centro
+        if (center) {
+          allLegalMoves.sort((a, b) => {
+            const ha = holes[a.to];
+            const hb = holes[b.to];
+            const distA = Math.hypot(ha.r - center[0], ha.c - center[1]);
+            const distB = Math.hypot(hb.r - center[0], hb.c - center[1]);
+            return distA - distB;
+          });
+        }
+
+        solver = new PegSolver(holes, allLegalMoves);
+      }
+
+      /**
+       * Carrega ou reinicia uma variante de tabuleiro
+       */
+      function loadVariant(variantKey, advancePuzzle = false) {
+        currentVariantKey = variantKey;
+
+        if (variantKey === 'puzzle') {
+          if (advancePuzzle) {
+            puzzleIndex = (puzzleIndex + 1) % PUZZLE_PRESETS.length;
+          }
+          boardConfig = PUZZLE_PRESETS[puzzleIndex];
+        } else {
+          boardConfig = VARIANTS[variantKey];
+        }
+
+        buildBoardGeometry(boardConfig);
+        resetMatch();
+      }
+
+      function resetMatch() {
+        stopTimer();
+        elapsedSeconds = 0;
+        timerStarted = false;
+        statTimer.textContent = '00:00';
+
+        boardState = holes.map((h) => h.initialHasPeg);
+        initialPegCount = boardState.reduce((acc, v) => acc + v, 0);
+
+        selectedHoleId = null;
+        hintMove = null;
+        undoStack = [];
+        redoStack = [];
+        endModal.classList.remove('open');
+
+        renderBoardDOM();
+        updateHUD();
+        updateRecordBanner();
+
+        if (currentVariantKey === 'puzzle') {
+          statusMessage.innerHTML = `<strong>${boardConfig.name}</strong>: Reduza até restar 1 peça.`;
+        } else {
+          statusMessage.innerHTML = 'Selecione uma peça e salte sobre outra adjacente para um furo vazio.';
+        }
+      }
+
+      /**
+       * Renderiza os furos e peças no DOM
+       */
+      function renderBoardDOM() {
+        holesLayer.innerHTML = '';
+        const holeSizePct = boardConfig.isTriangle
+          ? 14.5
+          : Math.min(13.2, 86 / Math.max(boardConfig.rows, boardConfig.cols));
+
+        holes.forEach((h) => {
+          const slot = document.createElement('div');
+          slot.className = 'hole-slot';
+          if (h.isCenter) slot.classList.add('is-center');
+          slot.dataset.id = h.id;
+          slot.style.left = `${h.xPct}%`;
+          slot.style.top = `${h.yPct}%`;
+          slot.style.width = `${holeSizePct}%`;
+          slot.style.height = `${holeSizePct}%`;
+
+          const recess = document.createElement('div');
+          recess.className = 'hole-recess';
+          slot.appendChild(recess);
+
+          const peg = document.createElement('div');
+          peg.className = 'peg-ball';
+          peg.style.display = boardState[h.id] === 1 ? 'block' : 'none';
+          slot.appendChild(peg);
+
+          // Eventos de Ponteiro (Clique + Drag & Drop unificados)
+          slot.addEventListener('pointerdown', (e) => handleSlotPointerDown(e, h.id));
+
+          holesLayer.appendChild(slot);
+        });
+
+        syncBoardVisuals();
+      }
+
+      /**
+       * Atualiza classes visuais (seleção, destinos válidos, dicas, calha)
+       */
+      function syncBoardVisuals() {
+        const validTargets = new Set();
+        if (selectedHoleId !== null && boardState[selectedHoleId] === 1) {
+          getValidMovesFrom(selectedHoleId).forEach((m) => validTargets.add(m.to));
+        }
+
+        const slotElements = holesLayer.querySelectorAll('.hole-slot');
+        slotElements.forEach((el) => {
+          const id = Number(el.dataset.id);
+          const hasPeg = boardState[id] === 1;
+          const pegEl = el.querySelector('.peg-ball');
+
+          pegEl.style.display = hasPeg ? 'block' : 'none';
+          el.classList.toggle('selected', id === selectedHoleId && hasPeg);
+          el.classList.toggle('valid-target', validTargets.has(id));
+          el.classList.toggle('hint-from', hintMove && hintMove.from === id);
+          el.classList.toggle('hint-to', hintMove && hintMove.to === id);
+        });
+
+        renderCapturedGroove();
+      }
+
+      /**
+       * Desenha as peças capturadas acomodadas ao longo da calha circular
+       */
+      function renderCapturedGroove() {
+        const currentPegs = countRemainingPegs();
+        const capturedCount = Math.max(0, initialPegCount - currentPegs);
+        const existing = capturedRing.children.length;
+
+        if (capturedCount === existing) return;
+
+        if (capturedCount < existing) {
+          // Remove excedentes (caso de Undo ou Restart)
+          while (capturedRing.children.length > capturedCount) {
+            capturedRing.removeChild(capturedRing.lastChild);
+          }
+        } else {
+          // Adiciona novas peças na calha circular
+          for (let i = existing; i < capturedCount; i++) {
+            const peg = document.createElement('div');
+            peg.className = 'captured-peg';
+
+            // Distribui em arco suave ao redor da calha (raio ~ 44.3%)
+            const angleDeg = -90 + i * 9.8;
+            const rad = (angleDeg * Math.PI) / 180;
+            const radiusPct = 44.3;
+            const x = 50 + radiusPct * Math.cos(rad);
+            const y = 50 + radiusPct * Math.sin(rad);
+
+            peg.style.left = `${x}%`;
+            peg.style.top = `${y}%`;
+            capturedRing.appendChild(peg);
+          }
+        }
+      }
+
+      /**
+       * Retorna todos os movimentos legais no estado atual
+       */
+      function getAllAvailableMoves() {
+        return allLegalMoves.filter(
+          (m) =>
+            boardState[m.from] === 1 &&
+            boardState[m.over] === 1 &&
+            boardState[m.to] === 0
+        );
+      }
+
+      function getValidMovesFrom(fromId) {
+        return allLegalMoves.filter(
+          (m) =>
+            m.from === fromId &&
+            boardState[m.over] === 1 &&
+            boardState[m.to] === 0
+        );
+      }
+
+      function countRemainingPegs() {
+        let count = 0;
+        for (let i = 0; i < boardState.length; i++) {
+          if (boardState[i] === 1) count++;
+        }
+        return count;
+      }
+
+      /**
+       * Interação de Clique / Toque e Início de Arrasto
+       */
+      function handleSlotPointerDown(e, holeId) {
+        if (e.button !== undefined && e.button !== 0) return;
+        e.preventDefault();
+
+        // Caso 1: Clicou em um destino válido da peça atualmente selecionada
+        if (selectedHoleId !== null && boardState[holeId] === 0) {
+          const move = getValidMovesFrom(selectedHoleId).find((m) => m.to === holeId);
+          if (move) {
+            executeMove(move);
+            return;
+          }
+        }
+
+        // Caso 2: Clicou em uma peça existente
+        if (boardState[holeId] === 1) {
+          hintMove = null;
+          selectedHoleId = selectedHoleId === holeId ? null : holeId;
+          sound.playPickup();
+          syncBoardVisuals();
+
+          // Prepara possível arrasto (Drag & Drop)
+          dragSourceId = holeId;
+          isDragging = false;
+          dragStartPos = { x: e.clientX, y: e.clientY };
+        } else {
+          // Clicou em furo vazio inválido
+          if (selectedHoleId !== null) {
+            selectedHoleId = null;
+            syncBoardVisuals();
+          }
+        }
+      }
+
+      window.addEventListener('pointermove', (e) => {
+        if (dragSourceId === null) return;
+
+        const dist = Math.hypot(e.clientX - dragStartPos.x, e.clientY - dragStartPos.y);
+        if (!isDragging && dist > 8) {
+          isDragging = true;
+          selectedHoleId = dragSourceId;
+          syncBoardVisuals();
+
+          const sourceSlot = holesLayer.querySelector(`.hole-slot[data-id="${dragSourceId}"]`);
+          if (sourceSlot) {
+            const rect = sourceSlot.getBoundingClientRect();
+            dragGhost.style.width = `${rect.width * 0.82}px`;
+            dragGhost.style.height = `${rect.height * 0.82}px`;
+          }
+          dragGhost.style.display = 'block';
+        }
+
+        if (isDragging) {
+          dragGhost.style.left = `${e.clientX}px`;
+          dragGhost.style.top = `${e.clientY}px`;
+        }
+      });
+
+      window.addEventListener('pointerup', (e) => {
+        if (dragSourceId === null) return;
+
+        if (isDragging) {
+          dragGhost.style.display = 'none';
+          const targetEl = document.elementFromPoint(e.clientX, e.clientY);
+          const slotEl = targetEl ? targetEl.closest('.hole-slot') : null;
+
+          if (slotEl) {
+            const targetId = Number(slotEl.dataset.id);
+            const move = getValidMovesFrom(dragSourceId).find((m) => m.to === targetId);
+            if (move) {
+              executeMove(move);
+            }
+          }
+        }
+
+        dragSourceId = null;
+        isDragging = false;
+      });
+
+      /**
+       * Anima o salto da peça no espaço da tela e aplica o movimento
+       */
+      function animateJump(move) {
+        const fromEl = holesLayer.querySelector(`.hole-slot[data-id="${move.from}"]`);
+        const toEl = holesLayer.querySelector(`.hole-slot[data-id="${move.to}"]`);
+        if (!fromEl || !toEl) return;
+
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+        const size = fromRect.width * 0.82;
+
+        const clone = document.createElement('div');
+        clone.className = 'jump-clone';
+        clone.style.width = `${size}px`;
+        clone.style.height = `${size}px`;
+        clone.style.left = `${fromRect.left + (fromRect.width - size) / 2}px`;
+        clone.style.top = `${fromRect.top + (fromRect.height - size) / 2}px`;
+        document.body.appendChild(clone);
+
+        requestAnimationFrame(() => {
+          clone.style.transform = 'scale(1.18)';
+          clone.style.left = `${toRect.left + (toRect.width - size) / 2}px`;
+          clone.style.top = `${toRect.top + (toRect.height - size) / 2}px`;
+        });
+
+        setTimeout(() => {
+          clone.remove();
+        }, 230);
+      }
+
+      /**
+       * Executa uma jogada válida
+       */
+      function executeMove(move) {
+        if (!timerStarted) {
+          startTimer();
+        }
+
+        animateJump(move);
+
+        boardState[move.from] = 0;
+        boardState[move.over] = 0;
+        boardState[move.to] = 1;
+
+        undoStack.push(move);
+        redoStack = [];
+        hintMove = null;
+
+        // Mantém a peça recém-movida selecionada se ela ainda tiver saltos encadeados
+        const nextChainMoves = getValidMovesFrom(move.to);
+        selectedHoleId = nextChainMoves.length > 0 ? move.to : null;
+
+        sound.playPlace();
+        sound.playCaptureGroove();
+
+        syncBoardVisuals();
+        updateHUD();
+        checkEndOfGame();
+      }
+
+      /**
+       * Desfazer (Undo) e Refazer (Redo)
+       */
+      function undoMove() {
+        if (undoStack.length === 0) return;
+
+        const lastMove = undoStack.pop();
+        boardState[lastMove.from] = 1;
+        boardState[lastMove.over] = 1;
+        boardState[lastMove.to] = 0;
+
+        redoStack.push(lastMove);
+        selectedHoleId = lastMove.from;
+        hintMove = null;
+
+        endModal.classList.remove('open');
+        sound.playUndo();
+        syncBoardVisuals();
+        updateHUD();
+        statusMessage.textContent = 'Jogada desfeita.';
+      }
+
+      function redoMove() {
+        if (redoStack.length === 0) return;
+
+        const nextMove = redoStack.pop();
+        boardState[nextMove.from] = 0;
+        boardState[nextMove.over] = 0;
+        boardState[nextMove.to] = 1;
+
+        undoStack.push(nextMove);
+        selectedHoleId = nextMove.to;
+        hintMove = null;
+
+        sound.playPlace();
+        syncBoardVisuals();
+        updateHUD();
+        checkEndOfGame();
+      }
+
+      /**
+       * Dica Inteligente usando DFS / Backtracking com Bitboard
+       */
+      function requestHint() {
+        const available = getAllAvailableMoves();
+        if (available.length === 0) return;
+
+        statusMessage.innerHTML = 'Analisando árvore de possibilidades...';
+
+        setTimeout(() => {
+          const result = solver.findWinningMove(boardState, 160000);
+
+          if (result && result.move) {
+            hintMove = result.move;
+            selectedHoleId = result.move.from;
+            sound.playPickup();
+            syncBoardVisuals();
+
+            if (result.solved) {
+              statusMessage.innerHTML = '💡 <strong>Caminho vencedor encontrado!</strong> Mova a peça destacada em azul.';
+            } else {
+              statusMessage.innerHTML = '💡 <strong>Melhor jogada sugerida:</strong> Siga o destaque em azul.';
+            }
+          } else if (result && result.exhausted) {
+            // Sem solução até 1 peça a partir deste estado; destaca um movimento válido restante
+            hintMove = available[0];
+            selectedHoleId = available[0].from;
+            syncBoardVisuals();
+            statusMessage.innerHTML = '⚠️ Este arranjo atual <strong>não possui mais solução até 1 peça</strong>. Use <strong>Desfazer</strong> para voltar.';
+          }
+        }, 20);
+      }
+
+      /**
+       * Verifica condição de Vitória Perfeita, Vitória Simples ou Fim de Movimentos
+       */
+      function checkEndOfGame() {
+        const remaining = countRemainingPegs();
+        const availableMoves = getAllAvailableMoves();
+
+        if (availableMoves.length > 0) {
+          statusMessage.innerHTML = `Restam <strong>${remaining}</strong> peças. Continue saltando!`;
+          return;
+        }
+
+        // Fim de partida
+        stopTimer();
+        const totalMoves = undoStack.length;
+        const timeStr = formatTime(elapsedSeconds);
+
+        saveRecord(remaining, elapsedSeconds);
+        updateRecordBanner();
+
+        modalPegs.textContent = remaining;
+        modalMoves.textContent = totalMoves;
+        modalTime.textContent = timeStr;
+
+        if (remaining === 1) {
+          const center = boardConfig.center;
+          const centerId = center ? coordToId.get(`${center[0]},${center[1]}`) : null;
+          const isPerfect = centerId !== null && boardState[centerId] === 1;
+
+          sound.playVictory(isPerfect);
+
+          if (isPerfect) {
+            modalBadge.className = 'modal-badge badge-perfect';
+            modalBadge.textContent = '★ Vitória Perfeita ★';
+            modalTitle.textContent = 'Mestre do Resta Um!';
+            modalDesc.textContent = 'Incrível! Restou apenas 1 peça exatamente no furo central do tabuleiro.';
+          } else {
+            modalBadge.className = 'modal-badge badge-win';
+            modalBadge.textContent = 'Vitória!';
+            modalTitle.textContent = 'Parabéns, Resta Um!';
+            modalDesc.textContent = 'Você eliminou todas as peças deixando apenas 1 no tabuleiro.';
+          }
+        } else {
+          modalBadge.className = 'modal-badge badge-over';
+          modalBadge.textContent = 'Sem Movimentos';
+          modalTitle.textContent = 'Fim de Jogadas';
+          modalDesc.textContent = `Não há mais saltos válidos disponíveis. Restaram ${remaining} peças no tabuleiro.`;
+        }
+
+        setTimeout(() => {
+          endModal.classList.add('open');
+        }, 320);
+      }
+
+      /**
+       * Cronômetro e Atualização de HUD
+       */
+      function startTimer() {
+        if (timerStarted) return;
+        timerStarted = true;
+        timerInterval = setInterval(() => {
+          elapsedSeconds++;
+          statTimer.textContent = formatTime(elapsedSeconds);
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function formatTime(secs) {
+        const m = Math.floor(secs / 60);
+        const s = secs % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function updateHUD() {
+        const remaining = countRemainingPegs();
+        statPegs.textContent = remaining;
+        statMoves.textContent = undoStack.length;
+        btnUndo.disabled = undoStack.length === 0;
+        btnRedo.disabled = redoStack.length === 0;
+        btnHint.disabled = getAllAvailableMoves().length === 0;
+      }
+
+      /**
+       * Persistência de Recordes em localStorage
+       */
+      function getRecordStorageKey() {
+        return currentVariantKey === 'puzzle'
+          ? `restaum_rec_puzzle_${puzzleIndex}`
+          : `restaum_rec_${currentVariantKey}`;
+      }
+
+      function saveRecord(remainingPegs, timeSeconds) {
+        try {
+          const key = getRecordStorageKey();
+          const raw = localStorage.getItem(key);
+          const prev = raw ? JSON.parse(raw) : null;
+
+          let isBetter = false;
+          if (!prev) {
+            isBetter = true;
+          } else if (remainingPegs < prev.pegs) {
+            isBetter = true;
+          } else if (remainingPegs === prev.pegs && timeSeconds < prev.time) {
+            isBetter = true;
+          }
+
+          if (isBetter) {
+            localStorage.setItem(key, JSON.stringify({ pegs: remainingPegs, time: timeSeconds }));
+          }
+        } catch (e) {
+          // Ignora falhas de armazenamento privado
+        }
+      }
+
+      function updateRecordBanner() {
+        try {
+          const raw = localStorage.getItem(getRecordStorageKey());
+          if (!raw) {
+            recordDisplay.innerHTML = 'Recorde neste tabuleiro: <strong>Ainda sem registro</strong>';
+            return;
+          }
+          const rec = JSON.parse(raw);
+          const labelPeg = rec.pegs === 1 ? '1 peça (Vitória)' : `${rec.pegs} peças`;
+          recordDisplay.innerHTML = `Recorde: <strong>${labelPeg}</strong> em <strong>${formatTime(rec.time)}</strong>`;
+        } catch (e) {
+          recordDisplay.innerHTML = 'Recorde neste tabuleiro: <strong>—</strong>';
+        }
+      }
+
+      /**
+       * =========================================================================
+       * 5. EVENTOS DE INTERFACE E ATALHOS DE TECLADO
+       * =========================================================================
+       */
+      document.querySelectorAll('#variantTabs .tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#variantTabs .tab-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const v = btn.dataset.variant;
+          const isAlreadyPuzzle = v === 'puzzle' && currentVariantKey === 'puzzle';
+          loadVariant(v, isAlreadyPuzzle);
+        });
+      });
+
+      document.querySelectorAll('.swatch-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.swatch-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          document.body.setAttribute('data-peg-theme', btn.dataset.theme);
+          sound.playPickup();
+        });
+      });
+
+      btnUndo.addEventListener('click', undoMove);
+      btnRedo.addEventListener('click', redoMove);
+      btnHint.addEventListener('click', requestHint);
+      btnRestart.addEventListener('click', () => {
+        sound.playUndo();
+        if (currentVariantKey === 'puzzle') {
+          loadVariant('puzzle', true);
+        } else {
+          resetMatch();
+        }
+      });
+
+      btnAudio.addEventListener('click', () => {
+        sound.enabled = !sound.enabled;
+        btnAudio.textContent = sound.enabled ? '🔊 Som: On' : '🔇 Som: Off';
+        if (sound.enabled) sound.playPickup();
+      });
+
+      btnModalUndo.addEventListener('click', undoMove);
+      btnModalRestart.addEventListener('click', () => {
+        if (currentVariantKey === 'puzzle') {
+          loadVariant('puzzle', true);
+        } else {
+          resetMatch();
+        }
+      });
+
+      // Suporte a Teclado: Setas direcionais para mover peça selecionada e Ctrl+Z/Y
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          if (e.shiftKey) {
+            redoMove();
+          } else {
+            undoMove();
+          }
+          return;
+        }
+
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+          e.preventDefault();
+          redoMove();
+          return;
+        }
+
+        if (selectedHoleId !== null && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+          const valid = getValidMovesFrom(selectedHoleId);
+          const dirMove = valid.find((m) => m.key === e.key);
+          if (dirMove) {
+            e.preventDefault();
+            executeMove(dirMove);
+          }
+        }
+      });
+
+      // Inicializa o jogo no tabuleiro Inglês Clássico
+      loadVariant('english');
+    })();
+  </script>
+</body>
+</html>
