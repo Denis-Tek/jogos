@@ -19,6 +19,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | **[Resta Um](./resta-um/)** | Raciocínio & Tabuleiro | O clássico *Peg Solitaire* em tabuleiro circular de madeira nobre com 5 variantes, 4 acabamentos de peças e solucionador inteligente integrado. | [Jogar Resta Um](https://denis-tek.github.io/jogos/resta-um/) |
 | **[Food Hunt](./food-hunt/)** | Puzzle & Estratégia | Quebra-cabeça casual onde você gerencia 5 slots de cores para comandar formigas pixeladas que escavam desenhos e fotos enviadas pelo jogador. | [Jogar Food Hunt](https://denis-tek.github.io/jogos/food-hunt/) |
 | **[Water Sort Puzzle](./water-sort/)** | Lógica & Organização | Quebra-cabeça de tubos de ensaio onde você separa líquidos coloridos com fases validadas via DFS, paleta de alto contraste e temas claro/escuro. | [Jogar Water Sort](https://denis-tek.github.io/jogos/water-sort/) |
+| **[Campo Minado Pro](./campo-minado/)** | Lógica & Dedução | Versão responsiva do clássico *Minesweeper* com 1º clique seguro, abertura rápida (*Chording*), dica lógica e temas Dark Moderno e Clássico Anos 90. | [Jogar Campo Minado](https://denis-tek.github.io/jogos/campo-minado/) |
 
 ---
 
@@ -28,7 +29,7 @@ Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Arc
 
 * **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível, ilustrações vetoriais embutidas para o menu inicial e renderização acelerada em 60 FPS no `<canvas>` para animações complexas.
 * **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, Web Animations API e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
-* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca em grafos (`DFS` com `BigInt` Bitboard e poda de estados, `BFS` e *Flood-Fill*), clusterização de cores (*K-Means*), eventos unificados (`Pointer Events`) e atalhos de teclado.
+* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca em grafos (`DFS` com `BigInt` Bitboard e poda de estados, `BFS` e *Flood-Fill*), clusterização de cores (*K-Means*), eventos unificados (`Pointer Events` / *Long Press*) e atalhos de teclado.
 * **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes, fases desbloqueadas e preferências de tema/áudio em cada jogo.
 
@@ -52,10 +53,14 @@ jogos/
 │   ├── index.html             # Aplicação completa do Food Hunt: Formigas Pixeladas
 │   ├── imagem.png             # Captura de tela do jogo em execução
 │   └── README.md              # Documentação técnica, regras e algoritmos do Food Hunt
-└── water-sort/
-    ├── index.html             # Aplicação completa do Water Sort Puzzle
+├── water-sort/
+│   ├── index.html             # Aplicação completa do Water Sort Puzzle
+│   ├── imagem.png             # Captura de tela do jogo em execução
+│   └── README.md              # Documentação técnica, regras e algoritmos do Water Sort
+└── campo-minado/
+    ├── index.html             # Aplicação completa do Campo Minado Pro
     ├── imagem.png             # Captura de tela do jogo em execução
-    └── README.md              # Documentação técnica, regras e algoritmos do Water Sort
+    └── README.md              # Documentação técnica, regras e algoritmos do Campo Minado
 ```
 
 ---
