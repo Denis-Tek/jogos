@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Campo Minado Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Share Tech Mono (para o display LED) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --cell-size: 34px;
+            --cell-font: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+            overflow-x: hidden;
+        }
+
+        /* Fonte estilo Display 7-Segmentos / LED */
+        .led-display {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0f0505;
+            color: #ff2a2a;
+            text-shadow: 0 0 8px rgba(255, 42, 42, 0.7);
+            border: 2px inset #444;
+            letter-spacing: 2px;
+        }
+
+        /* ==========================================
+           TEMA 1: DARK MODERNO (Padrão)
+           ========================================== */
+        body.theme-modern {
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            color: #f8fafc;
+        }
+
+        .theme-modern .game-shell {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            border-radius: 1rem;
+        }
+
+        .theme-modern .header-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+        }
+
+        .theme-modern .board-grid {
+            background: #0f172a;
+            padding: 6px;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            gap: 3px;
+        }
+
+        .theme-modern .cell {
+            border-radius: 6px;
+            transition: transform 0.08s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+            font-weight: 800;
+        }
+
+        .theme-modern .cell.unrevealed {
+            background: linear-gradient(145deg, #334155, #273244);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .theme-modern .cell.unrevealed:hover {
+            background: linear-gradient(145deg, #3f4f66, #2e3b4e);
+        }
+
+        .theme-modern .cell.unrevealed:active,
+        .theme-modern .cell.pressing {
+            transform: scale(0.92);
+            background: #1e293b;
+        }
+
+        .theme-modern .cell.revealed {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .theme-modern .cell.mine-exploded {
+            background: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.8);
+            color: #fff;
+        }
+
+        .theme-modern .cell.hint-glow {
+            animation: pulseHint 1.2s infinite;
+            box-shadow: 0 0 12px #fbbf24, inset 0 0 8px #fbbf24 !important;
+            border-color: #fbbf24 !important;
+        }
+
+        /* Cores dos números no tema Dark Moderno */
+        .theme-modern .num-1 { color: #38bdf8; }
+        .theme-modern .num-2 { color: #4ade80; }
+        .theme-modern .num-3 { color: #fb7185; }
+        .theme-modern .num-4 { color: #c084fc; }
+        .theme-modern .num-5 { color: #fbbf24; }
+        .theme-modern .num-6 { color: #2dd4bf; }
+        .theme-modern .num-7 { color: #f472b6; }
+        .theme-modern .num-8 { color: #94a3b8; }
+
+        /* ==========================================
+           TEMA 2: CLÁSSICO 90s (Windows 95 / Retro)
+           ========================================== */
+        body.theme-classic {
+            background-color: #008080; /* Clássico Teal do Windows 95 */
+            color: #000000;
+            font-family: 'Tahoma', 'Inter', sans-serif;
+        }
+
+        .theme-classic .game-shell {
+            background: #c0c0c0;
+            border-top: 4px solid #ffffff;
+            border-left: 4px solid #ffffff;
+            border-right: 4px solid #808080;
+            border-bottom: 4px solid #808080;
+            border-radius: 0;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.35);
+        }
+
+        .theme-classic .header-box {
+            background: #c0c0c0;
+            border-top: 3px solid #808080;
+            border-left: 3px solid #808080;
+            border-right: 3px solid #ffffff;
+            border-bottom: 3px solid #ffffff;
+            border-radius: 0;
+        }
+
+        .theme-classic .board-grid {
+            background: #808080;
+            padding: 0;
+            border-top: 4px solid #808080;
+            border-left: 4px solid #808080;
+            border-right: 4px solid #ffffff;
+            border-bottom: 4px solid #ffffff;
+            border-radius: 0;
+            gap: 0px;
+        }
+
+        .theme-classic .cell {
+            border-radius: 0;
+            font-weight: 900;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .theme-classic .cell.unrevealed {
+            background: #c0c0c0;
+            border-top: 3px solid #ffffff;
+            border-left: 3px solid #ffffff;
+            border-right: 3px solid #808080;
+            border-bottom: 3px solid #808080;
+        }
+
+        .theme-classic .cell.unrevealed:active,
+        .theme-classic .cell.pressing {
+            border: 1px solid #808080;
+            background: #c0c0c0;
+        }
+
+        .theme-classic .cell.revealed {
+            background: #c0c0c0;
+            border: 1px solid #808080;
+        }
+
+        .theme-classic .cell.mine-exploded {
+            background: #ff0000 !important;
+        }
+
+        .theme-classic .cell.hint-glow {
+            background: #ffff00 !important;
+        }
+
+        .theme-classic .retro-btn {
+            background: #c0c0c0 !important;
+            color: #000 !important;
+            border-top: 2px solid #ffffff !important;
+            border-left: 2px solid #ffffff !important;
+            border-right: 2px solid #808080 !important;
+            border-bottom: 2px solid #808080 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
+        .theme-classic .retro-btn:active,
+        .theme-classic .retro-btn.active-tab {
+            border-top: 2px solid #808080 !important;
+            border-left: 2px solid #808080 !important;
+            border-right: 2px solid #ffffff !important;
+            border-bottom: 2px solid #ffffff !important;
+            background: #b5b5b5 !important;
+        }
+
+        .theme-classic .ui-text {
+            color: #000000 !important;
+        }
+        
+        .theme-classic .ui-subtext {
+            color: #333333 !important;
+        }
+
+        /* Cores clássicas do Windows 95 */
+        .theme-classic .num-1 { color: #0000ff; }
+        .theme-classic .num-2 { color: #008000; }
+        .theme-classic .num-3 { color: #ff0000; }
+        .theme-classic .num-4 { color: #000080; }
+        .theme-classic .num-5 { color: #800000; }
+        .theme-classic .num-6 { color: #008080; }
+        .theme-classic .num-7 { color: #000000; }
+        .theme-classic .num-8 { color: #808080; }
+
+        /* ==========================================
+           ESTRUTURA DO TABULEIRO E ANIMAÇÕES
+           ========================================== */
+        .board-grid {
+            display: inline-grid;
+            margin: 0 auto;
+        }
+
+        .cell {
+            width: var(--cell-size);
+            height: var(--cell-size);
+            font-size: var(--cell-font);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            line-height: 1;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.92); }
+        }
+
+        @keyframes popReveal {
+            0% { transform: scale(0.85); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .cell.just-revealed {
+            animation: popReveal 0.14s ease-out forwards;
+        }
+
+        /* Feedback visual do Long Press no Mobile */
+        .long-press-ring {
+            position: absolute;
+            inset: 2px;
+            border: 2px solid #fbbf24;
+            border-radius: inherit;
+            pointer-events: none;
+            animation: shrinkRing 0.35s linear forwards;
+        }
+
+        @keyframes shrinkRing {
+            0% { transform: scale(1.15); opacity: 0.3; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        /* Scrollbar elegante para tabuleiros grandes */
+        .board-scroll-container::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .board-scroll-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+        .board-scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.5);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="theme-modern min-h-screen flex flex-col justify-between p-2 sm:p-4 transition-colors duration-300">
+
+    <!-- BARRA DE TOPO: Título, Temas e Controles Rápidos -->
+    <header class="w-full max-w-5xl mx-auto mb-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 px-1 py-1">
+            <!-- Logo e Título -->
+            <div class="flex items-center gap-2">
+                <span class="text-2xl sm:text-3xl filter drop-shadow">💣</span>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-extrabold tracking-tight leading-none ui-text text-white">
+                        CAMPO MINADO <span class="text-xs font-semibold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30">PRO</span>
+                    </h1>
+                    <p id="recordDisplay" class="text-xs text-slate-400 ui-subtext mt-0.5">
+                        🏆 Recorde (Iniciante): --
+                    </p>
+                </div>
+            </div>
+
+            <!-- Botões de Utilidade (Dica, Zoom, Som, Tema, Ajuda) -->
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="btnHint" onclick="giveHint()" title="Dica Inteligente"
+                    class="retro-btn flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-300 text-xs sm:text-sm font-semibold transition active:scale-95">
+                    <span>💡</span>
+                    <span class="hidden sm:inline">Dica</span>
+                </button>
+
+                <button id="btnZoom" onclick="toggleBoardFit()" title="Ajustar Zoom / Tamanho das Células"
+                    class="retro-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-xs sm:text-sm font-semibold transition active:scale-95">
+                    🔍 <span id="zoomLabel" class="hidden md:inline">Auto</span>
+                </button>
+
+                <button id="btnSound" onclick="toggleSound()" title="Ativar/Desativar Som"
+                    class="retro-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-xs sm:text-sm font-semibold transition active:scale-95">
+                    🔊
+                </button>
+
+                <button id="btnTheme" onclick="toggleTheme()" title="Alternar entre Dark Moderno e Clássico 90s"
+                    class="retro-btn flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-xs sm:text-sm font-semibold transition active:scale-95">
+                    <span id="themeIcon">🕹️</span>
+                    <span id="themeText" class="hidden sm:inline">Anos 90</span>
+                </button>
+
+                <button onclick="openHelpModal()" title="Como Jogar"
+                    class="retro-btn px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600/50 text-slate-200 text-xs sm:text-sm font-bold transition active:scale-95">
+                    ❓
+                </button>
+            </div>
+        </div>
+
+        <!-- Seletor de Dificuldade -->
+        <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mt-2 px-1">
+            <button onclick="setDifficulty('beginner')" id="tab-beginner"
+                class="diff-tab retro-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-sky-600 text-white shadow">
+                Iniciante (9×9)
+            </button>
+            <button onclick="setDifficulty('intermediate')" id="tab-intermediate"
+                class="diff-tab retro-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                Intermediário (16×16)
+            </button>
+            <button onclick="setDifficulty('expert')" id="tab-expert"
+                class="diff-tab retro-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                Especialista (30×16)
+            </button>
+            <button onclick="openCustomModal()" id="tab-custom"
+                class="diff-tab retro-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                ⚙️ Personalizado
+            </button>
+        </div>
+    </header>
+
+    <!-- ÁREA PRINCIPAL DO JOGO -->
+    <main class="flex-1 flex flex-col items-center justify-center w-full max-w-full overflow-hidden my-1">
+        <div class="game-shell p-3 sm:p-4 max-w-full flex flex-col items-center">
+            
+            <!-- Painel Superior: Contador de Minas, Botão Smiley e Cronômetro -->
+            <div class="header-box w-full flex items-center justify-between px-3 py-2 mb-3 gap-4">
+                <!-- Contador de Minas Restantes -->
+                <div class="flex flex-col items-start">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400 ui-subtext font-bold mb-0.5">Minas</span>
+                    <div id="mineCounter" class="led-display px-2.5 py-0.5 text-2xl sm:text-3xl rounded font-bold">
+                        010
+                    </div>
+                </div>
+
+                <!-- Botão Reiniciar (Smiley) -->
+                <button id="smileyBtn" onclick="initGame()" title="Novo Jogo"
+                    class="retro-btn w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-slate-700/80 hover:bg-slate-600 border border-slate-500/40 flex items-center justify-center text-2xl sm:text-3xl shadow-md active:scale-90 transition">
+                    😊
+                </button>
+
+                <!-- Cronômetro -->
+                <div class="flex flex-col items-end">
+                    <span class="text-[10px] uppercase tracking-wider text-slate-400 ui-subtext font-bold mb-0.5">Tempo</span>
+                    <div id="timerDisplay" class="led-display px-2.5 py-0.5 text-2xl sm:text-3xl rounded font-bold">
+                        000
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banner de Status / Mensagem de Fim de Jogo (Sem usar alert) -->
+            <div id="statusBanner" class="hidden w-full mb-2.5 px-3 py-2 rounded-lg text-center text-xs sm:text-sm font-bold flex items-center justify-between gap-2">
+                <span id="statusMessage"></span>
+                <button onclick="initGame()" class="px-2.5 py-1 rounded bg-white/20 hover:bg-white/30 text-white text-xs font-extrabold">
+                    Jogar Novamente
+                </button>
+            </div>
+
+            <!-- Container com Scroll Suave para a Grade -->
+            <div id="boardContainer" class="board-scroll-container max-w-[94vw] max-h-[62vh] sm:max-h-[68vh] overflow-auto flex items-start justify-start sm:justify-center rounded-lg">
+                <div id="board" class="board-grid" oncontextmenu="return false;"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BARRA DE CONTROLE MOBILE / TOUCH (Cavar vs Bandeira) -->
+    <footer class="w-full max-w-md mx-auto mt-2 mb-1 px-2">
+        <div class="game-shell p-1.5 flex items-center justify-between gap-2">
+            <button id="modeDigBtn" onclick="setInputMode('dig')"
+                class="retro-btn flex-1 py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-sky-600 text-white shadow-md">
+                <span class="text-base">⛏️</span>
+                <span>Modo Cavar</span>
+            </button>
+            <button id="modeFlagBtn" onclick="setInputMode('flag')"
+                class="retro-btn flex-1 py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-slate-800/80 text-slate-300 hover:bg-slate-700">
+                <span class="text-base">🚩</span>
+                <span>Modo Bandeira</span>
+            </button>
+        </div>
+        <p class="text-center text-[11px] text-slate-400 ui-subtext mt-1">
+            💡 Dica: Toque em um número já aberto com bandeiras completas para abrir ao redor! Segure o toque para 🚩.
+        </p>
+    </footer>
+
+    <!-- MODAL: DIFICULDADE PERSONALIZADA -->
+    <div id="customModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-sm w-full p-5 text-white shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-extrabold flex items-center gap-2">⚙️ Tabuleiro Personalizado</h2>
+                <button onclick="closeCustomModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+
+            <div class="space-y-3 text-sm">
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Largura (Colunas: 5 a 40)</label>
+                    <input type="number" id="customCols" min="5" max="40" value="12"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Altura (Linhas: 5 a 30)</label>
+                    <input type="number" id="customRows" min="5" max="30" value="12"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-sky-500">
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-semibold mb-1">Quantidade de Minas</label>
+                    <input type="number" id="customMines" min="1" max="500" value="25"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-sky-500">
+                    <p class="text-xs text-slate-400 mt-1">O limite máximo garante que o 1º clique seja sempre seguro.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-5">
+                <button onclick="closeCustomModal()"
+                    class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-semibold">
+                    Cancelar
+                </button>
+                <button onclick="applyCustomDifficulty()"
+                    class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold shadow">
+                    Iniciar Jogo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: COMO JOGAR / REGRAS -->
+    <div id="helpModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-5 text-white shadow-2xl">
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="text-lg font-extrabold flex items-center gap-2">📖 Como Jogar Campo Minado</h2>
+                <button onclick="closeHelpModal()" class="text-slate-400 hover:text-white text-xl leading-none">&times;</button>
+            </div>
+            <div class="space-y-2.5 text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p>🎯 <strong>Objetivo:</strong> Revelar todas as células seguras do tabuleiro sem detonar nenhuma mina.</p>
+                <p>🛡️ <strong>1º Clique Seguro:</strong> A sua primeira jogada nunca terá mina e sempre abrirá uma área inicial limpa!</p>
+                <p>🔢 <strong>Números:</strong> Indicam exatamente quantas minas existem nas 8 células ao redor.</p>
+                <p>🚩 <strong>Bandeiras:</strong> Marque onde você tem certeza que há uma mina. Clique novamente com o botão direito para marcar dúvida (❓).</p>
+                <p>⚡ <strong>Abertura Rápida (Chording):</strong> Se um número já tiver todas as bandeiras equivalentes marcadas ao seu redor, clique nele para abrir todas as células vizinhas restantes de uma vez!</p>
+                <p>📱 <strong>No Celular:</strong> Use a barra inferior para alternar entre <strong>⛏️ Cavar</strong> e <strong>🚩 Bandeira</strong>, ou simplesmente segure o dedo por um instante sobre uma célula para colocar bandeira.</p>
+            </div>
+            <div class="mt-5 text-right">
+                <button onclick="closeHelpModal()"
+                    class="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-sm font-bold">
+                    Entendi!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         LÓGICA DO JOGO & WEB AUDIO API (JAVASCRIPT)
+         ========================================== -->
+    <script>
+        /* ----------------------------------------------------
+           1. SINTETIZADOR DE ÁUDIO (Web Audio API - Sem arquivos)
+           ---------------------------------------------------- */
+        class SoundEffects {
+            constructor() {
+                this.ctx = null;
+                this.enabled = true;
+            }
+
+            initContext() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            // Som curto ao revelar uma única célula
+            playDig() {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(580, now + 0.06);
+
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.07);
+            }
+
+            // Som harmônico suave ao abrir várias células em cascata (Flood Fill)
+            playCascade() {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const notes = [330, 440, 554.37, 659.25];
+                notes.forEach((freq, idx) => {
+                    const now = this.ctx.currentTime + idx * 0.03;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now);
+
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.13);
+                });
+            }
+
+            // Som ao colocar ou tirar bandeira
+            playFlag(placed = true) {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(placed ? 520 : 420, now);
+                osc.frequency.setValueAtTime(placed ? 760 : 300, now + 0.04);
+
+                gain.gain.setValueAtTime(0.07, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.095);
+            }
+
+            // Som de explosão usando White Noise + Filtro Lowpass
+            playExplosion() {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const duration = 0.55;
+                const bufferSize = this.ctx.sampleRate * duration;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(900, now);
+                filter.frequency.exponentialRampToValueAtTime(60, now + duration);
+
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                noise.start(now);
+                noise.stop(now + duration);
+            }
+
+            // Fanfarra alegre de vitória
+            playWin() {
+                if (!this.enabled) return;
+                this.initContext();
+                if (!this.ctx) return;
+
+                const melody = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                melody.forEach((freq, i) => {
+                    const start = this.ctx.currentTime + i * 0.09;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, start);
+
+                    gain.gain.setValueAtTime(0.16, start);
+                    gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(start);
+                    osc.stop(start + 0.26);
+                });
+            }
+        }
+
+        const sfx = new SoundEffects();
+
+        /* ----------------------------------------------------
+           2. CONFIGURAÇÕES E ESTADO GLOBAL DO JOGO
+           ---------------------------------------------------- */
+        const DIFFICULTIES = {
+            beginner:     { name: 'Iniciante',     rows: 9,  cols: 9,  mines: 10 },
+            intermediate: { name: 'Intermediário', rows: 16, cols: 16, mines: 40 },
+            expert:       { name: 'Especialista',  rows: 16, cols: 30, mines: 99 },
+            custom:       { name: 'Personalizado', rows: 12, cols: 12, mines: 25 }
+        };
+
+        let currentDifficulty = 'beginner';
+        let rows = 9;
+        let cols = 9;
+        let totalMines = 10;
+
+        let board = [];          // Matriz 2D de objetos de célula
+        let firstClick = true;   // Garante geração segura no 1º clique
+        let gameOver = false;
+        let gameWon = false;
+        let flagsPlaced = 0;
+        let revealedCount = 0;
+
+        let timerInterval = null;
+        let secondsElapsed = 0;
+
+        let inputMode = 'dig';   // 'dig' ou 'flag' (usado principalmente no mobile)
+        let zoomMode = 'auto';   // 'auto', 'large', 'compact'
+        let currentTheme = 'modern';
+
+        // Controle de toque longo (Long Press no Mobile)
+        let longPressTimer = null;
+        let longPressTriggered = false;
+        let activeRingEl = null;
+
+        /* ----------------------------------------------------
+           3. INICIALIZAÇÃO E RENDERIZAÇÃO DO TABULEIRO
+           ---------------------------------------------------- */
+        function initGame() {
+            stopTimer();
+            secondsElapsed = 0;
+            firstClick = true;
+            gameOver = false;
+            gameWon = false;
+            flagsPlaced = 0;
+            revealedCount = 0;
+
+            const cfg = DIFFICULTIES[currentDifficulty];
+            rows = cfg.rows;
+            cols = cfg.cols;
+            totalMines = cfg.mines;
+
+            updateLEDDisplay('mineCounter', totalMines);
+            updateLEDDisplay('timerDisplay', 0);
+            setSmiley('😊');
+            hideStatusBanner();
+            updateRecordUI();
+            adjustCellSizing();
+
+            // Cria estrutura de dados limpa
+            board = [];
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            boardEl.style.gridTemplateColumns = `repeat(${cols}, var(--cell-size))`;
+
+            for (let r = 0; r < rows; r++) {
+                const rowArr = [];
+                for (let c = 0; c < cols; c++) {
+                    const cellEl = document.createElement('div');
+                    cellEl.className = 'cell unrevealed';
+                    cellEl.dataset.r = r;
+                    cellEl.dataset.c = c;
+
+                    // Eventos de Mouse e Touch
+                    attachCellEvents(cellEl, r, c);
+
+                    boardEl.appendChild(cellEl);
+
+                    rowArr.push({
+                        r,
+                        c,
+                        isMine: false,
+                        isRevealed: false,
+                        isFlagged: false,
+                        isQuestion: false,
+                        neighborMines: 0,
+                        el: cellEl
+                    });
+                }
+                board.push(rowArr);
+            }
+        }
+
+        // Ajusta o tamanho das células de forma inteligente conforme a tela e dificuldade
+        function adjustCellSizing() {
+            const root = document.documentElement;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+
+            if (zoomMode === 'large') {
+                root.style.setProperty('--cell-size', '38px');
+                root.style.setProperty('--cell-font', '20px');
+                return;
+            }
+            if (zoomMode === 'compact') {
+                root.style.setProperty('--cell-size', '25px');
+                root.style.setProperty('--cell-font', '14px');
+                return;
+            }
+
+            // Modo Auto: tenta encaixar na tela respeitando um tamanho mínimo confortável para o toque
+            const availableW = Math.min(vw - 36, 980);
+            const availableH = vh * 0.58;
+
+            const sizeByW = Math.floor(availableW / cols) - 2;
+            const sizeByH = Math.floor(availableH / rows) - 2;
+            let ideal = Math.min(sizeByW, sizeByH);
+
+            // Em telas pequenas no modo especialista, garante no mínimo 28px para o toque não ficar impossível
+            const minSize = vw < 640 ? 28 : 26;
+            const maxSize = 40;
+            ideal = Math.max(minSize, Math.min(maxSize, ideal));
+
+            root.style.setProperty('--cell-size', `${ideal}px`);
+            root.style.setProperty('--cell-font', `${Math.max(13, Math.floor(ideal * 0.55))}px`);
+        }
+
+        window.addEventListener('resize', () => {
+            if (zoomMode === 'auto') adjustCellSizing();
+        });
+
+        function toggleBoardFit() {
+            const modes = ['auto', 'large', 'compact'];
+            const labels = { auto: 'Auto', large: 'Grande', compact: 'Compacto' };
+            const nextIdx = (modes.indexOf(zoomMode) + 1) % modes.length;
+            zoomMode = modes[nextIdx];
+            document.getElementById('zoomLabel').textContent = labels[zoomMode];
+            adjustCellSizing();
+        }
+
+        /* ----------------------------------------------------
+           4. EVENTOS DE INTERAÇÃO (DESKTOP & MOBILE TOUCH)
+           ---------------------------------------------------- */
+        function attachCellEvents(cellEl, r, c) {
+            // Feedback de expressão "😮" ao pressionar
+            cellEl.addEventListener('mousedown', (e) => {
+                if (gameOver || gameWon) return;
+                if (e.button === 0 && !board[r][c].isFlagged) {
+                    setSmiley('😮');
+                    cellEl.classList.add('pressing');
+                }
+            });
+
+            cellEl.addEventListener('mouseleave', () => {
+                cellEl.classList.remove('pressing');
+                if (!gameOver && !gameWon) setSmiley('😊');
+            });
+
+            cellEl.addEventListener('mouseup', () => {
+                cellEl.classList.remove('pressing');
+                if (!gameOver && !gameWon) setSmiley('😊');
+            });
+
+            // Clique principal (Esquerdo ou Toque Simples)
+            cellEl.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (longPressTriggered) {
+                    longPressTriggered = false;
+                    return;
+                }
+                handlePrimaryAction(r, c);
+            });
+
+            // Duplo clique em célula já revelada para Chording
+            cellEl.addEventListener('dblclick', (e) => {
+                e.preventDefault();
+                if (board[r][c].isRevealed && board[r][c].neighborMines > 0) {
+                    attemptChord(r, c);
+                }
+            });
+
+            // Clique Direito (Bandeira / Dúvida)
+            cellEl.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (gameOver || gameWon) return;
+                toggleFlagOrQuestion(r, c);
+            });
+
+            // Suporte a Toque Longo (Long Press de 350ms) para colocar Bandeira no Mobile
+            cellEl.addEventListener('touchstart', (e) => {
+                if (gameOver || gameWon) return;
+                const cell = board[r][c];
+                if (cell.isRevealed) return;
+
+                longPressTriggered = false;
+                setSmiley('😮');
+
+                // Cria anel visual de feedback
+                activeRingEl = document.createElement('div');
+                activeRingEl.className = 'long-press-ring';
+                cellEl.appendChild(activeRingEl);
+
+                longPressTimer = setTimeout(() => {
+                    longPressTriggered = true;
+                    removePressRing();
+                    setSmiley('😊');
+                    toggleFlagOrQuestion(r, c, true);
+                    if (navigator.vibrate) navigator.vibrate(35);
+                }, 350);
+            }, { passive: true });
+
+            cellEl.addEventListener('touchend', () => {
+                clearTimeout(longPressTimer);
+                removePressRing();
+                if (!gameOver && !gameWon) setSmiley('😊');
+            });
+
+            cellEl.addEventListener('touchmove', () => {
+                clearTimeout(longPressTimer);
+                removePressRing();
+                if (!gameOver && !gameWon) setSmiley('😊');
+            });
+        }
+
+        function removePressRing() {
+            if (activeRingEl && activeRingEl.parentNode) {
+                activeRingEl.parentNode.removeChild(activeRingEl);
+            }
+            activeRingEl = null;
+        }
+
+        /* ----------------------------------------------------
+           5. MECÂNICAS PRINCIPAIS (SAFE FIRST CLICK, BFS, CHORDING)
+           ---------------------------------------------------- */
+        function handlePrimaryAction(r, c) {
+            if (gameOver || gameWon) return;
+            clearHints();
+
+            const cell = board[r][c];
+
+            // Se a célula já está revelada e possui número, tenta fazer o Chording (abertura rápida)
+            if (cell.isRevealed) {
+                if (cell.neighborMines > 0) {
+                    attemptChord(r, c);
+                }
+                return;
+            }
+
+            // Se estiver no modo Bandeira (barra mobile), alterna bandeira
+            if (inputMode === 'flag') {
+                toggleFlagOrQuestion(r, c, true);
+                return;
+            }
+
+            // Impede escavação acidental de célula com bandeira
+            if (cell.isFlagged) return;
+
+            // Geração segura das minas no primeiro clique
+            if (firstClick) {
+                firstClick = false;
+                placeMinesSafely(r, c);
+                startTimer();
+            }
+
+            revealCell(r, c, true);
+        }
+
+        // Posiciona as minas garantindo que (safeR, safeC) e seus 8 vizinhos não tenham minas
+        function placeMinesSafely(safeR, safeC) {
+            const candidates = [];
+            const fallbackCandidates = [];
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (r === safeR && c === safeC) continue;
+                    const isNeighbor = Math.abs(r - safeR) <= 1 && Math.abs(c - safeC) <= 1;
+                    if (!isNeighbor) {
+                        candidates.push([r, c]);
+                    } else {
+                        fallbackCandidates.push([r, c]);
+                    }
+                }
+            }
+
+            // Embaralha candidatos (Fisher-Yates)
+            shuffleArray(candidates);
+            shuffleArray(fallbackCandidates);
+
+            const pool = candidates.concat(fallbackCandidates);
+            const minesToPlace = Math.min(totalMines, pool.length);
+            totalMines = minesToPlace;
+            updateLEDDisplay('mineCounter', totalMines - flagsPlaced);
+
+            for (let i = 0; i < minesToPlace; i++) {
+                const [mr, mc] = pool[i];
+                board[mr][mc].isMine = true;
+            }
+
+            // Calcula contagem de minas adjacentes para todo o tabuleiro
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (board[r][c].isMine) continue;
+                    let count = 0;
+                    for (const [nr, nc] of getNeighbors(r, c)) {
+                        if (board[nr][nc].isMine) count++;
+                    }
+                    board[r][c].neighborMines = count;
+                }
+            }
+        }
+
+        // Revela célula e executa Flood Fill iterativo (BFS) caso neighborMines === 0
+        function revealCell(startR, startC, playSound = true) {
+            const startCell = board[startR][startC];
+            if (startCell.isRevealed || startCell.isFlagged) return;
+
+            if (startCell.isMine) {
+                triggerLose(startR, startC);
+                return;
+            }
+
+            // Fila BFS para Flood Fill sem risco de Stack Overflow
+            const queue = [[startR, startC]];
+            let cellsOpenedNow = 0;
+
+            while (queue.length > 0) {
+                const [r, c] = queue.shift();
+                const cell = board[r][c];
+
+                if (cell.isRevealed || cell.isFlagged) continue;
+
+                cell.isRevealed = true;
+                cell.isQuestion = false;
+                revealedCount++;
+                cellsOpenedNow++;
+
+                renderCell(cell, true);
+
+                // Se for 0, expande para os 8 vizinhos
+                if (cell.neighborMines === 0 && !cell.isMine) {
+                    for (const [nr, nc] of getNeighbors(r, c)) {
+                        const neighbor = board[nr][nc];
+                        if (!neighbor.isRevealed && !neighbor.isFlagged && !neighbor.isMine) {
+                            queue.push([nr, nc]);
+                        }
+                    }
+                }
+            }
+
+            if (playSound && cellsOpenedNow > 0) {
+                if (cellsOpenedNow > 3) {
+                    sfx.playCascade();
+                } else {
+                    sfx.playDig();
+                }
+            }
+
+            checkVictory();
+        }
+
+        // Chording: Ao clicar num número revelado que já tem o nº exato de bandeiras ao redor, abre os vizinhos
+        function attemptChord(r, c) {
+            const cell = board[r][c];
+            if (!cell.isRevealed || cell.neighborMines === 0) return;
+
+            const neighbors = getNeighbors(r, c);
+            let adjacentFlags = 0;
+            for (const [nr, nc] of neighbors) {
+                if (board[nr][nc].isFlagged) adjacentFlags++;
+            }
+
+            if (adjacentFlags === cell.neighborMines) {
+                let anyRevealed = false;
+                for (const [nr, nc] of neighbors) {
+                    const nCell = board[nr][nc];
+                    if (!nCell.isRevealed && !nCell.isFlagged) {
+                        revealCell(nr, nc, false);
+                        anyRevealed = true;
+                        if (gameOver) return;
+                    }
+                }
+                if (anyRevealed && !gameOver && !gameWon) {
+                    sfx.playDig();
+                }
+            } else {
+                // Pequeno efeito visual nas células vizinhas fechadas para indicar que faltam bandeiras
+                for (const [nr, nc] of neighbors) {
+                    const nCell = board[nr][nc];
+                    if (!nCell.isRevealed && !nCell.isFlagged) {
+                        nCell.el.classList.add('pressing');
+                        setTimeout(() => nCell.el.classList.remove('pressing'), 150);
+                    }
+                }
+            }
+        }
+
+        // Alterna Bandeira (🚩) -> Dúvida (❓) -> Limpo (no mobile alterna direto Bandeira <-> Limpo para agilidade)
+        function toggleFlagOrQuestion(r, c, mobileDirectFlag = false) {
+            const cell = board[r][c];
+            if (cell.isRevealed) return;
+            clearHints();
+
+            if (!cell.isFlagged && !cell.isQuestion) {
+                cell.isFlagged = true;
+                flagsPlaced++;
+                sfx.playFlag(true);
+            } else if (cell.isFlagged) {
+                cell.isFlagged = false;
+                flagsPlaced--;
+                if (!mobileDirectFlag) {
+                    cell.isQuestion = true;
+                }
+                sfx.playFlag(false);
+            } else if (cell.isQuestion) {
+                cell.isQuestion = false;
+                sfx.playFlag(false);
+            }
+
+            renderCell(cell);
+            updateLEDDisplay('mineCounter', totalMines - flagsPlaced);
+        }
+
+        /* ----------------------------------------------------
+           6. RENDERIZAÇÃO VISUAL DE CADA CÉLULA
+           ---------------------------------------------------- */
+        function renderCell(cell, animate = false) {
+            const el = cell.el;
+            el.className = 'cell';
+            el.textContent = '';
+
+            if (cell.isRevealed) {
+                el.classList.add('revealed');
+                if (animate) el.classList.add('just-revealed');
+
+                if (cell.isMine) {
+                    el.textContent = '💣';
+                } else if (cell.neighborMines > 0) {
+                    el.textContent = cell.neighborMines;
+                    el.classList.add(`num-${cell.neighborMines}`);
+                }
+            } else {
+                el.classList.add('unrevealed');
+                if (cell.isFlagged) {
+                    el.textContent = '🚩';
+                } else if (cell.isQuestion) {
+                    el.textContent = '❓';
+                    el.classList.add('text-amber-300');
+                }
+            }
+        }
+
+        /* ----------------------------------------------------
+           7. VITÓRIA, DERROTA E RECORDES (LOCALSTORAGE)
+           ---------------------------------------------------- */
+        function checkVictory() {
+            if (gameOver || gameWon) return;
+            const totalSafeCells = rows * cols - totalMines;
+
+            if (revealedCount === totalSafeCells) {
+                gameWon = true;
+                stopTimer();
+                setSmiley('😎');
+                sfx.playWin();
+
+                // Marca automaticamente todas as minas restantes com bandeira
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const cell = board[r][c];
+                        if (cell.isMine && !cell.isFlagged) {
+                            cell.isFlagged = true;
+                            renderCell(cell);
+                        }
+                    }
+                }
+                flagsPlaced = totalMines;
+                updateLEDDisplay('mineCounter', 0);
+
+                // Verifica e salva novo recorde
+                const isNewRecord = checkAndSaveRecord(currentDifficulty, secondsElapsed);
+                const msg = isNewRecord
+                    ? `🏆 NOVO RECORDE! Você venceu em ${secondsElapsed}s!`
+                    : `🎉 Parabéns! Campo limpo em ${secondsElapsed}s!`;
+
+                showStatusBanner(msg, 'win');
+            }
+        }
+
+        function triggerLose(explodedR, explodedC) {
+            gameOver = true;
+            stopTimer();
+            setSmiley('😵');
+            sfx.playExplosion();
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = board[r][c];
+
+                    // Destaca a mina que explodiu
+                    if (r === explodedR && c === explodedC) {
+                        cell.isRevealed = true;
+                        renderCell(cell);
+                        cell.el.classList.add('mine-exploded');
+                    }
+                    // Revela minas que não tinham bandeira
+                    else if (cell.isMine && !cell.isFlagged) {
+                        cell.isRevealed = true;
+                        renderCell(cell);
+                    }
+                    // Marca com ❌ as bandeiras colocadas em locais onde não havia mina
+                    else if (!cell.isMine && cell.isFlagged) {
+                        cell.el.className = 'cell revealed';
+                        cell.el.textContent = '❌';
+                    }
+                }
+            }
+
+            showStatusBanner('💥 BOOM! Você pisou em uma mina.', 'lose');
+        }
+
+        function getRecordKey(diff) {
+            return `minesweeper_best_${diff}`;
+        }
+
+        function checkAndSaveRecord(diff, timeSec) {
+            if (diff === 'custom') return false;
+            const key = getRecordKey(diff);
+            const currentBest = localStorage.getItem(key);
+
+            if (currentBest === null || timeSec < parseInt(currentBest, 10)) {
+                localStorage.setItem(key, timeSec.toString());
+                updateRecordUI();
+                return true;
+            }
+            return false;
+        }
+
+        function updateRecordUI() {
+            const recordEl = document.getElementById('recordDisplay');
+            const cfg = DIFFICULTIES[currentDifficulty];
+
+            if (currentDifficulty === 'custom') {
+                recordEl.textContent = `⚙️ Modo Personalizado (${cols}×${rows}, ${totalMines} minas)`;
+                return;
+            }
+
+            const best = localStorage.getItem(getRecordKey(currentDifficulty));
+            recordEl.textContent = best
+                ? `🏆 Recorde (${cfg.name}): ${best}s`
+                : `🏆 Recorde (${cfg.name}): --`;
+        }
+
+        /* ----------------------------------------------------
+           8. SISTEMA DE DICA INTELIGENTE (💡)
+           ---------------------------------------------------- */
+        function giveHint() {
+            if (gameOver || gameWon) return;
+            clearHints();
+
+            // Se ainda não clicou, sugere o centro do tabuleiro
+            if (firstClick) {
+                const midR = Math.floor(rows / 2);
+                const midC = Math.floor(cols / 2);
+                board[midR][midC].el.classList.add('hint-glow');
+                return;
+            }
+
+            // 1. Tenta encontrar uma dedução lógica real baseada nos números já abertos
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = board[r][c];
+                    if (!cell.isRevealed || cell.neighborMines === 0) continue;
+
+                    const neighbors = getNeighbors(r, c);
+                    const unrevealed = [];
+                    let flagged = 0;
+
+                    for (const [nr, nc] of neighbors) {
+                        if (board[nr][nc].isFlagged) flagged++;
+                        else if (!board[nr][nc].isRevealed) unrevealed.push(board[nr][nc]);
+                    }
+
+                    // Caso A: Todas as minas já estão marcadas -> qualquer vizinho fechado é 100% seguro!
+                    if (flagged === cell.neighborMines && unrevealed.length > 0) {
+                        const safeTarget = unrevealed[0];
+                        safeTarget.el.classList.add('hint-glow');
+                        safeTarget.el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                        sfx.playDig();
+                        return;
+                    }
+                }
+            }
+
+            // 2. Se não houver jogada óbvia imediata, destaca uma célula segura adjacente à fronteira aberta
+            const frontierSafe = [];
+            const allSafe = [];
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = board[r][c];
+                    if (!cell.isRevealed && !cell.isMine && !cell.isFlagged) {
+                        allSafe.push(cell);
+                        const hasRevealedNeighbor = getNeighbors(r, c).some(([nr, nc]) => board[nr][nc].isRevealed);
+                        if (hasRevealedNeighbor) frontierSafe.push(cell);
+                    }
+                }
+            }
+
+            const pool = frontierSafe.length > 0 ? frontierSafe : allSafe;
+            if (pool.length > 0) {
+                const chosen = pool[Math.floor(Math.random() * pool.length)];
+                chosen.el.classList.add('hint-glow');
+                chosen.el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                sfx.playDig();
+            }
+        }
+
+        function clearHints() {
+            document.querySelectorAll('.hint-glow').forEach(el => el.classList.remove('hint-glow'));
+        }
+
+        /* ----------------------------------------------------
+           9. UTILITÁRIOS DE INTERFACE, TEMA E CRONÔMETRO
+           ---------------------------------------------------- */
+        function getNeighbors(r, c) {
+            const list = [];
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = r + dr;
+                    const nc = c + dc;
+                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                        list.push([nr, nc]);
+                    }
+                }
+            }
+            return list;
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+        }
+
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                if (secondsElapsed <= 999) {
+                    updateLEDDisplay('timerDisplay', secondsElapsed);
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        // Formata número para 3 dígitos estilo LED (ex: 010, -02)
+        function updateLEDDisplay(elementId, value) {
+            const clamped = Math.max(-99, Math.min(999, value));
+            let formatted;
+            if (clamped < 0) {
+                formatted = '-' + Math.abs(clamped).toString().padStart(2, '0');
+            } else {
+                formatted = clamped.toString().padStart(3, '0');
+            }
+            document.getElementById(elementId).textContent = formatted;
+        }
+
+        function setSmiley(emoji) {
+            document.getElementById('smileyBtn').textContent = emoji;
+        }
+
+        function showStatusBanner(message, type) {
+            const banner = document.getElementById('statusBanner');
+            const msgEl = document.getElementById('statusMessage');
+            banner.classList.remove('hidden', 'bg-emerald-600/90', 'bg-rose-600/90');
+
+            if (type === 'win') {
+                banner.classList.add('bg-emerald-600/90', 'text-white');
+            } else {
+                banner.classList.add('bg-rose-600/90', 'text-white');
+            }
+
+            msgEl.textContent = message;
+        }
+
+        function hideStatusBanner() {
+            document.getElementById('statusBanner').classList.add('hidden');
+        }
+
+        // Alterna entre Dificuldades
+        function setDifficulty(diff) {
+            currentDifficulty = diff;
+            document.querySelectorAll('.diff-tab').forEach(btn => {
+                btn.className = 'diff-tab retro-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-slate-800/80 text-slate-300 hover:bg-slate-700';
+            });
+            const activeBtn = document.getElementById(`tab-${diff}`);
+            if (activeBtn) {
+                activeBtn.className = 'diff-tab retro-btn active-tab px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-sky-600 text-white shadow';
+            }
+            initGame();
+        }
+
+        // Alterna modo de toque Mobile (Cavar vs Bandeira)
+        function setInputMode(mode) {
+            inputMode = mode;
+            const digBtn = document.getElementById('modeDigBtn');
+            const flagBtn = document.getElementById('modeFlagBtn');
+
+            if (mode === 'dig') {
+                digBtn.className = 'retro-btn active-tab flex-1 py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-sky-600 text-white shadow-md';
+                flagBtn.className = 'retro-btn flex-1 py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-slate-800/80 text-slate-300 hover:bg-slate-700';
+            } else {
+                flagBtn.className = 'retro-btn active-tab flex-1 py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-rose-600 text-white shadow-md';
+                digBtn.className = 'retro-btn flex-1 py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition bg-slate-800/80 text-slate-300 hover:bg-slate-700';
+            }
+        }
+
+        // Alterna entre Dark Moderno e Clássico Anos 90
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+
+            if (currentTheme === 'modern') {
+                currentTheme = 'classic';
+                body.classList.remove('theme-modern');
+                body.classList.add('theme-classic');
+                icon.textContent = '🌙';
+                text.textContent = 'Moderno';
+            } else {
+                currentTheme = 'modern';
+                body.classList.remove('theme-classic');
+                body.classList.add('theme-modern');
+                icon.textContent = '🕹️';
+                text.textContent = 'Anos 90';
+            }
+        }
+
+        function toggleSound() {
+            sfx.enabled = !sfx.enabled;
+            document.getElementById('btnSound').textContent = sfx.enabled ? '🔊' : '🔇';
+        }
+
+        /* ----------------------------------------------------
+           10. MODAIS (PERSONALIZADO E AJUDA)
+           ---------------------------------------------------- */
+        function openCustomModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('customModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function applyCustomDifficulty() {
+            let cCols = parseInt(document.getElementById('customCols').value, 10) || 12;
+            let cRows = parseInt(document.getElementById('customRows').value, 10) || 12;
+            let cMines = parseInt(document.getElementById('customMines').value, 10) || 20;
+
+            cCols = Math.max(5, Math.min(40, cCols));
+            cRows = Math.max(5, Math.min(30, cRows));
+
+            const maxAllowedMines = Math.max(1, (cCols * cRows) - 9);
+            cMines = Math.max(1, Math.min(maxAllowedMines, cMines));
+
+            DIFFICULTIES.custom.cols = cCols;
+            DIFFICULTIES.custom.rows = cRows;
+            DIFFICULTIES.custom.mines = cMines;
+
+            closeCustomModal();
+            setDifficulty('custom');
+        }
+
+        function openHelpModal() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeHelpModal() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Inicializa o jogo ao carregar a janela
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
