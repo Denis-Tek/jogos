@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Water Sort Puzzle</title>
+    <style>
+        /* ============================================================================
+           1. DESIGN TOKENS & VARIÁVEIS DE TEMA (CLARO E ESCURO)
+           ============================================================================ */
+        :root {
+            --bg-app: #e2e8f0;
+            --bg-gradient: radial-gradient(circle at 50% 20%, #f8fafc 0%, #cbd5e1 100%);
+            --surface-bg: rgba(255, 255, 255, 0.88);
+            --surface-border: rgba(100, 116, 139, 0.35);
+            --surface-hover: rgba(226, 232, 240, 0.8);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --accent: #0284c7;
+            --accent-glow: rgba(2, 132, 199, 0.35);
+
+            /* Vidro dos tubos - Tema Claro */
+            --glass-border: rgba(51, 65, 85, 0.65);
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-sheen: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.72) 0%,
+                rgba(255, 255, 255, 0.14) 30%,
+                rgba(255, 255, 255, 0.04) 72%,
+                rgba(255, 255, 255, 0.42) 100%
+            );
+            --tube-shadow: 0 10px 20px -6px rgba(15, 23, 42, 0.2), inset 0 -4px 8px rgba(15, 23, 42, 0.08);
+
+            /* Dimensões explícitas garantidas via CSS (<= 6 tubos) */
+            --tube-w: clamp(36px, 6.4vw, 52px);
+            --tube-h: clamp(122px, 24vh, 178px);
+            --tube-gap: clamp(10px, 2vw, 20px);
+            --row-gap: clamp(14px, 2.6vh, 24px);
+        }
+
+        html.dark {
+            --bg-app: #090d16;
+            --bg-gradient: radial-gradient(circle at 50% 18%, #162036 0%, #070b14 100%);
+            --surface-bg: rgba(22, 32, 52, 0.86);
+            --surface-border: rgba(148, 163, 184, 0.24);
+            --surface-hover: rgba(51, 65, 85, 0.65);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.38);
+
+            /* Vidro dos tubos - Tema Escuro */
+            --glass-border: rgba(226, 232, 240, 0.52);
+            --glass-bg: rgba(30, 41, 59, 0.42);
+            --glass-sheen: linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.26) 0%,
+                rgba(255, 255, 255, 0.05) 32%,
+                rgba(255, 255, 255, 0.02) 72%,
+                rgba(255, 255, 255, 0.18) 100%
+            );
+            --tube-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.65), inset 0 -4px 10px rgba(0, 0, 0, 0.35);
+        }
+
+        /* Densidades adaptativas para 2 fileiras (> 6 tubos) sem precisar de cálculo JS */
+        #board.board-compact {
+            --tube-w: clamp(32px, 5.4vw, 46px);
+            --tube-h: clamp(108px, 21vh, 156px);
+            --tube-gap: clamp(8px, 1.6vw, 16px);
+            --row-gap: clamp(12px, 2.2vh, 20px);
+        }
+
+        #board.board-dense {
+            --tube-w: clamp(28px, 4.6vw, 42px);
+            --tube-h: clamp(98px, 19.5vh, 144px);
+            --tube-gap: clamp(6px, 1.2vw, 13px);
+            --row-gap: clamp(10px, 2vh, 18px);
+        }
+
+        /* ============================================================================
+           2. RESET & LAYOUT ZERO-SCROLL (100dvh)
+           ============================================================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-app);
+            background-image: var(--bg-gradient);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* ============================================================================
+           3. CABEÇALHO COMPACTO
+           ============================================================================ */
+        .app-header {
+            width: 100%;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 10px 14px 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            color: #ffffff;
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin: 0;
+        }
+
+        .brand-sub {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .hud-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+        }
+
+        .hud-level {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .hud-divider {
+            width: 1px;
+            height: 14px;
+            background: var(--surface-border);
+        }
+
+        .hud-moves {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .hud-moves span {
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-right: 4px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: transform 0.15s ease, background-color 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-hover);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.92);
+        }
+
+        /* ============================================================================
+           4. ARENA CENTRAL DOS TUBOS (RENDERIZAÇÃO GARANTIDA)
+           ============================================================================ */
+        #board {
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: var(--row-gap);
+            padding: 12px 10px;
+            overflow: hidden;
+        }
+
+        .tube-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-end;
+            gap: var(--tube-gap);
+            width: 100%;
+        }
+
+        /* Slot externo: controla elevação, rolha e estado */
+        .tube-slot {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-top: 14px;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tube-slot.selected {
+            transform: translateY(-14px);
+            z-index: 25;
+        }
+
+        .tube-slot.invalid-shake {
+            animation: tubeShake 0.36s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        .tube-slot.just-completed {
+            animation: tubeCompletePulse 0.42s ease-out;
+        }
+
+        /* Boca arredondada de vidro no topo da garrafa */
+        .tube-lip {
+            width: calc(var(--tube-w) + 6px);
+            height: 6px;
+            border-radius: 999px;
+            border: 2px solid var(--glass-border);
+            background: rgba(255, 255, 255, 0.22);
+            margin-bottom: -2px;
+            z-index: 6;
+            pointer-events: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        /* Corpo cilíndrico da garrafa com dimensões explícitas */
+        .tube {
+            position: relative;
+            width: var(--tube-w);
+            height: var(--tube-h);
+            border-radius: 0 0 22px 22px;
+            border: 2.5px solid var(--glass-border);
+            border-top: none;
+            background: var(--glass-bg);
+            display: flex;
+            flex-direction: column-reverse;
+            overflow: hidden;
+            box-shadow: var(--tube-shadow);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tube-slot.selected .tube {
+            border-color: var(--accent);
+            box-shadow: 0 14px 26px -4px var(--accent-glow), 0 0 0 2px var(--accent-glow);
+        }
+
+        .tube-slot.selected .tube-lip {
+            border-color: var(--accent);
+        }
+
+        .tube-slot.completed .tube {
+            border-color: #16a34a;
+            box-shadow: 0 0 18px rgba(22, 163, 74, 0.42);
+        }
+
+        .tube-slot.completed .tube-lip {
+            border-color: #16a34a;
+        }
+
+        /* Reflexo especular vertical de vidro */
+        .tube-sheen {
+            position: absolute;
+            inset: 0;
+            background: var(--glass-sheen);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Rolha de cortiça quando o tubo é completado */
+        .tube-cork {
+            position: absolute;
+            top: 2px;
+            width: calc(var(--tube-w) * 0.78);
+            height: 12px;
+            border-radius: 4px 4px 2px 2px;
+            background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+            border: 1px solid rgba(120, 53, 15, 0.8);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.35);
+            z-index: 8;
+            opacity: 0;
+            transform: translateY(-10px) scale(0.82);
+            transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+
+        .tube-slot.completed .tube-cork {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        /* Camadas internas de líquido (25% cada, empilhadas de baixo para cima) */
+        .liquid-segment {
+            width: 100%;
+            height: 25%;
+            flex-shrink: 0;
+            position: relative;
+            transition: height 0.22s ease;
+        }
+
+        /* Menisco brilhante na superfície do líquido */
+        .liquid-segment.top-layer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 50%;
+        }
+
+        /* Divisória sutil entre camadas de cores diferentes */
+        .liquid-segment.has-divider {
+            border-top: 1px solid rgba(15, 23, 42, 0.22);
+        }
+
+        /* ============================================================================
+           5. ANIMAÇÕES DE DESPEJO, PARTÍCULAS E JATO
+           ============================================================================ */
+        .pouring-source {
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+            z-index: 45 !important;
+        }
+
+        #pour-stream {
+            position: fixed;
+            width: 5px;
+            border-radius: 999px;
+            pointer-events: none;
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.08s ease;
+        }
+
+        .sparkle-particle {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 55;
+        }
+
+        .confetti-piece {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 70;
+        }
+
+        @keyframes tubeShake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(4px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+
+        @keyframes tubeCompletePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+
+        /* ============================================================================
+           6. BARRA INFERIOR DE CONTROLES
+           ============================================================================ */
+        .app-footer {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+            padding: 4px 12px 12px;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .controls-dock {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 6px;
+            border-radius: 18px;
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+        }
+
+        .dock-btn {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            padding: 7px 6px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background-color 0.15s ease, transform 0.15s ease, opacity 0.2s ease;
+        }
+
+        .dock-btn:hover:not(:disabled) {
+            background: var(--surface-hover);
+        }
+
+        .dock-btn:active:not(:disabled) {
+            transform: scale(0.94);
+        }
+
+        .dock-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .dock-btn-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .dock-badge {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 999px;
+            color: #ffffff;
+        }
+
+        .badge-sky { background: #0284c7; }
+        .badge-emerald { background: #16a34a; }
+
+        .dock-label {
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        /* ============================================================================
+           7. TOAST DE AVISO & MODAL DE VITÓRIA
+           ============================================================================ */
+        #toast-msg {
+            position: fixed;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-6px);
+            background: var(--surface-bg);
+            color: var(--text-main);
+            border: 1px solid var(--surface-border);
+            backdrop-filter: blur(10px);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 999px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            z-index: 60;
+        }
+
+        #toast-msg.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #victory-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 11, 20, 0.78);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+            z-index: 65;
+        }
+
+        #victory-modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .victory-card {
+            width: 100%;
+            max-width: 310px;
+            background: var(--surface-bg);
+            border: 1px solid var(--surface-border);
+            border-radius: 24px;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+            transform: scale(0.9);
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #victory-modal.open .victory-card {
+            transform: scale(1);
+        }
+
+        .victory-trophy {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 12px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #16a34a, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 10px 20px rgba(22, 163, 74, 0.35);
+        }
+
+        .victory-title {
+            margin: 0 0 4px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .victory-desc {
+            margin: 0 0 16px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .victory-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .stat-box {
+            padding: 10px;
+            border-radius: 14px;
+            background: rgba(148, 163, 184, 0.14);
+            border: 1px solid var(--surface-border);
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #2563eb, #0284c7);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+
+        .next-btn:hover {
+            filter: brightness(1.08);
+        }
+
+        .next-btn:active {
+            transform: scale(0.96);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Jato colorido animado entre tubos -->
+    <div id="pour-stream"></div>
+
+    <!-- Cabeçalho Compacto -->
+    <header class="app-header">
+        <div class="brand">
+            <div class="brand-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 3h6M10 3v5.5L5.5 17A3 3 0 0 0 8.1 21h7.8a3 3 0 0 0 2.6-4L14 8.5V3"/>
+                    <path d="M7.5 14h9"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="brand-title">Water Sort</h1>
+                <span class="brand-sub">Puzzle</span>
+            </div>
+        </div>
+
+        <div class="hud-pill">
+            <span id="level-badge" class="hud-level">Nível 1</span>
+            <div class="hud-divider"></div>
+            <div class="hud-moves"><span>Jogadas:</span><strong id="moves-display">0</strong></div>
+        </div>
+
+        <div class="header-actions">
+            <button id="btn-sound" class="icon-btn" title="Alternar Som" aria-label="Alternar Som">
+                <span id="sound-icon">🔊</span>
+            </button>
+            <button id="btn-theme" class="icon-btn" title="Alternar Tema" aria-label="Alternar Tema">
+                <span id="theme-icon">☀️</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Arena Central dos Tubos -->
+    <main id="board" aria-label="Tabuleiro de Garrafas"></main>
+
+    <!-- Barra Inferior de Ações -->
+    <footer class="app-footer">
+        <div class="controls-dock">
+            <button id="btn-undo" class="dock-btn" title="Desfazer última jogada">
+                <div class="dock-btn-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 14L4 9l5-5"/>
+                        <path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>
+                    </svg>
+                    <span id="undo-count" class="dock-badge badge-sky">0</span>
+                </div>
+                <span class="dock-label">Desfazer</span>
+            </button>
+
+            <button id="btn-restart" class="dock-btn" title="Reiniciar fase atual">
+                <div class="dock-btn-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                        <path d="M3 3v5h5"/>
+                    </svg>
+                </div>
+                <span class="dock-label">Reiniciar</span>
+            </button>
+
+            <button id="btn-add-tube" class="dock-btn" title="Adicionar 1 tubo vazio extra">
+                <div class="dock-btn-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 5v14M5 12h14"/>
+                    </svg>
+                    <span id="extra-tube-count" class="dock-badge badge-emerald">1</span>
+                </div>
+                <span class="dock-label">+1 Tubo</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Notificação Rápida -->
+    <div id="toast-msg" role="status">Aviso</div>
+
+    <!-- Modal de Vitória -->
+    <div id="victory-modal" role="dialog" aria-modal="true" aria-labelledby="victory-title">
+        <div class="victory-card">
+            <div class="victory-trophy">🏆</div>
+            <h2 id="victory-title" class="victory-title">Nível Concluído!</h2>
+            <p class="victory-desc">Todas as cores foram separadas com perfeição.</p>
+
+            <div class="victory-stats">
+                <div class="stat-box">
+                    <span class="stat-label">Nível</span>
+                    <span id="modal-level" class="stat-value">1</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Jogadas</span>
+                    <span id="modal-moves" class="stat-value" style="color: #16a34a;">0</span>
+                </div>
+            </div>
+
+            <button id="btn-next-level" class="next-btn">Próximo Nível ➔</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            /* ============================================================================
+               1. PALETA DE CORES 100% CROMÁTICA (GRUPO 1 PRIORITÁRIO + GRUPO 2 EXPANSÃO)
+               ============================================================================ */
+            const CORE_COLORS = [
+                { id: 'vermelho', name: 'Vermelho', top: '#e11d48', bottom: '#be123c' },
+                { id: 'azul',     name: 'Azul',     top: '#2563eb', bottom: '#1d4ed8' },
+                { id: 'amarelo',  name: 'Amarelo',  top: '#eab308', bottom: '#ca8a04' },
+                { id: 'verde',    name: 'Verde',    top: '#16a34a', bottom: '#15803d' },
+                { id: 'laranja',  name: 'Laranja',  top: '#f97316', bottom: '#ea580c' },
+                { id: 'roxo',     name: 'Roxo',     top: '#9333ea', bottom: '#7e22ce' },
+                { id: 'ciano',    name: 'Ciano',    top: '#06b6d4', bottom: '#0891b2' },
+                { id: 'rosa',     name: 'Rosa',     top: '#ec4899', bottom: '#db2777' },
+                { id: 'marrom',   name: 'Marrom',   top: '#92400e', bottom: '#78350f' }
+            ];
+
+            const EXTENDED_COLORS = [
+                { id: 'lima',     name: 'Verde-Lima',    top: '#84cc16', bottom: '#65a30d' },
+                { id: 'indigo',   name: 'Índigo',        top: '#4338ca', bottom: '#3730a3' },
+                { id: 'coral',    name: 'Coral',         top: '#fb7185', bottom: '#f43f5e' },
+                { id: 'petroleo', name: 'Azul-Petróleo', top: '#0f766e', bottom: '#115e59' },
+                { id: 'dourado',  name: 'Dourado',       top: '#d97706', bottom: '#b45309' }
+            ];
+
+            const COLOR_MAP = {};
+            [...CORE_COLORS, ...EXTENDED_COLORS].forEach(c => {
+                COLOR_MAP[c.id] = c;
+            });
+
+            const TUBE_CAPACITY = 4;
+            const STORAGE_KEY = 'watersort_ptbr_state_v1';
+
+            /* ============================================================================
+               2. ESTADO GLOBAL DO JOGO
+               ============================================================================ */
+            const state = {
+                level: 1,
+                tubes: [],
+                initialTubes: [],
+                history: [],
+                selectedTube: null,
+                moves: 0,
+                extraTubeUsed: false,
+                isAnimating: false,
+                soundEnabled: true,
+                darkMode: true
+            };
+
+            /* ============================================================================
+               3. SISTEMA DE ÁUDIO SINTETIZADO (WEB AUDIO API - SEM ARQUIVOS EXTERNOS)
+               ============================================================================ */
+            class SoundFX {
+                constructor() {
+                    this.ctx = null;
+                }
+
+                ensureContext() {
+                    if (!state.soundEnabled) return null;
+                    if (!this.ctx) {
+                        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                        if (AudioCtx) this.ctx = new AudioCtx();
+                    }
+                    if (this.ctx && this.ctx.state === 'suspended') {
+                        this.ctx.resume().catch(() => {});
+                    }
+                    return this.ctx;
+                }
+
+                playSelect() {
+                    const ctx = this.ensureContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(760, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.09);
+                }
+
+                playDeselect() {
+                    const ctx = this.ensureContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(540, now);
+                    osc.frequency.exponentialRampToValueAtTime(340, now + 0.08);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                }
+
+                playError() {
+                    const ctx = this.ensureContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(175, now);
+                    osc.frequency.linearRampToValueAtTime(125, now + 0.16);
+                    gain.gain.setValueAtTime(0.16, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.17);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.17);
+                }
+
+                playPour(units = 1) {
+                    const ctx = this.ensureContext();
+                    if (!ctx) return;
+                    const duration = 0.22 + units * 0.05;
+                    const now = ctx.currentTime;
+
+                    // Ruído filtrado simulando fluxo de líquido + tom ascendente de preenchimento
+                    const bufferSize = Math.floor(ctx.sampleRate * duration);
+                    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        data[i] = (Math.random() * 2 - 1) * Math.sin((i / bufferSize) * Math.PI);
+                    }
+
+                    const noise = ctx.createBufferSource();
+                    noise.buffer = buffer;
+
+                    const filter = ctx.createBiquadFilter();
+                    filter.type = 'bandpass';
+                    filter.frequency.setValueAtTime(750, now);
+                    filter.frequency.exponentialRampToValueAtTime(1450, now + duration);
+                    filter.Q.value = 3.2;
+
+                    const gain = ctx.createGain();
+                    gain.gain.setValueAtTime(0.22, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+                    noise.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(ctx.destination);
+                    noise.start(now);
+                }
+
+                playTubeComplete() {
+                    const ctx = this.ensureContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const notes = [587.33, 739.99, 880, 1174.66]; // Ré maior brilhante
+                    notes.forEach((freq, idx) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'sine';
+                        const start = now + idx * 0.055;
+                        osc.frequency.setValueAtTime(freq, start);
+                        gain.gain.setValueAtTime(0.13, start);
+                        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(start);
+                        osc.stop(start + 0.28);
+                    });
+                }
+
+                playVictory() {
+                    const ctx = this.ensureContext();
+                    if (!ctx) return;
+                    const now = ctx.currentTime;
+                    const melody = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+                    const times = [0, 0.1, 0.2, 0.32, 0.48, 0.6];
+                    melody.forEach((freq, i) => {
+                        const osc = ctx.createOscillator();
+                        const gain = ctx.createGain();
+                        osc.type = 'triangle';
+                        const t = now + times[i];
+                        osc.frequency.setValueAtTime(freq, t);
+                        gain.gain.setValueAtTime(0.16, t);
+                        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.34);
+                        osc.connect(gain);
+                        gain.connect(ctx.destination);
+                        osc.start(t);
+                        osc.stop(t + 0.34);
+                    });
+                }
+            }
+
+            const sfx = new SoundFX();
+
+            /* ============================================================================
+               4. UTILITÁRIOS DE LÓGICA, SORTEIO DE CORES E SOLVER
+               ============================================================================ */
+            function shuffleArray(arr) {
+                const copy = [...arr];
+                for (let i = copy.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [copy[i], copy[j]] = [copy[j], copy[i]];
+                }
+                return copy;
+            }
+
+            function cloneTubes(tubes) {
+                return tubes.map(t => [...t]);
+            }
+
+            /**
+             * Sorteia N cores seguindo a regra estrita:
+             * - Se N <= 9: embaralha o Grupo 1 (9 cores cromáticas) e sorteia N.
+             * - Se N > 9: usa todas as 9 do Grupo 1 + (N - 9) sorteadas do Grupo 2.
+             */
+            function pickColorsForLevel(numColors) {
+                const count = Math.min(numColors, CORE_COLORS.length + EXTENDED_COLORS.length);
+                if (count <= CORE_COLORS.length) {
+                    return shuffleArray(CORE_COLORS).slice(0, count).map(c => c.id);
+                }
+                const extraNeeded = count - CORE_COLORS.length;
+                const coreIds = shuffleArray(CORE_COLORS).map(c => c.id);
+                const extraIds = shuffleArray(EXTENDED_COLORS).slice(0, extraNeeded).map(c => c.id);
+                return shuffleArray([...coreIds, ...extraIds]);
+            }
+
+            /**
+             * Progressão de dificuldade:
+             * Nível 1 -> 3 cores + 2 vazios (5 tubos)
+             * Sobe gradualmente até 12 cores + 2 vazios (14 tubos)
+             */
+            function getColorCountForLevel(level) {
+                if (level === 1) return 3;
+                if (level === 2) return 4;
+                if (level <= 4) return 5;
+                if (level <= 6) return 6;
+                if (level <= 9) return 7;
+                if (level <= 12) return 8;
+                if (level <= 16) return 9;
+                if (level <= 20) return 10;
+                if (level <= 25) return 11;
+                return 12;
+            }
+
+            function isTubeComplete(tube) {
+                if (tube.length !== TUBE_CAPACITY) return false;
+                const first = tube[0];
+                return tube.every(color => color === first);
+            }
+
+            function isBoardSolved(tubes) {
+                return tubes.every(t => t.length === 0 || isTubeComplete(t));
+            }
+
+            function getTopRunLength(tube) {
+                if (tube.length === 0) return 0;
+                const topColor = tube[tube.length - 1];
+                let count = 1;
+                for (let i = tube.length - 2; i >= 0; i--) {
+                    if (tube[i] === topColor) count++;
+                    else break;
+                }
+                return count;
+            }
+
+            function canPour(srcTube, dstTube) {
+                if (srcTube.length === 0) return false;
+                if (dstTube.length >= TUBE_CAPACITY) return false;
+                if (dstTube.length === 0) return true;
+                return srcTube[srcTube.length - 1] === dstTube[dstTube.length - 1];
+            }
+
+            /**
+             * Solver DFS com podas inteligentes para garantir que toda fase gerada tem solução
+             */
+            function isSolvable(initialTubes, maxStates = 6000) {
+                const visited = new Set();
+                let explored = 0;
+
+                function serialize(board) {
+                    // Normaliza tubos vazios para reduzir espaço de estados
+                    return board.map(t => t.join(',')).sort().join('|');
+                }
+
+                function dfs(board) {
+                    if (isBoardSolved(board)) return true;
+                    if (++explored > maxStates) return false;
+
+                    const key = serialize(board);
+                    if (visited.has(key)) return false;
+                    visited.add(key);
+
+                    const n = board.length;
+                    for (let i = 0; i < n; i++) {
+                        const src = board[i];
+                        if (src.length === 0 || isTubeComplete(src)) continue;
+
+                        const topColor = src[src.length - 1];
+                        const runLen = getTopRunLength(src);
+                        const isUniformSrc = runLen === src.length;
+                        let usedEmptyTarget = false;
+
+                        for (let j = 0; j < n; j++) {
+                            if (i === j) continue;
+                            const dst = board[j];
+                            if (!canPour(src, dst)) continue;
+
+                            // Poda: não mover um tubo já uniforme para outro tubo vazio (movimento inútil)
+                            if (dst.length === 0) {
+                                if (isUniformSrc || usedEmptyTarget) continue;
+                                usedEmptyTarget = true;
+                            }
+
+                            const space = TUBE_CAPACITY - dst.length;
+                            const moveCount = Math.min(runLen, space);
+
+                            const nextBoard = cloneTubes(board);
+                            for (let k = 0; k < moveCount; k++) {
+                                nextBoard[j].push(nextBoard[i].pop());
+                            }
+
+                            if (dfs(nextBoard)) return true;
+                        }
+                    }
+                    return false;
+                }
+
+                return dfs(cloneTubes(initialTubes));
+            }
+
+            /**
+             * Gera um tabuleiro embaralhado e garantidamente solucionável
+             */
+            function generateLevelBoard(level) {
+                const numColors = getColorCountForLevel(level);
+                const emptyTubes = 2;
+
+                for (let attempt = 0; attempt < 25; attempt++) {
+                    const selectedColors = pickColorsForLevel(numColors);
+
+                    // Cria pool com 4 unidades de cada cor e embaralha
+                    let pool = [];
+                    selectedColors.forEach(colorId => {
+                        for (let i = 0; i < TUBE_CAPACITY; i++) {
+                            pool.push(colorId);
+                        }
+                    });
+                    pool = shuffleArray(pool);
+
+                    const tubes = [];
+                    for (let i = 0; i < numColors; i++) {
+                        tubes.push(pool.slice(i * TUBE_CAPACITY, (i + 1) * TUBE_CAPACITY));
+                    }
+                    for (let i = 0; i < emptyTubes; i++) {
+                        tubes.push([]);
+                    }
+
+                    // Garante que nenhum tubo já comece pronto e que a fase tenha solução válida
+                    const hasPreCompleted = tubes.some(t => isTubeComplete(t));
+                    if (!hasPreCompleted && isSolvable(tubes, 7000)) {
+                        return tubes;
+                    }
+                }
+
+                // Fallback garantido via embaralhamento reverso a partir do estado resolvido
+                const fallbackColors = pickColorsForLevel(numColors);
+                const tubes = fallbackColors.map(c => [c, c, c, c]);
+                for (let i = 0; i < emptyTubes; i++) tubes.push([]);
+
+                const totalTubes = tubes.length;
+                for (let step = 0; step < numColors * 18; step++) {
+                    const a = Math.floor(Math.random() * totalTubes);
+                    const b = Math.floor(Math.random() * totalTubes);
+                    if (a !== b && tubes[a].length > 0 && tubes[b].length < TUBE_CAPACITY) {
+                        tubes[b].push(tubes[a].pop());
+                    }
+                }
+                return tubes;
+            }
+
+            /* ============================================================================
+               5. PERSISTÊNCIA (LOCALSTORAGE) E CONTROLES DE UI
+               ============================================================================ */
+            const dom = {
+                board: document.getElementById('board'),
+                levelBadge: document.getElementById('level-badge'),
+                movesDisplay: document.getElementById('moves-display'),
+                undoCount: document.getElementById('undo-count'),
+                extraTubeCount: document.getElementById('extra-tube-count'),
+                btnUndo: document.getElementById('btn-undo'),
+                btnRestart: document.getElementById('btn-restart'),
+                btnAddTube: document.getElementById('btn-add-tube'),
+                btnSound: document.getElementById('btn-sound'),
+                soundIcon: document.getElementById('sound-icon'),
+                btnTheme: document.getElementById('btn-theme'),
+                themeIcon: document.getElementById('theme-icon'),
+                toastMsg: document.getElementById('toast-msg'),
+                pourStream: document.getElementById('pour-stream'),
+                victoryModal: document.getElementById('victory-modal'),
+                modalLevel: document.getElementById('modal-level'),
+                modalMoves: document.getElementById('modal-moves'),
+                btnNextLevel: document.getElementById('btn-next-level')
+            };
+
+            let toastTimer = null;
+            function showToast(text) {
+                dom.toastMsg.textContent = text;
+                dom.toastMsg.classList.add('visible');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    dom.toastMsg.classList.remove('visible');
+                }, 1800);
+            }
+
+            function savePreferences() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                        level: state.level,
+                        soundEnabled: state.soundEnabled,
+                        darkMode: state.darkMode
+                    }));
+                } catch (_) {}
+            }
+
+            function loadPreferences() {
+                try {
+                    const raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return;
+                    const parsed = JSON.parse(raw);
+                    if (typeof parsed.level === 'number' && parsed.level >= 1) {
+                        state.level = Math.floor(parsed.level);
+                    }
+                    if (typeof parsed.soundEnabled === 'boolean') {
+                        state.soundEnabled = parsed.soundEnabled;
+                    }
+                    if (typeof parsed.darkMode === 'boolean') {
+                        state.darkMode = parsed.darkMode;
+                    }
+                } catch (_) {}
+            }
+
+            function applyThemeAndAudioUI() {
+                if (state.darkMode) {
+                    document.documentElement.classList.add('dark');
+                    dom.themeIcon.textContent = '☀️';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    dom.themeIcon.textContent = '🌙';
+                }
+                dom.soundIcon.textContent = state.soundEnabled ? '🔊' : '🔇';
+            }
+
+            function updateHUD() {
+                dom.levelBadge.textContent = `Nível ${state.level}`;
+                dom.movesDisplay.textContent = String(state.moves);
+                dom.undoCount.textContent = String(state.history.length);
+                dom.btnUndo.disabled = state.history.length === 0 || state.isAnimating;
+
+                const remainingExtra = state.extraTubeUsed ? 0 : 1;
+                dom.extraTubeCount.textContent = String(remainingExtra);
+                dom.btnAddTube.disabled = state.extraTubeUsed || state.isAnimating;
+            }
+
+            /* ============================================================================
+               6. RENDERIZAÇÃO DO TABULEIRO (1 OU 2 FILEIRAS EQUILIBRADAS)
+               ============================================================================ */
+            function renderBoard(justCompletedIndex = -1) {
+                const total = state.tubes.length;
+
+                // Ajusta classe de densidade CSS conforme a quantidade de garrafas
+                dom.board.classList.remove('board-compact', 'board-dense');
+                if (total > 10) {
+                    dom.board.classList.add('board-dense');
+                } else if (total > 6) {
+                    dom.board.classList.add('board-compact');
+                }
+
+                // Distribuição em 1 fileira (<= 6 tubos) ou 2 fileiras equilibradas (> 6 tubos)
+                const rows = [];
+                if (total <= 6) {
+                    rows.push(state.tubes.map((_, idx) => idx));
+                } else {
+                    const topCount = Math.ceil(total / 2);
+                    const row1 = [];
+                    const row2 = [];
+                    for (let i = 0; i < total; i++) {
+                        if (i < topCount) row1.push(i);
+                        else row2.push(i);
+                    }
+                    rows.push(row1, row2);
+                }
+
+                dom.board.innerHTML = '';
+
+                rows.forEach(rowIndices => {
+                    const rowEl = document.createElement('div');
+                    rowEl.className = 'tube-row';
+
+                    rowIndices.forEach(tubeIndex => {
+                        const tubeData = state.tubes[tubeIndex];
+                        const completed = isTubeComplete(tubeData);
+                        const selected = state.selectedTube === tubeIndex;
+
+                        const slot = document.createElement('div');
+                        slot.className = 'tube-slot';
+                        slot.dataset.index = String(tubeIndex);
+                        if (selected) slot.classList.add('selected');
+                        if (completed) slot.classList.add('completed');
+                        if (tubeIndex === justCompletedIndex) slot.classList.add('just-completed');
+
+                        // Rolha superior (visível ao completar)
+                        const cork = document.createElement('div');
+                        cork.className = 'tube-cork';
+                        slot.appendChild(cork);
+
+                        // Boca da garrafa
+                        const lip = document.createElement('div');
+                        lip.className = 'tube-lip';
+                        slot.appendChild(lip);
+
+                        // Corpo cilíndrico de vidro
+                        const tubeEl = document.createElement('div');
+                        tubeEl.className = 'tube';
+
+                        // Segmentos de líquido (de baixo para cima)
+                        tubeData.forEach((colorId, segIdx) => {
+                            const colorDef = COLOR_MAP[colorId] || CORE_COLORS[0];
+                            const seg = document.createElement('div');
+                            seg.className = 'liquid-segment';
+                            if (segIdx === tubeData.length - 1) {
+                                seg.classList.add('top-layer');
+                            }
+                            if (segIdx > 0 && tubeData[segIdx - 1] !== colorId) {
+                                seg.classList.add('has-divider');
+                            }
+                            seg.style.background = `linear-gradient(180deg, ${colorDef.top} 0%, ${colorDef.bottom} 100%)`;
+                            tubeEl.appendChild(seg);
+                        });
+
+                        // Brilho especular do vidro
+                        const sheen = document.createElement('div');
+                        sheen.className = 'tube-sheen';
+                        tubeEl.appendChild(sheen);
+
+                        slot.appendChild(tubeEl);
+
+                        // Evento de toque/clique
+                        slot.addEventListener('click', () => handleTubeClick(tubeIndex));
+                        rowEl.appendChild(slot);
+                    });
+
+                    dom.board.appendChild(rowEl);
+                });
+
+                updateHUD();
+            }
+
+            /* ============================================================================
+               7. EFEITOS VISUAIS DE PARTÍCULAS E CONFETES
+               ============================================================================ */
+            function spawnTubeSparkles(tubeIndex) {
+                const slot = dom.board.querySelector(`.tube-slot[data-index="${tubeIndex}"]`);
+                if (!slot) return;
+                const rect = slot.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + 14;
+                const colors = ['#eab308', '#16a34a', '#06b6d4', '#ec4899', '#f97316'];
+
+                for (let i = 0; i < 14; i++) {
+                    const p = document.createElement('div');
+                    p.className = 'sparkle-particle';
+                    p.style.left = `${cx}px`;
+                    p.style.top = `${cy}px`;
+                    p.style.backgroundColor = colors[i % colors.length];
+                    document.body.appendChild(p);
+
+                    const angle = (Math.PI * 2 * i) / 14;
+                    const dist = 26 + Math.random() * 28;
+                    const dx = Math.cos(angle) * dist;
+                    const dy = Math.sin(angle) * dist - 10;
+
+                    p.animate([
+                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                        { transform: `translate(${dx}px, ${dy}px) scale(0.2)`, opacity: 0 }
+                    ], {
+                        duration: 520,
+                        easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
+                    }).onfinish = () => p.remove();
+                }
+            }
+
+            function launchConfetti() {
+                const palette = CORE_COLORS.map(c => c.top);
+                for (let i = 0; i < 55; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = `${Math.random() * 100}vw`;
+                    piece.style.top = `-12px`;
+                    piece.style.backgroundColor = palette[i % palette.length];
+                    document.body.appendChild(piece);
+
+                    const driftX = (Math.random() - 0.5) * 180;
+                    const endY = window.innerHeight + 20;
+                    const rot = (Math.random() - 0.5) * 720;
+
+                    piece.animate([
+                        { transform: 'translate3d(0, 0, 0) rotate(0deg)', opacity: 1 },
+                        { transform: `translate3d(${driftX}px, ${endY}px, 0) rotate(${rot}deg)`, opacity: 0.85 }
+                    ], {
+                        duration: 1400 + Math.random() * 900,
+                        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                    }).onfinish = () => piece.remove();
+                }
+            }
+
+            /* ============================================================================
+               8. INTERAÇÃO DO JOGADOR E ANIMAÇÃO DE DESPEJO
+               ============================================================================ */
+            function triggerInvalidFeedback(tubeIndex) {
+                sfx.playError();
+                const slot = dom.board.querySelector(`.tube-slot[data-index="${tubeIndex}"]`);
+                if (slot) {
+                    slot.classList.remove('invalid-shake');
+                    void slot.offsetWidth;
+                    slot.classList.add('invalid-shake');
+                }
+            }
+
+            function handleTubeClick(index) {
+                if (state.isAnimating) return;
+
+                const clickedTube = state.tubes[index];
+
+                // Nenhum tubo selecionado ainda
+                if (state.selectedTube === null) {
+                    if (clickedTube.length === 0) {
+                        triggerInvalidFeedback(index);
+                        return;
+                    }
+                    if (isTubeComplete(clickedTube)) {
+                        showToast('Este tubo já está completo!');
+                        triggerInvalidFeedback(index);
+                        return;
+                    }
+                    state.selectedTube = index;
+                    sfx.playSelect();
+                    renderBoard();
+                    return;
+                }
+
+                // Clicou no mesmo tubo -> desmarca
+                if (state.selectedTube === index) {
+                    state.selectedTube = null;
+                    sfx.playDeselect();
+                    renderBoard();
+                    return;
+                }
+
+                const srcIndex = state.selectedTube;
+                const dstIndex = index;
+                const srcTube = state.tubes[srcIndex];
+                const dstTube = state.tubes[dstIndex];
+
+                // Valida movimento
+                if (!canPour(srcTube, dstTube)) {
+                    state.selectedTube = null;
+                    renderBoard();
+                    triggerInvalidFeedback(dstIndex);
+                    return;
+                }
+
+                executePour(srcIndex, dstIndex);
+            }
+
+            function executePour(srcIndex, dstIndex) {
+                const srcTube = state.tubes[srcIndex];
+                const dstTube = state.tubes[dstIndex];
+                const movingColorId = srcTube[srcTube.length - 1];
+                const colorDef = COLOR_MAP[movingColorId] || CORE_COLORS[0];
+
+                const runLen = getTopRunLength(srcTube);
+                const freeSpace = TUBE_CAPACITY - dstTube.length;
+                const unitsToMove = Math.min(runLen, freeSpace);
+
+                // Salva estado no histórico antes de alterar
+                state.history.push(cloneTubes(state.tubes));
+                state.selectedTube = null;
+                state.isAnimating = true;
+                updateHUD();
+
+                const srcSlot = dom.board.querySelector(`.tube-slot[data-index="${srcIndex}"]`);
+                const dstSlot = dom.board.querySelector(`.tube-slot[data-index="${dstIndex}"]`);
+
+                if (!srcSlot || !dstSlot) {
+                    finalizePour(srcIndex, dstIndex, unitsToMove);
+                    return;
+                }
+
+                const srcRect = srcSlot.getBoundingClientRect();
+                const dstRect = dstSlot.getBoundingClientRect();
+
+                // Calcula direção da inclinação (esquerda ou direita em relação ao destino)
+                const pourFromLeft = srcRect.left <= dstRect.left;
+                const tiltAngle = pourFromLeft ? 54 : -54;
+                const targetMouthX = dstRect.left + dstRect.width / 2;
+                const targetMouthY = dstRect.top + 10;
+
+                const offsetX = pourFromLeft
+                    ? (targetMouthX - srcRect.width * 0.72) - srcRect.left
+                    : (targetMouthX - srcRect.width * 0.28) - srcRect.left;
+                const offsetY = (targetMouthY - srcRect.height * 0.42) - srcRect.top;
+
+                srcSlot.classList.add('pouring-source');
+                srcSlot.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${tiltAngle}deg)`;
+
+                sfx.playPour(unitsToMove);
+
+                // Exibe o jato colorido vertical caindo no tubo de destino
+                setTimeout(() => {
+                    const streamTop = targetMouthY - 4;
+                    const fillFraction = 1 - (dstTube.length / TUBE_CAPACITY);
+                    const streamHeight = Math.max(24, dstRect.height * fillFraction * 0.85);
+
+                    dom.pourStream.style.left = `${targetMouthX - 2.5}px`;
+                    dom.pourStream.style.top = `${streamTop}px`;
+                    dom.pourStream.style.height = `${streamHeight}px`;
+                    dom.pourStream.style.background = `linear-gradient(180deg, ${colorDef.top}, ${colorDef.bottom})`;
+                    dom.pourStream.style.opacity = '0.95';
+                }, 130);
+
+                // Conclui transferência e retorna tubo à posição original
+                setTimeout(() => {
+                    dom.pourStream.style.opacity = '0';
+                    srcSlot.style.transform = '';
+                }, 360);
+
+                setTimeout(() => {
+                    finalizePour(srcIndex, dstIndex, unitsToMove);
+                }, 460);
+            }
+
+            function finalizePour(srcIndex, dstIndex, unitsToMove) {
+                for (let i = 0; i < unitsToMove; i++) {
+                    state.tubes[dstIndex].push(state.tubes[srcIndex].pop());
+                }
+
+                state.moves += 1;
+                state.isAnimating = false;
+
+                const completedNow = isTubeComplete(state.tubes[dstIndex]);
+                renderBoard(completedNow ? dstIndex : -1);
+
+                if (completedNow) {
+                    sfx.playTubeComplete();
+                    spawnTubeSparkles(dstIndex);
+                }
+
+                if (isBoardSolved(state.tubes)) {
+                    setTimeout(handleLevelVictory, 320);
+                }
+            }
+
+            function handleLevelVictory() {
+                sfx.playVictory();
+                launchConfetti();
+                dom.modalLevel.textContent = String(state.level);
+                dom.modalMoves.textContent = String(state.moves);
+                dom.victoryModal.classList.add('open');
+            }
+
+            /* ============================================================================
+               9. AÇÕES DOS BOTÕES E INICIALIZAÇÃO
+               ============================================================================ */
+            function startLevel(levelNumber) {
+                state.level = levelNumber;
+                state.selectedTube = null;
+                state.moves = 0;
+                state.history = [];
+                state.extraTubeUsed = false;
+                state.isAnimating = false;
+
+                const generated = generateLevelBoard(levelNumber);
+                state.tubes = cloneTubes(generated);
+                state.initialTubes = cloneTubes(generated);
+
+                dom.victoryModal.classList.remove('open');
+                savePreferences();
+                renderBoard();
+            }
+
+            dom.btnUndo.addEventListener('click', () => {
+                if (state.isAnimating || state.history.length === 0) return;
+                state.tubes = state.history.pop();
+                state.selectedTube = null;
+                sfx.playDeselect();
+                renderBoard();
+            });
+
+            dom.btnRestart.addEventListener('click', () => {
+                if (state.isAnimating) return;
+                state.tubes = cloneTubes(state.initialTubes);
+                state.history = [];
+                state.selectedTube = null;
+                state.moves = 0;
+                state.extraTubeUsed = false;
+                sfx.playDeselect();
+                showToast('Fase reiniciada');
+                renderBoard();
+            });
+
+            dom.btnAddTube.addEventListener('click', () => {
+                if (state.isAnimating || state.extraTubeUsed) return;
+                state.history.push(cloneTubes(state.tubes));
+                state.tubes.push([]);
+                state.extraTubeUsed = true;
+                state.selectedTube = null;
+                sfx.playSelect();
+                showToast('Tubo extra adicionado!');
+                renderBoard();
+            });
+
+            dom.btnSound.addEventListener('click', () => {
+                state.soundEnabled = !state.soundEnabled;
+                applyThemeAndAudioUI();
+                savePreferences();
+                if (state.soundEnabled) sfx.playSelect();
+            });
+
+            dom.btnTheme.addEventListener('click', () => {
+                state.darkMode = !state.darkMode;
+                applyThemeAndAudioUI();
+                savePreferences();
+            });
+
+            dom.btnNextLevel.addEventListener('click', () => {
+                startLevel(state.level + 1);
+            });
+
+            // Inicialização garantida
+            loadPreferences();
+            applyThemeAndAudioUI();
+            startLevel(state.level);
+        })();
+    </script>
+</body>
+</html>
