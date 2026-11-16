@@ -1,11 +1,11 @@
 # 🔵 Dots & Boxes (Jogo dos Pontinhos)
 
-[![Jogar Agora](https://img.shields.io/badge/Jogar%20Agora-Dots%20%26%20Boxes-0284c7?style=for-the-badge&logo=google-chrome&logoColor=white)](https://denis-tek.github.io/jogos/dots-and-bokes/)
+[![Jogar Agora](https://img.shields.io/badge/Jogar%20Agora-Dots%20%26%20Boxes-2563eb?style=for-the-badge&logo=google-chrome&logoColor=white)](https://denis-tek.github.io/jogos/dots-and-boxes/)
 [![Voltar ao Menu](https://img.shields.io/badge/Menu-Coleção%20de%20Jogos-334155?style=for-the-badge)](https://denis-tek.github.io/jogos/)
 
 Implementação web minimalista e responsiva do clássico jogo de papel e caneta **Dots & Boxes** (*Jogo dos Pontinhos*), desenvolvida em arquivo único (`index.html`) com renderização vetorial em SVG, inteligência artificial adaptativa em 3 níveis e áudio sintetizado em tempo real.
 
-🔗 **Link para execução online:** [https://denis-tek.github.io/jogos/dots-and-bokes/](https://denis-tek.github.io/jogos/dots-and-bokes/)
+🔗 **Link para execução online:** [https://denis-tek.github.io/jogos/dots-and-boxes/](https://denis-tek.github.io/jogos/dots-and-boxes/)
 
 ---
 

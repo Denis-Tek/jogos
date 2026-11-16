@@ -23,7 +23,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | **[Paciência Clássica](./paciencia/)** | Cartas & Estratégia | Versão completa do *Klondike Solitaire* com compra de 1 ou 3 cartas, detector de impasses via BFS, dicas inteligentes e temas Esmeralda e Meia-Noite. | [Jogar Paciência](https://denis-tek.github.io/jogos/paciencia/) |
 | **[Cubo Mágico 3x3](./cubo-magico/)** | Quebra-Cabeça 3D | Simulador 3D interativo com motor gráfico próprio em Canvas 2D, notação oficial WCA, cronômetro de *Speedcubing*, *Auto-Solve* e temas claro/escuro. | [Jogar Cubo Mágico](https://denis-tek.github.io/jogos/cubo-magico/) |
 | **[Sudoku Pro](./sudoku/)** | Lógica & Números | Quebra-cabeça numérico com geração de solução única via *backtracking*, modo lápis, dicas pedagógicas (*Naked/Hidden Single*) e temas claro/escuro. | [Jogar Sudoku Pro](https://denis-tek.github.io/jogos/sudoku/) |
-| **[Dots & Boxes](./dots-and-bokes/)** | Estratégia & Tabuleiro | O clássico *Jogo dos Pontinhos* em SVG vetorial com modos 1P vs IA (3 níveis com análise de cadeias) ou 2 Jogadores, 3 tamanhos de grade e temas claro/escuro. | [Jogar Dots & Boxes](https://denis-tek.github.io/jogos/dots-and-bokes/) |
+| **[Dots & Boxes](./dots-and-boxes/)** | Estratégia & Tabuleiro | O clássico *Jogo dos Pontinhos* em SVG vetorial com modos 1P vs IA (3 níveis com análise de cadeias) ou 2 Jogadores, 3 tamanhos de grade e temas claro/escuro. | [Jogar Dots & Boxes](https://denis-tek.github.io/jogos/dots-and-boxes/) |
 | **[Two Dots](./two-dots/)** | Puzzle & Conexões | Quebra-cabeça minimalista de conexão de pontos iguais em grade `6×6` com eliminação global de cor por circuitos fechados (*loops*), 3 modos e escala pentatônica. | [Jogar Two Dots](https://denis-tek.github.io/jogos/two-dots/) |
 
 ---
@@ -78,7 +78,7 @@ jogos/
 │   ├── index.html             # Aplicação completa do Sudoku Pro
 │   ├── imagem.png             # Captura de tela do jogo em execução
 │   └── README.md              # Documentação técnica, regras e algoritmos do Sudoku
-├── dots-and-bokes/
+├── dots-and-boxes/
 │   ├── index.html             # Aplicação completa do Dots & Boxes (Jogo dos Pontinhos)
 │   ├── imagem.png             # Captura de tela do jogo em execução
 │   └── README.md              # Documentação técnica, regras e algoritmos do Dots & Boxes
