@@ -1,0 +1,2234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Paciência Clássica (Klondike Solitaire)</title>
+  <style>
+    /* ==========================================================================
+       1. VARIÁVEIS DE TEMA E DIMENSÕES DINÂMICAS
+       ========================================================================== */
+    :root {
+      --bg-table: #0f5c37;
+      --bg-table-radial: #157a49;
+      --bg-header: rgba(8, 36, 22, 0.95);
+      --slot-border: rgba(255, 255, 255, 0.25);
+      --slot-bg: rgba(0, 0, 0, 0.18);
+      --card-back-1: #1e40af;
+      --card-back-2: #1d4ed8;
+      --card-back-border: #93c5fd;
+      --text-light: #f8fafc;
+      --text-muted: #cbd5e1;
+      --accent: #facc15;
+      --accent-glow: rgba(250, 204, 21, 0.72);
+
+      /* Dimensões Dinâmicas (Calculadas pelo ResizeObserver) */
+      --card-w: 84px;
+      --card-h: 118px;
+      --card-radius: 7px;
+      --board-gap: 10px;
+      --row-gap: 14px;
+      --stack-offset-down: 11px;
+      --stack-offset-up: 23px;
+    }
+
+    body.theme-midnight {
+      --bg-table: #182232;
+      --bg-table-radial: #233249;
+      --bg-header: rgba(11, 17, 27, 0.96);
+      --slot-border: rgba(148, 163, 184, 0.28);
+      --slot-bg: rgba(0, 0, 0, 0.26);
+      --card-back-1: #7c2d12;
+      --card-back-2: #9a3412;
+      --card-back-border: #fdba74;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+      background: radial-gradient(circle at 50% 35%, var(--bg-table-radial), var(--bg-table));
+      color: var(--text-light);
+      touch-action: none;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       2. BARRA SUPERIOR (HUD)
+       ========================================================================== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--bg-header);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .brand-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .title {
+      font-size: 0.96rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-pill strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .status-badge {
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .status-badge:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .status-badge.deadlock {
+      background: rgba(220, 38, 38, 0.42);
+      border-color: rgba(248, 113, 113, 0.85);
+      color: #fecaca;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    button.btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    button.btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    button.btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    button.btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    button.btn-primary {
+      background: #16a34a;
+      border-color: #22c55e;
+    }
+
+    button.btn-primary:hover:not(:disabled) {
+      background: #15803d;
+    }
+
+    button.btn-accent {
+      background: #ca8a04;
+      border-color: #facc15;
+      color: #fff;
+    }
+
+    button.btn-accent:hover:not(:disabled) {
+      background: #a16207;
+    }
+
+    /* Banner discreto de impasse */
+    .impasse-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 5px 12px;
+      background: rgba(185, 28, 28, 0.94);
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      flex-shrink: 0;
+      z-index: 15;
+    }
+
+    .impasse-banner.visible {
+      display: flex;
+    }
+
+    /* ==========================================================================
+       3. ÁREA PRINCIPAL DO TABULEIRO
+       ========================================================================== */
+    .board-wrapper {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 10px 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .board {
+      display: flex;
+      flex-direction: column;
+      gap: var(--row-gap);
+      width: calc(var(--card-w) * 7 + var(--board-gap) * 6);
+      max-width: 100%;
+      height: 100%;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: repeat(7, var(--card-w));
+      gap: var(--board-gap);
+      height: var(--card-h);
+      flex-shrink: 0;
+    }
+
+    .slot {
+      width: var(--card-w);
+      height: var(--card-h);
+      border-radius: var(--card-radius);
+      border: 1.5px dashed var(--slot-border);
+      background: var(--slot-bg);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    }
+
+    .slot.valid-target {
+      border-color: var(--accent);
+      border-style: solid;
+      background: rgba(250, 204, 21, 0.16);
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.45);
+    }
+
+    .slot.hint-slot {
+      border-color: #38bdf8;
+      border-style: solid;
+      background: rgba(56, 189, 248, 0.22);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.85);
+    }
+
+    .slot-placeholder {
+      font-size: calc(var(--card-w) * 0.38);
+      color: rgba(255, 255, 255, 0.32);
+      pointer-events: none;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    /* Contador numérico exato do Monte e Descarte */
+    .pile-count-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      min-width: 19px;
+      height: 17px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      color: #f8fafc;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 40;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stock-slot {
+      cursor: pointer;
+    }
+
+    /* Todos os filhos do monte têm pointer-events: none para evitar falha de clique ou carta fantasma */
+    .stock-slot > * {
+      pointer-events: none !important;
+    }
+
+    .stock-slot:hover {
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .waste-slot {
+      border-style: solid;
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .spacer-slot {
+      width: var(--card-w);
+      height: var(--card-h);
+      pointer-events: none;
+    }
+
+    .tableau-row {
+      display: grid;
+      grid-template-columns: repeat(7, var(--card-w));
+      gap: var(--board-gap);
+      flex: 1;
+      min-height: 0;
+    }
+
+    .tableau-col {
+      position: relative;
+      width: var(--card-w);
+      height: 100%;
+    }
+
+    .tableau-empty-base {
+      width: var(--card-w);
+      height: var(--card-h);
+      border-radius: var(--card-radius);
+      border: 1.5px dashed var(--slot-border);
+      background: var(--slot-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.2);
+      font-size: calc(var(--card-w) * 0.28);
+      font-weight: 700;
+      pointer-events: none;
+    }
+
+    .tableau-col.valid-target .tableau-empty-base {
+      border-color: var(--accent);
+      border-style: solid;
+      background: rgba(250, 204, 21, 0.16);
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.45);
+    }
+
+    .tableau-col.hint-slot .tableau-empty-base {
+      border-color: #38bdf8;
+      border-style: solid;
+      background: rgba(56, 189, 248, 0.22);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.85);
+    }
+
+    /* ==========================================================================
+       4. RENDERIZAÇÃO NÍTIDA DAS 52 CARTAS
+       ========================================================================== */
+    .card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--card-w);
+      height: var(--card-h);
+      border-radius: var(--card-radius);
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.34);
+      cursor: pointer;
+      transition: box-shadow 0.12s, outline 0.12s;
+      overflow: hidden;
+    }
+
+    .card.red {
+      color: #dc2626;
+    }
+
+    .card.black {
+      color: #0f172a;
+    }
+
+    .card.face-down {
+      background: linear-gradient(135deg, var(--card-back-1) 0%, var(--card-back-2) 100%);
+      border: 1.5px solid var(--card-back-border);
+      cursor: default;
+    }
+
+    .card.face-down::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: calc(var(--card-radius) - 3px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background-image:
+        repeating-linear-gradient(
+          45deg,
+          rgba(255, 255, 255, 0.09) 0px,
+          rgba(255, 255, 255, 0.09) 3px,
+          transparent 3px,
+          transparent 7px
+        ),
+        repeating-linear-gradient(
+          -45deg,
+          rgba(255, 255, 255, 0.09) 0px,
+          rgba(255, 255, 255, 0.09) 3px,
+          transparent 3px,
+          transparent 7px
+        );
+    }
+
+    /* Efeito de baralho empilhado quando há múltiplas cartas no monte */
+    .card.stock-stacked {
+      box-shadow: 2px 2px 0 rgba(15, 23, 42, 0.55), 0 2px 5px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Destaques visuais sem alterar z-index ou geometria */
+    .card.selected {
+      outline: 3px solid var(--accent);
+      outline-offset: -1px;
+      box-shadow: 0 0 14px var(--accent-glow), 0 4px 10px rgba(0, 0, 0, 0.45);
+    }
+
+    .card.valid-dest-card {
+      outline: 2.5px dashed var(--accent);
+      outline-offset: -2px;
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.55);
+    }
+
+    .card.hint-highlight {
+      outline: 3px solid #38bdf8;
+      outline-offset: -1px;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.9);
+    }
+
+    .card.dragging-source {
+      opacity: 0.25;
+    }
+
+    .card-corner {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .card-corner.top-left {
+      top: calc(var(--card-h) * 0.045);
+      left: calc(var(--card-w) * 0.07);
+    }
+
+    .card-corner.bottom-right {
+      bottom: calc(var(--card-h) * 0.045);
+      right: calc(var(--card-w) * 0.07);
+      transform: rotate(180deg);
+    }
+
+    .card-rank {
+      font-size: calc(var(--card-w) * 0.22);
+      letter-spacing: -0.5px;
+    }
+
+    .card-suit-small {
+      font-size: calc(var(--card-w) * 0.19);
+      margin-top: 1px;
+    }
+
+    .card-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .card-center-suit {
+      font-size: calc(var(--card-w) * 0.48);
+      line-height: 1;
+      opacity: 0.92;
+    }
+
+    .card-face-badge {
+      width: calc(var(--card-w) * 0.56);
+      height: calc(var(--card-h) * 0.54);
+      border-radius: 6px;
+      border: 1.5px solid currentColor;
+      background: rgba(148, 163, 184, 0.09);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: calc(var(--card-w) * 0.30);
+      line-height: 1;
+      gap: 2px;
+    }
+
+    .card-face-badge span.sub-suit {
+      font-size: calc(var(--card-w) * 0.20);
+    }
+
+    /* Camada de Drag Fantasma */
+    .drag-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .drag-ghost {
+      position: absolute;
+      width: var(--card-w);
+      pointer-events: none;
+      filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.52));
+    }
+
+    /* ==========================================================================
+       5. MODAIS (VITÓRIA E IMPASSE)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.74);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 10000;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 14px;
+      max-width: 440px;
+      width: 100%;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.62);
+      color: #f8fafc;
+    }
+
+    .modal-icon {
+      font-size: 2.6rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-title {
+      font-size: 1.28rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .modal-desc {
+      font-size: 0.89rem;
+      line-height: 1.48;
+      color: #cbd5e1;
+      margin-bottom: 18px;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .modal-stat-box {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .modal-stat-box span {
+      display: block;
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+
+    .modal-stat-box strong {
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .modal-actions button.btn {
+      justify-content: center;
+      padding: 9px 12px;
+      font-size: 0.83rem;
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        padding: 5px 8px;
+      }
+      .title {
+        font-size: 0.85rem;
+      }
+      .stats {
+        gap: 6px;
+        font-size: 0.73rem;
+      }
+      button.btn {
+        padding: 4px 7px;
+        font-size: 0.71rem;
+      }
+      .board-wrapper {
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand-stats">
+        <div class="title">♠️ Paciência</div>
+        <div class="stats">
+          <div class="stat-pill">Pontos: <strong id="stat-score">0</strong></div>
+          <div class="stat-pill">Jogadas: <strong id="stat-moves">0</strong></div>
+          <div class="stat-pill">Tempo: <strong id="stat-time">00:00</strong></div>
+          <div class="stat-pill status-badge" id="stat-status" title="Clique para verificar o diagnóstico da partida">Status: <strong id="stat-status-text">Ativo</strong></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-primary" id="btn-new" title="Iniciar novo jogo embaralhado">🃏 Novo Jogo</button>
+        <button class="btn" id="btn-undo" title="Desfazer última jogada" disabled>↩️ Desfazer</button>
+        <button class="btn" id="btn-hint" title="Mostrar sugestão de jogada real">💡 Dica</button>
+        <button class="btn btn-accent" id="btn-autocomplete" style="display:none;" title="Completar automaticamente">⚡ Completar</button>
+        <button class="btn" id="btn-draw-mode" title="Alternar compra de 1 ou 3 cartas">🎴 Compra: 1</button>
+        <button class="btn" id="btn-click-mode" title="Alternar comportamento do clique">🖱️ Clique: Automático</button>
+        <button class="btn" id="btn-theme" title="Alternar cor da mesa">🎨 Mesa</button>
+        <button class="btn" id="btn-sound" title="Ativar/Desativar sons">🔊</button>
+      </div>
+    </header>
+
+    <div class="impasse-banner" id="impasse-banner">
+      <span>⚠️ Sem Saída: nenhum movimento restante permite revelar cartas ocultas, baixar cartas do monte ou avançar às fundações.</span>
+      <button class="btn" id="btn-reopen-impasse">Ver Opções</button>
+    </div>
+
+    <main class="board-wrapper" id="board-wrapper">
+      <div class="board" id="board">
+        <!-- Linha Superior: Monte, Descarte, Espaço e 4 Fundações -->
+        <div class="top-row">
+          <div class="slot stock-slot" id="stock-slot" title="Comprar carta do monte"></div>
+          <div class="slot waste-slot" id="waste-slot"></div>
+          <div class="spacer-slot"></div>
+          <div class="slot foundation-slot" data-foundation="0"></div>
+          <div class="slot foundation-slot" data-foundation="1"></div>
+          <div class="slot foundation-slot" data-foundation="2"></div>
+          <div class="slot foundation-slot" data-foundation="3"></div>
+        </div>
+
+        <!-- Linha Inferior: 7 Colunas do Tableau -->
+        <div class="tableau-row" id="tableau-row">
+          <div class="tableau-col" data-col="0"></div>
+          <div class="tableau-col" data-col="1"></div>
+          <div class="tableau-col" data-col="2"></div>
+          <div class="tableau-col" data-col="3"></div>
+          <div class="tableau-col" data-col="4"></div>
+          <div class="tableau-col" data-col="5"></div>
+          <div class="tableau-col" data-col="6"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="drag-layer" id="drag-layer"></div>
+
+  <!-- Modal de Vitória -->
+  <div class="modal-backdrop" id="win-modal">
+    <div class="modal-card">
+      <div class="modal-icon">🏆</div>
+      <div class="modal-title">Parabéns! Você Venceu!</div>
+      <div class="modal-desc">Todas as 52 cartas foram organizadas com sucesso nas fundações.</div>
+      <div class="modal-stats">
+        <div class="modal-stat-box"><span>Pontuação</span><strong id="win-score">0</strong></div>
+        <div class="modal-stat-box"><span>Jogadas</span><strong id="win-moves">0</strong></div>
+        <div class="modal-stat-box"><span>Tempo</span><strong id="win-time">00:00</strong></div>
+      </div>
+      <div class="modal-actions" style="grid-template-columns: 1fr;">
+        <button class="btn btn-primary" id="btn-win-new">🃏 Jogar Novamente</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Jogo Encerrado (Sem Saída / Impasse BFS) -->
+  <div class="modal-backdrop" id="deadlock-modal">
+    <div class="modal-card">
+      <div class="modal-icon">🔒</div>
+      <div class="modal-title">Jogo Encerrado (Sem Saída)</div>
+      <div class="modal-desc" id="deadlock-reason">
+        Nenhuma sequência de jogadas permite revelar cartas ocultas, baixar cartas do monte ou subir às fundações.
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-accent" id="btn-dl-undo">↩️ Desfazer Jogada</button>
+        <button class="btn" id="btn-dl-restart">🔄 Reiniciar Mesmo Jogo</button>
+        <button class="btn btn-primary" id="btn-dl-new">🃏 Novo Jogo</button>
+        <button class="btn" id="btn-dl-inspect">👀 Ver Tabuleiro</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // =========================================================================
+      // 1. CONSTANTES E PREFERÊNCIAS PERSISTENTES
+      // =========================================================================
+      const SUITS = ['spades', 'hearts', 'clubs', 'diamonds'];
+      const SUIT_SYMBOLS = { spades: '♠', hearts: '♥', clubs: '♣', diamonds: '♦' };
+      const SUIT_COLORS = { spades: 'black', hearts: 'red', clubs: 'black', diamonds: 'red' };
+      const RANKS = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+      const FOUNDATION_ICONS = ['♠', '♥', '♣', '♦'];
+
+      let drawCount = Number(localStorage.getItem('klondike_draw_count')) === 3 ? 3 : 1;
+      let clickMode = localStorage.getItem('klondike_click_mode_v2') === 'select' ? 'select' : 'auto';
+      let soundEnabled = localStorage.getItem('klondike_sound') !== 'off';
+      let darkTheme = localStorage.getItem('klondike_theme') === 'midnight';
+
+      if (darkTheme) document.body.classList.add('theme-midnight');
+
+      // =========================================================================
+      // 2. ÚNICA FONTE DE VERDADE (STATE) E SESSÃO DE INTERAÇÃO
+      // =========================================================================
+      let state = {
+        stock: [],
+        waste: [],
+        foundations: [[], [], [], []],
+        tableau: [[], [], [], [], [], [], []],
+        score: 0,
+        moves: 0,
+        seconds: 0
+      };
+
+      let initialDealSnapshot = null;
+      let history = [];
+      let selected = null; // { zone: 'waste'|'tableau'|'foundation', col?: number, index?: number }
+      let hintCards = [];
+      let hintSlot = null; // { zone: 'stock'|'tableau'|'foundation', col?: number }
+      let hintTimeout = null;
+      let timerInterval = null;
+      let gameStarted = false;
+      let gameWon = false;
+      let isDeadlocked = false;
+      let deadlockDismissedForKey = null;
+      let autoCompleting = false;
+
+      let dragSession = null;
+      let lastTapTime = 0;
+      let lastTapCardId = null;
+
+      // =========================================================================
+      // 3. EFEITOS SONOROS SINTETIZADOS (WEB AUDIO API)
+      // =========================================================================
+      let audioCtx = null;
+      function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.06, delay = 0) {
+        if (!soundEnabled) return;
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+          gain.gain.setValueAtTime(gainVal, audioCtx.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + delay + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(audioCtx.currentTime + delay);
+          osc.stop(audioCtx.currentTime + delay + duration);
+        } catch (_) {}
+      }
+
+      const sfx = {
+        select: () => playTone(520, 'triangle', 0.05, 0.05),
+        move: () => playTone(380, 'sine', 0.07, 0.07),
+        flip: () => playTone(620, 'sine', 0.06, 0.05),
+        foundation: () => {
+          playTone(587.33, 'triangle', 0.09, 0.07, 0);
+          playTone(880, 'triangle', 0.14, 0.07, 0.06);
+        },
+        draw: () => playTone(310, 'triangle', 0.05, 0.05),
+        error: () => playTone(190, 'sawtooth', 0.11, 0.04),
+        deadlock: () => {
+          playTone(392, 'sine', 0.18, 0.07, 0);
+          playTone(349.23, 'sine', 0.18, 0.07, 0.15);
+          playTone(311.13, 'sine', 0.28, 0.07, 0.30);
+        },
+        win: () => {
+          [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+            playTone(f, 'triangle', 0.22, 0.08, i * 0.11);
+          });
+        }
+      };
+
+      // =========================================================================
+      // 4. LIMPEZA INCONDICIONAL DE ARRASTO E UTILITÁRIOS DE ESTADO
+      // =========================================================================
+      function clearDragState() {
+        dragSession = null;
+        const dragLayer = document.getElementById('drag-layer');
+        if (dragLayer) {
+          dragLayer.replaceChildren();
+        }
+        document.querySelectorAll('.dragging-source').forEach((el) => {
+          el.classList.remove('dragging-source');
+        });
+      }
+
+      function clearHints() {
+        hintCards = [];
+        hintSlot = null;
+        if (hintTimeout) {
+          clearTimeout(hintTimeout);
+          hintTimeout = null;
+        }
+      }
+
+      function cloneState(s) {
+        return {
+          stock: s.stock.map(c => ({ ...c })),
+          waste: s.waste.map(c => ({ ...c })),
+          foundations: s.foundations.map(f => f.map(c => ({ ...c }))),
+          tableau: s.tableau.map(col => col.map(c => ({ ...c }))),
+          score: s.score,
+          moves: s.moves,
+          seconds: s.seconds
+        };
+      }
+
+      function pushHistory() {
+        history.push(cloneState(state));
+        if (history.length > 150) history.shift();
+        document.getElementById('btn-undo').disabled = history.length === 0;
+      }
+
+      function startTimerIfNeeded() {
+        if (gameStarted || gameWon) return;
+        gameStarted = true;
+        timerInterval = setInterval(() => {
+          if (!gameWon && !autoCompleting) {
+            state.seconds++;
+            updateStatsUI();
+          }
+        }, 1000);
+      }
+
+      function stopTimer() {
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+      }
+
+      function formatTime(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        return `${m}:${s}`;
+      }
+
+      function updateStatsUI() {
+        document.getElementById('stat-score').textContent = state.score;
+        document.getElementById('stat-moves').textContent = state.moves;
+        document.getElementById('stat-time').textContent = formatTime(state.seconds);
+        document.getElementById('btn-undo').disabled = history.length === 0;
+
+        const statusBadge = document.getElementById('stat-status');
+        const statusText = document.getElementById('stat-status-text');
+        if (gameWon) {
+          statusBadge.classList.remove('deadlock');
+          statusText.textContent = 'Vitória 🏆';
+        } else if (isDeadlocked) {
+          statusBadge.classList.add('deadlock');
+          statusText.textContent = 'Sem Saída 🔒';
+        } else {
+          statusBadge.classList.remove('deadlock');
+          statusText.textContent = 'Ativo';
+        }
+      }
+
+      function updateToolbarLabels() {
+        document.getElementById('btn-draw-mode').textContent = `🎴 Compra: ${drawCount}`;
+        document.getElementById('btn-click-mode').textContent =
+          `🖱️ Clique: ${clickMode === 'select' ? 'Selecionar' : 'Automático'}`;
+        document.getElementById('btn-sound').textContent = soundEnabled ? '🔊' : '🔇';
+      }
+
+      function createDeck() {
+        const deck = [];
+        let id = 1;
+        for (const suit of SUITS) {
+          for (let rank = 1; rank <= 13; rank++) {
+            deck.push({
+              id: id++,
+              suit,
+              rank,
+              color: SUIT_COLORS[suit],
+              faceUp: false
+            });
+          }
+        }
+        for (let i = deck.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [deck[i], deck[j]] = [deck[j], deck[i]];
+        }
+        return deck;
+      }
+
+      function dealNewGame(fromSnapshot = null) {
+        clearDragState();
+        clearHints();
+        stopTimer();
+        gameStarted = false;
+        gameWon = false;
+        isDeadlocked = false;
+        autoCompleting = false;
+        selected = null;
+        history = [];
+        deadlockDismissedForKey = null;
+
+        document.getElementById('win-modal').classList.remove('open');
+        document.getElementById('deadlock-modal').classList.remove('open');
+        document.getElementById('impasse-banner').classList.remove('visible');
+        document.getElementById('btn-autocomplete').style.display = 'none';
+
+        if (fromSnapshot) {
+          state = cloneState(fromSnapshot);
+          state.score = 0;
+          state.moves = 0;
+          state.seconds = 0;
+        } else {
+          const deck = createDeck();
+          const tableau = [[], [], [], [], [], [], []];
+          for (let col = 0; col < 7; col++) {
+            for (let row = 0; row <= col; row++) {
+              const card = deck.pop();
+              card.faceUp = row === col;
+              tableau[col].push(card);
+            }
+          }
+          state = {
+            stock: deck,
+            waste: [],
+            foundations: [[], [], [], []],
+            tableau,
+            score: 0,
+            moves: 0,
+            seconds: 0
+          };
+          initialDealSnapshot = cloneState(state);
+        }
+
+        updateStatsUI();
+        render();
+        evaluateGameProgress();
+      }
+
+      // =========================================================================
+      // 5. REGRAS DE MOVIMENTO DO KLONDIKE
+      // =========================================================================
+      function canMoveToFoundation(card, fIdx) {
+        const pile = state.foundations[fIdx];
+        if (pile.length === 0) return card.rank === 1;
+        const top = pile[pile.length - 1];
+        return top.suit === card.suit && card.rank === top.rank + 1;
+      }
+
+      function canMoveToTableau(card, colIdx) {
+        const col = state.tableau[colIdx];
+        if (col.length === 0) return card.rank === 13;
+        const top = col[col.length - 1];
+        if (!top.faceUp) return false;
+        return top.color !== card.color && card.rank === top.rank - 1;
+      }
+
+      function getMovingCards(source) {
+        if (!source) return [];
+        if (source.zone === 'waste') {
+          return state.waste.length ? [state.waste[state.waste.length - 1]] : [];
+        }
+        if (source.zone === 'foundation') {
+          const f = state.foundations[source.col];
+          return f.length ? [f[f.length - 1]] : [];
+        }
+        if (source.zone === 'tableau') {
+          const col = state.tableau[source.col];
+          if (source.index < 0 || source.index >= col.length) return [];
+          if (!col[source.index].faceUp) return [];
+          return col.slice(source.index);
+        }
+        return [];
+      }
+
+      function revealTopIfNeeded(colIdx) {
+        const col = state.tableau[colIdx];
+        if (col.length > 0 && !col[col.length - 1].faceUp) {
+          col[col.length - 1].faceUp = true;
+          state.score += 5;
+          sfx.flip();
+          return true;
+        }
+        return false;
+      }
+
+      function drawFromStock() {
+        if (autoCompleting) return;
+        clearDragState();
+        clearHints();
+        selected = null;
+
+        if (state.stock.length > 0) {
+          startTimerIfNeeded();
+          pushHistory();
+          const count = Math.min(drawCount, state.stock.length);
+          for (let i = 0; i < count; i++) {
+            const c = state.stock.pop();
+            c.faceUp = true;
+            state.waste.push(c);
+          }
+          state.moves++;
+          sfx.draw();
+        } else if (state.waste.length > 0) {
+          startTimerIfNeeded();
+          pushHistory();
+          while (state.waste.length > 0) {
+            const c = state.waste.pop();
+            c.faceUp = false;
+            state.stock.push(c);
+          }
+          if (drawCount === 1) {
+            state.score = Math.max(0, state.score - 20);
+          }
+          state.moves++;
+          sfx.draw();
+        } else {
+          sfx.error();
+          render();
+          return;
+        }
+
+        updateStatsUI();
+        render();
+        evaluateGameProgress();
+      }
+
+      function executeMove(source, target) {
+        const cards = getMovingCards(source);
+        if (cards.length === 0) return false;
+
+        if (target.zone === 'foundation') {
+          if (cards.length !== 1) return false;
+          if (!canMoveToFoundation(cards[0], target.col)) return false;
+
+          clearDragState();
+          clearHints();
+          startTimerIfNeeded();
+          pushHistory();
+
+          if (source.zone === 'waste') {
+            state.waste.pop();
+            state.score += 10;
+          } else if (source.zone === 'tableau') {
+            state.tableau[source.col].pop();
+            state.score += 10;
+            revealTopIfNeeded(source.col);
+          } else if (source.zone === 'foundation') {
+            state.foundations[source.col].pop();
+          }
+
+          state.foundations[target.col].push(cards[0]);
+          state.moves++;
+          selected = null;
+          sfx.foundation();
+          afterMoveCompleted();
+          return true;
+        }
+
+        if (target.zone === 'tableau') {
+          if (source.zone === 'tableau' && source.col === target.col) return false;
+          if (!canMoveToTableau(cards[0], target.col)) return false;
+
+          clearDragState();
+          clearHints();
+          startTimerIfNeeded();
+          pushHistory();
+
+          if (source.zone === 'waste') {
+            state.waste.pop();
+            state.score += 5;
+          } else if (source.zone === 'foundation') {
+            state.foundations[source.col].pop();
+            state.score = Math.max(0, state.score - 15);
+          } else if (source.zone === 'tableau') {
+            state.tableau[source.col].splice(source.index);
+            revealTopIfNeeded(source.col);
+          }
+
+          state.tableau[target.col].push(...cards);
+          state.moves++;
+          selected = null;
+          sfx.move();
+          afterMoveCompleted();
+          return true;
+        }
+
+        return false;
+      }
+
+      function tryAutoMoveSource(source) {
+        const cards = getMovingCards(source);
+        if (cards.length === 0) return false;
+
+        if (cards.length === 1 && source.zone !== 'foundation') {
+          for (let f = 0; f < 4; f++) {
+            if (canMoveToFoundation(cards[0], f)) {
+              return executeMove(source, { zone: 'foundation', col: f });
+            }
+          }
+        }
+
+        const nonEmptyCols = [];
+        const emptyCols = [];
+        for (let c = 0; c < 7; c++) {
+          if (source.zone === 'tableau' && source.col === c) continue;
+          if (canMoveToTableau(cards[0], c)) {
+            if (state.tableau[c].length > 0) nonEmptyCols.push(c);
+            else emptyCols.push(c);
+          }
+        }
+
+        for (const c of [...nonEmptyCols, ...emptyCols]) {
+          return executeMove(source, { zone: 'tableau', col: c });
+        }
+
+        return false;
+      }
+
+      function trySendToFoundation(source) {
+        const cards = getMovingCards(source);
+        if (cards.length !== 1 || source.zone === 'foundation') return false;
+        for (let f = 0; f < 4; f++) {
+          if (canMoveToFoundation(cards[0], f)) {
+            return executeMove(source, { zone: 'foundation', col: f });
+          }
+        }
+        return false;
+      }
+
+      function afterMoveCompleted() {
+        updateStatsUI();
+        render();
+
+        const totalInFoundations = state.foundations.reduce((acc, f) => acc + f.length, 0);
+        if (totalInFoundations === 52) {
+          gameWon = true;
+          isDeadlocked = false;
+          stopTimer();
+          updateStatsUI();
+          document.getElementById('impasse-banner').classList.remove('visible');
+          document.getElementById('btn-autocomplete').style.display = 'none';
+          document.getElementById('win-score').textContent = state.score;
+          document.getElementById('win-moves').textContent = state.moves;
+          document.getElementById('win-time').textContent = formatTime(state.seconds);
+          sfx.win();
+          setTimeout(() => {
+            document.getElementById('win-modal').classList.add('open');
+          }, 220);
+          return;
+        }
+
+        const allTableauRevealed = state.tableau.every(col => col.every(c => c.faceUp));
+        const stockAndWasteEmpty = state.stock.length === 0 && state.waste.length === 0;
+        document.getElementById('btn-autocomplete').style.display =
+          allTableauRevealed && stockAndWasteEmpty ? 'inline-flex' : 'none';
+
+        evaluateGameProgress();
+      }
+
+      function runAutoComplete() {
+        if (autoCompleting || gameWon) return;
+        clearDragState();
+        clearHints();
+        autoCompleting = true;
+        selected = null;
+        document.getElementById('btn-autocomplete').style.display = 'none';
+
+        const step = () => {
+          if (gameWon) {
+            autoCompleting = false;
+            return;
+          }
+          let moved = false;
+          for (let c = 0; c < 7; c++) {
+            const col = state.tableau[c];
+            if (col.length === 0) continue;
+            const top = col[col.length - 1];
+            for (let f = 0; f < 4; f++) {
+              if (canMoveToFoundation(top, f)) {
+                col.pop();
+                state.foundations[f].push(top);
+                state.score += 10;
+                state.moves++;
+                sfx.foundation();
+                moved = true;
+                break;
+              }
+            }
+            if (moved) break;
+          }
+
+          updateStatsUI();
+          render();
+
+          const total = state.foundations.reduce((acc, f) => acc + f.length, 0);
+          if (total === 52) {
+            autoCompleting = false;
+            afterMoveCompleted();
+          } else if (moved) {
+            setTimeout(step, 55);
+          } else {
+            autoCompleting = false;
+          }
+        };
+
+        step();
+      }
+
+      // =========================================================================
+      // 6. SOLUCIONADOR EXATO DE IMPASSE E DICAS (BFS / TRANSPOSITION TABLE)
+      //    - Progresso Real é definido estritamente como:
+      //      (a) Subir ao menos 1 carta para qualquer fundação; OU
+      //      (b) Virar ao menos 1 carta oculta no tableau; OU
+      //      (c) Baixar ao menos 1 carta do monte/descarte para a mesa.
+      //    - Apenas girar o monte (ex: 2 cartas no monte que não encaixam em nada)
+      //      NÃO reduz stock+waste, portanto o ciclo repete no Set `visited` e encerra!
+      //    - Apenas alternar sub-pilhas entre colunas equivalentes é podado e
+      //      normalizado na chave de estado, encerrando em poucos milissegundos.
+      // =========================================================================
+      function canCardGoToFoundationInNode(card, foundations) {
+        for (let f = 0; f < 4; f++) {
+          const fPile = foundations[f];
+          if (fPile.length === 0) {
+            if (card.rank === 1) return true;
+          } else {
+            const top = fPile[fPile.length - 1];
+            if (top.suit === card.suit && card.rank === top.rank + 1) return true;
+          }
+        }
+        return false;
+      }
+
+      function serializeSearchNode(node) {
+        const st = node.stock.map(c => c.id).join(',');
+        const ws = node.waste.map(c => c.id).join(',');
+        const fd = node.foundations.map(f => f.length).join('.');
+
+        // Normaliza as colunas abertas por rank + cor, ordenando colunas sem cartas ocultas
+        // para colapsar permutações equivalentes de colunas vazias/reis na base.
+        const tbCols = node.tableau.map(col =>
+          col
+            .map((c, idx) => {
+              if (!c.faceUp) return `H${c.id}`;
+              const isTop = idx === col.length - 1;
+              const colorChar = c.color === 'red' ? 'R' : 'B';
+              if (isTop && canCardGoToFoundationInNode(c, node.foundations)) {
+                return `${c.rank}${colorChar}${c.suit[0]}`;
+              }
+              return `${c.rank}${colorChar}`;
+            })
+            .join(',')
+        );
+        return `${st};${ws};${fd};${tbCols.join('|')}`;
+      }
+
+      function findPathToProgress() {
+        const initialFoundationCount = state.foundations.reduce((s, f) => s + f.length, 0);
+        if (initialFoundationCount === 52) {
+          return { reachable: true, firstAction: null };
+        }
+
+        const initialHiddenCount = state.tableau.reduce(
+          (sum, col) => sum + col.filter(c => !c.faceUp).length,
+          0
+        );
+        const initialStockWasteCount = state.stock.length + state.waste.length;
+
+        const root = {
+          stock: state.stock.map(c => ({ ...c })),
+          waste: state.waste.map(c => ({ ...c })),
+          foundations: state.foundations.map(f => f.map(c => ({ ...c }))),
+          tableau: state.tableau.map(col => col.map(c => ({ ...c }))),
+          firstAction: null
+        };
+
+        const visited = new Set([serializeSearchNode(root)]);
+        const queue = [root];
+        let head = 0;
+        const MAX_EXPLORED_STATES = 12000;
+
+        const isProgressAchieved = (n) => {
+          const fCount = n.foundations.reduce((s, f) => s + f.length, 0);
+          if (fCount > initialFoundationCount) return true;
+
+          const hCount = n.tableau.reduce(
+            (sum, col) => sum + col.filter(c => !c.faceUp).length,
+            0
+          );
+          if (hCount < initialHiddenCount) return true;
+
+          const swCount = n.stock.length + n.waste.length;
+          if (swCount < initialStockWasteCount) return true;
+
+          return false;
+        };
+
+        const cloneNode = (n, actionIfFirst) => ({
+          stock: n.stock.map(c => ({ ...c })),
+          waste: n.waste.map(c => ({ ...c })),
+          foundations: n.foundations.map(f => f.map(c => ({ ...c }))),
+          tableau: n.tableau.map(col => col.map(c => ({ ...c }))),
+          firstAction: n.firstAction || actionIfFirst
+        });
+
+        const tryEnqueue = (next) => {
+          if (isProgressAchieved(next)) return next.firstAction;
+          const key = serializeSearchNode(next);
+          if (!visited.has(key)) {
+            visited.add(key);
+            queue.push(next);
+          }
+          return null;
+        };
+
+        while (head < queue.length && visited.size < MAX_EXPLORED_STATES) {
+          const curr = queue[head++];
+
+          // 1. Subir topo do waste para fundação (Progresso Imediato!)
+          if (curr.waste.length > 0) {
+            const wTop = curr.waste[curr.waste.length - 1];
+            for (let f = 0; f < 4; f++) {
+              const fPile = curr.foundations[f];
+              const ok = fPile.length === 0
+                ? wTop.rank === 1
+                : fPile[fPile.length - 1].suit === wTop.suit && wTop.rank === fPile[fPile.length - 1].rank + 1;
+              if (ok) {
+                const action = { type: 'move', cardIds: [wTop.id], target: { zone: 'foundation', col: f } };
+                const next = cloneNode(curr, action);
+                next.foundations[f].push(next.waste.pop());
+                const wonAction = tryEnqueue(next);
+                if (wonAction) return { reachable: true, firstAction: wonAction };
+              }
+            }
+          }
+
+          // 2. Subir topo de qualquer coluna para fundação (Progresso Imediato!)
+          for (let c = 0; c < 7; c++) {
+            const col = curr.tableau[c];
+            if (col.length === 0) continue;
+            const top = col[col.length - 1];
+            if (!top.faceUp) continue;
+            for (let f = 0; f < 4; f++) {
+              const fPile = curr.foundations[f];
+              const ok = fPile.length === 0
+                ? top.rank === 1
+                : fPile[fPile.length - 1].suit === top.suit && top.rank === fPile[fPile.length - 1].rank + 1;
+              if (ok) {
+                const action = { type: 'move', cardIds: [top.id], target: { zone: 'foundation', col: f } };
+                const next = cloneNode(curr, action);
+                next.foundations[f].push(next.tableau[c].pop());
+                if (next.tableau[c].length > 0 && !next.tableau[c][next.tableau[c].length - 1].faceUp) {
+                  next.tableau[c][next.tableau[c].length - 1].faceUp = true;
+                }
+                const wonAction = tryEnqueue(next);
+                if (wonAction) return { reachable: true, firstAction: wonAction };
+              }
+            }
+          }
+
+          // 3. Baixar topo do waste para o tableau (Progresso Imediato!)
+          if (curr.waste.length > 0) {
+            const wTop = curr.waste[curr.waste.length - 1];
+            let usedEmptyCol = false;
+            for (let c = 0; c < 7; c++) {
+              const col = curr.tableau[c];
+              if (col.length === 0) {
+                if (wTop.rank !== 13 || usedEmptyCol) continue;
+                usedEmptyCol = true;
+              } else {
+                const top = col[col.length - 1];
+                if (!top.faceUp || top.color === wTop.color || wTop.rank !== top.rank - 1) continue;
+              }
+              const dstTop = col.length > 0 ? col[col.length - 1] : null;
+              const action = {
+                type: 'move',
+                cardIds: dstTop ? [wTop.id, dstTop.id] : [wTop.id],
+                target: { zone: 'tableau', col: c }
+              };
+              const next = cloneNode(curr, action);
+              next.tableau[c].push(next.waste.pop());
+              const wonAction = tryEnqueue(next);
+              if (wonAction) return { reachable: true, firstAction: wonAction };
+            }
+          }
+
+          // 4. Mover sub-pilha aberta entre colunas do tableau com podas rigorosas contra ciclos inúteis
+          for (let srcCol = 0; srcCol < 7; srcCol++) {
+            const col = curr.tableau[srcCol];
+            for (let idx = 0; idx < col.length; idx++) {
+              if (!col[idx].faceUp) continue;
+              const movingCard = col[idx];
+              const parentCard = idx > 0 ? col[idx - 1] : null;
+              const isFirstFaceUpInCol = idx === 0 || !col[idx - 1].faceUp;
+
+              // Se é uma divisão parcial de pilha aberta (parentCard.faceUp === true),
+              // ela só é útil se expuser parentCard para subir à fundação!
+              // Caso contrário, dividir uma sequência ordenada já aberta nunca abre novas casas no tableau.
+              if (!isFirstFaceUpInCol && !canCardGoToFoundationInNode(parentCard, curr.foundations)) {
+                continue;
+              }
+
+              let usedEmptyTarget = false;
+              for (let dstCol = 0; dstCol < 7; dstCol++) {
+                if (srcCol === dstCol) continue;
+                const targetCol = curr.tableau[dstCol];
+
+                // Rei na base de uma coluna vazia nunca precisa pular para outra coluna vazia
+                if (idx === 0 && movingCard.rank === 13 && targetCol.length === 0) continue;
+
+                if (targetCol.length === 0) {
+                  if (movingCard.rank !== 13 || usedEmptyTarget) continue;
+                  usedEmptyTarget = true;
+                } else {
+                  const dstTop = targetCol[targetCol.length - 1];
+                  if (!dstTop.faceUp || dstTop.color === movingCard.color || movingCard.rank !== dstTop.rank - 1) {
+                    continue;
+                  }
+                }
+
+                const dstTop = targetCol.length > 0 ? targetCol[targetCol.length - 1] : null;
+                const action = {
+                  type: 'move',
+                  cardIds: dstTop ? [movingCard.id, dstTop.id] : [movingCard.id],
+                  target: { zone: 'tableau', col: dstCol }
+                };
+                const next = cloneNode(curr, action);
+                const movedSlice = next.tableau[srcCol].splice(idx);
+                next.tableau[dstCol].push(...movedSlice);
+                if (next.tableau[srcCol].length > 0 && !next.tableau[srcCol][next.tableau[srcCol].length - 1].faceUp) {
+                  next.tableau[srcCol][next.tableau[srcCol].length - 1].faceUp = true;
+                }
+                const wonAction = tryEnqueue(next);
+                if (wonAction) return { reachable: true, firstAction: wonAction };
+              }
+            }
+          }
+
+          // 5. Descer carta da fundação para o tableau (manobra tática para destravar outra carta)
+          for (let f = 0; f < 4; f++) {
+            const fPile = curr.foundations[f];
+            if (fPile.length <= 2) continue; // Ás e 2 nunca precisam descer da fundação
+            const fTop = fPile[fPile.length - 1];
+            let usedEmptyCol = false;
+            for (let c = 0; c < 7; c++) {
+              const col = curr.tableau[c];
+              if (col.length === 0) {
+                if (fTop.rank !== 13 || usedEmptyCol) continue;
+                usedEmptyCol = true;
+              } else {
+                const top = col[col.length - 1];
+                if (!top.faceUp || top.color === fTop.color || fTop.rank !== top.rank - 1) continue;
+              }
+              const dstTop = col.length > 0 ? col[col.length - 1] : null;
+              const action = {
+                type: 'move',
+                cardIds: dstTop ? [fTop.id, dstTop.id] : [fTop.id],
+                target: { zone: 'tableau', col: c }
+              };
+              const next = cloneNode(curr, action);
+              next.tableau[c].push(next.foundations[f].pop());
+              const wonAction = tryEnqueue(next);
+              if (wonAction) return { reachable: true, firstAction: wonAction };
+            }
+          }
+
+          // 6. Comprar do monte ou reciclar descarte
+          if (curr.stock.length > 0) {
+            const action = { type: 'draw', cardIds: [], target: { zone: 'stock' } };
+            const next = cloneNode(curr, action);
+            const cnt = Math.min(drawCount, next.stock.length);
+            for (let i = 0; i < cnt; i++) {
+              const c = next.stock.pop();
+              c.faceUp = true;
+              next.waste.push(c);
+            }
+            const wonAction = tryEnqueue(next);
+            if (wonAction) return { reachable: true, firstAction: wonAction };
+          } else if (curr.waste.length > 0) {
+            const action = { type: 'draw', cardIds: [], target: { zone: 'stock' } };
+            const next = cloneNode(curr, action);
+            while (next.waste.length > 0) {
+              const c = next.waste.pop();
+              c.faceUp = false;
+              next.stock.push(c);
+            }
+            const wonAction = tryEnqueue(next);
+            if (wonAction) return { reachable: true, firstAction: wonAction };
+          }
+        }
+
+        // Fila esgotada sem encontrar nenhum progresso real!
+        return { reachable: false, firstAction: null };
+      }
+
+      function buildDeadlockReason() {
+        const hiddenCount = state.tableau.reduce(
+          (sum, col) => sum + col.filter(c => !c.faceUp).length,
+          0
+        );
+        const stockWasteCount = state.stock.length + state.waste.length;
+        const parts = [];
+        if (hiddenCount > 0) parts.push(`${hiddenCount} carta(s) oculta(s) nas colunas`);
+        if (stockWasteCount > 0) parts.push(`${stockWasteCount} carta(s) no monte/descarte que não se encaixam`);
+
+        const detail = parts.length > 0 ? ` Restam ${parts.join(' e ')}, e` : ' Todas as cartas estão visíveis, mas';
+        return `${detail} nenhuma sequência de movimentos permite revelar novas cartas, baixar cartas do monte ou avançar às fundações.`;
+      }
+
+      function evaluateGameProgress(forceOpenModal = false) {
+        if (gameWon || autoCompleting) return;
+
+        const currentKey = serializeSearchNode(state);
+        const result = findPathToProgress();
+
+        if (!result.reachable) {
+          isDeadlocked = true;
+          updateStatsUI();
+          document.getElementById('deadlock-reason').textContent = buildDeadlockReason();
+          document.getElementById('impasse-banner').classList.add('visible');
+          document.getElementById('btn-dl-undo').disabled = history.length === 0;
+
+          if (forceOpenModal || deadlockDismissedForKey !== currentKey) {
+            stopTimer();
+            gameStarted = false;
+            sfx.deadlock();
+            document.getElementById('deadlock-modal').classList.add('open');
+          }
+        } else {
+          isDeadlocked = false;
+          updateStatsUI();
+          document.getElementById('impasse-banner').classList.remove('visible');
+          document.getElementById('deadlock-modal').classList.remove('open');
+          deadlockDismissedForKey = null;
+        }
+      }
+
+      // =========================================================================
+      // 7. SISTEMA DE DICA GUIADO PELO SOLUCIONADOR BFS
+      //    - NUNCA aponta para o monte se as cartas do monte não encaixarem!
+      //    - Se não houver caminho de progresso, abre o modal de Jogo Encerrado.
+      // =========================================================================
+      function showHint() {
+        clearDragState();
+        clearHints();
+        selected = null;
+
+        const result = findPathToProgress();
+        if (!result.reachable || !result.firstAction) {
+          render();
+          evaluateGameProgress(true);
+          return;
+        }
+
+        const action = result.firstAction;
+        if (action.type === 'draw') {
+          hintSlot = { zone: 'stock' };
+          sfx.select();
+          render();
+          hintTimeout = setTimeout(() => {
+            hintSlot = null;
+            render();
+          }, 1200);
+          return;
+        }
+
+        hintCards = action.cardIds || [];
+        if (action.target && action.cardIds.length === 1) {
+          hintSlot = action.target;
+        }
+        sfx.select();
+        render();
+        hintTimeout = setTimeout(() => {
+          clearHints();
+          render();
+        }, 1600);
+      }
+
+      // =========================================================================
+      // 8. RENDERIZAÇÃO 100% DETERMINÍSTICA (SEM ELEMENTOS FANTASMAS)
+      // =========================================================================
+      function createCardElement(card, sourceInfo, isSelected, isHint, isValidDest = false) {
+        const el = document.createElement('div');
+        el.className = `card ${card.faceUp ? card.color : 'face-down'}`;
+        if (isSelected) el.classList.add('selected');
+        if (isHint) el.classList.add('hint-highlight');
+        if (isValidDest) el.classList.add('valid-dest-card');
+        el.dataset.cardId = String(card.id);
+
+        if (!card.faceUp) return el;
+
+        const rankStr = RANKS[card.rank];
+        const suitStr = SUIT_SYMBOLS[card.suit];
+        const isFace = card.rank >= 11;
+
+        el.innerHTML = `
+          <div class="card-corner top-left">
+            <span class="card-rank">${rankStr}</span>
+            <span class="card-suit-small">${suitStr}</span>
+          </div>
+          <div class="card-center">
+            ${
+              isFace
+                ? `<div class="card-face-badge"><span>${rankStr}</span><span class="sub-suit">${suitStr}</span></div>`
+                : `<span class="card-center-suit">${suitStr}</span>`
+            }
+          </div>
+          <div class="card-corner bottom-right">
+            <span class="card-rank">${rankStr}</span>
+            <span class="card-suit-small">${suitStr}</span>
+          </div>
+        `;
+
+        if (sourceInfo) {
+          el.addEventListener('pointerdown', (e) => {
+            if (e.button !== 0 && e.pointerType === 'mouse') return;
+            e.stopPropagation();
+            handleCardPointerDown(e, card, sourceInfo, el);
+          });
+        }
+
+        return el;
+      }
+
+      function isCardSelected(zone, col, index) {
+        if (!selected) return false;
+        if (selected.zone !== zone) return false;
+        if (zone === 'waste') return true;
+        if (zone === 'foundation') return selected.col === col;
+        if (zone === 'tableau') return selected.col === col && index >= selected.index;
+        return false;
+      }
+
+      function render() {
+        // Garante que não há nenhum fantasma órfão na camada de drag
+        if (!dragSession || !dragSession.dragging) {
+          const dragLayer = document.getElementById('drag-layer');
+          if (dragLayer) dragLayer.replaceChildren();
+        }
+
+        const movingCards = selected ? getMovingCards(selected) : [];
+
+        // 1. Monte (Stock) — Reconstruído do zero via replaceChildren()
+        const stockSlot = document.getElementById('stock-slot');
+        stockSlot.replaceChildren();
+        stockSlot.classList.remove('valid-target', 'hint-slot');
+
+        if (hintSlot && hintSlot.zone === 'stock') {
+          stockSlot.classList.add('hint-slot');
+        }
+
+        if (state.stock.length > 0) {
+          const backCard = document.createElement('div');
+          backCard.className = 'card face-down';
+          if (state.stock.length > 1) {
+            backCard.classList.add('stock-stacked');
+          }
+          stockSlot.appendChild(backCard);
+        } else {
+          // NUNCA renderiza .card quando state.stock.length === 0!
+          const placeholder = document.createElement('span');
+          placeholder.className = 'slot-placeholder';
+          placeholder.textContent = state.waste.length > 0 ? '↻' : '∅';
+          stockSlot.appendChild(placeholder);
+        }
+
+        const stockBadge = document.createElement('span');
+        stockBadge.className = 'pile-count-badge';
+        stockBadge.textContent = String(state.stock.length);
+        stockSlot.appendChild(stockBadge);
+
+        // 2. Descarte (Waste) — Reconstruído do zero via replaceChildren()
+        const wasteSlot = document.getElementById('waste-slot');
+        wasteSlot.replaceChildren();
+
+        if (state.waste.length > 0) {
+          const visibleCount = drawCount === 3 ? Math.min(3, state.waste.length) : 1;
+          const startIdx = state.waste.length - visibleCount;
+          for (let i = startIdx; i < state.waste.length; i++) {
+            const card = state.waste[i];
+            const isTop = i === state.waste.length - 1;
+            const offsetIdx = i - startIdx;
+            const sel = isTop && isCardSelected('waste', 0, i);
+            const hint = isTop && hintCards.includes(card.id);
+            const el = createCardElement(
+              card,
+              isTop ? { zone: 'waste', index: i } : null,
+              sel,
+              hint
+            );
+            el.style.left = `${offsetIdx * 16}px`;
+            el.style.top = '0px';
+            el.style.zIndex = String(i + 1);
+            if (!isTop) {
+              el.style.cursor = 'default';
+              el.style.pointerEvents = 'none';
+            }
+            wasteSlot.appendChild(el);
+          }
+
+          const wasteBadge = document.createElement('span');
+          wasteBadge.className = 'pile-count-badge';
+          wasteBadge.textContent = String(state.waste.length);
+          wasteSlot.appendChild(wasteBadge);
+        }
+
+        // 3. Fundações (4 slots)
+        const fSlots = document.querySelectorAll('.foundation-slot');
+        fSlots.forEach((slot, fIdx) => {
+          slot.replaceChildren();
+          slot.classList.remove('valid-target', 'hint-slot');
+
+          const placeholder = document.createElement('span');
+          placeholder.className = 'slot-placeholder';
+          placeholder.textContent = FOUNDATION_ICONS[fIdx];
+          slot.appendChild(placeholder);
+
+          if (hintSlot && hintSlot.zone === 'foundation' && hintSlot.col === fIdx) {
+            slot.classList.add('hint-slot');
+          }
+
+          const canDropHere = movingCards.length === 1 && canMoveToFoundation(movingCards[0], fIdx);
+          if (canDropHere) {
+            slot.classList.add('valid-target');
+          }
+
+          const pile = state.foundations[fIdx];
+          if (pile.length > 0) {
+            const topCard = pile[pile.length - 1];
+            const sel = isCardSelected('foundation', fIdx, pile.length - 1);
+            const hint = hintCards.includes(topCard.id);
+            const el = createCardElement(
+              topCard,
+              { zone: 'foundation', col: fIdx, index: pile.length - 1 },
+              sel,
+              hint,
+              canDropHere
+            );
+            el.style.left = '0px';
+            el.style.top = '0px';
+            slot.appendChild(el);
+          }
+        });
+
+        // 4. Tableau (7 Colunas)
+        const colEls = document.querySelectorAll('.tableau-col');
+        const rootStyles = getComputedStyle(document.documentElement);
+        const offsetDown = parseFloat(rootStyles.getPropertyValue('--stack-offset-down')) || 11;
+        const offsetUp = parseFloat(rootStyles.getPropertyValue('--stack-offset-up')) || 23;
+
+        colEls.forEach((colEl, cIdx) => {
+          colEl.replaceChildren();
+          colEl.classList.remove('valid-target', 'hint-slot');
+
+          const emptyBase = document.createElement('div');
+          emptyBase.className = 'tableau-empty-base';
+          emptyBase.textContent = 'K';
+          colEl.appendChild(emptyBase);
+
+          if (hintSlot && hintSlot.zone === 'tableau' && hintSlot.col === cIdx) {
+            colEl.classList.add('hint-slot');
+          }
+
+          const pile = state.tableau[cIdx];
+          const isValidColTarget =
+            movingCards.length > 0 &&
+            !(selected && selected.zone === 'tableau' && selected.col === cIdx) &&
+            canMoveToTableau(movingCards[0], cIdx);
+
+          if (isValidColTarget && pile.length === 0) {
+            colEl.classList.add('valid-target');
+          }
+
+          let currentTop = 0;
+          pile.forEach((card, idx) => {
+            const isTop = idx === pile.length - 1;
+            const sel = isCardSelected('tableau', cIdx, idx);
+            const hint = hintCards.includes(card.id);
+            const el = createCardElement(
+              card,
+              card.faceUp ? { zone: 'tableau', col: cIdx, index: idx } : null,
+              sel,
+              hint,
+              isValidColTarget && isTop
+            );
+            el.style.top = `${currentTop}px`;
+            el.style.left = '0px';
+            el.style.zIndex = String(idx + 1);
+            colEl.appendChild(el);
+
+            currentTop += card.faceUp ? offsetUp : offsetDown;
+          });
+        });
+      }
+
+      // =========================================================================
+      // 9. TRATAMENTO DE PONTEIRO (SELEÇÃO, AUTO-MOVE, DUPLO CLIQUE E ARRASTO)
+      // =========================================================================
+      function handleCardPointerDown(e, card, sourceInfo, cardEl) {
+        if (autoCompleting || !sourceInfo) return;
+
+        clearDragState();
+
+        const now = Date.now();
+        const isDoubleTap = lastTapCardId === card.id && now - lastTapTime < 340;
+        lastTapTime = now;
+        lastTapCardId = card.id;
+
+        if (isDoubleTap) {
+          selected = null;
+          if (trySendToFoundation(sourceInfo)) return;
+        }
+
+        if (clickMode === 'select' && selected) {
+          const isSameSelection =
+            selected.zone === sourceInfo.zone &&
+            selected.col === sourceInfo.col &&
+            selected.index === sourceInfo.index;
+
+          if (isSameSelection) {
+            selected = null;
+            render();
+            return;
+          }
+
+          // Se clicou sobre uma carta destino válida no topo da coluna ou fundação, move imediatamente!
+          if (sourceInfo.zone === 'tableau') {
+            const targetCol = state.tableau[sourceInfo.col];
+            const isTopCard = sourceInfo.index === targetCol.length - 1;
+            if (isTopCard && executeMove(selected, { zone: 'tableau', col: sourceInfo.col })) {
+              return;
+            }
+          } else if (sourceInfo.zone === 'foundation') {
+            if (executeMove(selected, { zone: 'foundation', col: sourceInfo.col })) {
+              return;
+            }
+          }
+        }
+
+        if (clickMode === 'select') {
+          selected = sourceInfo;
+          clearHints();
+          sfx.select();
+          render();
+        }
+
+        const rect = cardEl.getBoundingClientRect();
+        const rootStyles = getComputedStyle(document.documentElement);
+        const cardW = parseFloat(rootStyles.getPropertyValue('--card-w')) || 84;
+        const cardH = parseFloat(rootStyles.getPropertyValue('--card-h')) || 118;
+
+        dragSession = {
+          pointerId: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          offsetX: Math.min(Math.max(8, e.clientX - rect.left), cardW - 8),
+          offsetY: Math.min(Math.max(8, e.clientY - rect.top), cardH - 8),
+          cardW,
+          cardH,
+          sourceInfo,
+          dragging: false,
+          ghostEl: null
+        };
+      }
+
+      window.addEventListener('pointermove', (e) => {
+        if (!dragSession || e.pointerId !== dragSession.pointerId) return;
+
+        const dx = e.clientX - dragSession.startX;
+        const dy = e.clientY - dragSession.startY;
+
+        if (!dragSession.dragging && Math.hypot(dx, dy) >= 8) {
+          dragSession.dragging = true;
+          selected = dragSession.sourceInfo;
+          render();
+          createDragGhost(dragSession);
+        }
+
+        if (dragSession.dragging && dragSession.ghostEl) {
+          dragSession.ghostEl.style.left = `${e.clientX - dragSession.offsetX}px`;
+          dragSession.ghostEl.style.top = `${e.clientY - dragSession.offsetY}px`;
+        }
+      });
+
+      window.addEventListener('pointerup', (e) => {
+        if (!dragSession || e.pointerId !== dragSession.pointerId) return;
+
+        const session = dragSession;
+        clearDragState();
+
+        if (session.dragging) {
+          const dropTarget = detectDropTarget(e.clientX, e.clientY, session);
+          if (dropTarget && executeMove(session.sourceInfo, dropTarget)) {
+            return;
+          }
+          selected = null;
+          render();
+          return;
+        }
+
+        if (clickMode === 'auto') {
+          const moved = tryAutoMoveSource(session.sourceInfo);
+          if (!moved) {
+            sfx.error();
+            selected = null;
+            render();
+          }
+        }
+      });
+
+      window.addEventListener('pointercancel', () => {
+        if (!dragSession) return;
+        clearDragState();
+        selected = null;
+        render();
+      });
+
+      window.addEventListener('blur', () => {
+        if (!dragSession) return;
+        clearDragState();
+        selected = null;
+        render();
+      });
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && dragSession) {
+          clearDragState();
+          selected = null;
+          render();
+        }
+      });
+
+      function createDragGhost(session) {
+        const cards = getMovingCards(session.sourceInfo);
+        if (cards.length === 0) return;
+
+        const layer = document.getElementById('drag-layer');
+        layer.replaceChildren();
+
+        const ghost = document.createElement('div');
+        ghost.className = 'drag-ghost';
+        ghost.style.left = `${session.startX - session.offsetX}px`;
+        ghost.style.top = `${session.startY - session.offsetY}px`;
+
+        const rootStyles = getComputedStyle(document.documentElement);
+        const offsetUp = parseFloat(rootStyles.getPropertyValue('--stack-offset-up')) || 23;
+
+        cards.forEach((c, idx) => {
+          const clone = createCardElement(c, null, false, false);
+          clone.style.position = 'absolute';
+          clone.style.top = `${idx * offsetUp}px`;
+          clone.style.left = '0px';
+          ghost.appendChild(clone);
+
+          const origEl = document.querySelector(`.card[data-card-id="${c.id}"]`);
+          if (origEl) origEl.classList.add('dragging-source');
+        });
+
+        layer.appendChild(ghost);
+        session.ghostEl = ghost;
+      }
+
+      function detectDropTarget(clientX, clientY, session) {
+        const movingCards = getMovingCards(session.sourceInfo);
+        if (movingCards.length === 0) return null;
+
+        const ghostLeft = clientX - session.offsetX;
+        const ghostTop = clientY - session.offsetY;
+        const ghostRight = ghostLeft + session.cardW;
+        const ghostBottom = ghostTop + session.cardH;
+
+        const overlapArea = (r) => {
+          const xOverlap = Math.max(0, Math.min(ghostRight, r.right) - Math.max(ghostLeft, r.left));
+          const yOverlap = Math.max(0, Math.min(ghostBottom, r.bottom) - Math.max(ghostTop, r.top));
+          return xOverlap * yOverlap;
+        };
+
+        let bestTarget = null;
+        let bestScore = 0;
+
+        // 1. Avalia Fundações (se estiver arrastando apenas 1 carta)
+        if (movingCards.length === 1) {
+          const fSlots = document.querySelectorAll('.foundation-slot');
+          for (let f = 0; f < fSlots.length; f++) {
+            if (!canMoveToFoundation(movingCards[0], f)) continue;
+            const r = fSlots[f].getBoundingClientRect();
+            const area = overlapArea(r);
+            const pointerInside =
+              clientX >= r.left - 8 && clientX <= r.right + 8 &&
+              clientY >= r.top - 8 && clientY <= r.bottom + 8;
+            const score = area + (pointerInside ? 5000 : 0);
+            if (score > bestScore) {
+              bestScore = score;
+              bestTarget = { zone: 'foundation', col: f };
+            }
+          }
+        }
+
+        // 2. Avalia Colunas do Tableau
+        const cols = document.querySelectorAll('.tableau-col');
+        for (let c = 0; c < cols.length; c++) {
+          if (session.sourceInfo.zone === 'tableau' && session.sourceInfo.col === c) continue;
+          if (!canMoveToTableau(movingCards[0], c)) continue;
+          const r = cols[c].getBoundingClientRect();
+          const area = overlapArea(r);
+          const pointerInside =
+            clientX >= r.left - 8 && clientX <= r.right + 8 &&
+            clientY >= r.top - 8 && clientY <= r.bottom + 16;
+          const score = area + (pointerInside ? 5000 : 0);
+          if (score > bestScore) {
+            bestScore = score;
+            bestTarget = { zone: 'tableau', col: c };
+          }
+        }
+
+        return bestTarget;
+      }
+
+      // =========================================================================
+      // 10. EVENTOS DOS SLOTS, BOTÕES E RESIZEOBSERVER
+      // =========================================================================
+      document.getElementById('stock-slot').addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        e.preventDefault();
+        e.stopPropagation();
+        drawFromStock();
+      });
+
+      document.querySelectorAll('.foundation-slot').forEach((slot, fIdx) => {
+        slot.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0 && e.pointerType === 'mouse') return;
+          if (clickMode === 'select' && selected) {
+            e.stopPropagation();
+            if (!executeMove(selected, { zone: 'foundation', col: fIdx })) {
+              sfx.error();
+            }
+          }
+        });
+      });
+
+      document.querySelectorAll('.tableau-col').forEach((colEl, cIdx) => {
+        colEl.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0 && e.pointerType === 'mouse') return;
+          if (clickMode === 'select' && selected) {
+            e.stopPropagation();
+            if (!executeMove(selected, { zone: 'tableau', col: cIdx })) {
+              sfx.error();
+            }
+          }
+        });
+      });
+
+      document.getElementById('board-wrapper').addEventListener('pointerdown', (e) => {
+        if (e.target.id === 'board-wrapper' || e.target.id === 'board' || e.target.id === 'tableau-row') {
+          clearDragState();
+          if (selected) {
+            selected = null;
+            render();
+          }
+        }
+      });
+
+      document.getElementById('stat-status').addEventListener('click', () => {
+        evaluateGameProgress(true);
+      });
+
+      document.getElementById('btn-new').addEventListener('click', () => dealNewGame());
+      document.getElementById('btn-win-new').addEventListener('click', () => dealNewGame());
+      document.getElementById('btn-dl-new').addEventListener('click', () => dealNewGame());
+
+      document.getElementById('btn-dl-restart').addEventListener('click', () => {
+        dealNewGame(initialDealSnapshot);
+      });
+
+      document.getElementById('btn-undo').addEventListener('click', () => {
+        if (history.length === 0 || autoCompleting) return;
+        clearDragState();
+        clearHints();
+        state = history.pop();
+        selected = null;
+        deadlockDismissedForKey = null;
+        document.getElementById('deadlock-modal').classList.remove('open');
+        sfx.move();
+        updateStatsUI();
+        render();
+        evaluateGameProgress();
+      });
+
+      document.getElementById('btn-dl-undo').addEventListener('click', () => {
+        document.getElementById('deadlock-modal').classList.remove('open');
+        if (history.length > 0) {
+          document.getElementById('btn-undo').click();
+        }
+      });
+
+      document.getElementById('btn-dl-inspect').addEventListener('click', () => {
+        deadlockDismissedForKey = serializeSearchNode(state);
+        document.getElementById('deadlock-modal').classList.remove('open');
+      });
+
+      document.getElementById('btn-reopen-impasse').addEventListener('click', () => {
+        document.getElementById('deadlock-modal').classList.add('open');
+      });
+
+      document.getElementById('btn-hint').addEventListener('click', showHint);
+      document.getElementById('btn-autocomplete').addEventListener('click', runAutoComplete);
+
+      document.getElementById('btn-draw-mode').addEventListener('click', () => {
+        drawCount = drawCount === 1 ? 3 : 1;
+        localStorage.setItem('klondike_draw_count', String(drawCount));
+        updateToolbarLabels();
+        dealNewGame();
+      });
+
+      document.getElementById('btn-click-mode').addEventListener('click', () => {
+        clearDragState();
+        clickMode = clickMode === 'select' ? 'auto' : 'select';
+        localStorage.setItem('klondike_click_mode_v2', clickMode);
+        selected = null;
+        updateToolbarLabels();
+        render();
+      });
+
+      document.getElementById('btn-theme').addEventListener('click', () => {
+        darkTheme = !darkTheme;
+        document.body.classList.toggle('theme-midnight', darkTheme);
+        localStorage.setItem('klondike_theme', darkTheme ? 'midnight' : 'classic');
+      });
+
+      document.getElementById('btn-sound').addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        localStorage.setItem('klondike_sound', soundEnabled ? 'on' : 'off');
+        updateToolbarLabels();
+        if (soundEnabled) sfx.select();
+      });
+
+      // Dimensionamento Responsivo via ResizeObserver (Zero Scroll em 100dvh)
+      const boardWrapper = document.getElementById('board-wrapper');
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const availW = entry.contentRect.width - 16;
+          const availH = entry.contentRect.height - 12;
+          if (availW <= 0 || availH <= 0) continue;
+
+          const gap = availW < 520 ? 5 : availW < 820 ? 8 : 12;
+          const rowGap = availH < 560 ? 8 : 14;
+
+          const maxCardWByWidth = Math.floor((availW - gap * 6) / 7);
+          const maxCardHByHeight = Math.floor((availH - rowGap) / 4.95);
+          const maxCardWByHeight = Math.floor(maxCardHByHeight / 1.4);
+
+          const cardW = Math.max(38, Math.min(104, maxCardWByWidth, maxCardWByHeight));
+          const cardH = Math.round(cardW * 1.4);
+          const radius = Math.max(4, Math.round(cardW * 0.085));
+          const offsetDown = Math.max(6, Math.round(cardH * 0.095));
+          const offsetUp = Math.max(13, Math.round(cardH * 0.195));
+
+          const root = document.documentElement.style;
+          root.setProperty('--card-w', `${cardW}px`);
+          root.setProperty('--card-h', `${cardH}px`);
+          root.setProperty('--card-radius', `${radius}px`);
+          root.setProperty('--board-gap', `${gap}px`);
+          root.setProperty('--row-gap', `${rowGap}px`);
+          root.setProperty('--stack-offset-down', `${offsetDown}px`);
+          root.setProperty('--stack-offset-up', `${offsetUp}px`);
+
+          render();
+        }
+      });
+
+      resizeObserver.observe(boardWrapper);
+
+      updateToolbarLabels();
+      dealNewGame();
+    })();
+  </script>
+</body>
+</html>

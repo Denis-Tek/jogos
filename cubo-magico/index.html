@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Cubo Mágico 3x3</title>
+  <style>
+    :root {
+      --bg-primary: #0b1120;
+      --bg-secondary: #151f32;
+      --bg-tertiary: #23314c;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --border: rgba(148, 163, 184, 0.18);
+      --shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #eef2f6;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --accent: #0284c7;
+      --accent-hover: #0369a1;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --border: rgba(15, 23, 42, 0.12);
+      --shadow: 0 12px 30px -8px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabeçalho */
+    header {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .brand-icon {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: #111;
+      padding: 2px;
+      border-radius: 5px;
+    }
+
+    .brand-icon span:nth-child(1) { background: #B90000; border-radius: 1px; }
+    .brand-icon span:nth-child(2) { background: #0045AD; border-radius: 1px; }
+    .brand-icon span:nth-child(3) { background: #FFD500; border-radius: 1px; }
+    .brand-icon span:nth-child(4) { background: #009B48; border-radius: 1px; }
+    .brand-icon span:nth-child(5) { background: #FFFFFF; border-radius: 1px; }
+    .brand-icon span:nth-child(6) { background: #FF5900; border-radius: 1px; }
+    .brand-icon span:nth-child(7) { background: #FFD500; border-radius: 1px; }
+    .brand-icon span:nth-child(8) { background: #B90000; border-radius: 1px; }
+    .brand-icon span:nth-child(9) { background: #0045AD; border-radius: 1px; }
+
+    h1 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .icon-btn {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 0.6rem;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.1s ease, background-color 0.2s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent);
+      color: #ffffff;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.93);
+    }
+
+    /* Barra de Métricas / Cronômetro */
+    .hud-bar {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      padding: 0.5rem 0.85rem;
+      max-width: 740px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.4rem 0.65rem;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin-top: 0.08rem;
+    }
+
+    .stat-value.armed {
+      color: var(--warning);
+    }
+
+    .stat-value.running {
+      color: var(--accent);
+    }
+
+    .stat-value.solved {
+      color: var(--success);
+    }
+
+    /* Viewport 3D Principal (#stage) */
+    #stage {
+      flex: 1 1 auto;
+      min-height: 260px;
+      position: relative;
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #cubeCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      touch-action: none;
+      cursor: grab;
+    }
+
+    #cubeCanvas:active {
+      cursor: grabbing;
+    }
+
+    .hint-pill {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.78);
+      color: #f8fafc;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.85rem;
+      border-radius: 999px;
+      pointer-events: none;
+      white-space: nowrap;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .toast-banner {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-18px);
+      background: var(--success);
+      color: #ffffff;
+      padding: 0.55rem 1.15rem;
+      border-radius: 0.85rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 25px rgba(34, 197, 94, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      z-index: 20;
+      text-align: center;
+    }
+
+    .toast-banner.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Painel de Controles */
+    .controls-panel {
+      flex: 0 0 auto;
+      width: 100%;
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 0.55rem 0.85rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.45rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 0.84rem;
+      padding: 0.6rem 0.45rem;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: transform 0.1s ease, filter 0.15s ease, opacity 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(1.08);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: transparent;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: #ffffff;
+      border-color: transparent;
+    }
+
+    /* Grade de Notação WCA */
+    .wca-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.38rem;
+    }
+
+    .move-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 0.65rem;
+      padding: 0.48rem 0.2rem;
+      font-weight: 800;
+      font-size: 0.88rem;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .move-btn small {
+      font-size: 0.6rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .move-btn:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--accent);
+    }
+
+    .move-btn:active {
+      transform: scale(0.93);
+    }
+
+    .face-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 3px;
+    }
+
+    /* Modal de Ajuda */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 50;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      max-width: 440px;
+      width: 100%;
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .modal-card ul {
+      padding-left: 1.2rem;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+
+    .modal-card li strong {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 520px) {
+      header {
+        padding: 0.5rem 0.75rem;
+      }
+      h1 {
+        font-size: 0.98rem;
+      }
+      .stat-value {
+        font-size: 1.02rem;
+      }
+      .action-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hint-pill {
+        font-size: 0.66rem;
+        padding: 0.28rem 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+      <h1>Cubo Mágico 3x3</h1>
+    </div>
+    <div class="header-actions">
+      <button id="cameraResetBtn" class="icon-btn" title="Centralizar Câmera" aria-label="Centralizar Câmera">🎯</button>
+      <button id="soundToggleBtn" class="icon-btn" title="Alternar Som" aria-label="Alternar Som">🔊</button>
+      <button id="themeToggleBtn" class="icon-btn" title="Alternar Tema" aria-label="Alternar Tema">☀️</button>
+      <button id="helpBtn" class="icon-btn" title="Como Jogar" aria-label="Como Jogar">❓</button>
+    </div>
+  </header>
+
+  <!-- Painel de Tempo e Estatísticas -->
+  <section class="hud-bar" aria-label="Estatísticas da partida">
+    <div class="stat-card">
+      <div id="timerLabel" class="stat-label">Tempo</div>
+      <div id="timerDisplay" class="stat-value">00:00.00</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Movimentos</div>
+      <div id="movesDisplay" class="stat-value">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Melhor</div>
+      <div id="bestDisplay" class="stat-value">--:--.--</div>
+    </div>
+  </section>
+
+  <!-- Viewport 3D Principal -->
+  <main id="stage">
+    <div id="toastBanner" class="toast-banner" role="status">🎉 Cubo Resolvido!</div>
+    <canvas id="cubeCanvas"></canvas>
+    <div class="hint-pill">Arraste no cubo para girar camadas • Arraste fora para orbitar</div>
+  </main>
+
+  <!-- Controles de Ação e Notação WCA -->
+  <section class="controls-panel" aria-label="Controles do cubo">
+    <div class="action-row">
+      <button id="scrambleBtn" class="btn btn-primary">🔀 Embaralhar</button>
+      <button id="undoBtn" class="btn" disabled>↩️ Desfazer</button>
+      <button id="solveBtn" class="btn btn-warning" disabled>✨ Resolver</button>
+      <button id="resetBtn" class="btn">🔄 Reiniciar</button>
+    </div>
+
+    <!-- Botões de giro horário e anti-horário (Notação Oficial WCA) -->
+    <div class="wca-grid">
+      <button class="move-btn" data-move="U"><span><i class="face-dot" style="background:#FFFFFF;border:1px solid #888"></i>U</span><small>Topo</small></button>
+      <button class="move-btn" data-move="D"><span><i class="face-dot" style="background:#FFD500"></i>D</span><small>Base</small></button>
+      <button class="move-btn" data-move="L"><span><i class="face-dot" style="background:#FF5900"></i>L</span><small>Esq</small></button>
+      <button class="move-btn" data-move="R"><span><i class="face-dot" style="background:#B90000"></i>R</span><small>Dir</small></button>
+      <button class="move-btn" data-move="F"><span><i class="face-dot" style="background:#009B48"></i>F</span><small>Frente</small></button>
+      <button class="move-btn" data-move="B"><span><i class="face-dot" style="background:#0045AD"></i>B</span><small>Trás</small></button>
+
+      <button class="move-btn" data-move="U'"><span>U'</span><small>Topo ↺</small></button>
+      <button class="move-btn" data-move="D'"><span>D'</span><small>Base ↺</small></button>
+      <button class="move-btn" data-move="L'"><span>L'</span><small>Esq ↺</small></button>
+      <button class="move-btn" data-move="R'"><span>R'</span><small>Dir ↺</small></button>
+      <button class="move-btn" data-move="F'"><span>F'</span><small>Frente ↺</small></button>
+      <button class="move-btn" data-move="B'"><span>B'</span><small>Trás ↺</small></button>
+    </div>
+  </section>
+
+  <!-- Modal de Instruções -->
+  <div id="helpModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal-card">
+      <h2 id="helpTitle">Como Jogar — Cubo Mágico 3x3</h2>
+      <ul>
+        <li><strong>Girar Camadas:</strong> Clique/toque em qualquer adesivo do cubo e arraste na direção desejada, ou use os botões <strong>U, D, L, R, F, B</strong>.</li>
+        <li><strong>Orbitar Câmera:</strong> Clique/toque no fundo (fora do cubo) e arraste para girar a visão em 360°.</li>
+        <li><strong>Cronômetro Automático:</strong> Clique em <strong>Embaralhar</strong>; o relógio entrará em modo <strong>PRONTO</strong> e começará a contar no seu primeiro movimento.</li>
+        <li><strong>Atalhos de Teclado:</strong> Teclas <strong>U, D, L, R, F, B</strong> giram no sentido horário (segure <strong>Shift</strong> para sentido anti-horário). <strong>Z</strong> desfaz e <strong>Espaço</strong> embaralha.</li>
+      </ul>
+      <button id="closeHelpBtn" class="btn btn-primary" style="width: 100%;">Entendi!</button>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * SIMULADOR DE CUBO MÁGICO 3x3 3D — MOTOR DE PROJEÇÃO SOFTWARE AUTÔNOMO
+     * ============================================================================
+     */
+    (() => {
+      'use strict';
+
+      // --- 1. SINTETIZADOR DE ÁUDIO PROCEDURAL (WEB AUDIO API) ---
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.muted = false;
+        }
+
+        ensureContext() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        }
+
+        playTurn(isFast = false) {
+          if (this.muted) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          const baseFreq = isFast ? 330 + Math.random() * 85 : 210 + Math.random() * 45;
+          osc.frequency.setValueAtTime(baseFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(72, now + 0.055);
+
+          gain.gain.setValueAtTime(isFast ? 0.08 : 0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + 0.065);
+        }
+
+        playVictory() {
+          if (this.muted) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const start = this.ctx.currentTime + idx * 0.09;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, start);
+
+            gain.gain.setValueAtTime(0.001, start);
+            gain.gain.linearRampToValueAtTime(0.18, start + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(start);
+            osc.stop(start + 0.38);
+          });
+        }
+      }
+
+      const sound = new SoundEngine();
+
+      // --- 2. ÁLGEBRA VETORIAL E MATRIZES 3x3 ORTONORMAIS ---
+      const Vec3 = {
+        add: (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z }),
+        sub: (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }),
+        scale: (v, s) => ({ x: v.x * s, y: v.y * s, z: v.z * s }),
+        dot: (a, b) => a.x * b.x + a.y * b.y + a.z * b.z,
+        cross: (a, b) => ({
+          x: a.y * b.z - a.z * b.y,
+          y: a.z * b.x - a.x * b.z,
+          z: a.x * b.y - a.y * b.x
+        }),
+        rotateX: (v, a) => {
+          const c = Math.cos(a), s = Math.sin(a);
+          return { x: v.x, y: v.y * c - v.z * s, z: v.y * s + v.z * c };
+        },
+        rotateY: (v, a) => {
+          const c = Math.cos(a), s = Math.sin(a);
+          return { x: v.x * c + v.z * s, y: v.y, z: -v.x * s + v.z * c };
+        },
+        rotateZ: (v, a) => {
+          const c = Math.cos(a), s = Math.sin(a);
+          return { x: v.x * c - v.y * s, y: v.x * s + v.y * c, z: v.z };
+        },
+        rotateAxis: (v, axis, angle) => {
+          if (axis === 'x') return Vec3.rotateX(v, angle);
+          if (axis === 'y') return Vec3.rotateY(v, angle);
+          return Vec3.rotateZ(v, angle);
+        }
+      };
+
+      const Mat3 = {
+        identity: () => [
+          [1, 0, 0],
+          [0, 1, 0],
+          [0, 0, 1]
+        ],
+        mulVec: (m, v) => ({
+          x: m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z,
+          y: m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z,
+          z: m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z
+        }),
+        mul: (a, b) => {
+          const out = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+          for (let r = 0; r < 3; r++) {
+            for (let c = 0; c < 3; c++) {
+              out[r][c] = a[r][0] * b[0][c] + a[r][1] * b[1][c] + a[r][2] * b[2][c];
+            }
+          }
+          return out;
+        },
+        rotAxis90: (axis, dir) => {
+          const s = Math.sign(dir) || 1;
+          if (axis === 'x') {
+            return [
+              [1,  0,  0],
+              [0,  0, -s],
+              [0,  s,  0]
+            ];
+          }
+          if (axis === 'y') {
+            return [
+              [ 0, 0, s],
+              [ 0, 1, 0],
+              [-s, 0, 0]
+            ];
+          }
+          return [
+            [0, -s, 0],
+            [s,  0, 0],
+            [0,  0, 1]
+          ];
+        }
+      };
+
+      // --- 3. DEFINIÇÕES DE FACES E NOTAÇÃO WCA ---
+      // +Y = Branco (U), -Y = Amarelo (D), +Z = Verde (F), -Z = Azul (B), +X = Vermelho (R), -X = Laranja (L)
+      const BASE_FACES = [
+        { key: 'U', normal: { x:  0, y:  1, z:  0 }, color: '#FFFFFF' },
+        { key: 'D', normal: { x:  0, y: -1, z:  0 }, color: '#FFD500' },
+        { key: 'F', normal: { x:  0, y:  0, z:  1 }, color: '#009B48' },
+        { key: 'B', normal: { x:  0, y:  0, z: -1 }, color: '#0045AD' },
+        { key: 'R', normal: { x:  1, y:  0, z:  0 }, color: '#B90000' },
+        { key: 'L', normal: { x: -1, y:  0, z:  0 }, color: '#FF5900' }
+      ];
+
+      const MOVES_TABLE = {
+        "U":  { axis: 'y', layer:  1, dir: -1 },
+        "U'": { axis: 'y', layer:  1, dir:  1 },
+        "D":  { axis: 'y', layer: -1, dir:  1 },
+        "D'": { axis: 'y', layer: -1, dir: -1 },
+        "R":  { axis: 'x', layer:  1, dir: -1 },
+        "R'": { axis: 'x', layer:  1, dir:  1 },
+        "L":  { axis: 'x', layer: -1, dir:  1 },
+        "L'": { axis: 'x', layer: -1, dir: -1 },
+        "F":  { axis: 'z', layer:  1, dir: -1 },
+        "F'": { axis: 'z', layer:  1, dir:  1 },
+        "B":  { axis: 'z', layer: -1, dir:  1 },
+        "B'": { axis: 'z', layer: -1, dir: -1 }
+      };
+
+      // --- 4. ESTADO DO CUBO, CÂMERA E VIEWPORT ---
+      const stage = document.getElementById('stage');
+      const canvas = document.getElementById('cubeCanvas');
+      const ctx = canvas.getContext('2d');
+
+      let viewW = 640;
+      let viewH = 400;
+
+      let cubies = [];
+      let moveQueue = [];
+      let currentAnim = null;
+      let moveHistory = []; // Array padronizado { axis, layer, dir }
+      let moveCount = 0;
+
+      // Ângulo isométrico inicial exibindo Topo (Branco), Frente (Verde) e Direita (Vermelho)
+      const DEFAULT_CAM = { yaw: -0.62, pitch: 0.48 };
+      let camYaw = DEFAULT_CAM.yaw;
+      let camPitch = DEFAULT_CAM.pitch;
+
+      let timerState = 'idle'; // 'idle' | 'armed' | 'running' | 'solved'
+      let startTime = 0;
+      let elapsedTime = 0;
+      let bestTime = null;
+      let isSolving = false;
+
+      // Adesivos visíveis projetados no último frame (em coordenadas lógicas CSS)
+      let renderedStickers = [];
+
+      // --- 5. INICIALIZAÇÃO DOS 26 CUBIES ---
+      function initCube() {
+        cubies = [];
+        for (let gx = -1; gx <= 1; gx++) {
+          for (let gy = -1; gy <= 1; gy++) {
+            for (let gz = -1; gz <= 1; gz++) {
+              // Exclui o núcleo interno invisível (0, 0, 0)
+              if (gx === 0 && gy === 0 && gz === 0) continue;
+
+              const faces = BASE_FACES.map((bf) => {
+                const isExternal =
+                  (bf.normal.x !== 0 && bf.normal.x === gx) ||
+                  (bf.normal.y !== 0 && bf.normal.y === gy) ||
+                  (bf.normal.z !== 0 && bf.normal.z === gz);
+
+                return {
+                  localNormal: { ...bf.normal },
+                  color: isExternal ? bf.color : '#14161a',
+                  internal: !isExternal
+                };
+              });
+
+              cubies.push({
+                gx,
+                gy,
+                gz,
+                mat: Mat3.identity(),
+                faces
+              });
+            }
+          }
+        }
+      }
+
+      // --- 6. FILA DE MOVIMENTOS, HISTÓRICO E RESOLUÇÃO ---
+      function pushMoveToHistory(moveObj) {
+        const last = moveHistory[moveHistory.length - 1];
+        if (
+          last &&
+          last.axis === moveObj.axis &&
+          last.layer === moveObj.layer &&
+          last.dir === -moveObj.dir
+        ) {
+          moveHistory.pop();
+        } else {
+          moveHistory.push({
+            axis: moveObj.axis,
+            layer: moveObj.layer,
+            dir: moveObj.dir
+          });
+        }
+      }
+
+      function cancelAutoSolveIfActive() {
+        if (isSolving) {
+          isSolving = false;
+          moveQueue = moveQueue.filter((item) => !item.isSolve);
+          updateHUD();
+        }
+      }
+
+      function enqueueStandardMove(moveSpec, options = {}) {
+        const axis = moveSpec.axis;
+        const layer = Math.round(moveSpec.layer);
+        const dir = Math.sign(moveSpec.dir) || 1;
+        const isManual = !options.isScramble && !options.isSolve && !options.isUndo;
+
+        if (isManual) {
+          cancelAutoSolveIfActive();
+        }
+
+        if (options.recordHistory !== false) {
+          pushMoveToHistory({ axis, layer, dir });
+        }
+
+        moveQueue.push({
+          axis,
+          layer,
+          dir,
+          targetAngle: dir * (Math.PI / 2),
+          duration: options.duration || 175,
+          isScramble: Boolean(options.isScramble),
+          isSolve: Boolean(options.isSolve),
+          isUndo: Boolean(options.isUndo)
+        });
+
+        updateHUD();
+      }
+
+      function enqueueWCAMove(moveName, options = {}) {
+        const spec = MOVES_TABLE[moveName];
+        if (!spec) return;
+        enqueueStandardMove(spec, options);
+      }
+
+      function getCubieGridCoord(cubie, axis) {
+        if (axis === 'x') return cubie.gx;
+        if (axis === 'y') return cubie.gy;
+        return cubie.gz;
+      }
+
+      function commitMoveRotation(anim) {
+        const { axis, layer, dir, targetAngle } = anim;
+        const rotMat = Mat3.rotAxis90(axis, dir);
+
+        for (const cubie of cubies) {
+          if (getCubieGridCoord(cubie, axis) === layer) {
+            const rotatedPos = Vec3.rotateAxis({ x: cubie.gx, y: cubie.gy, z: cubie.gz }, axis, targetAngle);
+            cubie.gx = Math.round(rotatedPos.x);
+            cubie.gy = Math.round(rotatedPos.y);
+            cubie.gz = Math.round(rotatedPos.z);
+            cubie.mat = Mat3.mul(rotMat, cubie.mat);
+          }
+        }
+      }
+
+      function isCubeSolved() {
+        const checks = [
+          { axis: 'y', val:  1 },
+          { axis: 'y', val: -1 },
+          { axis: 'x', val:  1 },
+          { axis: 'x', val: -1 },
+          { axis: 'z', val:  1 },
+          { axis: 'z', val: -1 }
+        ];
+
+        for (const chk of checks) {
+          let expectedColor = null;
+          for (const cubie of cubies) {
+            if (getCubieGridCoord(cubie, chk.axis) === chk.val) {
+              let foundSticker = null;
+              for (const f of cubie.faces) {
+                if (f.internal) continue;
+                const wn = Mat3.mulVec(cubie.mat, f.localNormal);
+                if (Math.round(wn[chk.axis]) === chk.val) {
+                  foundSticker = f;
+                  break;
+                }
+              }
+              if (!foundSticker) return false;
+              if (!expectedColor) {
+                expectedColor = foundSticker.color;
+              } else if (foundSticker.color !== expectedColor) {
+                return false;
+              }
+            }
+          }
+        }
+        return true;
+      }
+
+      // --- 7. MOTOR 3D SOFTWARE & DIMENSIONAMENTO RESILIENTE ---
+      function worldToCamera(p) {
+        let v = Vec3.rotateY(p, camYaw);
+        v = Vec3.rotateX(v, camPitch);
+        return v;
+      }
+
+      function projectPoint(camPt, width, height, fovScale) {
+        // Câmera olhando para a origem a partir de +Z = 7.4 (sistema destro: +X direita, +Y cima, +Z direção do observador)
+        const camDist = 7.4;
+        const depth = Math.max(0.2, camDist - camPt.z);
+        const factor = fovScale / depth;
+        return {
+          x: width * 0.5 + camPt.x * factor,
+          y: height * 0.5 - camPt.y * factor,
+          z: camPt.z
+        };
+      }
+
+      function getFaceVertices(center, normal, halfSize) {
+        let u, v;
+        if (Math.abs(normal.y) > 0.9) {
+          u = { x: 1, y: 0, z: 0 };
+          v = Vec3.cross(normal, u);
+        } else {
+          u = { x: 0, y: 1, z: 0 };
+          v = Vec3.cross(normal, u);
+        }
+
+        const faceCenter = Vec3.add(center, Vec3.scale(normal, halfSize));
+        const uHalf = Vec3.scale(u, halfSize);
+        const vHalf = Vec3.scale(v, halfSize);
+
+        return [
+          Vec3.add(Vec3.sub(faceCenter, uHalf), vHalf),
+          Vec3.add(Vec3.add(faceCenter, uHalf), vHalf),
+          Vec3.sub(Vec3.add(faceCenter, uHalf), vHalf),
+          Vec3.sub(Vec3.sub(faceCenter, uHalf), vHalf)
+        ];
+      }
+
+      function shadeColor(hex, factor) {
+        const num = parseInt(hex.slice(1), 16);
+        const r = Math.min(255, Math.max(0, Math.round(((num >> 16) & 255) * factor)));
+        const g = Math.min(255, Math.max(0, Math.round(((num >> 8) & 255) * factor)));
+        const b = Math.min(255, Math.max(0, Math.round((num & 255) * factor)));
+        return `rgb(${r}, ${g}, ${b})`;
+      }
+
+      function render() {
+        if (!ctx || viewW <= 0 || viewH <= 0) return;
+
+        const w = viewW;
+        const h = viewH;
+        const minDim = Math.min(w, h);
+        const fovScale = minDim * 1.48;
+        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+        // Fundo com brilho radial de estúdio
+        const bgGrad = ctx.createRadialGradient(
+          w * 0.5,
+          h * 0.46,
+          minDim * 0.04,
+          w * 0.5,
+          h * 0.5,
+          Math.max(w, h) * 0.72
+        );
+        if (isDark) {
+          bgGrad.addColorStop(0, '#1e293b');
+          bgGrad.addColorStop(0.55, '#111827');
+          bgGrad.addColorStop(1, '#070b14');
+        } else {
+          bgGrad.addColorStop(0, '#ffffff');
+          bgGrad.addColorStop(0.6, '#e2e8f0');
+          bgGrad.addColorStop(1, '#cbd5e1');
+        }
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, w, h);
+
+        // Sombra suave projetada abaixo do cubo
+        ctx.save();
+        const shadowGrad = ctx.createRadialGradient(
+          w * 0.5,
+          h * 0.5 + minDim * 0.34,
+          minDim * 0.02,
+          w * 0.5,
+          h * 0.5 + minDim * 0.34,
+          minDim * 0.30
+        );
+        shadowGrad.addColorStop(0, isDark ? 'rgba(0, 0, 0, 0.52)' : 'rgba(15, 23, 42, 0.22)');
+        shadowGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = shadowGrad;
+        ctx.beginPath();
+        ctx.ellipse(w * 0.5, h * 0.5 + minDim * 0.34, minDim * 0.30, minDim * 0.075, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        const polygons = [];
+        const lightDir = { x: 0.36, y: 0.78, z: 0.51 };
+        const cubieHalf = 0.48;
+        const stickerHalf = cubieHalf * 0.84;
+
+        for (const cubie of cubies) {
+          const basePos = { x: cubie.gx, y: cubie.gy, z: cubie.gz };
+          let activeAngle = 0;
+          let activeAxis = null;
+
+          if (currentAnim && getCubieGridCoord(cubie, currentAnim.axis) === currentAnim.layer) {
+            activeAngle = currentAnim.currentAngle;
+            activeAxis = currentAnim.axis;
+          }
+
+          const worldPos = activeAxis
+            ? Vec3.rotateAxis(basePos, activeAxis, activeAngle)
+            : basePos;
+
+          for (const face of cubie.faces) {
+            let worldNormal = Mat3.mulVec(cubie.mat, face.localNormal);
+            if (activeAxis) {
+              worldNormal = Vec3.rotateAxis(worldNormal, activeAxis, activeAngle);
+            }
+
+            // Backface culling em espaço de câmera (câmera em (0, 0, +7.4))
+            const camNormal = worldToCamera(worldNormal);
+            const camFaceCenter = worldToCamera(Vec3.add(worldPos, Vec3.scale(worldNormal, cubieHalf)));
+            const viewVec = {
+              x: -camFaceCenter.x,
+              y: -camFaceCenter.y,
+              z: 7.4 - camFaceCenter.z
+            };
+
+            if (Vec3.dot(camNormal, viewVec) <= 0) continue;
+
+            const baseVertsWorld = getFaceVertices(worldPos, worldNormal, cubieHalf);
+            const baseVertsCam = baseVertsWorld.map(worldToCamera);
+            const avgZ = (baseVertsCam[0].z + baseVertsCam[1].z + baseVertsCam[2].z + baseVertsCam[3].z) * 0.25;
+            const baseProj = baseVertsCam.map((p) => projectPoint(p, w, h, fovScale));
+
+            let stickerProj = null;
+            if (!face.internal) {
+              const stickerVertsWorld = getFaceVertices(
+                Vec3.add(worldPos, Vec3.scale(worldNormal, 0.004)),
+                worldNormal,
+                stickerHalf
+              );
+              stickerProj = stickerVertsWorld
+                .map(worldToCamera)
+                .map((p) => projectPoint(p, w, h, fovScale));
+            }
+
+            const diffuse = Math.max(0, Vec3.dot(camNormal, lightDir));
+            const shade = 0.80 + diffuse * 0.26;
+
+            polygons.push({
+              avgZ,
+              baseProj,
+              stickerProj,
+              color: face.color,
+              shade,
+              internal: face.internal,
+              cubiePos: { ...basePos },
+              worldNormal
+            });
+          }
+        }
+
+        // Painter's Algorithm: ordena do mais distante (menor Z) ao mais próximo (maior Z)
+        polygons.sort((a, b) => a.avgZ - b.avgZ);
+
+        renderedStickers = [];
+
+        for (const poly of polygons) {
+          drawQuad(poly.baseProj, '#14161a', '#090b0e', 1.2);
+
+          if (!poly.internal && poly.stickerProj) {
+            const litColor = shadeColor(poly.color, poly.shade);
+            drawRoundedQuad(poly.stickerProj, litColor, 'rgba(0, 0, 0, 0.35)', 0.9, 0.16);
+
+            renderedStickers.push({
+              points: poly.stickerProj,
+              cubiePos: poly.cubiePos,
+              worldNormal: poly.worldNormal
+            });
+          }
+        }
+      }
+
+      function drawQuad(pts, fill, stroke, lineWidth) {
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i].x, pts[i].y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        if (stroke) {
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = lineWidth;
+          ctx.stroke();
+        }
+      }
+
+      function drawRoundedQuad(pts, fill, stroke, lineWidth, radiusRatio) {
+        ctx.beginPath();
+        const len = pts.length;
+        for (let i = 0; i < len; i++) {
+          const prev = pts[(i - 1 + len) % len];
+          const curr = pts[i];
+          const next = pts[(i + 1) % len];
+
+          const v1 = { x: prev.x - curr.x, y: prev.y - curr.y };
+          const v2 = { x: next.x - curr.x, y: next.y - curr.y };
+
+          const p1 = { x: curr.x + v1.x * radiusRatio, y: curr.y + v1.y * radiusRatio };
+          const p2 = { x: curr.x + v2.x * radiusRatio, y: curr.y + v2.y * radiusRatio };
+
+          if (i === 0) ctx.moveTo(p1.x, p1.y);
+          else ctx.lineTo(p1.x, p1.y);
+
+          ctx.quadraticCurveTo(curr.x, curr.y, p2.x, p2.y);
+        }
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        if (stroke) {
+          ctx.strokeStyle = stroke;
+          ctx.lineWidth = lineWidth;
+          ctx.stroke();
+        }
+      }
+
+      function resizeCanvas() {
+        const rect = stage.getBoundingClientRect();
+        const w = Math.max(rect.width || window.innerWidth, 280);
+        const h = Math.max(rect.height || (window.innerHeight - 220), 260);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        viewW = w;
+        viewH = h;
+        render();
+      }
+
+      if (typeof ResizeObserver !== 'undefined') {
+        const ro = new ResizeObserver(() => resizeCanvas());
+        ro.observe(stage);
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      // --- 8. LOOP DE ANIMAÇÃO E CRONÔMETRO ---
+      const timerLabel = document.getElementById('timerLabel');
+      const timerDisplay = document.getElementById('timerDisplay');
+      const movesDisplay = document.getElementById('movesDisplay');
+      const bestDisplay = document.getElementById('bestDisplay');
+      const undoBtn = document.getElementById('undoBtn');
+      const solveBtn = document.getElementById('solveBtn');
+      const toastBanner = document.getElementById('toastBanner');
+
+      function formatTime(ms) {
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const centis = Math.floor((ms % 1000) / 10);
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centis).padStart(2, '0')}`;
+      }
+
+      function loadBestTime() {
+        try {
+          const saved = localStorage.getItem('rubiks3d_best_ms');
+          if (saved) {
+            bestTime = parseInt(saved, 10);
+            bestDisplay.textContent = formatTime(bestTime);
+          }
+        } catch (_) {}
+      }
+
+      function saveBestTime(ms) {
+        if (bestTime === null || ms < bestTime) {
+          bestTime = ms;
+          bestDisplay.textContent = formatTime(bestTime);
+          try {
+            localStorage.setItem('rubiks3d_best_ms', String(ms));
+          } catch (_) {}
+          return true;
+        }
+        return false;
+      }
+
+      function updateHUD() {
+        movesDisplay.textContent = String(moveCount);
+        undoBtn.disabled = moveHistory.length === 0 || isSolving;
+        solveBtn.disabled = moveHistory.length === 0 || isSolving;
+
+        timerDisplay.className = 'stat-value';
+        if (timerState === 'armed') {
+          timerLabel.textContent = 'PRONTO';
+          timerDisplay.classList.add('armed');
+        } else {
+          timerLabel.textContent = 'Tempo';
+          if (timerState === 'running') timerDisplay.classList.add('running');
+          if (timerState === 'solved') timerDisplay.classList.add('solved');
+        }
+      }
+
+      function showToast(msg) {
+        toastBanner.textContent = msg;
+        toastBanner.classList.add('visible');
+        clearTimeout(showToast._tid);
+        showToast._tid = setTimeout(() => {
+          toastBanner.classList.remove('visible');
+        }, 3200);
+      }
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      let lastFrameTime = performance.now();
+
+      function loop(now) {
+        const dt = now - lastFrameTime;
+        lastFrameTime = now;
+
+        if (!currentAnim && moveQueue.length > 0) {
+          const next = moveQueue.shift();
+          currentAnim = {
+            ...next,
+            elapsed: 0,
+            currentAngle: 0
+          };
+          sound.playTurn(next.isScramble || next.isSolve);
+
+          if (!next.isScramble && !next.isSolve && timerState === 'armed') {
+            timerState = 'running';
+            startTime = now;
+            updateHUD();
+          }
+        }
+
+        if (currentAnim) {
+          currentAnim.elapsed += dt;
+          const progress = Math.min(1, currentAnim.elapsed / currentAnim.duration);
+          const eased = easeOutCubic(progress);
+          currentAnim.currentAngle = currentAnim.targetAngle * eased;
+
+          if (progress >= 1) {
+            commitMoveRotation(currentAnim);
+
+            if (!currentAnim.isScramble && !currentAnim.isSolve) {
+              moveCount++;
+            }
+
+            const finishedAnim = currentAnim;
+            currentAnim = null;
+
+            if (isSolving && (moveQueue.length === 0 || isCubeSolved())) {
+              moveQueue = [];
+              moveHistory = [];
+              isSolving = false;
+              timerState = 'idle';
+              updateHUD();
+              showToast('✨ Cubo resolvido automaticamente!');
+            } else if (!isSolving && moveQueue.length === 0) {
+              if (!finishedAnim.isScramble && !finishedAnim.isSolve && isCubeSolved()) {
+                if (timerState === 'running') {
+                  elapsedTime = now - startTime;
+                  timerDisplay.textContent = formatTime(elapsedTime);
+                  timerState = 'solved';
+                  const isNewRecord = saveBestTime(Math.round(elapsedTime));
+                  sound.playVictory();
+                  showToast(
+                    isNewRecord
+                      ? `🏆 Novo Recorde: ${formatTime(elapsedTime)}!`
+                      : `🎉 Resolvido em ${formatTime(elapsedTime)}!`
+                  );
+                } else if (moveCount > 0) {
+                  sound.playVictory();
+                  showToast('🎉 Cubo Resolvido!');
+                }
+                moveHistory = [];
+              }
+            }
+
+            updateHUD();
+          }
+        } else if (isSolving && moveQueue.length === 0) {
+          isSolving = false;
+          moveHistory = [];
+          updateHUD();
+        }
+
+        if (timerState === 'running') {
+          elapsedTime = now - startTime;
+          timerDisplay.textContent = formatTime(elapsedTime);
+        }
+
+        render();
+        requestAnimationFrame(loop);
+      }
+
+      // --- 9. INTERAÇÃO POR TOQUE E MOUSE ---
+      function pointInPolygon(px, py, pts) {
+        let inside = false;
+        for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+          const xi = pts[i].x, yi = pts[i].y;
+          const xj = pts[j].x, yj = pts[j].y;
+          const intersect = ((yi > py) !== (yj > py)) &&
+            (px < (xj - xi) * (py - yi) / (yj - yi + 1e-9) + xi);
+          if (intersect) inside = !inside;
+        }
+        return inside;
+      }
+
+      function pickStickerAt(logicalX, logicalY) {
+        for (let i = renderedStickers.length - 1; i >= 0; i--) {
+          if (pointInPolygon(logicalX, logicalY, renderedStickers[i].points)) {
+            return renderedStickers[i];
+          }
+        }
+        return null;
+      }
+
+      let pointerState = null;
+
+      function getLogicalCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        };
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        canvas.setPointerCapture(e.pointerId);
+        const pt = getLogicalCoords(e);
+        const hit = !currentAnim ? pickStickerAt(pt.x, pt.y) : null;
+
+        pointerState = {
+          id: e.pointerId,
+          startX: pt.x,
+          startY: pt.y,
+          lastX: pt.x,
+          lastY: pt.y,
+          hitSticker: hit,
+          moved: false
+        };
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (!pointerState || pointerState.id !== e.pointerId) return;
+        const pt = getLogicalCoords(e);
+        const dx = pt.x - pointerState.startX;
+        const dy = pt.y - pointerState.startY;
+        const dist = Math.hypot(dx, dy);
+
+        // Arrasto sobre adesivo -> Gira camada correspondente (threshold > 12px)
+        if (pointerState.hitSticker) {
+          if (!pointerState.moved && dist > 12) {
+            pointerState.moved = true;
+            triggerSwipeLayerTurn(pointerState.hitSticker, dx, dy);
+          }
+          return;
+        }
+
+        // Arrasto no fundo -> Orbita a câmera livremente em 3D
+        const stepX = pt.x - pointerState.lastX;
+        const stepY = pt.y - pointerState.lastY;
+        pointerState.lastX = pt.x;
+        pointerState.lastY = pt.y;
+
+        const sensitivity = 0.0085;
+        camYaw -= stepX * sensitivity;
+        camPitch += stepY * sensitivity;
+        camPitch = Math.max(-Math.PI * 0.46, Math.min(Math.PI * 0.46, camPitch));
+      });
+
+      function endPointer(e) {
+        if (pointerState && pointerState.id === e.pointerId) {
+          pointerState = null;
+        }
+      }
+
+      canvas.addEventListener('pointerup', endPointer);
+      canvas.addEventListener('pointercancel', endPointer);
+
+      function triggerSwipeLayerTurn(sticker, dragDx, dragDy) {
+        const n = {
+          x: Math.round(sticker.worldNormal.x),
+          y: Math.round(sticker.worldNormal.y),
+          z: Math.round(sticker.worldNormal.z)
+        };
+        const pos = sticker.cubiePos;
+        const fovScale = Math.min(viewW, viewH) * 1.48;
+
+        const tangentAxes = ['x', 'y', 'z'].filter((ax) => n[ax] === 0);
+        const origin2D = projectPoint(worldToCamera(pos), viewW, viewH, fovScale);
+        const dragLen = Math.hypot(dragDx, dragDy) || 1;
+        const dragDir = { x: dragDx / dragLen, y: dragDy / dragLen };
+
+        let bestAxis = null;
+        let bestAlignment = -Infinity;
+        let moveSign = 1;
+
+        for (const tAxis of tangentAxes) {
+          const step3D = { ...pos };
+          step3D[tAxis] += 0.5;
+          const tip2D = projectPoint(worldToCamera(step3D), viewW, viewH, fovScale);
+
+          const screenVec = { x: tip2D.x - origin2D.x, y: tip2D.y - origin2D.y };
+          const sLen = Math.hypot(screenVec.x, screenVec.y) || 1;
+          const screenDir = { x: screenVec.x / sLen, y: screenVec.y / sLen };
+
+          const dot = dragDir.x * screenDir.x + dragDir.y * screenDir.y;
+          if (Math.abs(dot) > bestAlignment) {
+            bestAlignment = Math.abs(dot);
+            bestAxis = tAxis;
+            moveSign = dot >= 0 ? 1 : -1;
+          }
+        }
+
+        if (!bestAxis) return;
+
+        const dragVec3 = { x: 0, y: 0, z: 0 };
+        dragVec3[bestAxis] = moveSign;
+
+        const rotVec = Vec3.cross(n, dragVec3);
+        let rotAxis = 'x';
+        let rotDir = 1;
+
+        if (Math.abs(rotVec.x) > 0.5) { rotAxis = 'x'; rotDir = Math.sign(rotVec.x); }
+        else if (Math.abs(rotVec.y) > 0.5) { rotAxis = 'y'; rotDir = Math.sign(rotVec.y); }
+        else { rotAxis = 'z'; rotDir = Math.sign(rotVec.z); }
+
+        const layerIndex = Math.round(pos[rotAxis]);
+
+        enqueueStandardMove(
+          {
+            axis: rotAxis,
+            layer: layerIndex,
+            dir: rotDir
+          },
+          { duration: 170 }
+        );
+      }
+
+      // --- 10. AÇÕES DOS BOTÕES E ATALHOS ---
+      function scrambleCube() {
+        isSolving = false;
+        moveQueue = [];
+        currentAnim = null;
+        initCube();
+        moveHistory = [];
+        moveCount = 0;
+        elapsedTime = 0;
+        timerState = 'armed';
+        timerDisplay.textContent = '00:00.00';
+        updateHUD();
+
+        const faces = ['U', 'D', 'L', 'R', 'F', 'B'];
+        const suffixes = ['', "'"];
+        let prevFace = '';
+
+        for (let i = 0; i < 20; i++) {
+          let f;
+          do {
+            f = faces[Math.floor(Math.random() * faces.length)];
+          } while (f === prevFace);
+          prevFace = f;
+          const move = f + suffixes[Math.floor(Math.random() * suffixes.length)];
+          enqueueWCAMove(move, { duration: 55, isScramble: true, recordHistory: true });
+        }
+      }
+
+      function undoLastMove() {
+        if (moveHistory.length === 0) return;
+        cancelAutoSolveIfActive();
+        const last = moveHistory.pop();
+        enqueueStandardMove(
+          {
+            axis: last.axis,
+            layer: last.layer,
+            dir: -last.dir
+          },
+          { duration: 155, recordHistory: false, isUndo: true }
+        );
+        updateHUD();
+      }
+
+      function autoSolve() {
+        if (isSolving) return;
+
+        if (isCubeSolved()) {
+          isSolving = false;
+          moveHistory = [];
+          updateHUD();
+          return;
+        }
+
+        if (moveHistory.length === 0) {
+          isSolving = false;
+          updateHUD();
+          return;
+        }
+
+        moveQueue = moveQueue.filter((item) => !item.isSolve);
+        isSolving = true;
+        timerState = 'idle';
+        updateHUD();
+
+        while (moveHistory.length > 0) {
+          const last = moveHistory.pop();
+          enqueueStandardMove(
+            {
+              axis: last.axis,
+              layer: last.layer,
+              dir: -last.dir
+            },
+            { duration: 110, recordHistory: false, isSolve: true }
+          );
+        }
+
+        updateHUD();
+      }
+
+      function resetCube() {
+        isSolving = false;
+        moveQueue = [];
+        currentAnim = null;
+        initCube();
+        moveHistory = [];
+        moveCount = 0;
+        elapsedTime = 0;
+        timerState = 'idle';
+        timerDisplay.textContent = '00:00.00';
+        updateHUD();
+      }
+
+      document.getElementById('scrambleBtn').addEventListener('click', scrambleCube);
+      document.getElementById('undoBtn').addEventListener('click', undoLastMove);
+      document.getElementById('solveBtn').addEventListener('click', autoSolve);
+      document.getElementById('resetBtn').addEventListener('click', resetCube);
+
+      document.querySelectorAll('.move-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const mv = btn.getAttribute('data-move');
+          enqueueWCAMove(mv, { duration: 180 });
+        });
+      });
+
+      document.getElementById('cameraResetBtn').addEventListener('click', () => {
+        camYaw = DEFAULT_CAM.yaw;
+        camPitch = DEFAULT_CAM.pitch;
+      });
+
+      const soundToggleBtn = document.getElementById('soundToggleBtn');
+      soundToggleBtn.addEventListener('click', () => {
+        sound.muted = !sound.muted;
+        soundToggleBtn.textContent = sound.muted ? '🔇' : '🔊';
+      });
+
+      const themeToggleBtn = document.getElementById('themeToggleBtn');
+      themeToggleBtn.addEventListener('click', () => {
+        const html = document.documentElement;
+        const nextTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', nextTheme);
+        themeToggleBtn.textContent = nextTheme === 'light' ? '🌙' : '☀️';
+        render();
+      });
+
+      const helpModal = document.getElementById('helpModal');
+      document.getElementById('helpBtn').addEventListener('click', () => helpModal.classList.add('open'));
+      document.getElementById('closeHelpBtn').addEventListener('click', () => helpModal.classList.remove('open'));
+      helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) helpModal.classList.remove('open');
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (helpModal.classList.contains('open')) {
+          if (e.key === 'Escape') helpModal.classList.remove('open');
+          return;
+        }
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        const key = e.key.toUpperCase();
+        if (['U', 'D', 'L', 'R', 'F', 'B'].includes(key)) {
+          e.preventDefault();
+          enqueueWCAMove(e.shiftKey ? `${key}'` : key, { duration: 170 });
+        } else if (key === 'Z') {
+          e.preventDefault();
+          undoLastMove();
+        } else if (e.code === 'Space') {
+          e.preventDefault();
+          scrambleCube();
+        }
+      });
+
+      // --- 11. STARTUP SINCRONIZADO ---
+      initCube();
+      resizeCanvas();
+      loadBestTime();
+      updateHUD();
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>

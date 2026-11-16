@@ -252,6 +252,26 @@
       background: radial-gradient(circle at center, #1b2538 0%, #111827 74%, #090e1a 100%);
     }
 
+    .visual-paciencia {
+      background: radial-gradient(circle at center, #24683b 0%, #174c2a 72%, #0e331b 100%);
+    }
+
+    .visual-cubomagico {
+      background: radial-gradient(circle at center, #162033 0%, #0d1320 72%, #070b14 100%);
+    }
+
+    .visual-sudoku {
+      background: radial-gradient(circle at center, #1b2436 0%, #111726 74%, #0a0e18 100%);
+    }
+
+    .visual-dotsandboxes {
+      background: radial-gradient(circle at center, #1e293b 0%, #131a29 74%, #0b0f19 100%);
+    }
+
+    .visual-twodots {
+      background: radial-gradient(circle at center, #1f293d 0%, #141c2c 74%, #0b101b 100%);
+    }
+
     .record-badge {
       position: absolute;
       top: 12px;
@@ -424,7 +444,7 @@
   <main>
     <div class="toolbar">
       <div class="filters" role="tablist" aria-label="Filtrar jogos por categoria">
-        <button class="filter-pill active" data-filter="all" type="button">Todos (5)</button>
+        <button class="filter-pill active" data-filter="all" type="button">Todos (10)</button>
         <button class="filter-pill" data-filter="memoria" type="button">Memória &amp; Som</button>
         <button class="filter-pill" data-filter="tabuleiro" type="button">Raciocínio &amp; Tabuleiro</button>
         <button class="filter-pill" data-filter="puzzle" type="button">Estratégia &amp; Lógica</button>
@@ -693,28 +713,18 @@
           <span class="category-tag">Estratégia &amp; Lógica</span>
           <span class="record-badge" id="badge-campominado">🏆 Recorde: <strong id="score-campominado">0s</strong></span>
           <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Campo Minado Pro">
-            <!-- Carcaça do tabuleiro Dark Moderno fiel à imagem inicial -->
             <rect x="28" y="14" width="144" height="172" rx="14" fill="#1e293b" stroke="#334155" stroke-width="3" />
-
-            <!-- Painel superior: contador 010, botão smile e contador 000 -->
             <rect x="38" y="24" width="34" height="18" rx="4" fill="#090d16" stroke="#334155" stroke-width="1.5" />
             <text x="55" y="37" text-anchor="middle" fill="#ef4444" font-family="'Courier New', monospace" font-weight="900" font-size="13" letter-spacing="1">010</text>
-
             <rect x="89" y="22" width="22" height="22" rx="6" fill="#293548" stroke="#475569" stroke-width="1.5" />
             <circle cx="100" cy="33" r="6.5" fill="#fbbf24" />
             <path d="M 97.2 31.5 Q 98.2 30.3 99.2 31.5" fill="none" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round" />
             <path d="M 100.8 31.5 Q 101.8 30.3 102.8 31.5" fill="none" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round" />
             <path d="M 97.5 34.5 Q 100 37 102.5 34.5" fill="none" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round" />
-
             <rect x="128" y="24" width="34" height="18" rx="4" fill="#090d16" stroke="#334155" stroke-width="1.5" />
             <text x="145" y="37" text-anchor="middle" fill="#ef4444" font-family="'Courier New', monospace" font-weight="900" font-size="13" letter-spacing="1">000</text>
-
-            <!-- Grade 9x9 fiel à imagem inicial (com toque sutil de clareira/bandeira para leitura visual imediata) -->
             <g transform="translate(38, 50)">
-              <!-- Fundo da grade -->
               <rect x="-2" y="-2" width="128" height="128" rx="6" fill="#0f172a" />
-              <!-- Células 9x9 (13px cada + 1px gap = 14px passo) -->
-              <!-- Linha 0 -->
               <rect x="0" y="0" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="0" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="0" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -724,7 +734,6 @@
               <rect x="84" y="0" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="0" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="0" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 1 -->
               <rect x="0" y="14" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="14" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="14" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -734,7 +743,6 @@
               <rect x="84" y="14" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="14" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="14" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 2 -->
               <rect x="0" y="28" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="28" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="28" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -744,7 +752,6 @@
               <rect x="84" y="28" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="28" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="28" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 3 -->
               <rect x="0" y="42" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="42" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="42" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -754,7 +761,6 @@
               <rect x="84" y="42" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="42" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="42" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 4 -->
               <rect x="0" y="56" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="56" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="56" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -764,7 +770,6 @@
               <rect x="84" y="56" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="56" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="56" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 5 -->
               <rect x="0" y="70" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="70" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="70" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -774,7 +779,6 @@
               <rect x="84" y="70" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="70" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="70" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 6 -->
               <rect x="0" y="84" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="84" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="84" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -784,7 +788,6 @@
               <rect x="84" y="84" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="84" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="84" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 7 -->
               <rect x="0" y="98" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="98" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="98" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -794,7 +797,6 @@
               <rect x="84" y="98" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="98" y="98" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="112" y="98" width="12.5" height="12.5" rx="2" fill="#334155" />
-              <!-- Linha 8 -->
               <rect x="0" y="112" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="14" y="112" width="12.5" height="12.5" rx="2" fill="#334155" />
               <rect x="28" y="112" width="12.5" height="12.5" rx="2" fill="#334155" />
@@ -820,6 +822,507 @@
             <span class="tech-tag">Single-File</span>
           </div>
           <a class="play-btn" href="./campo-minado/" data-play>
+            <span>▶ Jogar Agora</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Card 6: Paciência Clássica (Klondike Solitaire) -->
+      <article class="game-card" data-category="tabuleiro" data-keywords="paciencia classica klondike solitaire cartas baralho naipes bfs deadlock">
+        <div class="card-visual visual-paciencia">
+          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
+          <span class="record-badge" id="badge-paciencia">🏆 Recorde: <strong id="score-paciencia">0 pts</strong></span>
+          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Paciência Clássica">
+            <defs>
+              <pattern id="cardBackPattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                <rect width="6" height="6" fill="#3b52c4" />
+                <path d="M 0 0 L 6 0 M 0 0 L 0 6" stroke="#6078ea" stroke-width="1.2" />
+              </pattern>
+            </defs>
+
+            <rect x="14" y="16" width="32" height="44" rx="5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1.8" />
+            <rect x="31" y="49" width="13" height="9" rx="4.5" fill="#0f172a" />
+            <text x="37.5" y="55.8" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="800" font-size="6.5">24</text>
+
+            <g fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.28)" stroke-width="1.2" stroke-dasharray="2.5 1.5">
+              <rect x="86" y="16" width="22" height="32" rx="4" />
+              <rect x="112" y="16" width="22" height="32" rx="4" />
+              <rect x="138" y="16" width="22" height="32" rx="4" />
+              <rect x="164" y="16" width="22" height="32" rx="4" />
+            </g>
+            <g fill="rgba(255,255,255,0.35)" font-family="Arial, sans-serif" font-size="11" text-anchor="middle">
+              <text x="97" y="36">♠</text>
+              <text x="123" y="36">♥</text>
+              <text x="149" y="36">♣</text>
+              <text x="175" y="36">♦</text>
+            </g>
+
+            <g transform="translate(14, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="9" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">10</text>
+              <text x="4" y="16" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♠</text>
+              <text x="11" y="25" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♠</text>
+            </g>
+
+            <g transform="translate(39, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="5" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="14" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">8</text>
+              <text x="3.5" y="21" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♣</text>
+              <text x="11" y="30" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♣</text>
+            </g>
+
+            <g transform="translate(64, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="9" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="18" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">2</text>
+              <text x="3.5" y="25" fill="#dc2626" font-family="Arial, sans-serif" font-size="7">♦</text>
+              <text x="11" y="34" text-anchor="middle" fill="#dc2626" font-family="Arial, sans-serif" font-size="13">♦</text>
+            </g>
+
+            <g transform="translate(89, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="13" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="22" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">10</text>
+              <text x="3.5" y="29" fill="#dc2626" font-family="Arial, sans-serif" font-size="7">♦</text>
+              <text x="11" y="38" text-anchor="middle" fill="#dc2626" font-family="Arial, sans-serif" font-size="13">♦</text>
+            </g>
+
+            <g transform="translate(114, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="12" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="17" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="26" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">9</text>
+              <text x="3.5" y="33" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♠</text>
+              <text x="11" y="42" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♠</text>
+            </g>
+
+            <g transform="translate(139, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="12" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="16" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="21" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="30" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">10</text>
+              <text x="3.5" y="37" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♣</text>
+              <text x="11" y="46" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♣</text>
+            </g>
+
+            <g transform="translate(164, 72)">
+              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="12" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="16" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="20" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
+              <rect x="0" y="25" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
+              <text x="3" y="34" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">K</text>
+              <text x="3.5" y="41" fill="#dc2626" font-family="Arial, sans-serif" font-size="7">♦</text>
+              <rect x="6" y="35" width="11" height="16" rx="1.5" fill="none" stroke="#dc2626" stroke-width="0.7" />
+              <text x="11.5" y="46" text-anchor="middle" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="9">K</text>
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h2>Paciência Clássica</h2>
+          </div>
+          <p class="card-desc">
+            Klondike Solitaire completo em layout zero-scroll com clique automático, Drag-and-Drop, compra de 1 ou 3 cartas, detector BFS de impasses e dicas inteligentes.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Deadlock Solver BFS</span>
+            <span class="tech-tag">Zero-Scroll</span>
+            <span class="tech-tag">Single-File</span>
+          </div>
+          <a class="play-btn" href="./paciencia/" data-play>
+            <span>▶ Jogar Agora</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Card 7: Cubo Mágico 3x3 -->
+      <article class="game-card" data-category="puzzle" data-keywords="cubo magico 3x3 rubik speedcubing 3d canvas wca rotacao">
+        <div class="card-visual visual-cubomagico">
+          <span class="category-tag">Estratégia &amp; Lógica</span>
+          <span class="record-badge" id="badge-cubomagico">🏆 Recorde: <strong id="score-cubomagico">--:--</strong></span>
+          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Cubo Mágico 3x3">
+            <!-- Face Superior (Branco) -->
+            <g stroke="#0f172a" stroke-width="2.4" stroke-linejoin="round">
+              <polygon points="100,22 124,33 100,44 76,33" fill="#ffffff" />
+              <polygon points="124,33 148,44 124,55 100,44" fill="#ffffff" />
+              <polygon points="148,44 172,55 148,66 124,55" fill="#ffffff" />
+              <polygon points="76,33 100,44 76,55 52,44" fill="#ffffff" />
+              <polygon points="100,44 124,55 100,66 76,55" fill="#ffffff" />
+              <polygon points="124,55 148,66 124,77 100,66" fill="#ffffff" />
+              <polygon points="52,44 76,55 52,66 28,55" fill="#ffffff" />
+              <polygon points="76,55 100,66 76,77 52,66" fill="#ffffff" />
+              <polygon points="100,66 124,77 100,88 76,77" fill="#f8fafc" />
+            </g>
+
+            <!-- Face Esquerda (Verde) -->
+            <g stroke="#0f172a" stroke-width="2.4" stroke-linejoin="round">
+              <polygon points="28,55 52,66 52,96 28,85" fill="#16a34a" />
+              <polygon points="52,66 76,77 76,107 52,96" fill="#16a34a" />
+              <polygon points="76,77 100,88 100,118 76,107" fill="#22c55e" />
+              <polygon points="28,85 52,96 52,126 28,115" fill="#15803d" />
+              <polygon points="52,96 76,107 76,137 52,126" fill="#16a34a" />
+              <polygon points="76,107 100,118 100,148 76,137" fill="#16a34a" />
+              <polygon points="28,115 52,126 52,156 28,145" fill="#15803d" />
+              <polygon points="52,126 76,137 76,167 52,156" fill="#15803d" />
+              <polygon points="76,137 100,148 100,178 76,167" fill="#16a34a" />
+            </g>
+
+            <!-- Face Direita (Vermelho) -->
+            <g stroke="#0f172a" stroke-width="2.4" stroke-linejoin="round">
+              <polygon points="100,88 124,77 124,107 100,118" fill="#dc2626" />
+              <polygon points="124,77 148,66 148,96 124,107" fill="#b91c1c" />
+              <polygon points="148,66 172,55 172,85 148,96" fill="#b91c1c" />
+              <polygon points="100,118 124,107 124,137 100,148" fill="#b91c1c" />
+              <polygon points="124,107 148,96 148,126 124,137" fill="#b91c1c" />
+              <polygon points="148,96 172,85 172,115 148,126" fill="#991b1b" />
+              <polygon points="100,148 124,137 124,167 100,178" fill="#b91c1c" />
+              <polygon points="124,137 148,126 148,156 124,167" fill="#991b1b" />
+              <polygon points="148,126 172,115 172,145 148,156" fill="#991b1b" />
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h2>Cubo Mágico 3x3</h2>
+          </div>
+          <p class="card-desc">
+            Simulador 3D interativo com motor próprio em Canvas 2D, rotação livre em 360°, notação oficial WCA, cronômetro de speedcubing e resolução automática passo a passo.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Canvas 3D Engine</span>
+            <span class="tech-tag">Notação WCA</span>
+            <span class="tech-tag">Single-File</span>
+          </div>
+          <a class="play-btn" href="./cubo-magico/" data-play>
+            <span>▶ Jogar Agora</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Card 8: Sudoku Pro -->
+      <article class="game-card" data-category="puzzle" data-keywords="sudoku pro numeros grade 9x9 logica backtracking lapis dicas">
+        <div class="card-visual visual-sudoku">
+          <span class="category-tag">Estratégia &amp; Lógica</span>
+          <span class="record-badge" id="badge-sudoku">🏆 Recorde: <strong id="score-sudoku">--:--</strong></span>
+          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Sudoku Pro">
+            <rect x="19" y="19" width="162" height="162" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2.4" />
+
+            <rect x="20" y="91" width="160" height="18" fill="rgba(59, 130, 246, 0.14)" />
+            <rect x="91" y="20" width="18" height="160" fill="rgba(59, 130, 246, 0.14)" />
+            <rect x="73" y="73" width="54" height="54" fill="rgba(59, 130, 246, 0.10)" />
+            <rect x="91" y="91" width="18" height="18" fill="#3b6ea5" />
+
+            <g stroke="#334155" stroke-width="1">
+              <line x1="37" y1="19" x2="37" y2="181" />
+              <line x1="55" y1="19" x2="55" y2="181" />
+              <line x1="91" y1="19" x2="91" y2="181" />
+              <line x1="109" y1="19" x2="109" y2="181" />
+              <line x1="145" y1="19" x2="145" y2="181" />
+              <line x1="163" y1="19" x2="163" y2="181" />
+
+              <line x1="19" y1="37" x2="181" y2="37" />
+              <line x1="19" y1="55" x2="181" y2="55" />
+              <line x1="19" y1="91" x2="181" y2="91" />
+              <line x1="19" y1="109" x2="181" y2="109" />
+              <line x1="19" y1="145" x2="181" y2="145" />
+              <line x1="19" y1="163" x2="181" y2="163" />
+            </g>
+
+            <g stroke="#94a3b8" stroke-width="2">
+              <line x1="73" y1="19" x2="73" y2="181" />
+              <line x1="127" y1="19" x2="127" y2="181" />
+              <line x1="19" y1="73" x2="181" y2="73" />
+              <line x1="19" y1="127" x2="181" y2="127" />
+            </g>
+
+            <g fill="#f1f5f9" font-family="Arial, sans-serif" font-weight="800" font-size="11.5" text-anchor="middle">
+              <text x="46" y="32">5</text>
+              <text x="82" y="32">4</text>
+              <text x="136" y="32">8</text>
+              <text x="154" y="32">9</text>
+              <text x="28" y="50">4</text>
+              <text x="46" y="50">6</text>
+              <text x="136" y="50">7</text>
+              <text x="172" y="50">5</text>
+              <text x="28" y="68">1</text>
+              <text x="46" y="68">9</text>
+              <text x="100" y="68">3</text>
+              <text x="28" y="86">6</text>
+              <text x="46" y="86">8</text>
+              <text x="118" y="86">5</text>
+              <text x="136" y="86">9</text>
+              <text x="46" y="104">4</text>
+              <text x="82" y="104">9</text>
+              <text x="118" y="104">3</text>
+              <text x="154" y="104">5</text>
+              <text x="64" y="122">5</text>
+              <text x="82" y="122">8</text>
+              <text x="154" y="122">1</text>
+              <text x="172" y="122">3</text>
+              <text x="100" y="140">5</text>
+              <text x="154" y="140">4</text>
+              <text x="172" y="140">9</text>
+              <text x="28" y="158">2</text>
+              <text x="64" y="158">9</text>
+              <text x="154" y="158">8</text>
+              <text x="172" y="158">7</text>
+              <text x="46" y="176">1</text>
+              <text x="64" y="176">4</text>
+              <text x="118" y="176">8</text>
+              <text x="154" y="176">2</text>
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h2>Sudoku Pro</h2>
+          </div>
+          <p class="card-desc">
+            Tabuleiros gerados com solução única garantida por Backtracking, 4 níveis de dificuldade, modo lápis inteligente com limpeza automática e dicas pedagógicas.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Backtracking</span>
+            <span class="tech-tag">Dicas Lógicas</span>
+            <span class="tech-tag">Single-File</span>
+          </div>
+          <a class="play-btn" href="./sudoku/" data-play>
+            <span>▶ Jogar Agora</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Card 9: Dots & Boxes (Jogo dos Pontinhos) -->
+      <article class="game-card" data-category="tabuleiro" data-keywords="dots and boxes pontinhos caixas quadrados ia svg 2 jogadores">
+        <div class="card-visual visual-dotsandboxes">
+          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
+          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Dots & Boxes">
+            <rect x="20" y="20" width="160" height="160" rx="14" fill="#172033" stroke="#2c3a52" stroke-width="2" />
+
+            <g stroke="#293549" stroke-width="4" stroke-linecap="round">
+              <line x1="35" y1="35" x2="165" y2="35" />
+              <line x1="35" y1="61" x2="165" y2="61" />
+              <line x1="35" y1="87" x2="165" y2="87" />
+              <line x1="35" y1="113" x2="165" y2="113" />
+              <line x1="35" y1="139" x2="165" y2="139" />
+              <line x1="35" y1="165" x2="165" y2="165" />
+              <line x1="35" y1="35" x2="35" y2="165" />
+              <line x1="61" y1="35" x2="61" y2="165" />
+              <line x1="87" y1="35" x2="87" y2="165" />
+              <line x1="113" y1="35" x2="113" y2="165" />
+              <line x1="139" y1="35" x2="139" y2="165" />
+              <line x1="165" y1="35" x2="165" y2="165" />
+            </g>
+
+            <g fill="#e2e8f0">
+              <circle cx="35" cy="35" r="4.2" />
+              <circle cx="61" cy="35" r="4.2" />
+              <circle cx="87" cy="35" r="4.2" />
+              <circle cx="113" cy="35" r="4.2" />
+              <circle cx="139" cy="35" r="4.2" />
+              <circle cx="165" cy="35" r="4.2" />
+              <circle cx="35" cy="61" r="4.2" />
+              <circle cx="61" cy="61" r="4.2" />
+              <circle cx="87" cy="61" r="4.2" />
+              <circle cx="113" cy="61" r="4.2" />
+              <circle cx="139" cy="61" r="4.2" />
+              <circle cx="165" cy="61" r="4.2" />
+              <circle cx="35" cy="87" r="4.2" />
+              <circle cx="61" cy="87" r="4.2" />
+              <circle cx="87" cy="87" r="4.2" />
+              <circle cx="113" cy="87" r="4.2" />
+              <circle cx="139" cy="87" r="4.2" />
+              <circle cx="165" cy="87" r="4.2" />
+              <circle cx="35" cy="113" r="4.2" />
+              <circle cx="61" cy="113" r="4.2" />
+              <circle cx="87" cy="113" r="4.2" />
+              <circle cx="113" cy="113" r="4.2" />
+              <circle cx="139" cy="113" r="4.2" />
+              <circle cx="165" cy="113" r="4.2" />
+              <circle cx="35" cy="139" r="4.2" />
+              <circle cx="61" cy="139" r="4.2" />
+              <circle cx="87" cy="139" r="4.2" />
+              <circle cx="113" cy="139" r="4.2" />
+              <circle cx="139" cy="139" r="4.2" />
+              <circle cx="165" cy="139" r="4.2" />
+              <circle cx="35" cy="165" r="4.2" />
+              <circle cx="61" cy="165" r="4.2" />
+              <circle cx="87" cy="165" r="4.2" />
+              <circle cx="113" cy="165" r="4.2" />
+              <circle cx="139" cy="165" r="4.2" />
+              <circle cx="165" cy="165" r="4.2" />
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h2>Dots &amp; Boxes</h2>
+          </div>
+          <p class="card-desc">
+            O clássico Jogo dos Pontinhos com modo solo contra IA em 3 níveis (com análise de cadeias) ou 2 jogadores locais, grades de 3×3 a 7×7 e renderização vetorial em SVG.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">SVG Dinâmico</span>
+            <span class="tech-tag">IA Heurística</span>
+            <span class="tech-tag">Single-File</span>
+          </div>
+          <a class="play-btn" href="./dots-and-bokes/" data-play>
+            <span>▶ Jogar Agora</span>
+          </a>
+        </div>
+      </article>
+
+      <!-- Card 10: Two Dots — Puzzle de Conexões -->
+      <article class="game-card" data-category="puzzle" data-keywords="two dots puzzle conexoes pontos cores loop quadrado gravidade">
+        <div class="card-visual visual-twodots">
+          <span class="category-tag">Estratégia &amp; Lógica</span>
+          <span class="record-badge" id="badge-twodots">🏆 Recorde: <strong id="score-twodots">0</strong></span>
+          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Two Dots">
+            <defs>
+              <radialGradient id="dotPurple" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#c4a5ff" />
+                <stop offset="55%" stop-color="#a78bfa" />
+                <stop offset="100%" stop-color="#7c3aed" />
+              </radialGradient>
+              <radialGradient id="dotCoral" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#ffa89e" />
+                <stop offset="55%" stop-color="#f87171" />
+                <stop offset="100%" stop-color="#dc2626" />
+              </radialGradient>
+              <radialGradient id="dotBlue" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#a5d0ff" />
+                <stop offset="55%" stop-color="#60a5fa" />
+                <stop offset="100%" stop-color="#2563eb" />
+              </radialGradient>
+              <radialGradient id="dotGreen" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#9cf2c8" />
+                <stop offset="55%" stop-color="#4ade80" />
+                <stop offset="100%" stop-color="#16a34a" />
+              </radialGradient>
+              <radialGradient id="dotYellow" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#fde68a" />
+                <stop offset="55%" stop-color="#fbbf24" />
+                <stop offset="100%" stop-color="#d97706" />
+              </radialGradient>
+            </defs>
+
+            <!-- Cartão escuro da grade 6x6 fiel à captura de tela inicial -->
+            <rect x="18" y="18" width="164" height="164" rx="16" fill="#1e2738" stroke="#313f59" stroke-width="2" />
+
+            <!-- Grade 6x6 de pontos coloridos (centros: 36, 61.6, 87.2, 112.8, 138.4, 164) -->
+            <!-- Linha 0: Roxo, Coral, Azul, Roxo, Roxo, Roxo -->
+            <circle cx="36" cy="36" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="61.6" cy="36" r="8.2" fill="url(#dotCoral)" />
+            <circle cx="87.2" cy="36" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="112.8" cy="36" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="138.4" cy="36" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="164" cy="36" r="8.2" fill="url(#dotPurple)" />
+
+            <!-- Linha 1: Verde, Verde, Amarelo, Amarelo, Azul, Amarelo -->
+            <circle cx="36" cy="61.6" r="8.2" fill="url(#dotGreen)" />
+            <circle cx="61.6" cy="61.6" r="8.2" fill="url(#dotGreen)" />
+            <circle cx="87.2" cy="61.6" r="8.2" fill="url(#dotYellow)" />
+            <circle cx="112.8" cy="61.6" r="8.2" fill="url(#dotYellow)" />
+            <circle cx="138.4" cy="61.6" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="164" cy="61.6" r="8.2" fill="url(#dotYellow)" />
+
+            <!-- Linha 2: Azul, Verde, Roxo, Azul, Coral, Verde -->
+            <circle cx="36" cy="87.2" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="61.6" cy="87.2" r="8.2" fill="url(#dotGreen)" />
+            <circle cx="87.2" cy="87.2" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="112.8" cy="87.2" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="138.4" cy="87.2" r="8.2" fill="url(#dotCoral)" />
+            <circle cx="164" cy="87.2" r="8.2" fill="url(#dotGreen)" />
+
+            <!-- Linha 3: Roxo, Azul, Azul, Azul, Coral, Coral -->
+            <circle cx="36" cy="112.8" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="61.6" cy="112.8" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="87.2" cy="112.8" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="112.8" cy="112.8" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="138.4" cy="112.8" r="8.2" fill="url(#dotCoral)" />
+            <circle cx="164" cy="112.8" r="8.2" fill="url(#dotCoral)" />
+
+            <!-- Linha 4: Azul, Amarelo, Coral, Azul, Coral, Verde -->
+            <circle cx="36" cy="138.4" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="61.6" cy="138.4" r="8.2" fill="url(#dotYellow)" />
+            <circle cx="87.2" cy="138.4" r="8.2" fill="url(#dotCoral)" />
+            <circle cx="112.8" cy="138.4" r="8.2" fill="url(#dotBlue)" />
+            <circle cx="138.4" cy="138.4" r="8.2" fill="url(#dotCoral)" />
+            <circle cx="164" cy="138.4" r="8.2" fill="url(#dotGreen)" />
+
+            <!-- Linha 5: Coral, Roxo, Amarelo, Amarelo, Roxo, Amarelo -->
+            <circle cx="36" cy="164" r="8.2" fill="url(#dotCoral)" />
+            <circle cx="61.6" cy="164" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="87.2" cy="164" r="8.2" fill="url(#dotYellow)" />
+            <circle cx="112.8" cy="164" r="8.2" fill="url(#dotYellow)" />
+            <circle cx="138.4" cy="164" r="8.2" fill="url(#dotPurple)" />
+            <circle cx="164" cy="164" r="8.2" fill="url(#dotYellow)" />
+
+            <!-- Reflexos especulares sutis nos pontos -->
+            <g fill="rgba(255,255,255,0.45)">
+              <circle cx="33.2" cy="33.2" r="2.1" />
+              <circle cx="58.8" cy="33.2" r="2.1" />
+              <circle cx="84.4" cy="33.2" r="2.1" />
+              <circle cx="110" cy="33.2" r="2.1" />
+              <circle cx="135.6" cy="33.2" r="2.1" />
+              <circle cx="161.2" cy="33.2" r="2.1" />
+              <circle cx="33.2" cy="58.8" r="2.1" />
+              <circle cx="58.8" cy="58.8" r="2.1" />
+              <circle cx="84.4" cy="58.8" r="2.1" />
+              <circle cx="110" cy="58.8" r="2.1" />
+              <circle cx="135.6" cy="58.8" r="2.1" />
+              <circle cx="161.2" cy="58.8" r="2.1" />
+              <circle cx="33.2" cy="84.4" r="2.1" />
+              <circle cx="58.8" cy="84.4" r="2.1" />
+              <circle cx="84.4" cy="84.4" r="2.1" />
+              <circle cx="110" cy="84.4" r="2.1" />
+              <circle cx="135.6" cy="84.4" r="2.1" />
+              <circle cx="161.2" cy="84.4" r="2.1" />
+              <circle cx="33.2" cy="110" r="2.1" />
+              <circle cx="58.8" cy="110" r="2.1" />
+              <circle cx="84.4" cy="110" r="2.1" />
+              <circle cx="110" cy="110" r="2.1" />
+              <circle cx="135.6" cy="110" r="2.1" />
+              <circle cx="161.2" cy="110" r="2.1" />
+              <circle cx="33.2" cy="135.6" r="2.1" />
+              <circle cx="58.8" cy="135.6" r="2.1" />
+              <circle cx="84.4" cy="135.6" r="2.1" />
+              <circle cx="110" cy="135.6" r="2.1" />
+              <circle cx="135.6" cy="135.6" r="2.1" />
+              <circle cx="161.2" cy="135.6" r="2.1" />
+              <circle cx="33.2" cy="161.2" r="2.1" />
+              <circle cx="58.8" cy="161.2" r="2.1" />
+              <circle cx="84.4" cy="161.2" r="2.1" />
+              <circle cx="110" cy="161.2" r="2.1" />
+              <circle cx="135.6" cy="161.2" r="2.1" />
+              <circle cx="161.2" cy="161.2" r="2.1" />
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h2>Two Dots</h2>
+          </div>
+          <p class="card-desc">
+            Conecte pontos adjacentes da mesma cor ou feche quadrados (loops) para eliminar toda a cor do tabuleiro. Inclui modos de 30 movimentos, 60 segundos e Zen.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">Grafos &amp; Loops</span>
+            <span class="tech-tag">3 Modos</span>
+            <span class="tech-tag">Single-File</span>
+          </div>
+          <a class="play-btn" href="./two-dots/" data-play>
             <span>▶ Jogar Agora</span>
           </a>
         </div>
@@ -927,6 +1430,81 @@
         if (bestMineTime !== null) {
           document.getElementById('score-campominado').textContent = bestMineTime + 's';
           document.getElementById('badge-campominado').classList.add('visible');
+        }
+
+        // Melhor pontuação da Paciência Clássica
+        let bestSolitaireScore = null;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('paciencia') || key.includes('solitaire') || key.includes('klondike'))) {
+            const val = Number(localStorage.getItem(key));
+            if (!Number.isNaN(val) && val > 0 && (bestSolitaireScore === null || val > bestSolitaireScore)) {
+              bestSolitaireScore = val;
+            }
+          }
+        }
+        if (bestSolitaireScore !== null) {
+          document.getElementById('score-paciencia').textContent = bestSolitaireScore + ' pts';
+          document.getElementById('badge-paciencia').classList.add('visible');
+        }
+
+        // Melhor tempo do Cubo Mágico 3x3
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('cubo') || key.includes('rubik'))) {
+            const raw = localStorage.getItem(key);
+            if (raw && raw !== 'null' && raw !== '0') {
+              const num = Number(raw);
+              if (!Number.isNaN(num) && num > 0) {
+                const totalSec = num > 1000 ? num / 1000 : num;
+                const mins = Math.floor(totalSec / 60);
+                const secs = (totalSec % 60).toFixed(2).padStart(5, '0');
+                document.getElementById('score-cubomagico').textContent =
+                  (mins > 0 ? String(mins).padStart(2, '0') + ':' : '') + secs + 's';
+                document.getElementById('badge-cubomagico').classList.add('visible');
+                break;
+              } else if (typeof raw === 'string' && raw.includes(':')) {
+                document.getElementById('score-cubomagico').textContent = raw;
+                document.getElementById('badge-cubomagico').classList.add('visible');
+                break;
+              }
+            }
+          }
+        }
+
+        // Melhor tempo do Sudoku Pro
+        let bestSudokuSec = null;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.includes('sudoku')) {
+            const raw = localStorage.getItem(key);
+            const val = Number(raw);
+            if (!Number.isNaN(val) && val > 0 && (bestSudokuSec === null || val < bestSudokuSec)) {
+              bestSudokuSec = val;
+            }
+          }
+        }
+        if (bestSudokuSec !== null) {
+          const m = String(Math.floor(bestSudokuSec / 60)).padStart(2, '0');
+          const s = String(bestSudokuSec % 60).padStart(2, '0');
+          document.getElementById('score-sudoku').textContent = `${m}:${s}`;
+          document.getElementById('badge-sudoku').classList.add('visible');
+        }
+
+        // Melhor pontuação do Two Dots
+        let bestTwoDots = null;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('twodots') || key.includes('two_dots') || key.includes('two-dots'))) {
+            const val = Number(localStorage.getItem(key));
+            if (!Number.isNaN(val) && val > 0 && (bestTwoDots === null || val > bestTwoDots)) {
+              bestTwoDots = val;
+            }
+          }
+        }
+        if (bestTwoDots !== null) {
+          document.getElementById('score-twodots').textContent = bestTwoDots + ' pts';
+          document.getElementById('badge-twodots').classList.add('visible');
         }
       } catch (e) {}
 

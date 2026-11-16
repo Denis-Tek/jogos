@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dots & Boxes — Jogo dos Pontinhos</title>
+  <style>
+    /* Variáveis de Tema (Claro e Escuro) */
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface-alt: #eef1f6;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --dot: #334155;
+      --line-empty: rgba(148, 163, 184, 0.24);
+      --line-hover: rgba(100, 116, 139, 0.55);
+
+      --p1: #2563eb;
+      --p1-soft: rgba(37, 99, 235, 0.18);
+      --p2: #e11d48;
+      --p2-soft: rgba(225, 29, 72, 0.18);
+
+      --last-move-glow: #f59e0b;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-alt: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #475569;
+      --dot: #e2e8f0;
+      --line-empty: rgba(148, 163, 184, 0.16);
+      --line-hover: rgba(226, 232, 240, 0.45);
+
+      --p1: #3b82f6;
+      --p1-soft: rgba(59, 130, 246, 0.26);
+      --p2: #f43f5e;
+      --p2-soft: rgba(244, 63, 94, 0.26);
+
+      --last-move-glow: #fbbf24;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100dvh;
+      width: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    .app {
+      height: 100dvh;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Cabeçalho */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .title-group h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      transition: transform 0.12s ease, background 0.2s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* Barra de Configurações */
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      background: var(--surface);
+      padding: 8px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .control-group label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      padding-left: 2px;
+    }
+
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+
+    select:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* Placar */
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .player-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.22s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .player-card.p1.active {
+      border-color: var(--p1);
+      background: var(--p1-soft);
+      transform: translateY(-2px);
+    }
+
+    .player-card.p2.active {
+      border-color: var(--p2);
+      background: var(--p2-soft);
+      transform: translateY(-2px);
+    }
+
+    .player-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .player-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .p1 .badge-dot { background: var(--p1); }
+    .p2 .badge-dot { background: var(--p2); }
+
+    .turn-hint {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .player-score {
+      font-size: 1.55rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .p1 .player-score { color: var(--p1); }
+    .p2 .player-score { color: var(--p2); }
+
+    .status-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 4px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* Área do Tabuleiro SVG */
+    .board-wrapper {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    svg#board {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      touch-action: manipulation;
+      overflow: visible;
+    }
+
+    /* Elementos SVG */
+    .box-rect {
+      transition: fill 0.25s ease, opacity 0.25s ease;
+    }
+
+    .box-label {
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .box-label.claimed {
+      opacity: 1;
+      animation: popIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .edge-visual {
+      stroke-linecap: round;
+      transition: stroke 0.18s ease, stroke-width 0.18s ease;
+      pointer-events: none;
+    }
+
+    .edge-hit {
+      stroke: transparent;
+      stroke-linecap: round;
+      cursor: pointer;
+    }
+
+    .edge-group:hover .edge-visual.available {
+      stroke: var(--line-hover);
+    }
+
+    .edge-visual.last-move {
+      filter: drop-shadow(0 0 6px var(--last-move-glow));
+    }
+
+    .dot-circle {
+      fill: var(--dot);
+      pointer-events: none;
+      transition: fill 0.25s ease;
+    }
+
+    /* Rodapé */
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-line {
+      width: 18px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--p1);
+      box-shadow: 0 0 6px var(--last-move-glow);
+    }
+
+    /* Modal de Fim de Jogo */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-emoji {
+      font-size: 2.8rem;
+      margin-bottom: 8px;
+    }
+
+    .modal h2 {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+    }
+
+    .modal p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+    }
+
+    .final-scores {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .final-box {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      background: var(--surface-alt);
+    }
+
+    .final-box span {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .final-box strong {
+      font-size: 1.6rem;
+      font-weight: 800;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--p1);
+      color: #ffffff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    @media (max-width: 420px) {
+      .app { padding: 10px 10px; gap: 8px; }
+      .title-group h1 { font-size: 1.1rem; }
+      .player-card { padding: 6px 10px; }
+      .player-score { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title-group">
+        <h1>Dots &amp; Boxes</h1>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="soundBtn" title="Alternar Som" aria-label="Alternar Som">🔊</button>
+        <button class="icon-btn" id="themeBtn" title="Alternar Tema" aria-label="Alternar Tema">☀️</button>
+        <button class="icon-btn" id="restartBtn" title="Nova Partida" aria-label="Nova Partida">🔄</button>
+      </div>
+    </header>
+
+    <section class="controls" aria-label="Configurações da Partida">
+      <div class="control-group">
+        <label for="modeSelect">Modo</label>
+        <select id="modeSelect">
+          <option value="pve" selected>1P vs IA</option>
+          <option value="pvp">2 Jogadores</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="diffSelect">Dificuldade IA</label>
+        <select id="diffSelect">
+          <option value="easy">Fácil</option>
+          <option value="medium" selected>Médio</option>
+          <option value="hard">Difícil</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="sizeSelect">Grade (Caixas)</label>
+        <select id="sizeSelect">
+          <option value="3">3 × 3 (Rápido)</option>
+          <option value="5" selected>5 × 5 (Clássico)</option>
+          <option value="7">7 × 7 (Grande)</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="scoreboard">
+      <div class="player-card p1 active" id="cardP1">
+        <div class="player-info">
+          <div class="player-name"><span class="badge-dot"></span><span id="nameP1">Você</span></div>
+          <div class="turn-hint" id="hintP1">Sua vez</div>
+        </div>
+        <div class="player-score" id="scoreP1">0</div>
+      </div>
+
+      <div class="status-pill" id="remainingPill">25 caixas</div>
+
+      <div class="player-card p2" id="cardP2">
+        <div class="player-info">
+          <div class="player-name"><span class="badge-dot"></span><span id="nameP2">IA (Médio)</span></div>
+          <div class="turn-hint" id="hintP2">Aguardando</div>
+        </div>
+        <div class="player-score" id="scoreP2">0</div>
+      </div>
+    </section>
+
+    <main class="board-wrapper">
+      <svg id="board" viewBox="0 0 500 500" aria-label="Tabuleiro Dots and Boxes"></svg>
+    </main>
+
+    <footer>
+      <span>Feche um quadrado para ganhar +1 jogada!</span>
+      <div class="legend">
+        <span class="legend-line"></span>
+        <span>Último traço</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal Fim de Jogo -->
+  <div class="modal-backdrop" id="endModal">
+    <div class="modal">
+      <div class="modal-emoji" id="modalEmoji">🏆</div>
+      <h2 id="modalTitle">Fim de Jogo!</h2>
+      <p id="modalSubtitle">Vitória conquistada no tabuleiro.</p>
+      <div class="final-scores">
+        <div class="final-box">
+          <span id="finalLabel1">Você</span>
+          <strong style="color: var(--p1)" id="finalScore1">0</strong>
+        </div>
+        <div class="final-box">
+          <span id="finalLabel2">IA</span>
+          <strong style="color: var(--p2)" id="finalScore2">0</strong>
+        </div>
+      </div>
+      <button class="btn-primary" id="playAgainBtn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // --- Efeitos Sonoros Sintetizados via Web Audio API ---
+      class SoundFX {
+        constructor() {
+          this.enabled = true;
+          this.ctx = null;
+        }
+
+        ensureContext() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        }
+
+        playTone(freq, type, duration, gainVal = 0.14, delay = 0) {
+          if (!this.enabled) return;
+          try {
+            this.ensureContext();
+            if (!this.ctx) return;
+
+            const now = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + duration + 0.02);
+          } catch (e) {
+            // Ignora restrições de áudio antes de interação do usuário
+          }
+        }
+
+        drawLine(player) {
+          const base = player === 1 ? 420 : 340;
+          this.playTone(base, 'triangle', 0.09, 0.12);
+        }
+
+        claimBox(count = 1) {
+          this.playTone(523.25, 'sine', 0.14, 0.16, 0);
+          this.playTone(659.25, 'sine', 0.18, 0.16, 0.06);
+          if (count > 1) {
+            this.playTone(783.99, 'sine', 0.22, 0.18, 0.12);
+          }
+        }
+
+        win(isVictory) {
+          if (isVictory) {
+            [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+              this.playTone(f, 'triangle', 0.24, 0.16, i * 0.09);
+            });
+          } else {
+            [392.0, 349.23, 311.13, 261.63].forEach((f, i) => {
+              this.playTone(f, 'sawtooth', 0.24, 0.1, i * 0.11);
+            });
+          }
+        }
+      }
+
+      const sfx = new SoundFX();
+
+      // --- Estado Global do Jogo ---
+      const state = {
+        boxesCount: 5,        // N x N caixas -> (N+1) x (N+1) pontos
+        mode: 'pve',          // 'pve' | 'pvp'
+        difficulty: 'medium', // 'easy' | 'medium' | 'hard'
+        turn: 1,              // 1 ou 2
+        scores: { 1: 0, 2: 0 },
+        hEdges: [],           // [N+1][N] -> 0 = livre, 1 = P1, 2 = P2
+        vEdges: [],           // [N][N+1] -> 0 = livre, 1 = P1, 2 = P2
+        boxes: [],            // [N][N]   -> 0 = aberta, 1 = P1, 2 = P2
+        lastEdge: null,       // { type: 'h'|'v', r, c }
+        gameOver: false,
+        aiThinking: false
+      };
+
+      // --- Referências DOM ---
+      const svg = document.getElementById('board');
+      const modeSelect = document.getElementById('modeSelect');
+      const diffSelect = document.getElementById('diffSelect');
+      const sizeSelect = document.getElementById('sizeSelect');
+      const themeBtn = document.getElementById('themeBtn');
+      const soundBtn = document.getElementById('soundBtn');
+      const restartBtn = document.getElementById('restartBtn');
+
+      const cardP1 = document.getElementById('cardP1');
+      const cardP2 = document.getElementById('cardP2');
+      const nameP1 = document.getElementById('nameP1');
+      const nameP2 = document.getElementById('nameP2');
+      const hintP1 = document.getElementById('hintP1');
+      const hintP2 = document.getElementById('hintP2');
+      const scoreP1 = document.getElementById('scoreP1');
+      const scoreP2 = document.getElementById('scoreP2');
+      const remainingPill = document.getElementById('remainingPill');
+
+      const endModal = document.getElementById('endModal');
+      const modalEmoji = document.getElementById('modalEmoji');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalSubtitle = document.getElementById('modalSubtitle');
+      const finalLabel1 = document.getElementById('finalLabel1');
+      const finalLabel2 = document.getElementById('finalLabel2');
+      const finalScore1 = document.getElementById('finalScore1');
+      const finalScore2 = document.getElementById('finalScore2');
+      const playAgainBtn = document.getElementById('playAgainBtn');
+
+      // --- Alternância de Tema Claro / Escuro ---
+      let isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      function applyTheme() {
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+        themeBtn.textContent = isDark ? '🌙' : '☀️';
+      }
+      applyTheme();
+
+      themeBtn.addEventListener('click', () => {
+        isDark = !isDark;
+        applyTheme();
+      });
+
+      soundBtn.addEventListener('click', () => {
+        sfx.enabled = !sfx.enabled;
+        soundBtn.textContent = sfx.enabled ? '🔊' : '🔇';
+        if (sfx.enabled) sfx.playTone(520, 'sine', 0.08, 0.1);
+      });
+
+      // --- Inicialização da Partida ---
+      function initGame() {
+        const n = parseInt(sizeSelect.value, 10);
+        state.boxesCount = n;
+        state.mode = modeSelect.value;
+        state.difficulty = diffSelect.value;
+        state.turn = 1;
+        state.scores = { 1: 0, 2: 0 };
+        state.lastEdge = null;
+        state.gameOver = false;
+        state.aiThinking = false;
+
+        diffSelect.disabled = state.mode === 'pvp';
+
+        state.hEdges = Array.from({ length: n + 1 }, () => Array(n).fill(0));
+        state.vEdges = Array.from({ length: n }, () => Array(n + 1).fill(0));
+        state.boxes = Array.from({ length: n }, () => Array(n).fill(0));
+
+        endModal.classList.remove('open');
+        updateLabels();
+        renderBoard();
+        updateHUD();
+      }
+
+      function updateLabels() {
+        const diffMap = { easy: 'Fácil', medium: 'Médio', hard: 'Difícil' };
+        if (state.mode === 'pve') {
+          nameP1.textContent = 'Você';
+          nameP2.textContent = `IA (${diffMap[state.difficulty]})`;
+        } else {
+          nameP1.textContent = 'Jogador 1';
+          nameP2.textContent = 'Jogador 2';
+        }
+      }
+
+      // --- Renderização do Tabuleiro SVG ---
+      function createSVGEl(tag, attrs = {}) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        for (const [k, v] of Object.entries(attrs)) {
+          el.setAttribute(k, v);
+        }
+        return el;
+      }
+
+      function renderBoard() {
+        svg.innerHTML = '';
+        const n = state.boxesCount;
+        const viewSize = 500;
+        const padding = 36;
+        const step = (viewSize - padding * 2) / n;
+
+        const strokeW = Math.max(5, Math.min(10, step * 0.11));
+        const hitW = Math.max(24, step * 0.44);
+        const dotR = Math.max(4.5, Math.min(8.5, step * 0.095));
+        const fontSize = Math.max(14, step * 0.36);
+
+        const boxesLayer = createSVGEl('g', { id: 'boxes-layer' });
+        const edgesLayer = createSVGEl('g', { id: 'edges-layer' });
+        const dotsLayer = createSVGEl('g', { id: 'dots-layer' });
+
+        // 1. Camada de Caixas
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const x = padding + c * step;
+            const y = padding + r * step;
+            const inset = strokeW * 0.65;
+
+            const rect = createSVGEl('rect', {
+              x: x + inset,
+              y: y + inset,
+              width: step - inset * 2,
+              height: step - inset * 2,
+              rx: Math.max(4, step * 0.1),
+              fill: 'transparent',
+              class: 'box-rect',
+              id: `box-${r}-${c}`
+            });
+
+            const text = createSVGEl('text', {
+              x: x + step / 2,
+              y: y + step / 2,
+              'font-size': fontSize,
+              class: 'box-label',
+              id: `box-lbl-${r}-${c}`
+            });
+
+            boxesLayer.appendChild(rect);
+            boxesLayer.appendChild(text);
+          }
+        }
+
+        // 2. Arestas Horizontais
+        for (let r = 0; r <= n; r++) {
+          for (let c = 0; c < n; c++) {
+            const x1 = padding + c * step;
+            const y1 = padding + r * step;
+            const x2 = x1 + step;
+            const y2 = y1;
+            edgesLayer.appendChild(buildEdgeGroup('h', r, c, x1, y1, x2, y2, strokeW, hitW));
+          }
+        }
+
+        // 3. Arestas Verticais
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c <= n; c++) {
+            const x1 = padding + c * step;
+            const y1 = padding + r * step;
+            const x2 = x1;
+            const y2 = y1 + step;
+            edgesLayer.appendChild(buildEdgeGroup('v', r, c, x1, y1, x2, y2, strokeW, hitW));
+          }
+        }
+
+        // 4. Pontos (Dots)
+        for (let r = 0; r <= n; r++) {
+          for (let c = 0; c <= n; c++) {
+            const cx = padding + c * step;
+            const cy = padding + r * step;
+            dotsLayer.appendChild(createSVGEl('circle', {
+              cx,
+              cy,
+              r: dotR,
+              class: 'dot-circle'
+            }));
+          }
+        }
+
+        svg.appendChild(boxesLayer);
+        svg.appendChild(edgesLayer);
+        svg.appendChild(dotsLayer);
+      }
+
+      function buildEdgeGroup(type, r, c, x1, y1, x2, y2, strokeW, hitW) {
+        const g = createSVGEl('g', { class: 'edge-group' });
+
+        const vis = createSVGEl('line', {
+          x1, y1, x2, y2,
+          stroke: 'var(--line-empty)',
+          'stroke-width': strokeW,
+          class: 'edge-visual available',
+          id: `edge-${type}-${r}-${c}`
+        });
+
+        const hit = createSVGEl('line', {
+          x1, y1, x2, y2,
+          'stroke-width': hitW,
+          class: 'edge-hit'
+        });
+
+        hit.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          handleHumanMove(type, r, c);
+        });
+
+        g.appendChild(vis);
+        g.appendChild(hit);
+        return g;
+      }
+
+      // --- Execução de Jogadas ---
+      function handleHumanMove(type, r, c) {
+        if (state.gameOver || state.aiThinking) return;
+        if (state.mode === 'pve' && state.turn === 2) return;
+        executeMove(type, r, c);
+      }
+
+      function executeMove(type, r, c) {
+        const grid = type === 'h' ? state.hEdges : state.vEdges;
+        if (grid[r][c] !== 0) return false;
+
+        const player = state.turn;
+        grid[r][c] = player;
+
+        // Atualiza destaque brilhante na última linha traçada
+        if (state.lastEdge) {
+          const prevEl = document.getElementById(`edge-${state.lastEdge.type}-${state.lastEdge.r}-${state.lastEdge.c}`);
+          if (prevEl) prevEl.classList.remove('last-move');
+        }
+        state.lastEdge = { type, r, c };
+
+        const edgeEl = document.getElementById(`edge-${type}-${r}-${c}`);
+        if (edgeEl) {
+          edgeEl.classList.remove('available');
+          edgeEl.classList.add('last-move');
+          edgeEl.setAttribute('stroke', player === 1 ? 'var(--p1)' : 'var(--p2)');
+        }
+
+        // Verifica se fechou 1 ou 2 caixas adjacentes
+        const closed = checkAndClaimBoxes(type, r, c, player);
+
+        if (closed > 0) {
+          state.scores[player] += closed;
+          sfx.claimBox(closed);
+          // Mantém o turno extra automaticamente!
+        } else {
+          sfx.drawLine(player);
+          state.turn = player === 1 ? 2 : 1;
+        }
+
+        updateHUD();
+
+        // Verifica conclusão da partida
+        const totalBoxes = state.boxesCount * state.boxesCount;
+        if (state.scores[1] + state.scores[2] === totalBoxes) {
+          finishGame();
+          return true;
+        }
+
+        // Agenda jogada da IA se for o turno dela
+        if (state.mode === 'pve' && state.turn === 2 && !state.gameOver) {
+          state.aiThinking = true;
+          updateHUD();
+          setTimeout(() => {
+            state.aiThinking = false;
+            makeAIMove();
+          }, 340);
+        }
+
+        return true;
+      }
+
+      function countBoxSides(r, c, hEdges = state.hEdges, vEdges = state.vEdges) {
+        let sides = 0;
+        if (hEdges[r][c] !== 0) sides++;
+        if (hEdges[r + 1][c] !== 0) sides++;
+        if (vEdges[r][c] !== 0) sides++;
+        if (vEdges[r][c + 1] !== 0) sides++;
+        return sides;
+      }
+
+      function checkAndClaimBoxes(type, r, c, player) {
+        const n = state.boxesCount;
+        const candidates = [];
+
+        if (type === 'h') {
+          if (r > 0) candidates.push([r - 1, c]);
+          if (r < n) candidates.push([r, c]);
+        } else {
+          if (c > 0) candidates.push([r, c - 1]);
+          if (c < n) candidates.push([r, c]);
+        }
+
+        let claimedCount = 0;
+        const initialTag = state.mode === 'pve'
+          ? (player === 1 ? 'VC' : 'IA')
+          : (player === 1 ? 'J1' : 'J2');
+
+        for (const [br, bc] of candidates) {
+          if (state.boxes[br][bc] === 0 && countBoxSides(br, bc) === 4) {
+            state.boxes[br][bc] = player;
+            claimedCount++;
+
+            const rect = document.getElementById(`box-${br}-${bc}`);
+            const lbl = document.getElementById(`box-lbl-${br}-${bc}`);
+            if (rect) {
+              rect.setAttribute('fill', player === 1 ? 'var(--p1-soft)' : 'var(--p2-soft)');
+            }
+            if (lbl) {
+              lbl.textContent = initialTag;
+              lbl.setAttribute('fill', player === 1 ? 'var(--p1)' : 'var(--p2)');
+              lbl.classList.add('claimed');
+            }
+          }
+        }
+
+        return claimedCount;
+      }
+
+      // --- Inteligência Artificial (Fácil, Médio, Difícil com Avaliação de Cadeias) ---
+      function getAllAvailableEdges(hEdges = state.hEdges, vEdges = state.vEdges) {
+        const n = state.boxesCount;
+        const moves = [];
+        for (let r = 0; r <= n; r++) {
+          for (let c = 0; c < n; c++) {
+            if (hEdges[r][c] === 0) moves.push({ type: 'h', r, c });
+          }
+        }
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c <= n; c++) {
+            if (vEdges[r][c] === 0) moves.push({ type: 'v', r, c });
+          }
+        }
+        return moves;
+      }
+
+      function getAdjacentBoxes(move) {
+        const n = state.boxesCount;
+        const adj = [];
+        if (move.type === 'h') {
+          if (move.r > 0) adj.push([move.r - 1, move.c]);
+          if (move.r < n) adj.push([move.r, move.c]);
+        } else {
+          if (move.c > 0) adj.push([move.r, move.c - 1]);
+          if (move.c < n) adj.push([move.r, move.c]);
+        }
+        return adj;
+      }
+
+      function pickRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+
+      // Simula quantas caixas em cadeia um movimento entregaria ao oponente
+      function evaluateChainGift(move) {
+        const n = state.boxesCount;
+        const hCopy = state.hEdges.map(row => [...row]);
+        const vCopy = state.vEdges.map(row => [...row]);
+
+        if (move.type === 'h') hCopy[move.r][move.c] = 2;
+        else vCopy[move.r][move.c] = 2;
+
+        let gifted = 0;
+        let progress = true;
+        while (progress) {
+          progress = false;
+          for (let r = 0; r < n; r++) {
+            for (let c = 0; c < n; c++) {
+              if (countBoxSides(r, c, hCopy, vCopy) === 3) {
+                if (hCopy[r][c] === 0) hCopy[r][c] = 1;
+                else if (hCopy[r + 1][c] === 0) hCopy[r + 1][c] = 1;
+                else if (vCopy[r][c] === 0) vCopy[r][c] = 1;
+                else if (vCopy[r][c + 1] === 0) vCopy[r][c + 1] = 1;
+                gifted++;
+                progress = true;
+              }
+            }
+          }
+        }
+        return gifted;
+      }
+
+      function makeAIMove() {
+        if (state.gameOver || state.turn !== 2) return;
+        const moves = getAllAvailableEdges();
+        if (moves.length === 0) return;
+
+        let chosen = null;
+
+        if (state.difficulty === 'easy') {
+          const scoring = moves.filter(m =>
+            getAdjacentBoxes(m).some(([r, c]) => countBoxSides(r, c) === 3)
+          );
+          if (scoring.length > 0 && Math.random() < 0.55) {
+            chosen = pickRandom(scoring);
+          } else {
+            chosen = pickRandom(moves);
+          }
+        } else if (state.difficulty === 'medium') {
+          const scoring = moves.filter(m =>
+            getAdjacentBoxes(m).some(([r, c]) => countBoxSides(r, c) === 3)
+          );
+          if (scoring.length > 0) {
+            chosen = pickRandom(scoring);
+          } else {
+            const safe = moves.filter(m =>
+              getAdjacentBoxes(m).every(([r, c]) => countBoxSides(r, c) < 2)
+            );
+            chosen = safe.length > 0 ? pickRandom(safe) : pickRandom(moves);
+          }
+        } else {
+          // Difícil: fecha caixas imediatamente (priorizando duplas), busca jogadas seguras (<2 lados),
+          // ou sacrifica a menor cadeia possível quando forçado a abrir o jogo.
+          const scoring = moves.filter(m =>
+            getAdjacentBoxes(m).some(([r, c]) => countBoxSides(r, c) === 3)
+          );
+          if (scoring.length > 0) {
+            scoring.sort((a, b) => {
+              const ca = getAdjacentBoxes(a).filter(([r, c]) => countBoxSides(r, c) === 3).length;
+              const cb = getAdjacentBoxes(b).filter(([r, c]) => countBoxSides(r, c) === 3).length;
+              return cb - ca;
+            });
+            chosen = scoring[0];
+          } else {
+            const safe = moves.filter(m =>
+              getAdjacentBoxes(m).every(([r, c]) => countBoxSides(r, c) < 2)
+            );
+            if (safe.length > 0) {
+              chosen = pickRandom(safe);
+            } else {
+              let minGift = Infinity;
+              let bestSacrifices = [];
+              for (const m of moves) {
+                const gift = evaluateChainGift(m);
+                if (gift < minGift) {
+                  minGift = gift;
+                  bestSacrifices = [m];
+                } else if (gift === minGift) {
+                  bestSacrifices.push(m);
+                }
+              }
+              chosen = pickRandom(bestSacrifices);
+            }
+          }
+        }
+
+        if (chosen) {
+          executeMove(chosen.type, chosen.r, chosen.c);
+        }
+      }
+
+      // --- Atualização do Placar e Modal Final ---
+      function updateHUD() {
+        scoreP1.textContent = state.scores[1];
+        scoreP2.textContent = state.scores[2];
+
+        const total = state.boxesCount * state.boxesCount;
+        const left = total - (state.scores[1] + state.scores[2]);
+        remainingPill.textContent = left === 1 ? '1 caixa' : `${left} caixas`;
+
+        cardP1.classList.toggle('active', state.turn === 1 && !state.gameOver);
+        cardP2.classList.toggle('active', state.turn === 2 && !state.gameOver);
+
+        if (state.gameOver) {
+          hintP1.textContent = 'Finalizado';
+          hintP2.textContent = 'Finalizado';
+        } else if (state.turn === 1) {
+          hintP1.textContent = state.mode === 'pve' ? 'Sua vez' : 'Jogando agora';
+          hintP2.textContent = 'Aguardando';
+        } else {
+          hintP1.textContent = 'Aguardando';
+          hintP2.textContent = state.mode === 'pve' ? 'Pensando...' : 'Jogando agora';
+        }
+      }
+
+      function finishGame() {
+        state.gameOver = true;
+        updateHUD();
+
+        const s1 = state.scores[1];
+        const s2 = state.scores[2];
+        const isPvE = state.mode === 'pve';
+
+        finalLabel1.textContent = isPvE ? 'Você' : 'Jogador 1';
+        finalLabel2.textContent = isPvE ? 'IA' : 'Jogador 2';
+        finalScore1.textContent = s1;
+        finalScore2.textContent = s2;
+
+        if (s1 > s2) {
+          modalEmoji.textContent = '🏆';
+          modalTitle.textContent = isPvE ? 'Você Venceu!' : 'Jogador 1 Venceu!';
+          modalSubtitle.textContent = `Domínio do tabuleiro por ${s1} a ${s2}.`;
+          sfx.win(true);
+        } else if (s2 > s1) {
+          modalEmoji.textContent = isPvE ? '🤖' : '🏆';
+          modalTitle.textContent = isPvE ? 'A IA Venceu!' : 'Jogador 2 Venceu!';
+          modalSubtitle.textContent = `Placar final de ${s2} a ${s1}. Tente outra estratégia!`;
+          sfx.win(!isPvE);
+        } else {
+          modalEmoji.textContent = '🤝';
+          modalTitle.textContent = 'Empate!';
+          modalSubtitle.textContent = `Partida equilibrada: ${s1} a ${s2}.`;
+          sfx.win(true);
+        }
+
+        setTimeout(() => {
+          endModal.classList.add('open');
+        }, 380);
+      }
+
+      // --- Listeners de Interface ---
+      modeSelect.addEventListener('change', initGame);
+      diffSelect.addEventListener('change', initGame);
+      sizeSelect.addEventListener('change', initGame);
+      restartBtn.addEventListener('click', initGame);
+      playAgainBtn.addEventListener('click', initGame);
+
+      // Inicia partida inicial
+      initGame();
+    })();
+  </script>
+</body>
+</html>

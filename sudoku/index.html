@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Sudoku Pro</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-alt: #334155;
+      --border: #475569;
+      --border-strong: #94a3b8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --given-text: #e2e8f0;
+      --user-text: #38bdf8;
+      --error-text: #f87171;
+      --error-bg: rgba(239, 68, 68, 0.22);
+      --cell-bg: #1e293b;
+      --cell-peer: #273549;
+      --cell-same: #1d4ed855;
+      --cell-selected: #0284c766;
+      --cell-hint: #10b98144;
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --primary-fg: #0f172a;
+      --accent: #10b981;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    [data-theme="light"] {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --surface-alt: #e2e8f0;
+      --border: #cbd5e1;
+      --border-strong: #334155;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --given-text: #0f172a;
+      --user-text: #0284c7;
+      --error-text: #dc2626;
+      --error-bg: rgba(239, 68, 68, 0.16);
+      --cell-bg: #ffffff;
+      --cell-peer: #e2e8f0;
+      --cell-same: #bae6fd;
+      --cell-selected: #7dd3fc;
+      --cell-hint: #a7f3d0;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-fg: #ffffff;
+      --accent: #059669;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      height: 100dvh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Cabeçalho */
+    header {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--surface-alt);
+      color: var(--primary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    select, .icon-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    select {
+      padding: 6px 10px;
+      outline: none;
+    }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .icon-btn:hover, select:hover {
+      border-color: var(--primary);
+    }
+
+    /* Barra de Status */
+    .status-bar {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 0 2px;
+    }
+
+    .status-item span {
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .status-item.danger span {
+      color: var(--error-text);
+    }
+
+    /* Banner de Feedback / Dicas */
+    .feedback-banner {
+      width: 100%;
+      max-width: 500px;
+      min-height: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 1.25;
+    }
+
+    .feedback-banner.highlight {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* Contêiner do Tabuleiro */
+    .board-container {
+      width: 100%;
+      max-width: min(460px, 54dvh);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .board {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      grid-template-rows: repeat(9, 1fr);
+      border: 2.5px solid var(--border-strong);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .cell {
+      background: var(--cell-bg);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.1rem, 4.2vw, 1.65rem);
+      font-weight: 700;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.08s ease;
+    }
+
+    /* Bordas grossas nos quadrantes 3x3 */
+    .cell[data-col="2"], .cell[data-col="5"] {
+      border-right: 2px solid var(--border-strong);
+    }
+    .cell[data-col="8"] {
+      border-right: none;
+    }
+    .cell[data-row="2"], .cell[data-row="5"] {
+      border-bottom: 2px solid var(--border-strong);
+    }
+    .cell[data-row="8"] {
+      border-bottom: none;
+    }
+
+    .cell.given {
+      color: var(--given-text);
+    }
+
+    .cell.user-val {
+      color: var(--user-text);
+    }
+
+    .cell.peer {
+      background: var(--cell-peer);
+    }
+
+    .cell.same-num {
+      background: var(--cell-same);
+    }
+
+    .cell.selected {
+      background: var(--cell-selected);
+    }
+
+    .cell.error {
+      color: var(--error-text);
+      background: var(--error-bg);
+    }
+
+    .cell.hint-flash {
+      animation: hintPulse 1.2s ease;
+    }
+
+    @keyframes hintPulse {
+      0% { background: var(--accent); color: #fff; }
+      100% { background: var(--cell-selected); }
+    }
+
+    /* Grade interna de anotações (Modo Lápis) */
+    .notes-grid {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 1px;
+      pointer-events: none;
+    }
+
+    .note-num {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(0.48rem, 1.6vw, 0.68rem);
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+
+    .note-num.active-note {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    /* Área de Controles */
+    .controls-wrapper {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .action-btn {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 7px 4px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+    }
+
+    .action-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .action-btn:active {
+      transform: scale(0.97);
+    }
+
+    .action-btn.active {
+      background: var(--primary);
+      color: var(--primary-fg);
+      border-color: var(--primary);
+    }
+
+    .action-btn .emoji {
+      font-size: 1.05rem;
+    }
+
+    .pill-indicator {
+      position: absolute;
+      top: 4px;
+      right: 5px;
+      font-size: 0.6rem;
+      font-weight: 800;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: var(--surface-alt);
+      color: var(--text);
+    }
+
+    .action-btn.active .pill-indicator {
+      background: rgba(0, 0, 0, 0.25);
+      color: inherit;
+    }
+
+    /* Teclado Numérico */
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      gap: 5px;
+    }
+
+    .num-btn {
+      background: var(--surface);
+      color: var(--primary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 0 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .num-btn:hover {
+      background: var(--surface-alt);
+      border-color: var(--primary);
+    }
+
+    .num-btn:active {
+      transform: scale(0.94);
+    }
+
+    .num-btn.completed {
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .num-digit {
+      font-size: clamp(1.15rem, 4vw, 1.45rem);
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .num-rem {
+      font-size: 0.62rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    /* Modal de Fim de Jogo */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .modal h2 {
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: var(--bg);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      font-size: 0.85rem;
+    }
+
+    .modal-stats strong {
+      display: block;
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-top: 2px;
+    }
+
+    .primary-btn {
+      width: 100%;
+      background: var(--primary);
+      color: var(--primary-fg);
+      border: none;
+      border-radius: 10px;
+      padding: 11px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .primary-btn:hover {
+      background: var(--primary-hover);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <h1>Sudoku</h1>
+      <span class="badge">Pro</span>
+    </div>
+    <div class="header-controls">
+      <select id="difficultySelect" aria-label="Dificuldade">
+        <option value="easy">Fácil</option>
+        <option value="medium" selected>Médio</option>
+        <option value="hard">Difícil</option>
+        <option value="expert">Expert</option>
+      </select>
+      <button class="icon-btn" id="newGameBtn" title="Novo Jogo">🔄</button>
+      <button class="icon-btn" id="soundBtn" title="Som">🔊</button>
+      <button class="icon-btn" id="themeBtn" title="Alternar Tema">☀️</button>
+    </div>
+  </header>
+
+  <div class="status-bar">
+    <div class="status-item" id="mistakesBox">Erros: <span id="mistakesCount">0/3</span></div>
+    <div class="status-item">Dicas: <span id="hintsCount">3</span></div>
+    <div class="status-item">Tempo: <span id="timerDisplay">00:00</span></div>
+  </div>
+
+  <div class="feedback-banner" id="feedbackBanner">
+    Selecione uma célula e preencha de 1 a 9. Tecla N alterna o lápis.
+  </div>
+
+  <div class="board-container">
+    <div class="board" id="board" role="grid" aria-label="Tabuleiro de Sudoku"></div>
+  </div>
+
+  <div class="controls-wrapper">
+    <div class="action-bar">
+      <button class="action-btn" id="undoBtn" title="Desfazer (Ctrl+Z)">
+        <span class="emoji">↩️</span>
+        <span>Desfazer</span>
+      </button>
+      <button class="action-btn" id="eraseBtn" title="Apagar (Delete)">
+        <span class="emoji">🧹</span>
+        <span>Apagar</span>
+      </button>
+      <button class="action-btn" id="notesBtn" title="Modo Lápis (N)">
+        <span class="pill-indicator" id="notesBadge">OFF</span>
+        <span class="emoji">✏️</span>
+        <span>Lápis</span>
+      </button>
+      <button class="action-btn" id="hintBtn" title="Dica Lógica">
+        <span class="pill-indicator" id="hintBadge">3</span>
+        <span class="emoji">💡</span>
+        <span>Dica</span>
+      </button>
+    </div>
+
+    <div class="numpad" id="numpad"></div>
+  </div>
+
+  <div class="modal-backdrop" id="endModal">
+    <div class="modal">
+      <h2 id="modalTitle">Parabéns! 🎉</h2>
+      <p id="modalMessage">Você concluiu o desafio lógico com sucesso.</p>
+      <div class="modal-stats">
+        <div>Dificuldade<strong id="modalDiff">Médio</strong></div>
+        <div>Tempo Final<strong id="modalTime">00:00</strong></div>
+      </div>
+      <button class="primary-btn" id="modalNewGameBtn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      // --- Sintetizador de Áudio via Web Audio API ---
+      const Sound = (() => {
+        let ctx = null;
+        let enabled = true;
+
+        function ensureCtx() {
+          if (!ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) ctx = new AudioCtx();
+          }
+          if (ctx && ctx.state === 'suspended') ctx.resume();
+        }
+
+        function playTone(freq, type = 'sine', duration = 0.08, gainVal = 0.08, delay = 0) {
+          if (!enabled) return;
+          ensureCtx();
+          if (!ctx) return;
+          const now = ctx.currentTime + delay;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(gainVal, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration);
+        }
+
+        return {
+          toggle() { enabled = !enabled; return enabled; },
+          isEnabled() { return enabled; },
+          select() { playTone(520, 'sine', 0.04, 0.03); },
+          place() { playTone(660, 'triangle', 0.09, 0.08); },
+          note() { playTone(880, 'sine', 0.045, 0.035); },
+          erase() { playTone(320, 'sine', 0.06, 0.05); },
+          error() {
+            playTone(190, 'sawtooth', 0.14, 0.09, 0);
+            playTone(150, 'sawtooth', 0.18, 0.09, 0.09);
+          },
+          completeUnit() {
+            playTone(587.33, 'triangle', 0.1, 0.07, 0);
+            playTone(880, 'triangle', 0.16, 0.08, 0.08);
+          },
+          win() {
+            [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+              playTone(f, 'triangle', 0.22, 0.09, i * 0.1);
+            });
+          }
+        };
+      })();
+
+      // --- Gerador e Resolvedor de Sudoku ---
+      const DIFFICULTY_CLUES = {
+        easy: 42,
+        medium: 34,
+        hard: 28,
+        expert: 24
+      };
+
+      const DIFFICULTY_LABELS = {
+        easy: 'Fácil',
+        medium: 'Médio',
+        hard: 'Difícil',
+        expert: 'Expert'
+      };
+
+      function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function isValidPlacement(grid, r, c, num) {
+        for (let i = 0; i < 9; i++) {
+          if (grid[r][i] === num || grid[i][c] === num) return false;
+        }
+        const br = Math.floor(r / 3) * 3;
+        const bc = Math.floor(c / 3) * 3;
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (grid[br + i][bc + j] === num) return false;
+          }
+        }
+        return true;
+      }
+
+      function fillSolvedGrid(grid) {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (grid[r][c] === 0) {
+              const nums = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+              for (const n of nums) {
+                if (isValidPlacement(grid, r, c, n)) {
+                  grid[r][c] = n;
+                  if (fillSolvedGrid(grid)) return true;
+                  grid[r][c] = 0;
+                }
+              }
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+
+      // Conta soluções até `limit` (usado com limit = 2 para assegurar solução única)
+      function countSolutions(grid, limit = 2) {
+        let minCandidates = 10;
+        let bestR = -1, bestC = -1;
+
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (grid[r][c] === 0) {
+              let count = 0;
+              for (let n = 1; n <= 9; n++) {
+                if (isValidPlacement(grid, r, c, n)) count++;
+              }
+              if (count === 0) return 0;
+              if (count < minCandidates) {
+                minCandidates = count;
+                bestR = r;
+                bestC = c;
+              }
+            }
+          }
+        }
+
+        if (bestR === -1) return 1;
+
+        let total = 0;
+        for (let n = 1; n <= 9; n++) {
+          if (isValidPlacement(grid, bestR, bestC, n)) {
+            grid[bestR][bestC] = n;
+            total += countSolutions(grid, limit);
+            grid[bestR][bestC] = 0;
+            if (total >= limit) return total;
+          }
+        }
+        return total;
+      }
+
+      function generatePuzzle(difficulty) {
+        const solution = Array.from({ length: 9 }, () => Array(9).fill(0));
+        fillSolvedGrid(solution);
+
+        const puzzle = solution.map(row => [...row]);
+        const targetClues = DIFFICULTY_CLUES[difficulty] || 34;
+        let clues = 81;
+
+        // Pares coordenados simétricos para equilíbrio visual e estrutural
+        const coords = [];
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (r * 9 + c <= 40) coords.push([r, c]);
+          }
+        }
+        shuffle(coords);
+
+        for (const [r, c] of coords) {
+          if (clues <= targetClues) break;
+          const sr = 8 - r;
+          const sc = 8 - c;
+
+          const backup1 = puzzle[r][c];
+          const backup2 = puzzle[sr][sc];
+          if (backup1 === 0) continue;
+
+          puzzle[r][c] = 0;
+          const sameCell = (r === sr && c === sc);
+          if (!sameCell) puzzle[sr][sc] = 0;
+
+          const testGrid = puzzle.map(row => [...row]);
+          if (countSolutions(testGrid, 2) === 1) {
+            clues -= sameCell ? 1 : 2;
+          } else {
+            puzzle[r][c] = backup1;
+            if (!sameCell) puzzle[sr][sc] = backup2;
+          }
+        }
+
+        return { puzzle, solution };
+      }
+
+      // --- Estado do Jogo ---
+      const state = {
+        difficulty: 'medium',
+        puzzle: [],
+        solution: [],
+        board: [],     // números atuais (dados + inseridos pelo jogador)
+        notes: [],     // matriz 9x9 de Set<number>
+        selected: { r: 0, c: 0 },
+        notesMode: false,
+        mistakes: 0,
+        maxMistakes: 3,
+        hintsLeft: 3,
+        history: [],
+        seconds: 0,
+        timerId: null,
+        gameOver: false
+      };
+
+      // --- Referências DOM ---
+      const boardEl = document.getElementById('board');
+      const numpadEl = document.getElementById('numpad');
+      const difficultySelect = document.getElementById('difficultySelect');
+      const mistakesCountEl = document.getElementById('mistakesCount');
+      const mistakesBoxEl = document.getElementById('mistakesBox');
+      const hintsCountEl = document.getElementById('hintsCount');
+      const hintBadgeEl = document.getElementById('hintBadge');
+      const timerDisplayEl = document.getElementById('timerDisplay');
+      const feedbackBannerEl = document.getElementById('feedbackBanner');
+      const notesBtn = document.getElementById('notesBtn');
+      const notesBadge = document.getElementById('notesBadge');
+      const endModal = document.getElementById('endModal');
+
+      // --- Inicialização e Renderização ---
+      function buildBoardDOM() {
+        boardEl.innerHTML = '';
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            cell.setAttribute('role', 'gridcell');
+            cell.addEventListener('click', () => selectCell(r, c));
+            boardEl.appendChild(cell);
+          }
+        }
+      }
+
+      function buildNumpadDOM() {
+        numpadEl.innerHTML = '';
+        for (let n = 1; n <= 9; n++) {
+          const btn = document.createElement('button');
+          btn.className = 'num-btn';
+          btn.dataset.num = n;
+          btn.innerHTML = `<span class="num-digit">${n}</span><span class="num-rem" id="rem-${n}">9</span>`;
+          btn.addEventListener('click', () => handleNumberInput(n));
+          numpadEl.appendChild(btn);
+        }
+      }
+
+      function startNewGame() {
+        clearInterval(state.timerId);
+        state.difficulty = difficultySelect.value;
+        const { puzzle, solution } = generatePuzzle(state.difficulty);
+        state.puzzle = puzzle;
+        state.solution = solution;
+        state.board = puzzle.map(row => [...row]);
+        state.notes = Array.from({ length: 9 }, () => Array.from({ length: 9 }, () => new Set()));
+        state.selected = { r: 4, c: 4 };
+        state.mistakes = 0;
+        state.hintsLeft = 3;
+        state.history = [];
+        state.seconds = 0;
+        state.gameOver = false;
+
+        endModal.classList.remove('show');
+        setFeedback('Tabuleiro gerado com solução única. Bom jogo!', false);
+        updateStatusUI();
+        renderBoard();
+
+        state.timerId = setInterval(() => {
+          if (!state.gameOver) {
+            state.seconds++;
+            timerDisplayEl.textContent = formatTime(state.seconds);
+          }
+        }, 1000);
+      }
+
+      function formatTime(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        return `${m}:${s}`;
+      }
+
+      function setFeedback(text, isHighlight = true) {
+        feedbackBannerEl.textContent = text;
+        feedbackBannerEl.classList.toggle('highlight', isHighlight);
+      }
+
+      function updateStatusUI() {
+        mistakesCountEl.textContent = `${state.mistakes}/${state.maxMistakes}`;
+        mistakesBoxEl.classList.toggle('danger', state.mistakes >= 2);
+        hintsCountEl.textContent = state.hintsLeft;
+        hintBadgeEl.textContent = state.hintsLeft;
+        timerDisplayEl.textContent = formatTime(state.seconds);
+
+        notesBtn.classList.toggle('active', state.notesMode);
+        notesBadge.textContent = state.notesMode ? 'ON' : 'OFF';
+      }
+
+      function renderBoard() {
+        const { r: selR, c: selC } = state.selected;
+        const selectedVal = state.board[selR][selC];
+        const selBoxR = Math.floor(selR / 3);
+        const selBoxC = Math.floor(selC / 3);
+
+        const counts = Array(10).fill(0);
+        const cells = boardEl.children;
+
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            const idx = r * 9 + c;
+            const cellEl = cells[idx];
+            const val = state.board[r][c];
+            const isGiven = state.puzzle[r][c] !== 0;
+
+            if (val !== 0 && val === state.solution[r][c]) {
+              counts[val]++;
+            }
+
+            cellEl.className = 'cell';
+            if (isGiven) cellEl.classList.add('given');
+            else if (val !== 0) cellEl.classList.add('user-val');
+
+            const isPeer = (r === selR || c === selC || (Math.floor(r / 3) === selBoxR && Math.floor(c / 3) === selBoxC));
+            if (r === selR && c === selC) {
+              cellEl.classList.add('selected');
+            } else if (selectedVal !== 0 && val === selectedVal) {
+              cellEl.classList.add('same-num');
+            } else if (isPeer) {
+              cellEl.classList.add('peer');
+            }
+
+            if (val !== 0 && val !== state.solution[r][c]) {
+              cellEl.classList.add('error');
+            }
+
+            if (val !== 0) {
+              cellEl.textContent = val;
+            } else {
+              const cellNotes = state.notes[r][c];
+              if (cellNotes.size > 0) {
+                let html = '<div class="notes-grid">';
+                for (let n = 1; n <= 9; n++) {
+                  const has = cellNotes.has(n);
+                  const activeCls = (has && selectedVal === n) ? ' active-note' : '';
+                  html += `<span class="note-num${activeCls}">${has ? n : ''}</span>`;
+                }
+                html += '</div>';
+                cellEl.innerHTML = html;
+              } else {
+                cellEl.textContent = '';
+              }
+            }
+          }
+        }
+
+        // Atualiza contagem restante no teclado numérico
+        for (let n = 1; n <= 9; n++) {
+          const rem = Math.max(0, 9 - counts[n]);
+          const btn = numpadEl.children[n - 1];
+          document.getElementById(`rem-${n}`).textContent = rem;
+          btn.classList.toggle('completed', rem === 0);
+        }
+      }
+
+      // --- Ações de Jogabilidade ---
+      function selectCell(r, c) {
+        state.selected = { r, c };
+        Sound.select();
+        renderBoard();
+      }
+
+      function pushHistory() {
+        state.history.push({
+          board: state.board.map(row => [...row]),
+          notes: state.notes.map(row => row.map(set => new Set(set)))
+        });
+        if (state.history.length > 60) state.history.shift();
+      }
+
+      function clearPeerNotes(r, c, num) {
+        const br = Math.floor(r / 3) * 3;
+        const bc = Math.floor(c / 3) * 3;
+        for (let i = 0; i < 9; i++) {
+          state.notes[r][i].delete(num);
+          state.notes[i][c].delete(num);
+        }
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            state.notes[br + i][bc + j].delete(num);
+          }
+        }
+      }
+
+      function checkUnitCompletion(r, c) {
+        const rowDone = state.board[r].every((v, idx) => v === state.solution[r][idx]);
+        const colDone = state.board.every((row, idx) => row[c] === state.solution[idx][c]);
+        const br = Math.floor(r / 3) * 3;
+        const bc = Math.floor(c / 3) * 3;
+        let boxDone = true;
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (state.board[br + i][bc + j] !== state.solution[br + i][bc + j]) boxDone = false;
+          }
+        }
+        return rowDone || colDone || boxDone;
+      }
+
+      function checkWinCondition() {
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (state.board[r][c] !== state.solution[r][c]) return false;
+          }
+        }
+        return true;
+      }
+
+      function triggerGameOver(won) {
+        state.gameOver = true;
+        clearInterval(state.timerId);
+        document.getElementById('modalTitle').textContent = won ? 'Vitória! 🎉' : 'Fim de Jogo 💥';
+        document.getElementById('modalMessage').textContent = won
+          ? 'Você resolveu todo o tabuleiro com precisão!'
+          : 'Você atingiu o limite de 3 erros neste tabuleiro.';
+        document.getElementById('modalDiff').textContent = DIFFICULTY_LABELS[state.difficulty];
+        document.getElementById('modalTime').textContent = formatTime(state.seconds);
+        setTimeout(() => endModal.classList.add('show'), 350);
+      }
+
+      function handleNumberInput(num) {
+        if (state.gameOver) return;
+        const { r, c } = state.selected;
+        if (state.puzzle[r][c] !== 0) return;
+
+        // Modo Lápis / Anotações
+        if (state.notesMode) {
+          if (state.board[r][c] !== 0) return;
+          pushHistory();
+          if (state.notes[r][c].has(num)) state.notes[r][c].delete(num);
+          else state.notes[r][c].add(num);
+          Sound.note();
+          renderBoard();
+          return;
+        }
+
+        // Modo Caneta (inserção definitiva)
+        if (state.board[r][c] === num) return;
+        pushHistory();
+        state.board[r][c] = num;
+        state.notes[r][c].clear();
+
+        if (num === state.solution[r][c]) {
+          clearPeerNotes(r, c, num);
+          if (checkWinCondition()) {
+            Sound.win();
+            renderBoard();
+            triggerGameOver(true);
+            return;
+          } else if (checkUnitCompletion(r, c)) {
+            Sound.completeUnit();
+            setFeedback('Região concluída com sucesso!', true);
+          } else {
+            Sound.place();
+          }
+        } else {
+          state.mistakes++;
+          Sound.error();
+          updateStatusUI();
+          setFeedback(`O número ${num} não pertence a esta célula.`, true);
+          if (state.mistakes >= state.maxMistakes) {
+            renderBoard();
+            triggerGameOver(false);
+            return;
+          }
+        }
+
+        renderBoard();
+      }
+
+      function handleErase() {
+        if (state.gameOver) return;
+        const { r, c } = state.selected;
+        if (state.puzzle[r][c] !== 0) return;
+        if (state.board[r][c] === 0 && state.notes[r][c].size === 0) return;
+
+        pushHistory();
+        state.board[r][c] = 0;
+        state.notes[r][c].clear();
+        Sound.erase();
+        renderBoard();
+      }
+
+      function handleUndo() {
+        if (state.gameOver || state.history.length === 0) return;
+        const prev = state.history.pop();
+        state.board = prev.board;
+        state.notes = prev.notes;
+        Sound.erase();
+        renderBoard();
+      }
+
+      function toggleNotesMode() {
+        state.notesMode = !state.notesMode;
+        Sound.select();
+        updateStatusUI();
+      }
+
+      // --- Motor de Dica Inteligente (Naked Single & Hidden Single) ---
+      function getCandidates(r, c) {
+        if (state.board[r][c] !== 0) return [];
+        const cands = [];
+        for (let n = 1; n <= 9; n++) {
+          if (isValidPlacement(state.board, r, c, n)) cands.push(n);
+        }
+        return cands;
+      }
+
+      function findLogicalStep() {
+        // 1. Naked Single: célula com apenas 1 candidato válido
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (state.board[r][c] === 0) {
+              const cands = getCandidates(r, c);
+              if (cands.length === 1) {
+                return {
+                  r, c, val: cands[0],
+                  reason: `Naked Single: na L${r + 1}C${c + 1}, o único candidato possível é ${cands[0]}.`
+                };
+              }
+            }
+          }
+        }
+
+        // 2. Hidden Single nas Linhas
+        for (let r = 0; r < 9; r++) {
+          for (let n = 1; n <= 9; n++) {
+            let positions = [];
+            for (let c = 0; c < 9; c++) {
+              if (state.board[r][c] === 0 && isValidPlacement(state.board, r, c, n)) {
+                positions.push(c);
+              }
+            }
+            if (positions.length === 1) {
+              const c = positions[0];
+              return {
+                r, c, val: n,
+                reason: `Hidden Single (Linha ${r + 1}): o número ${n} só cabe na coluna ${c + 1}.`
+              };
+            }
+          }
+        }
+
+        // 3. Hidden Single nas Colunas
+        for (let c = 0; c < 9; c++) {
+          for (let n = 1; n <= 9; n++) {
+            let positions = [];
+            for (let r = 0; r < 9; r++) {
+              if (state.board[r][c] === 0 && isValidPlacement(state.board, r, c, n)) {
+                positions.push(r);
+              }
+            }
+            if (positions.length === 1) {
+              const r = positions[0];
+              return {
+                r, c, val: n,
+                reason: `Hidden Single (Coluna ${c + 1}): o número ${n} só cabe na linha ${r + 1}.`
+              };
+            }
+          }
+        }
+
+        // 4. Dedução direta: célula selecionada ou primeira vazia/incorreta
+        const { r: sr, c: sc } = state.selected;
+        if (state.board[sr][sc] !== state.solution[sr][sc]) {
+          return {
+            r: sr, c: sc, val: state.solution[sr][sc],
+            reason: `Dedução avançada: o valor correto para L${sr + 1}C${sc + 1} é ${state.solution[sr][sc]}.`
+          };
+        }
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            if (state.board[r][c] !== state.solution[r][c]) {
+              return {
+                r, c, val: state.solution[r][c],
+                reason: `Dedução avançada: o valor correto para L${r + 1}C${c + 1} é ${state.solution[r][c]}.`
+              };
+            }
+          }
+        }
+        return null;
+      }
+
+      function handleHint() {
+        if (state.gameOver || state.hintsLeft <= 0) return;
+        const step = findLogicalStep();
+        if (!step) return;
+
+        pushHistory();
+        state.hintsLeft--;
+        state.selected = { r: step.r, c: step.c };
+        state.board[step.r][step.c] = step.val;
+        state.notes[step.r][step.c].clear();
+        clearPeerNotes(step.r, step.c, step.val);
+
+        updateStatusUI();
+        setFeedback(`💡 ${step.reason}`, true);
+        renderBoard();
+
+        const cellEl = boardEl.children[step.r * 9 + step.c];
+        cellEl.classList.remove('hint-flash');
+        void cellEl.offsetWidth;
+        cellEl.classList.add('hint-flash');
+
+        if (checkWinCondition()) {
+          Sound.win();
+          triggerGameOver(true);
+        } else {
+          Sound.completeUnit();
+        }
+      }
+
+      // --- Ouvintes de Eventos ---
+      document.getElementById('newGameBtn').addEventListener('click', startNewGame);
+      document.getElementById('modalNewGameBtn').addEventListener('click', startNewGame);
+      difficultySelect.addEventListener('change', startNewGame);
+
+      document.getElementById('undoBtn').addEventListener('click', handleUndo);
+      document.getElementById('eraseBtn').addEventListener('click', handleErase);
+      notesBtn.addEventListener('click', toggleNotesMode);
+      document.getElementById('hintBtn').addEventListener('click', handleHint);
+
+      document.getElementById('soundBtn').addEventListener('click', (e) => {
+        const on = Sound.toggle();
+        e.currentTarget.textContent = on ? '🔊' : '🔇';
+      });
+
+      document.getElementById('themeBtn').addEventListener('click', (e) => {
+        const html = document.documentElement;
+        const isDark = html.getAttribute('data-theme') === 'dark';
+        html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        e.currentTarget.textContent = isDark ? '🌙' : '☀️';
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (state.gameOver) return;
+        const { r, c } = state.selected;
+
+        if (e.key >= '1' && e.key <= '9') {
+          e.preventDefault();
+          handleNumberInput(Number(e.key));
+        } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+          e.preventDefault();
+          handleErase();
+        } else if (e.key.toLowerCase() === 'n') {
+          e.preventDefault();
+          toggleNotesMode();
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+          e.preventDefault();
+          handleUndo();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectCell((r + 8) % 9, c);
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectCell((r + 1) % 9, c);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          selectCell(r, (c + 8) % 9);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          selectCell(r, (c + 1) % 9);
+        }
+      });
+
+      // Inicialização
+      buildBoardDOM();
+      buildNumpadDOM();
+      startNewGame();
+    })();
+  </script>
+</body>
+</html>
