@@ -1,10 +1,19 @@
 # 🐍 Snake — Jogo da Cobrinha
 
+[![Jogar Agora](https://img.shields.io/badge/Jogar%20Agora-Jogo%20da%20Cobrinha-0284c7?style=for-the-badge&logo=google-chrome&logoColor=white)](https://denis-tek.github.io/jogos/snake/)
+[![Voltar ao Menu](https://img.shields.io/badge/Menu-Coleção%20de%20Jogos-334155?style=for-the-badge)](https://denis-tek.github.io/jogos/)
+
 Releitura moderna, responsiva e nostálgica do clássico **Jogo da Cobrinha (Snake)**, desenvolvida em **arquivo único autônomo (`index.html`)** com alternância instantânea entre o tema **Neon Moderno** (iluminação glow, partículas e interpolação fluida a 60 FPS) e o icônico modo retrô **Nokia 3310** (tela LCD monocromática).
 
 🔗 **Link para execução online:** <https://denis-tek.github.io/jogos/snake/>
 
+---
+
 ## 📸 Preview
+
+![Jogo da Cobrinha em execução](./imagem.png)
+
+---
 
 ## ✨ Funcionalidades e Regras do Jogo
 
