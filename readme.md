@@ -26,6 +26,8 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | **[Dots & Boxes](./dots-and-boxes/)** | Estratégia & Tabuleiro | O clássico *Jogo dos Pontinhos* em SVG vetorial com modos 1P vs IA (3 níveis com análise de cadeias) ou 2 Jogadores, 3 tamanhos de grade e temas claro/escuro. | [Jogar Dots & Boxes](https://denis-tek.github.io/jogos/dots-and-boxes/) |
 | **[Two Dots](./two-dots/)** | Puzzle & Conexões | Quebra-cabeça minimalista de conexão de pontos iguais em grade `6×6` com eliminação global de cor por circuitos fechados (*loops*), 3 modos e escala pentatônica. | [Jogar Two Dots](https://denis-tek.github.io/jogos/two-dots/) |
 | **[Tetris](./tetris/)** | Arcade & Lógica | Clássico empilhador de tetrominós em matriz `10×20` com gerador *7-Bag*, rotação com *wall kicks*, peça fantasma (*Ghost Piece*), reserva (*Hold*) e progressão de velocidade. | [Jogar Tetris](https://denis-tek.github.io/jogos/tetris/) |
+| **[Jogo de Damas](./damas/)** | Raciocínio & Tabuleiro | Edição de luxo em tabuleiro `8×8` com regras brasileiras (*Dama Voadora* e *Lei da Maioria*), modo casual, 2 jogadores e IA com algoritmo Minimax Alfa-Beta. | [Jogar Damas](https://denis-tek.github.io/jogos/damas/) |
+| **[Snake](./snake/)** | Arcade & Reflexos | Clássico Jogo da Cobrinha em Canvas 2D com temas **Neon Moderno** e **Nokia 3310**, arenas com ou sem paredes, fruta bônus temporária e D-Pad tátil. | [Jogar Snake](https://denis-tek.github.io/jogos/snake/) |
 
 ---
 
@@ -35,7 +37,7 @@ Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Arc
 
 * **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), ilustrações vetoriais embutidas para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$).
 * **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, Web Animations API e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
-* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca, grafos e inferência (`DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, detecção de ciclos/loops em grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, álgebra vetorial 3D, eventos unificados (`Pointer Events` / *Long Press*) e atalhos de teclado.
+* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, detecção de ciclos/loops em grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D, eventos unificados (`Pointer Events` / *Long Press*) e atalhos de teclado.
 * **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes, fases desbloqueadas e preferências de tema/áudio em cada jogo.
 
@@ -87,10 +89,18 @@ jogos/
 │   ├── index.html             # Aplicação completa do Two Dots — Puzzle de Conexões
 │   ├── imagem.png             # Captura de tela do jogo em execução
 │   └── README.md              # Documentação técnica, regras e algoritmos do Two Dots
-└── tetris/
-    ├── index.html             # Aplicação completa do Tetris
+├── tetris/
+│   ├── index.html             # Aplicação completa do Tetris
+│   ├── imagem.png             # Captura de tela do jogo em execução
+│   └── README.md              # Documentação técnica, controles e regras do Tetris
+├── damas/
+│   ├── index.html             # Aplicação completa do Jogo de Damas — Edição de Luxo
+│   ├── imagem.png             # Captura de tela do jogo em execução
+│   └── README.md              # Documentação técnica, regras e algoritmos do Jogo de Damas
+└── snake/
+    ├── index.html             # Aplicação completa do Snake — Jogo da Cobrinha
     ├── imagem.png             # Captura de tela do jogo em execução
-    └── README.md              # Documentação técnica, controles e regras do Tetris
+    └── README.md              # Documentação técnica, controles e regras do Snake
 ```
 
 ---

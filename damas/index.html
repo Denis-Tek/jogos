@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Jogo de Damas - Edição de Luxo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --board-dark: #4a3525;
+            --board-light: #e6d3b3;
+            --board-border: #2c1e14;
+            --gold-accent: #d4af37;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at center, #1e242b 0%, #111418 100%);
+            color: #f3f4f6;
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Contêiner e Moldura do Tabuleiro com Dimensões Explícitas Garantidas */
+        .board-wrapper {
+            width: 100%;
+            max-width: min(92vw, 480px);
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (min-width: 1024px) {
+            .board-wrapper {
+                max-width: 500px;
+            }
+        }
+
+        .board-frame {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1 / 1;
+            background: linear-gradient(145deg, #3a2718, #24170e);
+            padding: 10px;
+            border-radius: 16px;
+            box-shadow:
+                0 20px 45px -12px rgba(0, 0, 0, 0.85),
+                inset 0 2px 4px rgba(255, 255, 255, 0.15),
+                0 0 0 2px #5c3f28;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (min-width: 640px) {
+            .board-frame {
+                padding: 14px;
+                border-radius: 20px;
+            }
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+            grid-template-rows: repeat(8, minmax(0, 1fr));
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1 / 1;
+            border: 2px solid #1f140c;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .square {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .square-light {
+            background-color: #ead8bc;
+            background-image: linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.2) 75%);
+            background-size: 20px 20px;
+        }
+
+        .square-dark {
+            background-color: #5c3d28;
+            background-image: radial-gradient(rgba(0,0,0,0.15) 1px, transparent 0);
+            background-size: 10px 10px;
+        }
+
+        /* Destaques das casas */
+        .square-selected {
+            background-color: #7c5832 !important;
+            box-shadow: inset 0 0 14px rgba(251, 191, 36, 0.65);
+        }
+
+        .square-last-move {
+            background-color: rgba(234, 179, 8, 0.3) !important;
+        }
+
+        /* Indicadores de movimento válido */
+        .valid-move-dot {
+            width: 34%;
+            height: 34%;
+            border-radius: 50%;
+            background: radial-gradient(circle, #34d399 0%, #059669 100%);
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.85), inset 0 2px 3px rgba(255,255,255,0.6);
+            cursor: pointer;
+            animation: pulse-dot 1.5s infinite ease-in-out;
+            z-index: 15;
+        }
+
+        .valid-capture-ring {
+            width: 82%;
+            height: 82%;
+            border-radius: 50%;
+            border: 3px solid #ef4444;
+            background: rgba(239, 68, 68, 0.22);
+            box-shadow: 0 0 14px rgba(239, 68, 68, 0.75);
+            cursor: pointer;
+            animation: pulse-ring 1.2s infinite ease-in-out;
+            z-index: 15;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(0.92); opacity: 0.85; }
+            50% { transform: scale(1.12); opacity: 1; }
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.04); opacity: 1; }
+        }
+
+        /* Peças 3D Estilizadas */
+        .piece {
+            width: 78%;
+            height: 78%;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .piece:hover {
+            transform: translateY(-2px) scale(1.04);
+        }
+
+        .piece.selected {
+            transform: translateY(-4px) scale(1.08);
+            z-index: 20;
+        }
+
+        /* Peça Branca / Marfim */
+        .piece-white {
+            background: radial-gradient(circle at 35% 30%, #ffffff 0%, #f3ead8 45%, #d6c5a7 85%, #b5a180 100%);
+            box-shadow:
+                0 4px 0 #9c8867,
+                0 8px 12px rgba(0, 0, 0, 0.55),
+                inset 0 2px 3px rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5d8c0;
+        }
+
+        .piece-white::before {
+            content: '';
+            position: absolute;
+            width: 72%;
+            height: 72%;
+            border-radius: 50%;
+            border: 2px solid rgba(180, 158, 122, 0.45);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Peça Preta / Ébano */
+        .piece-black {
+            background: radial-gradient(circle at 35% 30%, #4b5563 0%, #262b33 45%, #14171c 85%, #090a0d 100%);
+            box-shadow:
+                0 4px 0 #08090b,
+                0 8px 12px rgba(0, 0, 0, 0.7),
+                inset 0 2px 3px rgba(255, 255, 255, 0.22);
+            border: 1px solid #374151;
+        }
+
+        .piece-black::before {
+            content: '';
+            position: absolute;
+            width: 72%;
+            height: 72%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Destaque de Captura Obrigatória na Peça */
+        .piece-must-capture {
+            animation: mandatory-glow 1.3s infinite alternate;
+        }
+
+        @keyframes mandatory-glow {
+            from {
+                box-shadow: 0 4px 0 #7f1d1d, 0 0 8px 2px rgba(251, 191, 36, 0.75);
+            }
+            to {
+                box-shadow: 0 4px 0 #7f1d1d, 0 0 16px 5px rgba(245, 158, 11, 1);
+            }
+        }
+
+        /* Coroa da Dama */
+        .crown-icon {
+            width: 56%;
+            height: 56%;
+            z-index: 12;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.45));
+            animation: pop-crown 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes pop-crown {
+            0% { transform: scale(0) rotate(-30deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        /* Animação suave de entrada de modal */
+        .modal-backdrop {
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.25s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-card {
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px) scale(0.96); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        /* Modal de Regras Responsivo com Rolagem Interna Suave */
+        .rules-overlay {
+            padding: 12px;
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        @media (min-width: 640px) {
+            .rules-overlay {
+                padding: 16px;
+            }
+        }
+
+        .rules-card {
+            display: flex;
+            flex-direction: column;
+            max-height: 85vh;
+            max-height: 85dvh;
+            overflow: hidden;
+        }
+
+        .rules-scroll-body {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
+            padding-right: 6px;
+        }
+
+        .rules-scroll-body::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .rules-scroll-body::-webkit-scrollbar-track {
+            background: rgba(28, 25, 23, 0.7);
+            border-radius: 9999px;
+        }
+
+        .rules-scroll-body::-webkit-scrollbar-thumb {
+            background: rgba(217, 119, 6, 0.65);
+            border-radius: 9999px;
+        }
+
+        .rules-scroll-body::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.9);
+        }
+
+        /* Coordenadas do tabuleiro */
+        .coord-label {
+            position: absolute;
+            font-size: 8px;
+            font-weight: 700;
+            opacity: 0.6;
+            pointer-events: none;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between py-3 px-2.5 sm:py-5 sm:px-4">
+
+    <!-- Cabeçalho Superior Limpo e Compacto -->
+    <header class="w-full max-w-4xl flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center shadow-lg border border-amber-300/30 shrink-0">
+                <svg class="w-5 h-5 sm:w-6 sm:h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                </svg>
+            </div>
+            <div class="min-w-0">
+                <h1 class="title-font text-lg sm:text-2xl font-bold tracking-wide text-amber-100 leading-tight truncate">
+                    Jogo de Damas
+                </h1>
+                <p class="text-[11px] sm:text-xs text-stone-400 truncate">Regras 8×8 • Dama Voadora</p>
+            </div>
+        </div>
+
+        <!-- Barra de Ações Rápidas (Ícones Uniformes) -->
+        <div class="flex items-center gap-1.5 shrink-0">
+            <button id="btn-rules" title="Regras do Jogo" aria-label="Regras do Jogo" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-stone-800/90 hover:bg-stone-700 text-stone-200 border border-stone-700 transition shadow-md flex items-center gap-1.5 text-xs font-medium">
+                <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="hidden sm:inline">Regras</span>
+            </button>
+
+            <button id="btn-sound" title="Alternar Som" aria-label="Alternar Som" class="p-2 rounded-xl bg-stone-800/90 hover:bg-stone-700 text-stone-200 border border-stone-700 transition shadow-md">
+                <svg id="icon-sound-on" class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                </svg>
+                <svg id="icon-sound-off" class="w-4 h-4 text-rose-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/>
+                </svg>
+            </button>
+
+            <button id="btn-undo" title="Desfazer Jogada" aria-label="Desfazer Jogada" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-stone-800/90 hover:bg-stone-700 disabled:opacity-40 disabled:pointer-events-none text-stone-200 border border-stone-700 transition shadow-md flex items-center gap-1.5 text-xs font-medium">
+                <svg class="w-4 h-4 text-sky-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+                <span class="hidden sm:inline">Desfazer</span>
+            </button>
+
+            <button id="btn-restart" title="Reiniciar Partida" aria-label="Reiniciar Partida" class="p-2 sm:px-3 sm:py-2 rounded-xl bg-amber-600/90 hover:bg-amber-500 text-white border border-amber-400/30 transition shadow-md flex items-center gap-1.5 text-xs font-semibold">
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span class="hidden sm:inline">Novo Jogo</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Painel de Configurações em Grade Responsiva (Sem Cortes Horizontais) -->
+    <section class="w-full max-w-4xl bg-stone-900/85 border border-stone-800 rounded-2xl p-2.5 mb-3 shadow-xl">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <!-- Seletor de Modo -->
+            <div class="flex items-center justify-between md:justify-start gap-2 bg-stone-950/70 rounded-xl px-2.5 py-1.5 border border-stone-800/80">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-400 shrink-0">Modo:</span>
+                <div class="grid grid-cols-2 gap-1 flex-1">
+                    <button id="mode-pve" class="px-2 py-1 rounded-lg text-xs font-semibold transition bg-amber-600 text-white shadow text-center truncate">
+                        vs IA
+                    </button>
+                    <button id="mode-pvp" class="px-2 py-1 rounded-lg text-xs font-semibold transition text-stone-400 hover:text-white text-center truncate">
+                        2 Jogadores
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seletor de Regra de Captura -->
+            <div class="flex items-center justify-between md:justify-start gap-2 bg-stone-950/70 rounded-xl px-2.5 py-1.5 border border-stone-800/80">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-400 shrink-0">Captura:</span>
+                <div class="grid grid-cols-2 gap-1 flex-1">
+                    <button id="rule-official" title="Captura obrigatória com Lei da Maioria" class="px-2 py-1 rounded-lg text-xs font-semibold transition bg-amber-600 text-white shadow text-center truncate">
+                        Obrigatória
+                    </button>
+                    <button id="rule-casual" title="Captura opcional (estilo recreativo)" class="px-2 py-1 rounded-lg text-xs font-medium transition text-stone-400 hover:text-white text-center truncate">
+                        Opcional
+                    </button>
+                </div>
+            </div>
+
+            <!-- Seletor de Nível IA -->
+            <div id="difficulty-container" class="flex items-center justify-between md:justify-start gap-2 bg-stone-950/70 rounded-xl px-2.5 py-1.5 border border-stone-800/80">
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-stone-400 shrink-0">Nível IA:</span>
+                <div class="grid grid-cols-3 gap-1 flex-1">
+                    <button data-diff="easy" class="diff-btn px-2 py-1 rounded-lg text-xs font-medium transition text-stone-400 hover:text-white text-center">
+                        Fácil
+                    </button>
+                    <button data-diff="medium" class="diff-btn px-2 py-1 rounded-lg text-xs font-semibold transition bg-stone-700 text-amber-300 shadow text-center">
+                        Médio
+                    </button>
+                    <button data-diff="hard" class="diff-btn px-2 py-1 rounded-lg text-xs font-medium transition text-stone-400 hover:text-white text-center">
+                        Difícil
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Área Principal: Placar + Tabuleiro -->
+    <main class="w-full max-w-4xl flex flex-col lg:flex-row items-center justify-center gap-3 sm:gap-5 my-auto">
+
+        <!-- Painel Jogador 2 / IA (Pretas) -->
+        <div id="panel-black" class="w-full max-w-[480px] lg:w-52 bg-stone-900/90 border-2 border-stone-800 rounded-2xl px-3 py-2.5 sm:p-3.5 transition-all duration-300 shadow-lg flex lg:flex-col items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1 lg:w-full">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-stone-600 to-stone-950 border-2 border-stone-500 shadow-inner flex items-center justify-center shrink-0">
+                    <span class="text-xs font-bold text-stone-300">P</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h2 id="label-black-name" class="font-bold text-xs sm:text-sm text-stone-100 truncate">Computador (IA)</h2>
+                    <p id="status-black" class="text-[11px] sm:text-xs text-stone-400 truncate">Aguardando...</p>
+                </div>
+            </div>
+
+            <div class="flex lg:flex-col items-center lg:items-start justify-end lg:justify-between shrink-0 lg:w-full border-t-0 lg:border-t border-stone-800 pt-0 lg:pt-2.5 gap-3 lg:gap-1">
+                <div class="text-[11px] sm:text-xs text-stone-400">
+                    Restam: <span id="count-black" class="font-bold text-stone-100 text-xs sm:text-sm">12</span>
+                </div>
+                <div class="text-[11px] sm:text-xs text-stone-400">
+                    Capturas: <span id="captured-by-black" class="font-bold text-amber-400 text-xs sm:text-sm">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabuleiro Central -->
+        <div class="w-full flex flex-col items-center">
+            <!-- Banner de Alerta de Turno / Captura Obrigatória -->
+            <div id="turn-banner" class="mb-2.5 px-3.5 py-1 rounded-full bg-stone-800/95 border border-stone-700 text-xs sm:text-sm font-medium text-amber-200 shadow-md flex items-center gap-2 transition-all max-w-full">
+                <span id="turn-dot" class="w-2.5 h-2.5 rounded-full bg-amber-100 animate-pulse shrink-0"></span>
+                <span id="turn-text" class="truncate">Vez das Brancas</span>
+            </div>
+
+            <div class="board-wrapper">
+                <div class="board-frame">
+                    <div id="board" class="board-grid" aria-label="Tabuleiro de Damas"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Painel Jogador 1 (Brancas) -->
+        <div id="panel-white" class="w-full max-w-[480px] lg:w-52 bg-stone-900/90 border-2 border-amber-500/70 rounded-2xl px-3 py-2.5 sm:p-3.5 transition-all duration-300 shadow-lg flex lg:flex-col items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1 lg:w-full">
+                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-white to-amber-200 border-2 border-amber-100 shadow-inner flex items-center justify-center shrink-0">
+                    <span class="text-xs font-bold text-stone-800">B</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h2 id="label-white-name" class="font-bold text-xs sm:text-sm text-stone-100 truncate">Você (Brancas)</h2>
+                    <p id="status-white" class="text-[11px] sm:text-xs text-amber-400 font-medium truncate">Sua vez de jogar</p>
+                </div>
+            </div>
+
+            <div class="flex lg:flex-col items-center lg:items-start justify-end lg:justify-between shrink-0 lg:w-full border-t-0 lg:border-t border-stone-800 pt-0 lg:pt-2.5 gap-3 lg:gap-1">
+                <div class="text-[11px] sm:text-xs text-stone-400">
+                    Restam: <span id="count-white" class="font-bold text-stone-100 text-xs sm:text-sm">12</span>
+                </div>
+                <div class="text-[11px] sm:text-xs text-stone-400">
+                    Capturas: <span id="captured-by-white" class="font-bold text-amber-400 text-xs sm:text-sm">0</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Rodapé discreto -->
+    <footer id="footer-rule-note" class="mt-3 text-center text-[11px] sm:text-xs text-stone-500 px-2">
+        Captura obrigatória ativa • Dama move-se livremente nas diagonais
+    </footer>
+
+    <!-- Modal de Fim de Jogo (Vitória / Empate) -->
+    <div id="gameover-modal" class="fixed inset-0 bg-black/75 modal-backdrop hidden items-center justify-center p-4 z-50">
+        <div class="modal-card bg-stone-900 border border-amber-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
+            <div id="modal-trophy" class="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+                <svg class="w-9 h-9 sm:w-11 sm:h-11 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                </svg>
+            </div>
+            <h2 id="modal-title" class="title-font text-2xl sm:text-3xl font-bold text-amber-200 mb-2">Vitória das Brancas!</h2>
+            <p id="modal-subtitle" class="text-stone-300 text-sm mb-6">Todas as peças adversárias foram capturadas ou bloqueadas.</p>
+
+            <div class="bg-stone-950/80 rounded-2xl p-4 mb-6 grid grid-cols-2 gap-4 border border-stone-800">
+                <div>
+                    <p class="text-xs text-stone-400">Jogadas Totais</p>
+                    <p id="stat-moves" class="text-xl font-bold text-stone-100 mt-0.5">0</p>
+                </div>
+                <div>
+                    <p class="text-xs text-stone-400">Damas Promovidas</p>
+                    <p id="stat-kings" class="text-xl font-bold text-amber-400 mt-0.5">0</p>
+                </div>
+            </div>
+
+            <button id="btn-modal-restart" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-base shadow-lg transition transform active:scale-95">
+                Jogar Novamente
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Regras (Responsivo com Cabeçalho/Rodapé Fixos e Corpo Rolável) -->
+    <div id="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-modal-title" class="fixed inset-0 bg-black/75 modal-backdrop rules-overlay hidden items-center justify-center z-50">
+        <div class="modal-card rules-card bg-stone-900 border border-stone-700/90 rounded-2xl sm:rounded-3xl max-w-lg w-full p-4 sm:p-6 text-left shadow-2xl">
+            <!-- Cabeçalho Fixo -->
+            <div class="flex-shrink-0 flex items-center justify-between gap-3 border-b border-stone-800 pb-3 mb-3">
+                <div>
+                    <h3 id="rules-modal-title" class="title-font text-xl sm:text-2xl font-bold text-amber-200 leading-tight">
+                        Regras do Jogo de Damas
+                    </h3>
+                    <p class="text-[11px] sm:text-xs text-stone-400 mt-0.5">Padrão Brasileiro / Internacional 8×8</p>
+                </div>
+                <button id="btn-close-rules" aria-label="Fechar regras" class="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 active:scale-95 text-stone-300 hover:text-white transition shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Área Central Rolável -->
+            <div class="rules-scroll-body">
+                <ul class="space-y-3 text-[13px] sm:text-sm text-stone-200 leading-relaxed">
+                    <li class="flex items-start gap-2.5 bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+                        <span class="text-amber-400 font-bold shrink-0">1.</span>
+                        <span><strong class="text-amber-100">Movimento Simples:</strong> As pedras comuns andam uma casa na diagonal, sempre para frente, em direção ao campo adversário.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5 bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+                        <span class="text-amber-400 font-bold shrink-0">2.</span>
+                        <span><strong class="text-amber-100">Modos de Captura no App:</strong>
+                            <br>• <strong class="text-emerald-300">Obrigatória (Oficial + Maioria):</strong> Capturar é obrigatório (para frente e para trás). Havendo mais de um caminho, vence o que captura o <em>maior número</em> de peças.
+                            <br>• <strong class="text-sky-300">Opcional (Casual):</strong> Tanto você quanto a IA podem escolher livremente entre capturar ou fazer um lance simples sem tomar peças.
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-2.5 bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+                        <span class="text-amber-400 font-bold shrink-0">3.</span>
+                        <span><strong class="text-amber-100">Captura Múltipla em Cadeia:</strong> Se após saltar uma peça houver outra captura disponível na mesma sequência, a peça continua saltando no mesmo turno até completar todo o trajeto (sem saltar duas vezes a mesma peça).</span>
+                    </li>
+                    <li class="flex items-start gap-2.5 bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+                        <span class="text-amber-400 font-bold shrink-0">4.</span>
+                        <span><strong class="text-amber-100">Promoção a Dama:</strong> Ao encerrar seu movimento ou cadeia de captura na última fileira do oponente, a pedra recebe uma coroa e torna-se Dama.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5 bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+                        <span class="text-amber-400 font-bold shrink-0">5.</span>
+                        <span><strong class="text-amber-100">Dama Voadora:</strong> A Dama move-se quantas casas livres desejar em qualquer diagonal (frente ou trás) e pode capturar peças adversárias à distância, pousando em qualquer casa livre após a peça capturada.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5 bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+                        <span class="text-amber-400 font-bold shrink-0">6.</span>
+                        <span><strong class="text-amber-100">Vitória e Empate:</strong> Vence quem capturar todas as peças do adversário ou deixá-lo sem movimentos válidos. Se ocorrerem 40 lances consecutivos sem capturas ou avanço de pedras, a partida termina empatada.</span>
+                    </li>
+                </ul>
+
+                <!-- Curiosidade Histórica: A Regra do Sopro no Brasil -->
+                <div class="mt-3.5 bg-gradient-to-br from-amber-950/50 to-stone-950/90 border border-amber-500/35 rounded-xl p-3.5 text-[13px] sm:text-sm text-stone-200 leading-relaxed">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <svg class="w-4 h-4 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <h4 class="font-bold text-amber-300">Curiosidade Histórica: A "Regra do Sopro" no Brasil</h4>
+                    </div>
+                    <p class="text-stone-300">
+                        Nas partidas recreativas tradicionais pelo Brasil, era muito comum jogar com a chamada <strong class="text-amber-200">Regra do Sopro</strong>: se um jogador deixasse de fazer uma captura disponível, o adversário podia <em>"soprar"</em> — ou seja, remover do tabuleiro a peça que deixou de capturar — ou simplesmente optar por deixar o lance passar sem punição.
+                    </p>
+                    <p class="text-stone-300 mt-2">
+                        Para evitar armadilhas e tornar o jogo puramente estratégico, a <strong class="text-amber-200">Federação Mundial (FMJD)</strong> e a <strong class="text-amber-200">Confederação Brasileira de Damas (CBD)</strong> aboliram o sopro há décadas, estabelecendo a <strong class="text-amber-100">captura obrigatória</strong> como padrão oficial de torneio. Use o seletor <strong class="text-sky-300">Opcional</strong> acima caso queira jogar de forma livre e descontraída!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Rodapé Fixo -->
+            <div class="flex-shrink-0 border-t border-stone-800 pt-3 mt-3">
+                <button id="btn-ok-rules" class="w-full py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 active:scale-[0.99] text-white font-semibold text-sm sm:text-base shadow-lg transition">
+                    Entendi, vamos jogar!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * SINTETIZADOR DE ÁUDIO (WEB AUDIO API)
+         * Gera efeitos sonoros realistas de madeira e conquista sem arquivos externos.
+         */
+        class SoundFX {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.ctx = new AudioContext();
+                    }
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playMove() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(190, now);
+                osc.frequency.exponentialRampToValueAtTime(65, now + 0.09);
+
+                gain.gain.setValueAtTime(0.35, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.09);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(now);
+                osc.stop(now + 0.095);
+            }
+
+            playCapture() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                [0, 0.06].forEach((offset, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = idx === 0 ? 'sine' : 'triangle';
+                    osc.frequency.setValueAtTime(idx === 0 ? 320 : 140, now + offset);
+                    osc.frequency.exponentialRampToValueAtTime(55, now + offset + 0.11);
+
+                    gain.gain.setValueAtTime(0.4, now + offset);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.11);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now + offset);
+                    osc.stop(now + offset + 0.12);
+                });
+            }
+
+            playPromote() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.07);
+
+                    gain.gain.setValueAtTime(0.22, now + i * 0.07);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + i * 0.07 + 0.25);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now + i * 0.07);
+                    osc.stop(now + i * 0.07 + 0.26);
+                });
+            }
+
+            playWin() {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const now = this.ctx.currentTime;
+                const chord = [440, 554.37, 659.25, 880];
+                chord.forEach((freq, i) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.1);
+
+                    gain.gain.setValueAtTime(0.25, now + i * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.005, now + i * 0.1 + 0.55);
+
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    osc.start(now + i * 0.1);
+                    osc.stop(now + i * 0.1 + 0.58);
+                });
+            }
+        }
+
+        /**
+         * MOTOR PRINCIPAL DO JOGO DE DAMAS (REGRAS BRASILEIRAS / INTERNACIONAIS 8x8)
+         * Inclui Captura Obrigatória, Lei da Maioria, Dama Voadora e Modo Casual (Opcional).
+         */
+        class CheckersGame {
+            constructor() {
+                this.sound = new SoundFX();
+                this.boardSize = 8;
+                this.board = [];
+                this.turn = 'white';
+                this.mode = 'pve'; // 'pve' ou 'pvp'
+                this.captureRule = 'official'; // 'official' (Obrigatória + Maioria) ou 'casual' (Opcional)
+                this.difficulty = 'medium'; // 'easy', 'medium', 'hard'
+
+                this.selectedPiece = null;
+                this.activeSequencePrefix = [];
+                this.allAvailableMoves = [];
+                this.validMoves = [];
+                this.lastMove = null;
+
+                this.history = [];
+                this.totalMoves = 0;
+                this.kingsPromoted = 0;
+                this.isGameOver = false;
+                this.aiThinking = false;
+                this.movesWithoutCaptureOrPawn = 0;
+
+                this.cacheDOM();
+                this.bindEvents();
+                this.initGame();
+            }
+
+            cacheDOM() {
+                this.elBoard = document.getElementById('board');
+                this.elTurnText = document.getElementById('turn-text');
+                this.elTurnDot = document.getElementById('turn-dot');
+                this.elTurnBanner = document.getElementById('turn-banner');
+
+                this.elPanelWhite = document.getElementById('panel-white');
+                this.elPanelBlack = document.getElementById('panel-black');
+                this.elStatusWhite = document.getElementById('status-white');
+                this.elStatusBlack = document.getElementById('status-black');
+                this.elLabelBlack = document.getElementById('label-black-name');
+
+                this.elCountWhite = document.getElementById('count-white');
+                this.elCountBlack = document.getElementById('count-black');
+                this.elCapWhite = document.getElementById('captured-by-white');
+                this.elCapBlack = document.getElementById('captured-by-black');
+
+                this.elModalGameOver = document.getElementById('gameover-modal');
+                this.elModalTitle = document.getElementById('modal-title');
+                this.elModalSubtitle = document.getElementById('modal-subtitle');
+                this.elStatMoves = document.getElementById('stat-moves');
+                this.elStatKings = document.getElementById('stat-kings');
+
+                this.elRulesModal = document.getElementById('rules-modal');
+                this.elDiffContainer = document.getElementById('difficulty-container');
+                this.elFooterRuleNote = document.getElementById('footer-rule-note');
+                this.btnUndo = document.getElementById('btn-undo');
+            }
+
+            bindEvents() {
+                // Reiniciar
+                document.getElementById('btn-restart').addEventListener('click', () => this.initGame());
+                document.getElementById('btn-modal-restart').addEventListener('click', () => {
+                    this.elModalGameOver.classList.add('hidden');
+                    this.elModalGameOver.classList.remove('flex');
+                    this.initGame();
+                });
+
+                // Desfazer
+                this.btnUndo.addEventListener('click', () => this.undoMove());
+
+                // Som
+                document.getElementById('btn-sound').addEventListener('click', () => {
+                    this.sound.enabled = !this.sound.enabled;
+                    document.getElementById('icon-sound-on').classList.toggle('hidden', !this.sound.enabled);
+                    document.getElementById('icon-sound-off').classList.toggle('hidden', this.sound.enabled);
+                });
+
+                // Modos de jogo
+                const btnPve = document.getElementById('mode-pve');
+                const btnPvp = document.getElementById('mode-pvp');
+
+                btnPve.addEventListener('click', () => {
+                    if (this.mode === 'pve') return;
+                    this.mode = 'pve';
+                    btnPve.className = 'px-2 py-1 rounded-lg text-xs font-semibold transition bg-amber-600 text-white shadow text-center truncate';
+                    btnPvp.className = 'px-2 py-1 rounded-lg text-xs font-semibold transition text-stone-400 hover:text-white text-center truncate';
+                    this.elDiffContainer.classList.remove('hidden');
+                    this.elLabelBlack.textContent = 'Computador (IA)';
+                    this.initGame();
+                });
+
+                btnPvp.addEventListener('click', () => {
+                    if (this.mode === 'pvp') return;
+                    this.mode = 'pvp';
+                    btnPvp.className = 'px-2 py-1 rounded-lg text-xs font-semibold transition bg-amber-600 text-white shadow text-center truncate';
+                    btnPve.className = 'px-2 py-1 rounded-lg text-xs font-semibold transition text-stone-400 hover:text-white text-center truncate';
+                    this.elDiffContainer.classList.add('hidden');
+                    this.elLabelBlack.textContent = 'Jogador 2 (Pretas)';
+                    this.initGame();
+                });
+
+                // Seletor de Regra de Captura (Obrigatória vs Opcional)
+                const btnRuleOfficial = document.getElementById('rule-official');
+                const btnRuleCasual = document.getElementById('rule-casual');
+
+                btnRuleOfficial.addEventListener('click', () => {
+                    if (this.captureRule === 'official') return;
+                    this.captureRule = 'official';
+                    btnRuleOfficial.className = 'px-2 py-1 rounded-lg text-xs font-semibold transition bg-amber-600 text-white shadow text-center truncate';
+                    btnRuleCasual.className = 'px-2 py-1 rounded-lg text-xs font-medium transition text-stone-400 hover:text-white text-center truncate';
+                    if (this.elFooterRuleNote) {
+                        this.elFooterRuleNote.textContent = 'Captura obrigatória ativa • Dama move-se livremente nas diagonais';
+                    }
+                    this.initGame();
+                });
+
+                btnRuleCasual.addEventListener('click', () => {
+                    if (this.captureRule === 'casual') return;
+                    this.captureRule = 'casual';
+                    btnRuleCasual.className = 'px-2 py-1 rounded-lg text-xs font-semibold transition bg-sky-600 text-white shadow text-center truncate';
+                    btnRuleOfficial.className = 'px-2 py-1 rounded-lg text-xs font-medium transition text-stone-400 hover:text-white text-center truncate';
+                    if (this.elFooterRuleNote) {
+                        this.elFooterRuleNote.textContent = 'Modo Casual ativo (captura opcional) • Dama move-se livremente nas diagonais';
+                    }
+                    this.initGame();
+                });
+
+                // Seletor de dificuldade
+                document.querySelectorAll('.diff-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.difficulty = e.currentTarget.dataset.diff;
+                        document.querySelectorAll('.diff-btn').forEach(b => {
+                            b.className = 'diff-btn px-2 py-1 rounded-lg text-xs font-medium transition text-stone-400 hover:text-white text-center';
+                        });
+                        e.currentTarget.className = 'diff-btn px-2 py-1 rounded-lg text-xs font-semibold transition bg-stone-700 text-amber-300 shadow text-center';
+                        this.initGame();
+                    });
+                });
+
+                // Modal de Regras
+                document.getElementById('btn-rules').addEventListener('click', () => {
+                    this.elRulesModal.classList.remove('hidden');
+                    this.elRulesModal.classList.add('flex');
+                    const scrollBody = this.elRulesModal.querySelector('.rules-scroll-body');
+                    if (scrollBody) scrollBody.scrollTop = 0;
+                });
+                const closeRules = () => {
+                    this.elRulesModal.classList.add('hidden');
+                    this.elRulesModal.classList.remove('flex');
+                };
+                document.getElementById('btn-close-rules').addEventListener('click', closeRules);
+                document.getElementById('btn-ok-rules').addEventListener('click', closeRules);
+                this.elRulesModal.addEventListener('click', (e) => {
+                    if (e.target === this.elRulesModal) closeRules();
+                });
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !this.elRulesModal.classList.contains('hidden')) {
+                        closeRules();
+                    }
+                });
+            }
+
+            initGame() {
+                this.board = Array.from({ length: 8 }, () => Array(8).fill(null));
+
+                // Preenche casas escuras: (r + c) % 2 === 1
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if ((r + c) % 2 === 1) {
+                            if (r < 3) {
+                                this.board[r][c] = { color: 'black', isKing: false };
+                            } else if (r > 4) {
+                                this.board[r][c] = { color: 'white', isKing: false };
+                            }
+                        }
+                    }
+                }
+
+                this.turn = 'white';
+                this.selectedPiece = null;
+                this.activeSequencePrefix = [];
+                this.validMoves = [];
+                this.lastMove = null;
+                this.history = [];
+                this.totalMoves = 0;
+                this.kingsPromoted = 0;
+                this.isGameOver = false;
+                this.aiThinking = false;
+                this.movesWithoutCaptureOrPawn = 0;
+
+                this.computeAllValidMoves();
+                this.updateUI();
+            }
+
+            saveSnapshot() {
+                const cloneBoard = this.board.map(row => row.map(cell => cell ? { ...cell } : null));
+                this.history.push({
+                    board: cloneBoard,
+                    turn: this.turn,
+                    lastMove: this.lastMove ? JSON.parse(JSON.stringify(this.lastMove)) : null,
+                    totalMoves: this.totalMoves,
+                    kingsPromoted: this.kingsPromoted,
+                    movesWithoutCaptureOrPawn: this.movesWithoutCaptureOrPawn
+                });
+                if (this.history.length > 30) this.history.shift();
+            }
+
+            undoMove() {
+                if (this.history.length === 0 || this.aiThinking || this.isGameOver) return;
+
+                if (this.mode === 'pve' && this.turn === 'white' && this.history.length >= 2) {
+                    this.history.pop();
+                }
+                const prev = this.history.pop();
+                if (!prev) return;
+
+                this.board = prev.board;
+                this.turn = prev.turn;
+                this.lastMove = prev.lastMove;
+                this.totalMoves = prev.totalMoves;
+                this.kingsPromoted = prev.kingsPromoted;
+                this.movesWithoutCaptureOrPawn = prev.movesWithoutCaptureOrPawn;
+                this.selectedPiece = null;
+                this.activeSequencePrefix = [];
+                this.validMoves = [];
+
+                this.computeAllValidMoves();
+                this.updateUI();
+            }
+
+            computeAllValidMoves() {
+                this.allAvailableMoves = this.getLegalMoves(this.board, this.turn);
+            }
+
+            /**
+             * FUNÇÃO CENTRAL UNIFICADA: getLegalMoves(boardState, player)
+             * - No modo 'official': aplica Captura Obrigatória e Lei da Maioria.
+             * - No modo 'casual': permite escolher livremente entre capturas e lances simples.
+             */
+            getLegalMoves(boardState, player) {
+                let allCaptureSequences = [];
+                let normalMoves = [];
+
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const piece = boardState[r][c];
+                        if (!piece || piece.color !== player) continue;
+
+                        const seqs = this.findCaptureSequences(boardState, r, c, piece);
+                        if (seqs.length > 0) {
+                            allCaptureSequences.push(...seqs);
+                        }
+
+                        if (this.captureRule === 'casual' || allCaptureSequences.length === 0) {
+                            const norms = this.getNormalMovesForPiece(boardState, r, c);
+                            normalMoves.push(...norms);
+                        }
+                    }
+                }
+
+                if (this.captureRule === 'casual') {
+                    return [...allCaptureSequences, ...normalMoves];
+                }
+
+                if (allCaptureSequences.length > 0) {
+                    let maxCaptures = 0;
+                    for (const seq of allCaptureSequences) {
+                        if (seq.captured.length > maxCaptures) {
+                            maxCaptures = seq.captured.length;
+                        }
+                    }
+                    return allCaptureSequences.filter(seq => seq.captured.length === maxCaptures);
+                }
+
+                return normalMoves;
+            }
+
+            findCaptureSequences(boardState, startR, startC, originalPiece) {
+                const results = [];
+
+                const dfs = (currR, currC, capturedSet, capturedList, pathList) => {
+                    const nextSteps = this.getSingleCaptureSteps(
+                        boardState,
+                        currR,
+                        currC,
+                        originalPiece,
+                        capturedSet,
+                        startR,
+                        startC
+                    );
+
+                    if (nextSteps.length === 0) {
+                        if (capturedList.length > 0) {
+                            results.push({
+                                from: { r: startR, c: startC },
+                                to: { r: pathList[pathList.length - 1].r, c: pathList[pathList.length - 1].c },
+                                path: [...pathList],
+                                captured: [...capturedList]
+                            });
+                        }
+                        return;
+                    }
+
+                    for (const step of nextSteps) {
+                        const capKey = `${step.captured.r},${step.captured.c}`;
+                        capturedSet.add(capKey);
+                        capturedList.push(step.captured);
+                        pathList.push(step.to);
+
+                        dfs(step.to.r, step.to.c, capturedSet, capturedList, pathList);
+
+                        pathList.pop();
+                        capturedList.pop();
+                        capturedSet.delete(capKey);
+                    }
+                };
+
+                dfs(startR, startC, new Set(), [], []);
+                return results;
+            }
+
+            getSingleCaptureSteps(boardState, r, c, piece, capturedSet, originR, originC) {
+                const steps = [];
+                const dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+
+                const isSquareEmptyForJump = (qr, qc) => {
+                    if (qr === originR && qc === originC) return true;
+                    return boardState[qr][qc] === null;
+                };
+
+                if (!piece.isKing) {
+                    for (const [dr, dc] of dirs) {
+                        const midR = r + dr;
+                        const midC = c + dc;
+                        const landR = r + dr * 2;
+                        const landC = c + dc * 2;
+
+                        if (!this.inBounds(landR, landC)) continue;
+
+                        const midPiece = boardState[midR][midC];
+                        const midKey = `${midR},${midC}`;
+
+                        if (
+                            midPiece &&
+                            midPiece.color !== piece.color &&
+                            !capturedSet.has(midKey) &&
+                            isSquareEmptyForJump(landR, landC)
+                        ) {
+                            steps.push({
+                                to: { r: landR, c: landC },
+                                captured: { r: midR, c: midC }
+                            });
+                        }
+                    }
+                } else {
+                    for (const [dr, dc] of dirs) {
+                        let scanR = r + dr;
+                        let scanC = c + dc;
+                        let enemyPos = null;
+
+                        while (this.inBounds(scanR, scanC)) {
+                            const cell = (scanR === originR && scanC === originC) ? null : boardState[scanR][scanC];
+                            const cellKey = `${scanR},${scanC}`;
+
+                            if (!cell) {
+                                if (enemyPos) {
+                                    steps.push({
+                                        to: { r: scanR, c: scanC },
+                                        captured: { ...enemyPos }
+                                    });
+                                }
+                            } else if (capturedSet.has(cellKey)) {
+                                break;
+                            } else if (cell.color === piece.color) {
+                                break;
+                            } else {
+                                if (enemyPos) break;
+                                enemyPos = { r: scanR, c: scanC };
+                            }
+
+                            scanR += dr;
+                            scanC += dc;
+                        }
+                    }
+                }
+
+                return steps;
+            }
+
+            getNormalMovesForPiece(boardState, r, c) {
+                const piece = boardState[r][c];
+                if (!piece) return [];
+                const moves = [];
+                const dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+
+                if (!piece.isKing) {
+                    const forwardRow = piece.color === 'white' ? -1 : 1;
+                    for (const dc of [-1, 1]) {
+                        const nr = r + forwardRow;
+                        const nc = c + dc;
+                        if (this.inBounds(nr, nc) && !boardState[nr][nc]) {
+                            moves.push({
+                                from: { r, c },
+                                to: { r: nr, c: nc },
+                                path: [{ r: nr, c: nc }],
+                                captured: []
+                            });
+                        }
+                    }
+                } else {
+                    for (const [dr, dc] of dirs) {
+                        let nr = r + dr;
+                        let nc = c + dc;
+                        while (this.inBounds(nr, nc) && !boardState[nr][nc]) {
+                            moves.push({
+                                from: { r, c },
+                                to: { r: nr, c: nc },
+                                path: [{ r: nr, c: nc }],
+                                captured: []
+                            });
+                            nr += dr;
+                            nc += dc;
+                        }
+                    }
+                }
+                return moves;
+            }
+
+            inBounds(r, c) {
+                return r >= 0 && r < 8 && c >= 0 && c < 8;
+            }
+
+            handleSquareClick(r, c) {
+                if (this.isGameOver || this.aiThinking) return;
+                if (this.mode === 'pve' && this.turn === 'black') return;
+
+                const stepIdx = this.activeSequencePrefix.length;
+
+                if (this.selectedPiece && this.validMoves.length > 0) {
+                    const matchingSequences = this.validMoves.filter(
+                        seq => seq.path[stepIdx] && seq.path[stepIdx].r === r && seq.path[stepIdx].c === c
+                    );
+
+                    if (matchingSequences.length > 0) {
+                        this.advanceHumanSequence(matchingSequences, stepIdx);
+                        return;
+                    }
+                }
+
+                if (this.activeSequencePrefix.length > 0) {
+                    this.flashMandatoryWarning();
+                    return;
+                }
+
+                const clickedPiece = this.board[r][c];
+                if (clickedPiece && clickedPiece.color === this.turn) {
+                    const pieceSequences = this.allAvailableMoves.filter(
+                        seq => seq.from.r === r && seq.from.c === c
+                    );
+                    if (pieceSequences.length > 0) {
+                        this.selectedPiece = { r, c };
+                        this.activeSequencePrefix = [];
+                        this.validMoves = pieceSequences;
+                        this.sound.init();
+                        this.renderBoard();
+                    } else {
+                        this.flashMandatoryWarning();
+                    }
+                }
+            }
+
+            advanceHumanSequence(matchingSequences, stepIdx) {
+                if (stepIdx === 0) {
+                    this.saveSnapshot();
+                }
+
+                const sampleSeq = matchingSequences[0];
+                const currFrom = stepIdx === 0 ? sampleSeq.from : this.activeSequencePrefix[stepIdx - 1];
+                const currTo = sampleSeq.path[stepIdx];
+                const isCapture = sampleSeq.captured.length > 0;
+
+                const piece = this.board[currFrom.r][currFrom.c];
+                this.board[currFrom.r][currFrom.c] = null;
+                this.board[currTo.r][currTo.c] = piece;
+                this.lastMove = { from: { ...currFrom }, to: { ...currTo } };
+
+                if (isCapture) {
+                    const capPos = sampleSeq.captured[stepIdx];
+                    this.board[capPos.r][capPos.c] = null;
+                    this.movesWithoutCaptureOrPawn = 0;
+                    this.sound.playCapture();
+                } else {
+                    this.movesWithoutCaptureOrPawn = piece.isKing ? this.movesWithoutCaptureOrPawn + 1 : 0;
+                    this.sound.playMove();
+                }
+
+                const nextPrefix = [...this.activeSequencePrefix, { ...currTo }];
+                const remainingSequences = matchingSequences.filter(seq => seq.path.length > nextPrefix.length);
+
+                if (remainingSequences.length > 0) {
+                    this.activeSequencePrefix = nextPrefix;
+                    this.selectedPiece = { ...currTo };
+                    this.validMoves = remainingSequences;
+                    this.updateUI();
+                    return;
+                }
+
+                this.finalizeTurn(piece, currTo);
+            }
+
+            finalizeTurn(piece, finalPos) {
+                if (!piece.isKing) {
+                    if ((piece.color === 'white' && finalPos.r === 0) ||
+                        (piece.color === 'black' && finalPos.r === 7)) {
+                        piece.isKing = true;
+                        this.kingsPromoted++;
+                        setTimeout(() => this.sound.playPromote(), 120);
+                    }
+                }
+
+                this.totalMoves++;
+                this.activeSequencePrefix = [];
+                this.selectedPiece = null;
+                this.validMoves = [];
+                this.turn = this.turn === 'white' ? 'black' : 'white';
+
+                this.computeAllValidMoves();
+                this.updateUI();
+
+                if (this.checkGameOver()) return;
+
+                if (this.mode === 'pve' && this.turn === 'black' && !this.isGameOver) {
+                    this.aiThinking = true;
+                    this.updateUI();
+                    setTimeout(() => {
+                        this.makeAIMove();
+                    }, 480);
+                }
+            }
+
+            flashMandatoryWarning() {
+                this.elTurnBanner.classList.add('ring-2', 'ring-amber-400', 'scale-105');
+                setTimeout(() => {
+                    this.elTurnBanner.classList.remove('ring-2', 'ring-amber-400', 'scale-105');
+                }, 350);
+            }
+
+            checkGameOver() {
+                if (this.allAvailableMoves.length === 0) {
+                    this.isGameOver = true;
+                    this.aiThinking = false;
+                    const winner = this.turn === 'white' ? 'Pretas' : 'Brancas';
+                    this.showEndModal(
+                        `Vitória das ${winner}!`,
+                        `O adversário ficou sem peças ou sem movimentos válidos disponíveis.`
+                    );
+                    this.sound.playWin();
+                    return true;
+                }
+
+                if (this.movesWithoutCaptureOrPawn >= 40) {
+                    this.isGameOver = true;
+                    this.aiThinking = false;
+                    this.showEndModal(
+                        'Empate!',
+                        'A partida atingiu o limite de lances sem capturas ou avanço de pedras.'
+                    );
+                    return true;
+                }
+
+                return false;
+            }
+
+            showEndModal(title, subtitle) {
+                this.elModalTitle.textContent = title;
+                this.elModalSubtitle.textContent = subtitle;
+                this.elStatMoves.textContent = this.totalMoves;
+                this.elStatKings.textContent = this.kingsPromoted;
+
+                setTimeout(() => {
+                    this.elModalGameOver.classList.remove('hidden');
+                    this.elModalGameOver.classList.add('flex');
+                }, 350);
+            }
+
+            /**
+             * INTELIGÊNCIA ARTIFICIAL (MINIMAX COM PODA ALFA-BETA)
+             */
+            makeAIMove() {
+                if (this.isGameOver) return;
+
+                const legalSequences = this.getLegalMoves(this.board, 'black');
+                this.allAvailableMoves = legalSequences;
+
+                if (legalSequences.length === 0) {
+                    this.aiThinking = false;
+                    this.checkGameOver();
+                    return;
+                }
+
+                let chosenSequence = null;
+
+                if (legalSequences.length === 1) {
+                    chosenSequence = legalSequences[0];
+                } else if (this.difficulty === 'easy') {
+                    chosenSequence = legalSequences[Math.floor(Math.random() * legalSequences.length)];
+                } else {
+                    const depth = this.difficulty === 'medium' ? 3 : 5;
+                    chosenSequence = this.getBestMoveMinimax(legalSequences, depth);
+                }
+
+                this.executeAISequenceAnimated(chosenSequence);
+            }
+
+            executeAISequenceAnimated(sequence) {
+                this.saveSnapshot();
+                const piece = this.board[sequence.from.r][sequence.from.c];
+                const isCapture = sequence.captured.length > 0;
+                let stepIndex = 0;
+
+                const performNextStep = () => {
+                    if (this.isGameOver) return;
+
+                    const currFrom = stepIndex === 0 ? sequence.from : sequence.path[stepIndex - 1];
+                    const currTo = sequence.path[stepIndex];
+
+                    this.board[currFrom.r][currFrom.c] = null;
+                    this.board[currTo.r][currTo.c] = piece;
+                    this.lastMove = { from: { ...currFrom }, to: { ...currTo } };
+                    this.selectedPiece = { ...currTo };
+
+                    if (isCapture) {
+                        const capPos = sequence.captured[stepIndex];
+                        this.board[capPos.r][capPos.c] = null;
+                        this.movesWithoutCaptureOrPawn = 0;
+                        this.sound.playCapture();
+                    } else {
+                        this.movesWithoutCaptureOrPawn = piece.isKing ? this.movesWithoutCaptureOrPawn + 1 : 0;
+                        this.sound.playMove();
+                    }
+
+                    stepIndex++;
+
+                    if (stepIndex < sequence.path.length) {
+                        this.updateUI();
+                        setTimeout(performNextStep, 350);
+                    } else {
+                        this.aiThinking = false;
+                        this.finalizeTurn(piece, currTo);
+                    }
+                };
+
+                performNextStep();
+            }
+
+            cloneBoard(boardState) {
+                return boardState.map(row => row.map(cell => cell ? { ...cell } : null));
+            }
+
+            getBestMoveMinimax(legalSequences, maxDepth) {
+                let bestScore = -Infinity;
+                let bestMoves = [];
+
+                for (const seq of legalSequences) {
+                    const simBoard = this.cloneBoard(this.board);
+                    this.applySimulatedSequence(simBoard, seq);
+                    const score = this.minimax(simBoard, maxDepth - 1, -Infinity, Infinity, false);
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMoves = [seq];
+                    } else if (score === bestScore) {
+                        bestMoves.push(seq);
+                    }
+                }
+
+                return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+            }
+
+            applySimulatedSequence(simBoard, seq) {
+                const piece = simBoard[seq.from.r][seq.from.c];
+                simBoard[seq.from.r][seq.from.c] = null;
+
+                for (const cap of seq.captured) {
+                    simBoard[cap.r][cap.c] = null;
+                }
+
+                const finalPos = seq.to;
+                simBoard[finalPos.r][finalPos.c] = piece;
+
+                if (!piece.isKing) {
+                    if ((piece.color === 'white' && finalPos.r === 0) ||
+                        (piece.color === 'black' && finalPos.r === 7)) {
+                        piece.isKing = true;
+                    }
+                }
+            }
+
+            minimax(simBoard, depth, alpha, beta, isMaximizing) {
+                const currentPlayer = isMaximizing ? 'black' : 'white';
+                const legalMoves = this.getLegalMoves(simBoard, currentPlayer);
+
+                if (legalMoves.length === 0) {
+                    return isMaximizing ? -10000 - depth * 10 : 10000 + depth * 10;
+                }
+
+                if (depth <= 0) {
+                    return this.evaluateBoard(simBoard);
+                }
+
+                if (isMaximizing) {
+                    let maxEval = -Infinity;
+                    for (const seq of legalMoves) {
+                        const nextBoard = this.cloneBoard(simBoard);
+                        this.applySimulatedSequence(nextBoard, seq);
+                        const ev = this.minimax(nextBoard, depth - 1, alpha, beta, false);
+                        maxEval = Math.max(maxEval, ev);
+                        alpha = Math.max(alpha, ev);
+                        if (beta <= alpha) break;
+                    }
+                    return maxEval;
+                } else {
+                    let minEval = Infinity;
+                    for (const seq of legalMoves) {
+                        const nextBoard = this.cloneBoard(simBoard);
+                        this.applySimulatedSequence(nextBoard, seq);
+                        const ev = this.minimax(nextBoard, depth - 1, alpha, beta, true);
+                        minEval = Math.min(minEval, ev);
+                        beta = Math.min(beta, ev);
+                        if (beta <= alpha) break;
+                    }
+                    return minEval;
+                }
+            }
+
+            evaluateBoard(simBoard) {
+                let score = 0;
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const p = simBoard[r][c];
+                        if (!p) continue;
+
+                        let val = p.isKing ? 340 : 100;
+                        const centerBonus = (3.5 - Math.abs(3.5 - c)) * 4;
+                        if (!p.isKing) {
+                            if (p.color === 'black') {
+                                val += r * 6 + centerBonus;
+                                if (r === 0) val += 12;
+                            } else {
+                                val += (7 - r) * 6 + centerBonus;
+                                if (r === 7) val += 12;
+                            }
+                        } else {
+                            val += centerBonus * 2;
+                        }
+
+                        score += p.color === 'black' ? val : -val;
+                    }
+                }
+                return score;
+            }
+
+            updateUI() {
+                this.renderBoard();
+                this.updateScoreAndStatus();
+                this.btnUndo.disabled = this.history.length === 0 || this.aiThinking || this.isGameOver;
+            }
+
+            updateScoreAndStatus() {
+                let whiteCount = 0;
+                let blackCount = 0;
+
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const p = this.board[r][c];
+                        if (p) {
+                            if (p.color === 'white') whiteCount++;
+                            else blackCount++;
+                        }
+                    }
+                }
+
+                this.elCountWhite.textContent = whiteCount;
+                this.elCountBlack.textContent = blackCount;
+                this.elCapWhite.textContent = 12 - blackCount;
+                this.elCapBlack.textContent = 12 - whiteCount;
+
+                const isOfficial = this.captureRule === 'official';
+                const hasMandatoryCapture = isOfficial && this.allAvailableMoves.some(seq => seq.captured.length > 0);
+                const maxCaptureCount = hasMandatoryCapture ? this.allAvailableMoves[0].captured.length : 0;
+
+                if (this.turn === 'white') {
+                    this.elPanelWhite.classList.add('border-amber-500/80', 'bg-stone-900');
+                    this.elPanelWhite.classList.remove('border-stone-800');
+                    this.elPanelBlack.classList.remove('border-amber-500/80');
+                    this.elPanelBlack.classList.add('border-stone-800');
+
+                    this.elTurnDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-100 animate-pulse shrink-0';
+                    if (this.activeSequencePrefix.length > 0) {
+                        this.elTurnText.textContent = isOfficial
+                            ? 'Captura obrigatória! Continue saltando'
+                            : 'Captura em cadeia! Continue saltando';
+                        this.elStatusWhite.textContent = 'Continue a cadeia de captura!';
+                    } else if (hasMandatoryCapture) {
+                        this.elTurnText.textContent = maxCaptureCount > 1
+                            ? `Vez das Brancas • Captura obrigatória! (${maxCaptureCount})`
+                            : 'Vez das Brancas • Captura obrigatória!';
+                        this.elStatusWhite.textContent = 'Captura obrigatória!';
+                    } else {
+                        this.elTurnText.textContent = 'Vez das Brancas';
+                        this.elStatusWhite.textContent = isOfficial ? 'Sua vez de jogar' : 'Sua vez (captura opcional)';
+                    }
+                    this.elStatusBlack.textContent = 'Aguardando...';
+                } else {
+                    this.elPanelBlack.classList.add('border-amber-500/80', 'bg-stone-900');
+                    this.elPanelBlack.classList.remove('border-stone-800');
+                    this.elPanelWhite.classList.remove('border-amber-500/80');
+                    this.elPanelWhite.classList.add('border-stone-800');
+
+                    this.elTurnDot.className = 'w-2.5 h-2.5 rounded-full bg-stone-400 animate-pulse shrink-0';
+                    if (this.mode === 'pve') {
+                        if (hasMandatoryCapture) {
+                            this.elTurnText.textContent = maxCaptureCount > 1
+                                ? `IA: Captura obrigatória! (${maxCaptureCount})`
+                                : 'IA: Captura obrigatória!';
+                            this.elStatusBlack.textContent = 'Executando captura...';
+                        } else {
+                            this.elTurnText.textContent = 'Computador pensando...';
+                            this.elStatusBlack.textContent = 'Calculando jogada...';
+                        }
+                    } else if (this.activeSequencePrefix.length > 0) {
+                        this.elTurnText.textContent = isOfficial
+                            ? 'Pretas • Captura obrigatória! Continue'
+                            : 'Pretas • Captura em cadeia! Continue';
+                        this.elStatusBlack.textContent = 'Continue a cadeia de captura!';
+                    } else if (hasMandatoryCapture) {
+                        this.elTurnText.textContent = maxCaptureCount > 1
+                            ? `Vez das Pretas • Captura obrigatória! (${maxCaptureCount})`
+                            : 'Vez das Pretas • Captura obrigatória!';
+                        this.elStatusBlack.textContent = 'Captura obrigatória!';
+                    } else {
+                        this.elTurnText.textContent = 'Vez das Pretas';
+                        this.elStatusBlack.textContent = isOfficial ? 'Sua vez de jogar' : 'Sua vez (captura opcional)';
+                    }
+                    this.elStatusWhite.textContent = 'Aguardando...';
+                }
+            }
+
+            renderBoard() {
+                this.elBoard.innerHTML = '';
+                const hasMandatoryCapture = this.captureRule === 'official' && this.allAvailableMoves.some(seq => seq.captured.length > 0);
+                const mandatoryOrigins = new Set(
+                    hasMandatoryCapture
+                        ? this.allAvailableMoves.map(seq => `${seq.from.r},${seq.from.c}`)
+                        : []
+                );
+
+                const stepIdx = this.activeSequencePrefix.length;
+                const nextStepTargets = new Map();
+                if (this.selectedPiece && this.validMoves.length > 0) {
+                    for (const seq of this.validMoves) {
+                        const target = seq.path[stepIdx];
+                        if (target) {
+                            const key = `${target.r},${target.c}`;
+                            const prev = nextStepTargets.get(key) || false;
+                            nextStepTargets.set(key, prev || seq.captured.length > 0);
+                        }
+                    }
+                }
+
+                const colsLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const isDark = (r + c) % 2 === 1;
+                        const square = document.createElement('div');
+                        square.className = `square ${isDark ? 'square-dark' : 'square-light'}`;
+
+                        if (c === 0) {
+                            const rowNum = document.createElement('span');
+                            rowNum.className = `coord-label top-0.5 left-1 ${isDark ? 'text-amber-200/70' : 'text-stone-700'}`;
+                            rowNum.textContent = 8 - r;
+                            square.appendChild(rowNum);
+                        }
+                        if (r === 7) {
+                            const colChar = document.createElement('span');
+                            colChar.className = `coord-label bottom-0.5 right-1 ${isDark ? 'text-amber-200/70' : 'text-stone-700'}`;
+                            colChar.textContent = colsLetters[c];
+                            square.appendChild(colChar);
+                        }
+
+                        if (this.lastMove &&
+                            ((this.lastMove.from.r === r && this.lastMove.from.c === c) ||
+                             (this.lastMove.to.r === r && this.lastMove.to.c === c))) {
+                            square.classList.add('square-last-move');
+                        }
+
+                        if (this.selectedPiece && this.selectedPiece.r === r && this.selectedPiece.c === c) {
+                            square.classList.add('square-selected');
+                        }
+
+                        const cellKey = `${r},${c}`;
+                        if (nextStepTargets.has(cellKey)) {
+                            const isCaptureTarget = nextStepTargets.get(cellKey);
+                            const indicator = document.createElement('div');
+                            indicator.className = isCaptureTarget ? 'valid-capture-ring' : 'valid-move-dot';
+                            square.appendChild(indicator);
+                        }
+
+                        const piece = this.board[r][c];
+                        if (piece) {
+                            const pieceEl = document.createElement('div');
+                            pieceEl.className = `piece ${piece.color === 'white' ? 'piece-white' : 'piece-black'}`;
+
+                            if (this.selectedPiece && this.selectedPiece.r === r && this.selectedPiece.c === c) {
+                                pieceEl.classList.add('selected');
+                            }
+
+                            const isHumanTurn = !(this.mode === 'pve' && this.turn === 'black');
+                            if (isHumanTurn && !this.isGameOver && mandatoryOrigins.has(cellKey)) {
+                                pieceEl.classList.add('piece-must-capture');
+                            }
+
+                            if (piece.isKing) {
+                                const crownColor = piece.color === 'white' ? '#b45309' : '#fbbf24';
+                                pieceEl.innerHTML = `
+                                    <svg class="crown-icon" viewBox="0 0 24 24" fill="${crownColor}">
+                                        <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                                    </svg>
+                                `;
+                            }
+
+                            square.appendChild(pieceEl);
+                        }
+
+                        square.addEventListener('click', () => this.handleSquareClick(r, c));
+                        this.elBoard.appendChild(square);
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            window.game = new CheckersGame();
+        });
+    </script>
+</body>
+</html>
