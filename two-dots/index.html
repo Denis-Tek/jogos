@@ -5,41 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Two Dots — Puzzle de Conexões</title>
   <style>
-    /* Tokens de Design e Variáveis de Tema (Claro / Escuro) */
+    /* Variáveis de Design e Temas (Claro / Escuro) */
     :root {
-      --bg: #f4f6f9;
+      --bg: #f1f5f9;
       --surface: #ffffff;
-      --surface-alt: #eef1f6;
-      --text: #1e293b;
+      --surface-alt: #e2e8f0;
+      --text: #0f172a;
       --text-muted: #64748b;
       --border: #cbd5e1;
-      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
       --accent: #3b82f6;
-
-      /* Paleta de 5 cores vibrantes (Modo Claro) */
-      --dot-0: #ef4444; /* Vermelho Coral */
-      --dot-1: #3b82f6; /* Azul Oceano */
-      --dot-2: #10b981; /* Verde Esmeralda */
-      --dot-3: #f59e0b; /* Amarelo Âmbar */
-      --dot-4: #8b5cf6; /* Roxo Violeta */
+      --shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.1);
     }
 
     [data-theme="dark"] {
-      --bg: #0f172a;
+      --bg: #0b1120;
       --surface: #1e293b;
       --surface-alt: #334155;
-      --text: #f1f5f9;
+      --text: #f8fafc;
       --text-muted: #94a3b8;
-      --border: #475569;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.45);
+      --border: #334155;
       --accent: #60a5fa;
-
-      /* Paleta de 5 cores vibrantes (Modo Escuro) */
-      --dot-0: #f87171;
-      --dot-1: #60a5fa;
-      --dot-2: #34d399;
-      --dot-3: #fbbf24;
-      --dot-4: #a78bfa;
+      --shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.55);
     }
 
     * {
@@ -51,93 +37,205 @@
     }
 
     html, body {
-      height: 100dvh;
       width: 100%;
+      height: 100dvh;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      transition: background 0.25s ease, color 0.25s ease;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
     .app {
+      width: 100%;
       height: 100dvh;
-      max-width: 520px;
+      max-width: 680px;
       margin: 0 auto;
-      padding: 12px 16px;
+      padding: 10px 14px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    /* Cabeçalho */
-    header {
-      display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+    }
+
+    /* Cabeçalho Superior */
+    header#topHeader {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-shrink: 0;
+      padding-left: 44px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      display: grid;
+      grid-template-columns: repeat(2, 8px);
+      gap: 3px;
       flex-shrink: 0;
     }
 
-    .title-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-dots {
-      display: grid;
-      grid-template-columns: repeat(2, 9px);
-      gap: 3px;
-    }
-
-    .logo-dots span {
-      width: 9px;
-      height: 9px;
+    .brand-icon span {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
     }
 
-    .title-group h1 {
-      font-size: 1.3rem;
+    .brand h1 {
+      font-size: 1.15rem;
       font-weight: 800;
       letter-spacing: -0.02em;
+      white-space: nowrap;
     }
 
-    .header-actions {
+    .toolbar {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .pill-select {
+      height: 34px;
+      padding: 0 7px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      outline: none;
     }
 
     .icon-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       border-radius: 10px;
-      font-size: 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       box-shadow: var(--shadow);
-      transition: transform 0.12s ease, background 0.2s ease;
+      transition: transform 0.12s ease;
     }
 
     .icon-btn:active {
-      transform: scale(0.94);
+      transform: scale(0.93);
     }
 
-    /* Seletor de Modo de Jogo */
-    .mode-bar {
+    @media (min-width: 681px) {
+      header#topHeader {
+        padding-left: 0;
+      }
+      .brand h1 {
+        font-size: 1.25rem;
+      }
+      .pill-select, .icon-btn {
+        height: 36px;
+      }
+      .icon-btn {
+        width: 36px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      header#topHeader {
+        flex-wrap: wrap;
+        row-gap: 6px;
+      }
+      .toolbar {
+        margin-left: auto;
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      display: grid;
+      grid-template-columns: repeat(2, 9px);
+      gap: 3px;
+    }
+
+    .brand-icon span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .brand h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-select {
+      height: 36px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      outline: none;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      transition: transform 0.12s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.93);
+    }
+
+    /* Barra de Modos */
+    nav#modeBar {
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 6px;
       background: var(--surface);
-      padding: 5px;
-      border-radius: 14px;
+      padding: 4px;
+      border-radius: 12px;
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
       flex-shrink: 0;
@@ -147,9 +245,9 @@
       border: none;
       background: transparent;
       color: var(--text-muted);
-      padding: 7px 6px;
-      border-radius: 10px;
-      font-size: 0.8rem;
+      padding: 6px 4px;
+      border-radius: 9px;
+      font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -158,207 +256,90 @@
     .mode-btn.active {
       background: var(--surface-alt);
       color: var(--text);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     }
 
-    /* HUD de Pontuação e Status */
-    .hud {
+    /* Painel de Status (HUD) */
+    section#hudBar {
+      width: 100%;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
       flex-shrink: 0;
     }
 
-    .stat-card {
+    .hud-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 8px 10px;
+      border-radius: 12px;
+      padding: 6px 8px;
       text-align: center;
       box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
     }
 
-    .stat-label {
-      font-size: 0.66rem;
+    .hud-label {
+      display: block;
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--text-muted);
     }
 
-    .stat-value {
-      font-size: 1.35rem;
+    .hud-val {
+      display: block;
+      font-size: 1.28rem;
       font-weight: 800;
       font-variant-numeric: tabular-nums;
       margin-top: 1px;
     }
 
-    .stat-value.urgent {
+    .hud-val.urgent {
       color: #ef4444;
-      animation: pulseText 0.75s infinite alternate;
+      animation: pulseUrgent 0.7s infinite alternate;
     }
 
-    @keyframes pulseText {
+    @keyframes pulseUrgent {
       from { transform: scale(1); }
       to { transform: scale(1.08); }
     }
 
-    /* Barra de Progresso do Cronômetro */
-    .timer-track {
-      height: 5px;
+    /* Área Central do Canvas */
+    main#canvasStage {
+      flex: 1 1 auto;
       width: 100%;
-      background: var(--surface-alt);
-      border-radius: 999px;
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-      flex-shrink: 0;
-    }
-
-    .timer-track.visible {
-      opacity: 1;
-    }
-
-    .timer-fill {
-      height: 100%;
-      width: 100%;
-      background: var(--accent);
-      border-radius: 999px;
-      transition: width 0.25s linear, background-color 0.3s ease;
-    }
-
-    /* Área Central do Tabuleiro */
-    .stage {
-      flex: 1;
-      min-height: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
+      min-height: 0;
     }
 
-    .board-shell {
+    .canvas-frame {
       position: relative;
-      height: 100%;
-      max-height: 100%;
-      aspect-ratio: 1 / 1;
-      max-width: 100%;
       background: var(--surface);
       border: 2.5px solid var(--border);
       border-radius: 22px;
-      padding: 14px;
       box-shadow: var(--shadow);
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      touch-action: none;
-    }
-
-    /* Fallback para viewports muito largas onde a largura limita antes da altura */
-    @supports not (aspect-ratio: 1 / 1) {
-      .board-shell {
-        width: min(86vw, 440px);
-        height: min(86vw, 440px);
-      }
-    }
-
-    .board-shell.square-active {
-      border-color: var(--active-color, var(--accent));
-      box-shadow: 0 0 0 5px color-mix(in srgb, var(--active-color, var(--accent)) 28%, transparent), var(--shadow);
-    }
-
-    /* Camada SVG sobreposta apenas para linhas de conexão */
-    svg#lineLayer {
-      position: absolute;
-      inset: 14px;
-      width: calc(100% - 28px);
-      height: calc(100% - 28px);
-      pointer-events: none;
-      z-index: 2;
-      overflow: visible;
-    }
-
-    /* Grade 6x6 DOM com hitboxes precisas */
-    .dot-grid {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      grid-template-rows: repeat(6, 1fr);
-      z-index: 3;
-      touch-action: none;
-    }
-
-    .dot-cell {
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      position: relative;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .canvas-frame.loop-active {
+      border-color: var(--loop-color, var(--accent));
+      box-shadow: 0 0 0 5px rgba(59, 130, 246, 0.22), var(--shadow);
+    }
+
+    canvas#boardCanvas {
+      display: block;
+      border-radius: 20px;
       touch-action: none;
+      cursor: pointer;
     }
 
-    .dot-ball {
-      width: 56%;
-      height: 56%;
-      border-radius: 50%;
-      background-color: var(--dot-color);
-      position: relative;
-      pointer-events: none;
-      transition: transform 0.16s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.18s ease, box-shadow 0.18s ease;
-      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.14);
-    }
-
-    /* Reflexo sutil no topo da bolinha */
-    .dot-ball::after {
-      content: "";
-      position: absolute;
-      top: 18%;
-      left: 20%;
-      width: 26%;
-      height: 26%;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.34);
-    }
-
-    .dot-cell.selected .dot-ball {
-      transform: scale(1.22);
-      box-shadow: 0 0 0 6px color-mix(in srgb, var(--dot-color) 28%, transparent), inset 0 -3px 0 rgba(0, 0, 0, 0.14);
-    }
-
-    .dot-cell.square-target .dot-ball {
-      transform: scale(1.2);
-      box-shadow: 0 0 0 7px color-mix(in srgb, var(--dot-color) 32%, transparent);
-    }
-
-    .dot-cell.popping .dot-ball {
-      transform: scale(0.05);
-      opacity: 0;
-    }
-
-    @keyframes dropIn {
-      0% {
-        transform: translateY(var(--drop-offset, -120%)) scale(0.85);
-        opacity: 0.4;
-      }
-      75% {
-        transform: translateY(6%) scale(1.03);
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-    }
-
-    .dot-ball.falling {
-      animation: dropIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    }
-
-    /* Badge flutuante (QUADRADO! / Embaralhando / Pontos) */
-    .toast-banner {
+    /* Banner Flutuante de Quadrado / Aviso */
+    .status-banner {
       position: absolute;
       top: -14px;
       left: 50%;
@@ -370,58 +351,42 @@
       border-radius: 999px;
       font-size: 0.76rem;
       font-weight: 800;
-      letter-spacing: 0.04em;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.16);
+      letter-spacing: 0.03em;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 15;
       white-space: nowrap;
+      z-index: 10;
+      transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .toast-banner.show {
+    .status-banner.visible {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
 
-    .score-pop {
-      position: absolute;
-      pointer-events: none;
-      font-weight: 900;
-      font-size: 1.25rem;
-      z-index: 20;
-      transform: translate(-50%, -50%);
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
-      animation: floatScore 0.75s ease-out forwards;
-    }
-
-    @keyframes floatScore {
-      0% { opacity: 1; transform: translate(-50%, -30%) scale(0.8); }
-      30% { opacity: 1; transform: translate(-50%, -70%) scale(1.12); }
-      100% { opacity: 0; transform: translate(-50%, -140%) scale(1); }
-    }
-
     /* Rodapé */
-    footer {
+    footer#bottomFooter {
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: var(--text-muted);
       padding: 0 4px;
       flex-shrink: 0;
     }
 
-    .chain-preview {
+    .chain-status {
       font-weight: 700;
       color: var(--text);
     }
 
-    /* Modal Fim de Jogo */
+    /* Modal Fim de Partida */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.62);
+      background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(4px);
       display: none;
       align-items: center;
@@ -432,23 +397,17 @@
 
     .modal-backdrop.open {
       display: flex;
-      animation: fadeIn 0.2s ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .modal {
+    .modal-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 22px;
       padding: 24px;
       width: 100%;
-      max-width: 350px;
+      max-width: 340px;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
     }
 
     .modal-emoji {
@@ -456,45 +415,45 @@
       margin-bottom: 6px;
     }
 
-    .modal h2 {
-      font-size: 1.4rem;
+    .modal-card h2 {
+      font-size: 1.38rem;
       font-weight: 800;
       margin-bottom: 4px;
     }
 
-    .modal p {
+    .modal-card p {
       color: var(--text-muted);
       font-size: 0.88rem;
       margin-bottom: 18px;
     }
 
-    .modal-stats {
+    .modal-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
-    .modal-stat-box {
+    .modal-box {
       background: var(--surface-alt);
       padding: 10px;
       border-radius: 12px;
     }
 
-    .modal-stat-box span {
+    .modal-box span {
       display: block;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       text-transform: uppercase;
       color: var(--text-muted);
     }
 
-    .modal-stat-box strong {
-      font-size: 1.55rem;
+    .modal-box strong {
+      font-size: 1.5rem;
       font-weight: 800;
     }
 
-    .btn-primary {
+    .btn-restart {
       width: 100%;
       padding: 12px;
       border: none;
@@ -504,122 +463,130 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.1s ease, opacity 0.15s ease;
     }
 
-    .btn-primary:active {
+    .btn-restart:active {
       transform: scale(0.98);
-    }
-
-    @media (max-width: 400px) {
-      .app { padding: 10px 10px; gap: 8px; }
-      .stat-value { font-size: 1.2rem; }
-      .mode-btn { font-size: 0.74rem; padding: 6px 4px; }
-      .board-shell { padding: 10px; }
-      svg#lineLayer { inset: 10px; width: calc(100% - 20px); height: calc(100% - 20px); }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <header>
-      <div class="title-group">
-        <div class="logo-dots" aria-hidden="true">
-          <span style="background: var(--dot-0)"></span>
-          <span style="background: var(--dot-1)"></span>
-          <span style="background: var(--dot-2)"></span>
-          <span style="background: var(--dot-3)"></span>
+    <header id="topHeader">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <span style="background:#ef4444"></span>
+          <span style="background:#3b82f6"></span>
+          <span style="background:#10b981"></span>
+          <span style="background:#f59e0b"></span>
         </div>
         <h1>Two Dots</h1>
       </div>
-      <div class="header-actions">
+
+      <div class="toolbar">
+        <select id="densitySelect" class="pill-select" title="Densidade do Tabuleiro" aria-label="Densidade do Tabuleiro">
+          <option value="compact">Compacto</option>
+          <option value="standard" selected>Padrão</option>
+          <option value="large">Grande</option>
+        </select>
+        <select id="colorCountSelect" class="pill-select" title="Quantidade de Cores" aria-label="Quantidade de Cores">
+          <option value="4">4 Cores</option>
+          <option value="5" selected>5 Cores</option>
+          <option value="6">6 Cores</option>
+        </select>
         <button class="icon-btn" id="soundBtn" title="Alternar Som" aria-label="Alternar Som">🔊</button>
         <button class="icon-btn" id="themeBtn" title="Alternar Tema" aria-label="Alternar Tema">☀️</button>
         <button class="icon-btn" id="restartBtn" title="Nova Partida" aria-label="Nova Partida">🔄</button>
       </div>
     </header>
 
-    <nav class="mode-bar" aria-label="Modos de Jogo">
-      <button class="mode-btn active" data-mode="moves">30 Movimentos</button>
-      <button class="mode-btn" data-mode="timed">60 Segundos</button>
-      <button class="mode-btn" data-mode="zen">Infinito / Zen</button>
+    <nav id="modeBar" aria-label="Modos de Jogo">
+      <button class="mode-btn active" data-mode="moves">Movimentos (30)</button>
+      <button class="mode-btn" data-mode="timed">Tempo (60s)</button>
+      <button class="mode-btn" data-mode="zen">Infinito</button>
     </nav>
 
-    <section class="hud" aria-label="Placar e Status">
-      <div class="stat-card">
-        <span class="stat-label" id="limitLabel">Movimentos</span>
-        <span class="stat-value" id="limitValue">30</span>
+    <section id="hudBar" aria-label="Placar">
+      <div class="hud-card">
+        <span class="hud-label" id="limitLabel">Movimentos</span>
+        <span class="hud-val" id="limitValue">30</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Pontos</span>
-        <span class="stat-value" id="scoreValue">0</span>
+      <div class="hud-card">
+        <span class="hud-label">Pontos</span>
+        <span class="hud-val" id="scoreValue">0</span>
       </div>
-      <div class="stat-card">
-        <span class="stat-label">Recorde</span>
-        <span class="stat-value" id="bestValue">0</span>
+      <div class="hud-card">
+        <span class="hud-label">Recorde</span>
+        <span class="hud-val" id="bestValue">0</span>
       </div>
     </section>
 
-    <div class="timer-track" id="timerTrack">
-      <div class="timer-fill" id="timerFill"></div>
-    </div>
-
-    <main class="stage">
-      <div class="board-shell" id="boardShell">
-        <div class="toast-banner" id="toastBanner">QUADRADO! Limpa toda a cor</div>
-        <svg id="lineLayer" viewBox="0 0 600 600" preserveAspectRatio="none" aria-hidden="true"></svg>
-        <div class="dot-grid" id="dotGrid" role="grid" aria-label="Tabuleiro 6 por 6"></div>
+    <main id="canvasStage">
+      <div class="canvas-frame" id="canvasFrame">
+        <div class="status-banner" id="statusBanner">QUADRADO ATIVO! Toda a cor será eliminada</div>
+        <canvas id="boardCanvas" aria-label="Tabuleiro Two Dots"></canvas>
       </div>
     </main>
 
-    <footer>
-      <span>Arraste entre pontos iguais • Feche um quadrado!</span>
-      <span class="chain-preview" id="chainInfo">Pronto</span>
+    <footer id="bottomFooter">
+      <span>Ligue pontos iguais • Feche um polígono!</span>
+      <span class="chain-status" id="chainStatus">Pronto</span>
     </footer>
   </div>
 
   <!-- Modal Fim de Jogo -->
   <div class="modal-backdrop" id="endModal">
-    <div class="modal">
+    <div class="modal-card">
       <div class="modal-emoji" id="modalEmoji">✨</div>
-      <h2 id="modalTitle">Fim de Rodada!</h2>
-      <p id="modalSubtitle">Ótima sequência de conexões.</p>
-      <div class="modal-stats">
-        <div class="modal-stat-box">
+      <h2 id="modalTitle">Fim de Jogo!</h2>
+      <p id="modalSubtitle">Boa sequência de conexões no tabuleiro.</p>
+      <div class="modal-grid">
+        <div class="modal-box">
           <span>Pontuação</span>
           <strong id="finalScore">0</strong>
         </div>
-        <div class="modal-stat-box">
+        <div class="modal-box">
           <span>Recorde</span>
           <strong id="finalBest">0</strong>
         </div>
       </div>
-      <button class="btn-primary" id="playAgainBtn">Jogar Novamente</button>
+      <button class="btn-restart" id="playAgainBtn">Jogar Novamente</button>
     </div>
   </div>
 
   <script>
     (() => {
-      // --- Constantes do Jogo ---
-      const GRID_SIZE = 6;
-      const NUM_COLORS = 5;
+      // --- Constantes ---
       const INITIAL_MOVES = 30;
       const INITIAL_TIME = 60;
 
-      // Escala pentatônica maior ascendente (em Hz)
-      const PENTATONIC = [
+      // Paletas de 6 cores vibrantes para modos Claro e Escuro
+      const PALETTES = {
+        light: ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
+        dark:  ['#f87171', '#60a5fa', '#34d399', '#fbbf24', '#a78bfa', '#f472b6']
+      };
+
+      // Base de colunas por densidade (linhas escalam pela proporção da tela)
+      const DENSITY_BASE_COLS = {
+        compact: 6,
+        standard: 8,
+        large: 9
+      };
+
+      // Notas da escala pentatônica maior (Hz) para feedback melódico ao conectar pontos
+      const PENTATONIC_HZ = [
         261.63, 293.66, 329.63, 392.00, 440.00,
         523.25, 587.33, 659.25, 783.99, 880.00, 1046.50
       ];
 
-      // --- Sintetizador de Áudio (Web Audio API) ---
-      class SoundEngine {
+      // --- Motor de Áudio Sintetizado (Web Audio API) ---
+      class SoundFX {
         constructor() {
           this.enabled = true;
           this.ctx = null;
         }
 
-        ensureContext() {
+        unlock() {
           if (!this.ctx) {
             const AudioCtx = window.AudioContext || window.webkitAudioContext;
             if (AudioCtx) this.ctx = new AudioCtx();
@@ -629,97 +596,89 @@
           }
         }
 
-        playTone(freq, type = 'sine', duration = 0.15, gainVal = 0.14, delay = 0) {
+        tone(freq, type = 'sine', dur = 0.15, vol = 0.15, delay = 0) {
           if (!this.enabled) return;
           try {
-            this.ensureContext();
+            this.unlock();
             if (!this.ctx) return;
 
-            const now = this.ctx.currentTime + delay;
+            const t0 = this.ctx.currentTime + delay;
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
 
             osc.type = type;
-            osc.frequency.setValueAtTime(freq, now);
+            osc.frequency.setValueAtTime(freq, t0);
 
-            gain.gain.setValueAtTime(0.001, now);
-            gain.gain.exponentialRampToValueAtTime(gainVal, now + 0.015);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+            gain.gain.setValueAtTime(0.001, t0);
+            gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
 
             osc.connect(gain);
             gain.connect(this.ctx.destination);
 
-            osc.start(now);
-            osc.stop(now + duration + 0.02);
+            osc.start(t0);
+            osc.stop(t0 + dur + 0.02);
           } catch (e) {
-            // Ignora restrições antes da primeira interação
+            // Silencia bloqueios antes da primeira interação
           }
         }
 
-        connectStep(step) {
-          const idx = Math.min(step, PENTATONIC.length - 1);
-          const f = PENTATONIC[idx];
-          this.playTone(f, 'sine', 0.16, 0.15);
-          this.playTone(f * 2, 'triangle', 0.1, 0.04);
+        step(index) {
+          const idx = Math.min(index, PENTATONIC_HZ.length - 1);
+          const f = PENTATONIC_HZ[idx];
+          this.tone(f, 'sine', 0.16, 0.16, 0);
+          this.tone(f * 2, 'triangle', 0.1, 0.04, 0);
         }
 
-        undoStep(step) {
-          const idx = Math.max(0, Math.min(step, PENTATONIC.length - 1));
-          this.playTone(PENTATONIC[idx] * 0.85, 'sine', 0.1, 0.1);
+        undo(index) {
+          const idx = Math.max(0, Math.min(index, PENTATONIC_HZ.length - 1));
+          this.tone(PENTATONIC_HZ[idx] * 0.84, 'sine', 0.1, 0.1, 0);
         }
 
-        squareFormed() {
+        loopClosed() {
+          // Acorde harmônico brilhante ao fechar um polígono
           [523.25, 659.25, 783.99, 1174.66].forEach((f, i) => {
-            this.playTone(f, 'triangle', 0.3, 0.14, i * 0.045);
+            this.tone(f, 'triangle', 0.32, 0.15, i * 0.045);
           });
         }
 
-        clearPop(count, isSquare) {
-          const base = isSquare ? 440 : 330;
-          this.playTone(base, 'sine', 0.16, 0.15, 0);
-          this.playTone(base * 1.5, 'triangle', 0.2, 0.13, 0.05);
-          if (count >= 5 || isSquare) {
-            this.playTone(base * 2, 'sine', 0.24, 0.11, 0.1);
+        explode(count, isLoop) {
+          const base = isLoop ? 440 : 330;
+          this.tone(base, 'sine', 0.18, 0.16, 0);
+          this.tone(base * 1.5, 'triangle', 0.22, 0.14, 0.05);
+          if (count >= 5 || isLoop) {
+            this.tone(base * 2, 'sine', 0.28, 0.13, 0.1);
           }
         }
 
-        gameOver(isNewRecord) {
-          const seq = isNewRecord
+        finish(isRecord) {
+          const notes = isRecord
             ? [523.25, 659.25, 783.99, 1046.5, 1318.5]
             : [523.25, 493.88, 440.0, 392.0];
-          seq.forEach((f, i) => {
-            this.playTone(f, 'triangle', 0.24, 0.14, i * 0.1);
+          notes.forEach((f, i) => {
+            this.tone(f, 'triangle', 0.25, 0.14, i * 0.1);
           });
         }
       }
 
-      const sfx = new SoundEngine();
-
-      // --- Estado do Jogo ---
-      const state = {
-        mode: 'moves', // 'moves' | 'timed' | 'zen'
-        grid: [],      // [row][col] -> número da cor (0..4)
-        cells: [],     // [row][col] -> referência DOM .dot-cell
-        chain: [],     // Array de { r, c }
-        isSquare: false,
-        dragging: false,
-        score: 0,
-        movesLeft: INITIAL_MOVES,
-        timeLeft: INITIAL_TIME,
-        timerInterval: null,
-        locked: false,
-        gameOver: false
-      };
+      const sfx = new SoundFX();
 
       // --- Referências DOM ---
-      const boardShell = document.getElementById('boardShell');
-      const dotGridEl = document.getElementById('dotGrid');
-      const lineLayer = document.getElementById('lineLayer');
-      const toastBanner = document.getElementById('toastBanner');
-      const chainInfo = document.getElementById('chainInfo');
+      const topHeader = document.getElementById('topHeader');
+      const modeBar = document.getElementById('modeBar');
+      const hudBar = document.getElementById('hudBar');
+      const bottomFooter = document.getElementById('bottomFooter');
 
-      const themeBtn = document.getElementById('themeBtn');
+      const canvasFrame = document.getElementById('canvasFrame');
+      const canvas = document.getElementById('boardCanvas');
+      const ctx = canvas.getContext('2d');
+      const statusBanner = document.getElementById('statusBanner');
+      const chainStatus = document.getElementById('chainStatus');
+
+      const densitySelect = document.getElementById('densitySelect');
+      const colorCountSelect = document.getElementById('colorCountSelect');
       const soundBtn = document.getElementById('soundBtn');
+      const themeBtn = document.getElementById('themeBtn');
       const restartBtn = document.getElementById('restartBtn');
       const modeBtns = document.querySelectorAll('.mode-btn');
 
@@ -727,8 +686,6 @@
       const limitValue = document.getElementById('limitValue');
       const scoreValue = document.getElementById('scoreValue');
       const bestValue = document.getElementById('bestValue');
-      const timerTrack = document.getElementById('timerTrack');
-      const timerFill = document.getElementById('timerFill');
 
       const endModal = document.getElementById('endModal');
       const modalEmoji = document.getElementById('modalEmoji');
@@ -738,144 +695,210 @@
       const finalBest = document.getElementById('finalBest');
       const playAgainBtn = document.getElementById('playAgainBtn');
 
+      // --- Estado do Jogo ---
+      const state = {
+        mode: 'moves',       // 'moves' | 'timed' | 'zen'
+        density: 'standard', // 'compact' | 'standard' | 'large'
+        cols: 8,
+        rows: 10,
+        numColors: 5,        // 4, 5 ou 6
+        isDark: window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches,
+        grid: [],            // [row][col] -> { color, offsetY, vy, scale, alpha }
+        chain: [],           // [{ r, c }, ...]
+        isLoop: false,
+        loopStartIndex: -1,
+        dragging: false,
+        pointerPos: null,    // { x, y } em coordenadas lógicas do canvas
+        score: 0,
+        squaresCount: 0,
+        movesLeft: INITIAL_MOVES,
+        timeLeft: INITIAL_TIME,
+        timerId: null,
+        locked: false,
+        gameOver: false,
+        particles: [],
+        ripples: [],
+        popups: [],
+        pulsePhase: 0
+      };
+
+      // --- Geometria e Dimensionamento Dinâmico Retangular do Canvas ---
+      const layout = {
+        width: 360,
+        height: 460,
+        dpr: 1,
+        paddingX: 28,
+        paddingY: 28,
+        step: 44,
+        dotRadius: 14
+      };
+
+      function getAvailableStageBox() {
+        const headerH = topHeader ? topHeader.offsetHeight : 42;
+        const modeH = modeBar ? modeBar.offsetHeight : 38;
+        const hudH = hudBar ? hudBar.offsetHeight : 54;
+        const footerH = bottomFooter ? bottomFooter.offsetHeight : 22;
+
+        const usedVertical = headerH + modeH + hudH + footerH + 54;
+        const availW = Math.max(260, Math.min(window.innerWidth - 28, 652));
+        const availH = Math.max(280, window.innerHeight - usedVertical);
+        return { availW, availH };
+      }
+
+      function computeGridDimensions(density, availW, availH) {
+        const baseCols = DENSITY_BASE_COLS[density] || 8;
+        const aspect = availH / availW;
+        // Calcula linhas proporcionais para manter células perfeitamente quadradas
+        const rawRows = Math.round(baseCols * aspect);
+        const rows = Math.max(baseCols, Math.min(15, rawRows));
+        return { cols: baseCols, rows };
+      }
+
+      function resizeBoardCanvas() {
+        const { availW, availH } = getAvailableStageBox();
+        const cols = state.cols;
+        const rows = state.rows;
+
+        // Padding proporcional ao passo para manter margens equilibradas nas 4 bordas
+        const padRatio = 0.65;
+        const stepX = availW / (cols - 1 + padRatio * 2);
+        const stepY = availH / (rows - 1 + padRatio * 2);
+        const step = Math.min(stepX, stepY);
+
+        const pad = step * padRatio;
+        const boardW = Math.round((cols - 1) * step + pad * 2);
+        const boardH = Math.round((rows - 1) * step + pad * 2);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        layout.width = boardW;
+        layout.height = boardH;
+        layout.dpr = dpr;
+        layout.paddingX = (boardW - (cols - 1) * step) / 2;
+        layout.paddingY = (boardH - (rows - 1) * step) / 2;
+        layout.step = step;
+        layout.dotRadius = Math.max(8, Math.min(24, step * 0.31));
+
+        canvas.style.width = `${boardW}px`;
+        canvas.style.height = `${boardH}px`;
+        canvas.width = Math.round(boardW * dpr);
+        canvas.height = Math.round(boardH * dpr);
+      }
+
+      window.addEventListener('resize', resizeBoardCanvas);
+
+      function getCellCenter(r, c) {
+        return {
+          x: layout.paddingX + c * layout.step,
+          y: layout.paddingY + r * layout.step
+        };
+      }
+
       // --- Tema Claro / Escuro ---
-      let isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       function applyTheme() {
-        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        themeBtn.textContent = isDark ? '🌙' : '☀️';
+        document.documentElement.setAttribute('data-theme', state.isDark ? 'dark' : 'light');
+        themeBtn.textContent = state.isDark ? '🌙' : '☀️';
       }
       applyTheme();
 
-      themeBtn.addEventListener('click', () => {
-        isDark = !isDark;
-        applyTheme();
-      });
-
-      soundBtn.addEventListener('click', () => {
-        sfx.enabled = !sfx.enabled;
-        soundBtn.textContent = sfx.enabled ? '🔊' : '🔇';
-        if (sfx.enabled) sfx.connectStep(2);
-      });
-
-      // --- Persistência de Recordes ---
-      function getBestKey(mode) {
-        return `twodots_best_${mode}`;
+      function getPalette() {
+        return state.isDark ? PALETTES.dark : PALETTES.light;
       }
 
-      function loadBest(mode) {
+      // --- Persistência de Recordes ---
+      function getBestStorageKey() {
+        return `twodots_best_${state.mode}_${state.density}_${state.numColors}c`;
+      }
+
+      function loadBest() {
         try {
-          return parseInt(localStorage.getItem(getBestKey(mode)) || '0', 10) || 0;
+          return parseInt(localStorage.getItem(getBestStorageKey()) || '0', 10) || 0;
         } catch (e) {
           return 0;
         }
       }
 
-      function saveBest(mode, score) {
+      function saveBest(val) {
         try {
-          const prev = loadBest(mode);
-          if (score > prev) {
-            localStorage.setItem(getBestKey(mode), String(score));
+          const prev = loadBest();
+          if (val > prev) {
+            localStorage.setItem(getBestStorageKey(), String(val));
             return true;
           }
         } catch (e) {
-          // Ignora modo privado
+          // Ignora se localStorage estiver indisponível
         }
         return false;
       }
 
-      // --- Construção da Grade DOM 6x6 ---
-      function buildGridDOM() {
-        dotGridEl.innerHTML = '';
-        state.cells = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
-
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            const cell = document.createElement('div');
-            cell.className = 'dot-cell';
-            cell.dataset.row = String(r);
-            cell.dataset.col = String(c);
-
-            const ball = document.createElement('div');
-            ball.className = 'dot-ball';
-            cell.appendChild(ball);
-
-            dotGridEl.appendChild(cell);
-            state.cells[r][c] = cell;
-          }
-        }
-      }
-
+      // --- Inicialização do Tabuleiro ---
       function randomColor() {
-        return Math.floor(Math.random() * NUM_COLORS);
+        return Math.floor(Math.random() * state.numColors);
       }
 
-      function renderAllDots(dropOffsets = null) {
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            const cell = state.cells[r][c];
-            const ball = cell.firstElementChild;
-            const colorIdx = state.grid[r][c];
-
-            cell.className = 'dot-cell';
-            ball.style.setProperty('--dot-color', `var(--dot-${colorIdx})`);
-            ball.classList.remove('falling');
-
-            if (dropOffsets && dropOffsets[r][c] > 0) {
-              const dist = dropOffsets[r][c] * 100;
-              ball.style.setProperty('--drop-offset', `-${dist}%`);
-              // Força reflow para reiniciar animação de queda
-              void ball.offsetWidth;
-              ball.classList.add('falling');
-            }
-          }
-        }
+      function createDot(color, startOffsetRows = 0) {
+        return {
+          color,
+          offsetY: -startOffsetRows, // negativo = acima da posição final
+          vy: 0,
+          scale: startOffsetRows > 0 ? 0.88 : 0.2,
+          alpha: 1
+        };
       }
 
-      // --- Inicialização da Partida ---
       function initGame() {
-        clearInterval(state.timerInterval);
-        state.timerInterval = null;
+        clearInterval(state.timerId);
+        state.timerId = null;
+
+        state.density = densitySelect.value || 'standard';
+        state.numColors = parseInt(colorCountSelect.value, 10) || 5;
+
+        const { availW, availH } = getAvailableStageBox();
+        const dims = computeGridDimensions(state.density, availW, availH);
+        state.cols = dims.cols;
+        state.rows = dims.rows;
+
         state.chain = [];
-        state.isSquare = false;
+        state.isLoop = false;
+        state.loopStartIndex = -1;
         state.dragging = false;
+        state.pointerPos = null;
         state.score = 0;
+        state.squaresCount = 0;
         state.movesLeft = INITIAL_MOVES;
         state.timeLeft = INITIAL_TIME;
         state.locked = false;
         state.gameOver = false;
+        state.particles = [];
+        state.ripples = [];
+        state.popups = [];
 
         endModal.classList.remove('open');
-        boardShell.classList.remove('square-active');
-        hideToast();
-        clearLines();
+        canvasFrame.classList.remove('loop-active');
+        hideBanner();
 
-        if (state.cells.length === 0) {
-          buildGridDOM();
-        }
-
-        state.grid = Array.from({ length: GRID_SIZE }, () =>
-          Array.from({ length: GRID_SIZE }, () => randomColor())
+        // Preenche grade retangular (rows x cols) com queda suave inicial
+        const { rows, cols } = state;
+        state.grid = Array.from({ length: rows }, (_, r) =>
+          Array.from({ length: cols }, (_, c) =>
+            createDot(randomColor(), rows - r + c * 0.2)
+          )
         );
 
         ensurePlayableBoard(false);
-
-        const initialDrops = Array.from({ length: GRID_SIZE }, (_, r) =>
-          Array.from({ length: GRID_SIZE }, () => GRID_SIZE - r)
-        );
-        renderAllDots(initialDrops);
+        resizeBoardCanvas();
         updateHUD();
-        updateChainVisuals();
+        updateChainFeedback();
 
         if (state.mode === 'timed') {
-          startTimer();
+          startCountdown();
         }
       }
 
-      function startTimer() {
-        clearInterval(state.timerInterval);
-        state.timerInterval = setInterval(() => {
+      function startCountdown() {
+        clearInterval(state.timerId);
+        state.timerId = setInterval(() => {
           if (state.gameOver) {
-            clearInterval(state.timerInterval);
+            clearInterval(state.timerId);
             return;
           }
           state.timeLeft--;
@@ -883,422 +906,691 @@
           if (state.timeLeft <= 0) {
             state.timeLeft = 0;
             updateHUD();
-            triggerGameOver();
+            endGame();
           }
         }, 1000);
       }
 
-      // --- Detecção de Deadlock (Sem Jogadas Válidas) ---
-      function hasValidMoves() {
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            const color = state.grid[r][c];
-            if (r + 1 < GRID_SIZE && state.grid[r + 1][c] === color) return true;
-            if (c + 1 < GRID_SIZE && state.grid[r][c + 1] === color) return true;
+      // --- Verificação e Embaralhamento de Deadlock ---
+      function hasAdjacentMatch() {
+        const { rows, cols } = state;
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const dot = state.grid[r][c];
+            if (!dot) continue;
+            if (r + 1 < rows && state.grid[r + 1][c]?.color === dot.color) return true;
+            if (c + 1 < cols && state.grid[r][c + 1]?.color === dot.color) return true;
           }
         }
         return false;
       }
 
       function ensurePlayableBoard(notify = true) {
-        let shuffled = false;
+        const { rows, cols } = state;
         let attempts = 0;
-
-        while (!hasValidMoves() && attempts < 20) {
+        while (!hasAdjacentMatch() && attempts < 25) {
           attempts++;
-          shuffled = true;
-          const flat = state.grid.flat();
-          for (let i = flat.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [flat[i], flat[j]] = [flat[j], flat[i]];
-          }
-          for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
-              state.grid[r][c] = flat[r * GRID_SIZE + c];
+          const colors = [];
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              colors.push(state.grid[r][c].color);
             }
           }
-          if (!hasValidMoves()) {
-            state.grid[0][1] = state.grid[0][0];
+          for (let i = colors.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [colors[i], colors[j]] = [colors[j], colors[i]];
+          }
+          let k = 0;
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              state.grid[r][c].color = colors[k++];
+              state.grid[r][c].scale = 0.25;
+            }
+          }
+          if (!hasAdjacentMatch()) {
+            state.grid[0][1].color = state.grid[0][0].color;
           }
         }
 
-        if (shuffled && notify) {
-          renderAllDots();
-          showToast('Sem jogadas! Embaralhando...', 'var(--accent)');
+        if (attempts > 0 && notify) {
+          showBanner('Sem jogadas! Embaralhando...', 'var(--accent)', false);
         }
       }
 
-      // --- Toast e Textos Flutuantes ---
-      let toastTimer = null;
-      function showToast(text, borderColor = 'var(--accent)', persistent = false) {
-        toastBanner.textContent = text;
-        toastBanner.style.borderColor = borderColor;
-        toastBanner.classList.add('show');
-        clearTimeout(toastTimer);
+      // --- Banner Flutuante ---
+      let bannerTimeout = null;
+      function showBanner(text, color = 'var(--accent)', persistent = false) {
+        statusBanner.textContent = text;
+        statusBanner.style.borderColor = color;
+        statusBanner.classList.add('visible');
+        clearTimeout(bannerTimeout);
         if (!persistent) {
-          toastTimer = setTimeout(() => {
-            toastBanner.classList.remove('show');
+          bannerTimeout = setTimeout(() => {
+            statusBanner.classList.remove('visible');
           }, 1500);
         }
       }
 
-      function hideToast() {
-        clearTimeout(toastTimer);
-        toastBanner.classList.remove('show');
+      function hideBanner() {
+        clearTimeout(bannerTimeout);
+        statusBanner.classList.remove('visible');
       }
 
-      function spawnScorePop(r, c, text, colorVar) {
-        const pop = document.createElement('div');
-        pop.className = 'score-pop';
-        pop.textContent = text;
-        pop.style.color = colorVar;
-        pop.style.left = `${((c + 0.5) / GRID_SIZE) * 100}%`;
-        pop.style.top = `${((r + 0.5) / GRID_SIZE) * 100}%`;
-        boardShell.appendChild(pop);
-        setTimeout(() => pop.remove(), 760);
-      }
-
-      // --- Interação de Arrasto (elementFromPoint + releasePointerCapture) ---
-      function getCellFromPoint(clientX, clientY) {
-        const target = document.elementFromPoint(clientX, clientY);
-        if (!target) return null;
-        const cell = target.closest('.dot-cell');
-        if (!cell || !dotGridEl.contains(cell)) return null;
+      // --- Mapeamento Exato de Coordenadas Pointer/Touch ---
+      function getCanvasPoint(e) {
+        const rect = canvas.getBoundingClientRect();
         return {
-          r: parseInt(cell.dataset.row, 10),
-          c: parseInt(cell.dataset.col, 10)
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
         };
       }
+      function findNearestCell(pt, hitFactor = 0.49) {
+        const { rows, cols } = state;
+        const maxRadius = layout.step * hitFactor;
+        let closest = null;
+        let minDist = maxRadius;
 
-      function isAdjacent(a, b) {
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const center = getCellCenter(r, c);
+            const d = Math.hypot(pt.x - center.x, pt.y - center.y);
+            if (d < minDist) {
+              minDist = d;
+              closest = { r, c };
+            }
+          }
+        }
+        return closest;
+      }
+
+      function isOrthogonalNeighbor(a, b) {
         return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
       }
 
-      function sameCell(a, b) {
+      function isSameCell(a, b) {
         return a.r === b.r && a.c === b.c;
       }
 
-      dotGridEl.addEventListener('pointerdown', (e) => {
-        if (state.locked || state.gameOver) return;
-        e.preventDefault();
-
-        // Libera captura implícita de toque no mobile para que elementFromPoint funcione livremente
-        if (e.target && typeof e.target.releasePointerCapture === 'function') {
-          try {
-            if (e.target.hasPointerCapture(e.pointerId)) {
-              e.target.releasePointerCapture(e.pointerId);
-            }
-          } catch (err) {
-            // Ignora caso não haja captura ativa
-          }
-        }
-
-        const cell = getCellFromPoint(e.clientX, e.clientY);
-        if (!cell) return;
-
-        state.dragging = true;
-        state.chain = [cell];
-        state.isSquare = false;
-
-        sfx.connectStep(0);
-        updateChainVisuals(e.clientX, e.clientY);
-      });
-
-      window.addEventListener('pointermove', (e) => {
-        if (!state.dragging || state.locked || state.gameOver) return;
-        e.preventDefault();
-
-        const cell = getCellFromPoint(e.clientX, e.clientY);
-        if (cell) {
-          const last = state.chain[state.chain.length - 1];
-
-          if (!sameCell(cell, last)) {
-            // 1. Backtracking: voltou para o penúltimo ponto da cadeia
-            if (state.chain.length >= 2 && sameCell(cell, state.chain[state.chain.length - 2])) {
-              state.chain.pop();
-              recomputeSquare();
-              sfx.undoStep(state.chain.length - 1);
-            }
-            // 2. Avanço para ponto adjacente da mesma cor
-            else if (!state.isSquare && isAdjacent(last, cell)) {
-              const activeColor = state.grid[state.chain[0].r][state.chain[0].c];
-              if (state.grid[cell.r][cell.c] === activeColor) {
-                const existingIdx = state.chain.findIndex(p => sameCell(p, cell));
-                if (existingIdx !== -1) {
-                  // Fechou um loop/quadrado de pelo menos 4 pontos distintos
-                  if (state.chain.length - existingIdx >= 4) {
-                    state.chain.push(cell);
-                    state.isSquare = true;
-                    sfx.squareFormed();
-                  }
-                } else {
-                  state.chain.push(cell);
-                  sfx.connectStep(state.chain.length - 1);
-                }
-              }
-            }
-          }
-        }
-
-        updateChainVisuals(e.clientX, e.clientY);
-      }, { passive: false });
-
-      function finishDrag() {
-        if (!state.dragging) return;
-        state.dragging = false;
-
-        if (state.chain.length >= 2) {
-          resolveChain();
-        } else {
-          state.chain = [];
-          state.isSquare = false;
-          updateChainVisuals();
-        }
-      }
-
-      window.addEventListener('pointerup', finishDrag);
-      window.addEventListener('pointercancel', finishDrag);
-
-      function recomputeSquare() {
+      function evaluateLoop() {
         if (state.chain.length < 5) {
-          state.isSquare = false;
+          state.isLoop = false;
+          state.loopStartIndex = -1;
           return;
         }
         const tip = state.chain[state.chain.length - 1];
-        const firstIdx = state.chain.findIndex(p => sameCell(p, tip));
-        state.isSquare = firstIdx !== -1 && firstIdx < state.chain.length - 1;
+        const firstIdx = state.chain.findIndex(p => isSameCell(p, tip));
+        if (firstIdx !== -1 && firstIdx <= state.chain.length - 5) {
+          state.isLoop = true;
+          state.loopStartIndex = firstIdx;
+        } else {
+          state.isLoop = false;
+          state.loopStartIndex = -1;
+        }
       }
 
-      // --- Renderização das Linhas SVG e Destaques ---
-      function clearLines() {
-        lineLayer.innerHTML = '';
+      // --- Ray-Casting Point-in-Polygon para Pontos Cercados ---
+      function isPointInPolygon(px, py, polygon) {
+        let inside = false;
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+          const xi = polygon[i].c, yi = polygon[i].r;
+          const xj = polygon[j].c, yj = polygon[j].r;
+          const intersect = ((yi > py) !== (yj > py)) &&
+            (px < ((xj - xi) * (py - yi)) / (yj - yi + 1e-9) + xi);
+          if (intersect) inside = !inside;
+        }
+        return inside;
       }
 
-      function updateChainVisuals(pointerX = null, pointerY = null) {
-        // Limpa estados visuais anteriores das células
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
-            state.cells[r][c].classList.remove('selected', 'square-target');
+      function getEnclosedCells(loopCycle) {
+        const { rows, cols } = state;
+        const enclosed = [];
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (loopCycle.some(p => p.r === r && p.c === c)) continue;
+            if (isPointInPolygon(c, r, loopCycle)) {
+              enclosed.push({ r, c });
+            }
+          }
+        }
+        return enclosed;
+      }
+
+      // --- Eventos de Interação no Canvas ---
+      canvas.addEventListener('pointerdown', (e) => {
+        if (state.locked || state.gameOver) return;
+        e.preventDefault();
+        if (canvas.setPointerCapture) {
+          try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+        }
+
+        const pt = getCanvasPoint(e);
+        const cell = findNearestCell(pt, 0.56);
+        if (!cell) return;
+
+        state.dragging = true;
+        state.pointerPos = pt;
+        state.chain = [cell];
+        state.isLoop = false;
+        state.loopStartIndex = -1;
+
+        const colorHex = getPalette()[state.grid[cell.r][cell.c].color];
+        spawnRipple(cell.r, cell.c, colorHex, false);
+        sfx.step(0);
+        updateChainFeedback();
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        if (!state.dragging || state.locked || state.gameOver) return;
+        e.preventDefault();
+
+        const pt = getCanvasPoint(e);
+        state.pointerPos = pt;
+
+        const cell = findNearestCell(pt, 0.48);
+        if (!cell) return;
+
+        const last = state.chain[state.chain.length - 1];
+        if (isSameCell(cell, last)) return;
+
+        // 1. Backtrack: voltar ao penúltimo ponto desfaz o último segmento
+        if (state.chain.length >= 2) {
+          const prev = state.chain[state.chain.length - 2];
+          if (isSameCell(cell, prev)) {
+            state.chain.pop();
+            evaluateLoop();
+            sfx.undo(state.chain.length - 1);
+            updateChainFeedback();
+            return;
           }
         }
 
-        clearLines();
+        // 2. Se já fechou um polígono, bloqueia novas extensões além do fechamento
+        if (state.isLoop) return;
 
+        // 3. Verifica adjacência ortogonal e mesma cor
+        if (!isOrthogonalNeighbor(last, cell)) return;
+
+        const activeColor = state.grid[state.chain[0].r][state.chain[0].c].color;
+        if (state.grid[cell.r][cell.c].color !== activeColor) return;
+
+        // 4. Verifica se tocou em um ponto já presente na cadeia (fechamento de loop >= 4 pontos)
+        const existingIdx = state.chain.findIndex(p => isSameCell(p, cell));
+        if (existingIdx !== -1) {
+          if (existingIdx <= state.chain.length - 4) {
+            state.chain.push(cell);
+            evaluateLoop();
+            const colorHex = getPalette()[activeColor];
+            spawnRipple(cell.r, cell.c, colorHex, true);
+            sfx.loopClosed();
+            updateChainFeedback();
+          }
+          return;
+        }
+
+        // 5. Conecta novo ponto à cadeia
+        state.chain.push(cell);
+        const colorHex = getPalette()[activeColor];
+        spawnRipple(cell.r, cell.c, colorHex, false);
+        sfx.step(state.chain.length - 1);
+        updateChainFeedback();
+      });
+
+      function releasePointer(e) {
+        if (!state.dragging) return;
+        if (e && canvas.releasePointerCapture) {
+          try {
+            if (canvas.hasPointerCapture(e.pointerId)) {
+              canvas.releasePointerCapture(e.pointerId);
+            }
+          } catch (err) {}
+        }
+
+        state.dragging = false;
+        state.pointerPos = null;
+
+        if (state.chain.length >= 2) {
+          executeClear();
+        } else {
+          state.chain = [];
+          state.isLoop = false;
+          state.loopStartIndex = -1;
+          updateChainFeedback();
+        }
+      }
+
+      canvas.addEventListener('pointerup', releasePointer);
+      canvas.addEventListener('pointercancel', releasePointer);
+
+      function updateChainFeedback() {
         if (state.chain.length === 0) {
-          boardShell.classList.remove('square-active');
-          hideToast();
-          chainInfo.textContent = 'Pronto';
+          canvasFrame.classList.remove('loop-active');
+          hideBanner();
+          chainStatus.textContent = state.squaresCount > 0
+            ? `${state.squaresCount} polígono${state.squaresCount > 1 ? 's' : ''}`
+            : 'Pronto';
           return;
         }
 
         const first = state.chain[0];
-        const activeColorIdx = state.grid[first.r][first.c];
-        const colorVar = `var(--dot-${activeColorIdx})`;
+        const colorHex = getPalette()[state.grid[first.r][first.c].color];
+        canvasFrame.style.setProperty('--loop-color', colorHex);
 
-        boardShell.style.setProperty('--active-color', colorVar);
-
-        // Marca bolinhas conectadas
-        for (const p of state.chain) {
-          state.cells[p.r][p.c].classList.add('selected');
-        }
-
-        // Se fechou quadrado, destaca TODAS as bolinhas daquela cor no tabuleiro
-        if (state.isSquare) {
-          boardShell.classList.add('square-active');
-          showToast('QUADRADO! Limpa toda a cor', colorVar, true);
-          chainInfo.textContent = `Quadrado (${state.chain.length - 1} pts)`;
-
-          for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
-              if (state.grid[r][c] === activeColorIdx) {
-                state.cells[r][c].classList.add('square-target');
-              }
-            }
-          }
+        if (state.isLoop) {
+          canvasFrame.classList.add('loop-active');
+          showBanner('QUADRADO ATIVO! Toda a cor será eliminada', colorHex, true);
+          const vertices = state.chain.length - 1 - state.loopStartIndex;
+          chainStatus.textContent = `Polígono (${vertices} vértices)`;
         } else {
-          boardShell.classList.remove('square-active');
-          hideToast();
-          chainInfo.textContent = `${state.chain.length} conectado${state.chain.length > 1 ? 's' : ''}`;
-        }
-
-        // Desenha polilinha SVG conectando os centros (viewBox 600x600 -> cada célula = 100x100)
-        const points = state.chain.map(p => `${p.c * 100 + 50},${p.r * 100 + 50}`);
-
-        // Linha guia até o cursor/dedo enquanto arrasta
-        if (state.dragging && !state.isSquare && pointerX !== null && pointerY !== null) {
-          const rect = lineLayer.getBoundingClientRect();
-          if (rect.width > 0 && rect.height > 0) {
-            const vx = ((pointerX - rect.left) / rect.width) * 600;
-            const vy = ((pointerY - rect.top) / rect.height) * 600;
-            points.push(`${vx.toFixed(1)},${vy.toFixed(1)}`);
-          }
-        }
-
-        if (points.length >= 2) {
-          const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-          polyline.setAttribute('points', points.join(' '));
-          polyline.setAttribute('fill', state.isSquare ? colorVar : 'none');
-          polyline.setAttribute('fill-opacity', state.isSquare ? '0.14' : '0');
-          polyline.setAttribute('stroke', colorVar);
-          polyline.setAttribute('stroke-width', '14');
-          polyline.setAttribute('stroke-linecap', 'round');
-          polyline.setAttribute('stroke-linejoin', 'round');
-          lineLayer.appendChild(polyline);
+          canvasFrame.classList.remove('loop-active');
+          hideBanner();
+          chainStatus.textContent = `${state.chain.length} conectado${state.chain.length > 1 ? 's' : ''}`;
         }
       }
 
-      // --- Resolução da Jogada, Pontuação, Gravidade e Reposição ---
-      function resolveChain() {
+      // --- Execução da Limpeza, Bônus 2x e Gravidade ---
+      function executeClear() {
         state.locked = true;
+        const { rows, cols } = state;
+        const palette = getPalette();
         const first = state.chain[0];
-        const activeColorIdx = state.grid[first.r][first.c];
-        const colorVar = `var(--dot-${activeColorIdx})`;
-        const formedSquare = state.isSquare;
+        const activeColor = state.grid[first.r][first.c].color;
+        const activeHex = palette[activeColor];
+        const formedLoop = state.isLoop;
 
-        const toClear = new Set();
+        const targets = new Set();
         const key = (r, c) => `${r},${c}`;
 
-        if (formedSquare) {
-          // Limpa TODOS os pontos dessa cor no tabuleiro inteiro
-          for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
-              if (state.grid[r][c] === activeColorIdx) {
-                toClear.add(key(r, c));
+        if (formedLoop) {
+          state.squaresCount++;
+
+          // 1. Elimina TODOS os pontos dessa cor no tabuleiro inteiro
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              if (state.grid[r][c].color === activeColor) {
+                targets.add(key(r, c));
               }
             }
           }
+
+          // 2. Elimina quaisquer pontos cercados dentro do polígono (Ray-Casting)
+          const loopCycle = state.chain.slice(state.loopStartIndex, state.chain.length - 1);
+          const enclosed = getEnclosedCells(loopCycle);
+          for (const inner of enclosed) {
+            targets.add(key(inner.r, inner.c));
+            spawnRipple(inner.r, inner.c, '#f59e0b', true);
+          }
         } else {
-          for (const p of state.chain) {
-            toClear.add(key(p.r, p.c));
+          for (const cell of state.chain) {
+            targets.add(key(cell.r, cell.c));
           }
         }
 
-        const count = toClear.size;
-        const earned = formedSquare ? count * 2 : count;
-        state.score += earned;
+        const clearedCount = targets.size;
+        const pointsEarned = formedLoop ? clearedCount * 2 : clearedCount;
+        state.score += pointsEarned;
 
-        // Anima saída dos pontos eliminados e calcula centro médio para popup de pontos
-        let sumR = 0, sumC = 0;
-        toClear.forEach(k => {
+        let sumX = 0;
+        let sumY = 0;
+
+        targets.forEach(k => {
           const [r, c] = k.split(',').map(Number);
-          sumR += r;
-          sumC += c;
-          state.cells[r][c].classList.add('popping');
+          const dot = state.grid[r][c];
+          const dotHex = palette[dot.color];
+          const center = getCellCenter(r, c);
+          sumX += center.x;
+          sumY += center.y;
+
+          spawnParticles(center.x, center.y, dotHex, formedLoop ? 14 : 9);
           state.grid[r][c] = null;
         });
 
-        if (count > 0) {
-          spawnScorePop(
-            sumR / count,
-            sumC / count,
-            formedSquare ? `+${earned} ★` : `+${earned}`,
-            colorVar
-          );
+        if (clearedCount > 0) {
+          state.popups.push({
+            x: sumX / clearedCount,
+            y: sumY / clearedCount,
+            text: formedLoop ? `+${pointsEarned} ★` : `+${pointsEarned}`,
+            color: activeHex,
+            alpha: 1,
+            vy: -1.15
+          });
         }
 
-        sfx.clearPop(count, formedSquare);
+        sfx.explode(clearedCount, formedLoop);
 
         if (state.mode === 'moves') {
           state.movesLeft = Math.max(0, state.movesLeft - 1);
         }
 
         state.chain = [];
-        state.isSquare = false;
-        clearLines();
-        boardShell.classList.remove('square-active');
-        hideToast();
-        chainInfo.textContent = 'Pronto';
+        state.isLoop = false;
+        state.loopStartIndex = -1;
+        updateChainFeedback();
         updateHUD();
 
-        // Aplica gravidade e preenche o topo após animação de saída
         setTimeout(() => {
-          const dropOffsets = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(0));
-
-          for (let c = 0; c < GRID_SIZE; c++) {
-            let writeRow = GRID_SIZE - 1;
-            for (let r = GRID_SIZE - 1; r >= 0; r--) {
-              if (state.grid[r][c] !== null) {
-                const dist = writeRow - r;
-                state.grid[writeRow][c] = state.grid[r][c];
-                dropOffsets[writeRow][c] = dist;
-                if (writeRow !== r) state.grid[r][c] = null;
-                writeRow--;
-              }
-            }
-
-            const newCount = writeRow + 1;
-            for (let r = writeRow; r >= 0; r--) {
-              state.grid[r][c] = randomColor();
-              dropOffsets[r][c] = newCount;
-            }
-          }
-
-          renderAllDots(dropOffsets);
+          applyGravity();
           ensurePlayableBoard(true);
           state.locked = false;
 
           if (state.mode === 'moves' && state.movesLeft <= 0) {
-            setTimeout(triggerGameOver, 380);
+            setTimeout(endGame, 420);
           }
-        }, 190);
+        }, 170);
       }
 
-      // --- Atualização do HUD e Modal Final ---
+      function applyGravity() {
+        const { rows, cols } = state;
+        for (let c = 0; c < cols; c++) {
+          let writeRow = rows - 1;
+          for (let r = rows - 1; r >= 0; r--) {
+            if (state.grid[r][c] !== null) {
+              const dot = state.grid[r][c];
+              if (writeRow !== r) {
+                dot.offsetY = r - writeRow;
+                dot.vy = 0;
+                state.grid[writeRow][c] = dot;
+                state.grid[r][c] = null;
+              }
+              writeRow--;
+            }
+          }
+
+          let spawnStep = 1;
+          for (let r = writeRow; r >= 0; r--) {
+            state.grid[r][c] = createDot(randomColor(), spawnStep * 1.15);
+            spawnStep++;
+          }
+        }
+      }
+
+      // --- Partículas e Ondas Visuais ---
+      function spawnParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.45;
+          const speed = 1.6 + Math.random() * 3.1;
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: 3 + Math.random() * 3.8,
+            color,
+            alpha: 1
+          });
+        }
+      }
+
+      function spawnRipple(r, c, color, strong) {
+        const center = getCellCenter(r, c);
+        state.ripples.push({
+          x: center.x,
+          y: center.y,
+          radius: layout.dotRadius * 0.85,
+          maxRadius: layout.dotRadius * (strong ? 2.9 : 1.95),
+          color,
+          alpha: strong ? 0.8 : 0.48
+        });
+      }
+
+      // --- Atualização do HUD e Fim de Jogo ---
       function updateHUD() {
         scoreValue.textContent = state.score;
-        const best = loadBest(state.mode);
+        const best = loadBest();
         bestValue.textContent = Math.max(best, state.score);
 
         if (state.mode === 'moves') {
           limitLabel.textContent = 'Movimentos';
           limitValue.textContent = state.movesLeft;
           limitValue.classList.toggle('urgent', state.movesLeft <= 5 && state.movesLeft > 0);
-          timerTrack.classList.remove('visible');
         } else if (state.mode === 'timed') {
           limitLabel.textContent = 'Tempo';
           limitValue.textContent = `${state.timeLeft}s`;
           limitValue.classList.toggle('urgent', state.timeLeft <= 10 && state.timeLeft > 0);
-          timerTrack.classList.add('visible');
-          const pct = Math.max(0, (state.timeLeft / INITIAL_TIME) * 100);
-          timerFill.style.width = `${pct}%`;
-          timerFill.style.backgroundColor = state.timeLeft <= 10 ? '#ef4444' : 'var(--accent)';
         } else {
           limitLabel.textContent = 'Modo';
           limitValue.textContent = '∞';
           limitValue.classList.remove('urgent');
-          timerTrack.classList.remove('visible');
         }
       }
 
-      function triggerGameOver() {
+      function endGame() {
         if (state.gameOver) return;
         state.gameOver = true;
         state.dragging = false;
         state.chain = [];
-        clearInterval(state.timerInterval);
-        updateChainVisuals();
+        state.isLoop = false;
+        clearInterval(state.timerId);
+        updateChainFeedback();
 
-        const isRecord = saveBest(state.mode, state.score);
-        const best = loadBest(state.mode);
+        const isNewRecord = saveBest(state.score);
+        const best = loadBest();
 
         finalScore.textContent = state.score;
         finalBest.textContent = best;
 
-        if (isRecord && state.score > 0) {
+        if (isNewRecord && state.score > 0) {
           modalEmoji.textContent = '🏆';
           modalTitle.textContent = 'Novo Recorde!';
-          modalSubtitle.textContent = 'Você superou sua melhor marca neste modo.';
+          modalSubtitle.textContent = `Você alcançou ${state.score} pontos e superou seu recorde!`;
         } else {
           modalEmoji.textContent = '✨';
           modalTitle.textContent = state.mode === 'timed' ? 'Tempo Esgotado!' : 'Fim dos Movimentos!';
-          modalSubtitle.textContent = 'Feche quadrados para limpar cores inteiras do tabuleiro.';
+          modalSubtitle.textContent = 'Feche polígonos para eliminar toda uma cor e ganhar 2× pontos.';
         }
 
-        sfx.gameOver(isRecord && state.score > 0);
+        sfx.finish(isNewRecord && state.score > 0);
         endModal.classList.add('open');
       }
 
-      // --- Eventos de Interface ---
+      // --- Loop de Física e Renderização High-DPI (60 FPS) ---
+      function stepPhysics() {
+        const { rows, cols } = state;
+        state.pulsePhase += 0.12;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const dot = state.grid[r][c];
+            if (!dot) continue;
+
+            if (dot.offsetY < 0) {
+              dot.vy += 0.048;
+              dot.offsetY += dot.vy;
+              if (dot.offsetY >= 0) {
+                dot.offsetY = 0;
+                dot.vy = 0;
+              }
+            }
+
+            if (dot.scale < 1) {
+              dot.scale += (1 - dot.scale) * 0.22;
+              if (Math.abs(1 - dot.scale) < 0.01) dot.scale = 1;
+            }
+          }
+        }
+
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vx *= 0.93;
+          p.vy *= 0.93;
+          p.alpha -= 0.03;
+          if (p.alpha <= 0) state.particles.splice(i, 1);
+        }
+
+        for (let i = state.ripples.length - 1; i >= 0; i--) {
+          const rp = state.ripples[i];
+          rp.radius += (rp.maxRadius - rp.radius) * 0.18;
+          rp.alpha -= 0.028;
+          if (rp.alpha <= 0) state.ripples.splice(i, 1);
+        }
+
+        for (let i = state.popups.length - 1; i >= 0; i--) {
+          const pop = state.popups[i];
+          pop.y += pop.vy;
+          pop.alpha -= 0.022;
+          if (pop.alpha <= 0) state.popups.splice(i, 1);
+        }
+      }
+
+      function drawBoard() {
+        const { width, height } = layout;
+        const palette = getPalette();
+
+        ctx.save();
+        ctx.scale(layout.dpr, layout.dpr);
+        ctx.clearRect(0, 0, width, height);
+
+        // 1. Ondas de toque (Ripples)
+        for (const rp of state.ripples) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = rp.color;
+          ctx.globalAlpha = Math.max(0, rp.alpha);
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 2. Linhas de conexão e preenchimento do polígono fechado
+        if (state.chain.length > 0) {
+          const first = state.chain[0];
+          const firstDot = state.grid[first.r][first.c];
+
+          if (firstDot) {
+            const lineHex = palette[firstDot.color];
+
+            if (state.isLoop && state.loopStartIndex >= 0) {
+              const poly = state.chain.slice(state.loopStartIndex, state.chain.length - 1);
+              if (poly.length >= 3) {
+                ctx.save();
+                ctx.beginPath();
+                poly.forEach((cell, idx) => {
+                  const pt = getCellCenter(cell.r, cell.c);
+                  if (idx === 0) ctx.moveTo(pt.x, pt.y);
+                  else ctx.lineTo(pt.x, pt.y);
+                });
+                ctx.closePath();
+                ctx.fillStyle = lineHex;
+                ctx.globalAlpha = 0.18 + Math.sin(state.pulsePhase) * 0.04;
+                ctx.fill();
+                ctx.restore();
+              }
+            }
+
+            ctx.save();
+            ctx.beginPath();
+            state.chain.forEach((cell, idx) => {
+              const pt = getCellCenter(cell.r, cell.c);
+              if (idx === 0) ctx.moveTo(pt.x, pt.y);
+              else ctx.lineTo(pt.x, pt.y);
+            });
+
+            if (state.dragging && state.pointerPos && !state.isLoop) {
+              ctx.lineTo(state.pointerPos.x, state.pointerPos.y);
+            }
+
+            ctx.strokeStyle = lineHex;
+            ctx.lineWidth = Math.max(6, layout.dotRadius * 0.44);
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+        // 3. Pontos do Tabuleiro Retangular (rows x cols)
+        const { rows, cols } = state;
+        const activeColor = state.chain.length > 0
+          ? state.grid[state.chain[0].r][state.chain[0].c]?.color
+          : -1;
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const dot = state.grid[r][c];
+            if (!dot) continue;
+
+            const center = getCellCenter(r, c);
+            const drawY = center.y + dot.offsetY * layout.step;
+            const hex = palette[dot.color];
+
+            const isSelected = state.chain.some(p => p.r === r && p.c === c);
+            const isLoopTarget = state.isLoop && dot.color === activeColor;
+
+            const pulseScale = isLoopTarget
+              ? 1.16 + Math.sin(state.pulsePhase * 1.4) * 0.08
+              : (isSelected ? 1.15 : 1);
+
+            const radius = layout.dotRadius * dot.scale * pulseScale;
+
+            // Aura pulsante em todos os pontos da cor quando um polígono está fechado
+            if (isSelected || isLoopTarget) {
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(center.x, drawY, radius * 1.42, 0, Math.PI * 2);
+              ctx.fillStyle = hex;
+              ctx.globalAlpha = isLoopTarget
+                ? 0.26 + Math.sin(state.pulsePhase * 1.4) * 0.08
+                : 0.2;
+              ctx.fill();
+              ctx.restore();
+            }
+
+            // Corpo principal da bolinha
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(center.x, drawY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = hex;
+            ctx.fill();
+
+            // Brilho sutil superior
+            ctx.beginPath();
+            ctx.arc(
+              center.x - radius * 0.26,
+              drawY - radius * 0.26,
+              radius * 0.25,
+              0,
+              Math.PI * 2
+            );
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.32)';
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        // 4. Partículas de explosão
+        for (const p of state.particles) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.alpha);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 5. Popups de Pontuação (+16 ★)
+        for (const pop of state.popups) {
+          ctx.save();
+          ctx.font = `800 ${Math.max(16, Math.round(layout.step * 0.34))}px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = pop.color;
+          ctx.globalAlpha = Math.max(0, pop.alpha);
+          ctx.fillText(pop.text, pop.x, pop.y);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      function animationLoop() {
+        stepPhysics();
+        drawBoard();
+        requestAnimationFrame(animationLoop);
+      }
+
+      // --- Eventos de Controles ---
       modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
           modeBtns.forEach(b => b.classList.remove('active'));
@@ -1307,12 +1599,25 @@
           initGame();
         });
       });
-
+      densitySelect.addEventListener('change', initGame);
+      colorCountSelect.addEventListener('change', initGame);
       restartBtn.addEventListener('click', initGame);
       playAgainBtn.addEventListener('click', initGame);
 
-      // Inicia primeira partida
+      themeBtn.addEventListener('click', () => {
+        state.isDark = !state.isDark;
+        applyTheme();
+      });
+
+      soundBtn.addEventListener('click', () => {
+        sfx.enabled = !sfx.enabled;
+        soundBtn.textContent = sfx.enabled ? '🔊' : '🔇';
+        if (sfx.enabled) sfx.step(2);
+      });
+
+      // --- Inicialização Imediata ---
       initGame();
+      requestAnimationFrame(animationLoop);
     })();
   </script>
 </body>
