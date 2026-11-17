@@ -272,6 +272,10 @@
       background: radial-gradient(circle at center, #1f293d 0%, #141c2c 74%, #0b101b 100%);
     }
 
+    .visual-tetris {
+      background: radial-gradient(circle at center, #1e1b4b 0%, #111827 72%, #090d16 100%);
+    }
+
     .record-badge {
       position: absolute;
       top: 12px;
@@ -444,7 +448,7 @@
   <main>
     <div class="toolbar">
       <div class="filters" role="tablist" aria-label="Filtrar jogos por categoria">
-        <button class="filter-pill active" data-filter="all" type="button">Todos (10)</button>
+        <button class="filter-pill active" data-filter="all" type="button">Todos (11)</button>
         <button class="filter-pill" data-filter="memoria" type="button">Memória &amp; Som</button>
         <button class="filter-pill" data-filter="tabuleiro" type="button">Raciocínio &amp; Tabuleiro</button>
         <button class="filter-pill" data-filter="puzzle" type="button">Estratégia &amp; Lógica</button>
@@ -1327,6 +1331,108 @@
           </a>
         </div>
       </article>
+
+      <!-- Card 11: Tetris -->
+      <article class="game-card" data-category="puzzle" data-keywords="tetris blocos tetrominos arcade linhas 7-bag ghost piece hold">
+        <div class="card-visual visual-tetris">
+          <span class="category-tag">Estratégia &amp; Lógica</span>
+          <span class="record-badge" id="badge-tetris">🏆 Recorde: <strong id="score-tetris">0</strong></span>
+          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Tetris">
+            <!-- Moldura da matriz 10x12 -->
+            <rect x="44" y="16" width="112" height="168" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2.5" />
+
+            <!-- Grade interna sutil -->
+            <g stroke="#1e293b" stroke-width="0.9">
+              <line x1="56" y1="22" x2="56" y2="178" />
+              <line x1="68" y1="22" x2="68" y2="178" />
+              <line x1="80" y1="22" x2="80" y2="178" />
+              <line x1="92" y1="22" x2="92" y2="178" />
+              <line x1="104" y1="22" x2="104" y2="178" />
+              <line x1="116" y1="22" x2="116" y2="178" />
+              <line x1="128" y1="22" x2="128" y2="178" />
+              <line x1="140" y1="22" x2="140" y2="178" />
+
+              <line x1="48" y1="34" x2="152" y2="34" />
+              <line x1="48" y1="46" x2="152" y2="46" />
+              <line x1="48" y1="58" x2="152" y2="58" />
+              <line x1="48" y1="70" x2="152" y2="70" />
+              <line x1="48" y1="82" x2="152" y2="82" />
+              <line x1="48" y1="94" x2="152" y2="94" />
+              <line x1="48" y1="106" x2="152" y2="106" />
+              <line x1="48" y1="118" x2="152" y2="118" />
+              <line x1="48" y1="130" x2="152" y2="130" />
+              <line x1="48" y1="142" x2="152" y2="142" />
+              <line x1="48" y1="154" x2="152" y2="154" />
+              <line x1="48" y1="166" x2="152" y2="166" />
+            </g>
+
+            <!-- Peça T (Roxo) caindo no topo -->
+            <g stroke="#0f172a" stroke-width="1.2">
+              <rect x="92" y="34" width="12" height="12" rx="2" fill="#a855f7" />
+              <rect x="80" y="46" width="12" height="12" rx="2" fill="#a855f7" />
+              <rect x="92" y="46" width="12" height="12" rx="2" fill="#c084fc" />
+              <rect x="104" y="46" width="12" height="12" rx="2" fill="#a855f7" />
+            </g>
+
+            <!-- Ghost Piece (contorno da peça T no encaixe) -->
+            <g fill="none" stroke="#c084fc" stroke-width="1.1" stroke-dasharray="2.2 1.5" opacity="0.65">
+              <rect x="92.5" y="130.5" width="11" height="11" rx="1.5" />
+              <rect x="80.5" y="142.5" width="11" height="11" rx="1.5" />
+              <rect x="92.5" y="142.5" width="11" height="11" rx="1.5" />
+              <rect x="104.5" y="142.5" width="11" height="11" rx="1.5" />
+            </g>
+
+            <!-- Blocos empilhados na base -->
+            <g stroke="#0f172a" stroke-width="1.2">
+              <!-- Peça L (Laranja) esquerda -->
+              <rect x="56" y="142" width="12" height="12" rx="2" fill="#f97316" />
+              <rect x="56" y="154" width="12" height="12" rx="2" fill="#f97316" />
+              <rect x="56" y="166" width="12" height="12" rx="2" fill="#fb923c" />
+              <rect x="68" y="166" width="12" height="12" rx="2" fill="#f97316" />
+
+              <!-- Peça O (Amarelo) centro-esquerda -->
+              <rect x="80" y="154" width="12" height="12" rx="2" fill="#facc15" />
+              <rect x="92" y="154" width="12" height="12" rx="2" fill="#fde047" />
+              <rect x="80" y="166" width="12" height="12" rx="2" fill="#eab308" />
+              <rect x="92" y="166" width="12" height="12" rx="2" fill="#facc15" />
+
+              <!-- Peça S (Verde) centro-direita -->
+              <rect x="116" y="154" width="12" height="12" rx="2" fill="#22c55e" />
+              <rect x="128" y="154" width="12" height="12" rx="2" fill="#4ade80" />
+              <rect x="104" y="166" width="12" height="12" rx="2" fill="#16a34a" />
+              <rect x="116" y="166" width="12" height="12" rx="2" fill="#22c55e" />
+
+              <!-- Peça J (Azul) direita -->
+              <rect x="140" y="142" width="12" height="12" rx="2" fill="#3b82f6" />
+              <rect x="140" y="154" width="12" height="12" rx="2" fill="#3b82f6" />
+              <rect x="140" y="166" width="12" height="12" rx="2" fill="#60a5fa" />
+              <rect x="128" y="166" width="12" height="12" rx="2" fill="#2563eb" />
+
+              <!-- Peça I (Ciano) vertical na extrema esquerda -->
+              <rect x="44" y="130" width="12" height="12" rx="2" fill="#06b6d4" />
+              <rect x="44" y="142" width="12" height="12" rx="2" fill="#22d3ee" />
+              <rect x="44" y="154" width="12" height="12" rx="2" fill="#06b6d4" />
+              <rect x="44" y="166" width="12" height="12" rx="2" fill="#0891b2" />
+            </g>
+          </svg>
+        </div>
+        <div class="card-body">
+          <div class="card-title-row">
+            <h2>Tetris</h2>
+          </div>
+          <p class="card-desc">
+            O clássico quebra-cabeça de blocos empilháveis em matriz 10×20 com gerador 7-Bag, rotação com wall kicks, peça fantasma (Ghost Piece), reserva (Hold) e velocidade progressiva.
+          </p>
+          <div class="tech-tags">
+            <span class="tech-tag">7-Bag &amp; Wall Kicks</span>
+            <span class="tech-tag">Web Audio API</span>
+            <span class="tech-tag">Single-File</span>
+          </div>
+          <a class="play-btn" href="./tetris/" data-play>
+            <span>▶ Jogar Agora</span>
+          </a>
+        </div>
+      </article>
     </section>
 
     <div class="empty-state" id="emptyState">
@@ -1505,6 +1611,22 @@
         if (bestTwoDots !== null) {
           document.getElementById('score-twodots').textContent = bestTwoDots + ' pts';
           document.getElementById('badge-twodots').classList.add('visible');
+        }
+
+        // Melhor pontuação do Tetris
+        let bestTetris = null;
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.includes('tetris')) {
+            const val = Number(localStorage.getItem(key));
+            if (!Number.isNaN(val) && val > 0 && (bestTetris === null || val > bestTetris)) {
+              bestTetris = val;
+            }
+          }
+        }
+        if (bestTetris !== null) {
+          document.getElementById('score-tetris').textContent = bestTetris + ' pts';
+          document.getElementById('badge-tetris').classList.add('visible');
         }
       } catch (e) {}
 
