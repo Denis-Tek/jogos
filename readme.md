@@ -28,6 +28,8 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | **[Tetris](./tetris/)** | Arcade & Lógica | Clássico empilhador de tetrominós em matriz `10×20` com gerador *7-Bag*, rotação com *wall kicks*, peça fantasma (*Ghost Piece*), reserva (*Hold*) e progressão de velocidade. | [Jogar Tetris](https://denis-tek.github.io/jogos/tetris/) |
 | **[Jogo de Damas](./damas/)** | Raciocínio & Tabuleiro | Edição de luxo em tabuleiro `8×8` com regras brasileiras (*Dama Voadora* e *Lei da Maioria*), modo casual, 2 jogadores e IA com algoritmo Minimax Alfa-Beta. | [Jogar Damas](https://denis-tek.github.io/jogos/damas/) |
 | **[Snake](./snake/)** | Arcade & Reflexos | Clássico Jogo da Cobrinha em Canvas 2D com temas **Neon Moderno** e **Nokia 3310**, arenas com ou sem paredes, fruta bônus temporária e D-Pad tátil. | [Jogar Snake](https://denis-tek.github.io/jogos/snake/) |
+| **[Batalha Naval](./batalha-naval/)** | Estratégia & Tabuleiro | Comando tático de frota em grade `10×10` com estética de radar naval, posicionamento interativo, modo 2 jogadores com cortina de privacidade e IA probabilística. | [Jogar Batalha Naval](https://denis-tek.github.io/jogos/batalha-naval/) |
+| **[Xadrez Mestre](./xadrez/)** | Raciocínio & Tabuleiro | Edição de clube com peças Staunton em SVG, regras oficiais completas, IA Minimax Alfa-Beta, relógio digital, revisão tática pós-partida e exportação PGN. | [Jogar Xadrez](https://denis-tek.github.io/jogos/xadrez/) |
 
 ---
 
@@ -35,10 +37,10 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 
 Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Architecture** (cada aplicação encapsulada em seu próprio `index.html`), garantindo portabilidade instantânea, carregamento ultrarrápido e compatibilidade nativa com qualquer navegador moderno ou hospedagem estática:
 
-* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), ilustrações vetoriais embutidas para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$).
+* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton vetoriais, ilustrações embutidas para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$).
 * **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, Web Animations API e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
-* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, detecção de ciclos/loops em grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D, eventos unificados (`Pointer Events` / *Long Press*) e atalhos de teclado.
-* **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
+* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, detecção de ciclos/loops em grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D, eventos unificados (`Pointer Events` / *Long Press*) e atalhos de teclado.
+* **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, pings de sonar, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes, fases desbloqueadas e preferências de tema/áudio em cada jogo.
 
 ---
@@ -97,10 +99,18 @@ jogos/
 │   ├── index.html             # Aplicação completa do Jogo de Damas — Edição de Luxo
 │   ├── imagem.png             # Captura de tela do jogo em execução
 │   └── README.md              # Documentação técnica, regras e algoritmos do Jogo de Damas
-└── snake/
-    ├── index.html             # Aplicação completa do Snake — Jogo da Cobrinha
+├── snake/
+│   ├── index.html             # Aplicação completa do Snake — Jogo da Cobrinha
+│   ├── imagem.png             # Captura de tela do jogo em execução
+│   └── README.md              # Documentação técnica, controles e regras do Snake
+├── batalha-naval/
+│   ├── index.html             # Aplicação completa da Batalha Naval — Comando Tático
+│   ├── imagem.png             # Captura de tela do jogo em execução
+│   └── README.md              # Documentação técnica, regras e algoritmos da Batalha Naval
+└── xadrez/
+    ├── index.html             # Aplicação completa do Xadrez Mestre — Edição de Clube
     ├── imagem.png             # Captura de tela do jogo em execução
-    └── README.md              # Documentação técnica, controles e regras do Snake
+    └── README.md              # Documentação técnica, regras e algoritmos do Xadrez Mestre
 ```
 
 ---

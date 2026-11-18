@@ -1,0 +1,3051 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xadrez Mestre — Edição de Clube</title>
+    <style>
+        /* =====================================================================
+           1. VARIÁVEIS DE TEMA E ESTILOS BASE (100% CSS PURO AUTO-CONTIDO)
+           ===================================================================== */
+        :root {
+            --bg-main: #12100e;
+            --bg-panel: #1c1917;
+            --bg-card: #26221f;
+            --bg-card-hover: #332e2a;
+            --border-subtle: #3a342f;
+            --border-strong: #574e46;
+            --text-primary: #f5f5f4;
+            --text-secondary: #a8a29e;
+            --text-muted: #78716c;
+            --accent-gold: #d97706;
+            --accent-gold-light: #fbbf24;
+            --accent-sky: #0284c7;
+            --accent-sky-light: #38bdf8;
+            --accent-danger: #dc2626;
+            --accent-success: #16a34a;
+
+            /* Tema Padrão: Madeira Nobre */
+            --sq-light: #e8cfa6;
+            --sq-dark: #a66d46;
+            --board-frame: #5c3a21;
+            --board-border: #3b2312;
+
+            /* Dimensão Quadrada Fixa Responsiva do Tabuleiro */
+            --board-size: min(84vw, calc(100vh - 235px), 540px);
+        }
+
+        body.theme-emerald {
+            --sq-light: #eeeed2;
+            --sq-dark: #769656;
+            --board-frame: #3e522b;
+            --board-border: #273619;
+        }
+
+        body.theme-slate {
+            --sq-light: #dee3e6;
+            --sq-dark: #6b7b8c;
+            --board-frame: #334155;
+            --board-border: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            line-height: 1.4;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: inherit;
+            transition: transform 0.1s ease, background-color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.96);
+        }
+
+        button:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =====================================================================
+           2. CABEÇALHO SUPERIOR (TOPBAR)
+           ===================================================================== */
+        .topbar {
+            width: 100%;
+            height: 52px;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f59e0b, #b45309);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #1c1917;
+            font-weight: 800;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .brand-subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 3px;
+            gap: 3px;
+        }
+
+        .theme-btn {
+            padding: 4px 9px;
+            border-radius: 7px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .theme-btn:hover {
+            color: var(--text-primary);
+            background-color: var(--bg-card);
+        }
+
+        .theme-btn.active {
+            background-color: var(--bg-card-hover);
+            color: var(--accent-gold-light);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .swatch {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            display: inline-block;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-new-top {
+            background: linear-gradient(180deg, #d97706, #b45309);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 7px 12px;
+            border-radius: 9px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+            white-space: nowrap;
+        }
+
+        .btn-new-top:hover {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+        }
+
+        /* =====================================================================
+           3. ARENA PRINCIPAL E ESTABILIDADE ABSOLUTA DO TABULEIRO
+           ===================================================================== */
+        .main-workspace {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 12px 16px 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .board-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        /* Cabeçalhos Fixos dos Jogadores (48px exatos) */
+        .player-bar {
+            width: var(--board-size);
+            height: 48px;
+            min-height: 48px;
+            max-height: 48px;
+            flex-shrink: 0;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 11px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .player-bar.active-turn {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 1px rgba(217, 119, 6, 0.35);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .player-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            flex-shrink: 0;
+            border: 1px solid var(--border-strong);
+        }
+
+        .avatar-w {
+            background-color: #f5f5f4;
+            color: #1c1917;
+        }
+
+        .avatar-b {
+            background-color: #292524;
+            color: #f5f5f4;
+        }
+
+        .player-meta {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .player-name-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .player-name {
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .turn-pill {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 999px;
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--accent-gold-light);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            flex-shrink: 0;
+        }
+
+        .captured-row {
+            height: 18px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .cap-mini {
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .mat-adv {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-gold-light);
+            margin-left: 4px;
+            flex-shrink: 0;
+        }
+
+        .player-clock {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .player-clock.clock-active {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold-light);
+            background-color: rgba(217, 119, 6, 0.12);
+        }
+
+        .player-clock.clock-low {
+            border-color: var(--accent-danger);
+            color: #fca5a5;
+            background-color: rgba(220, 38, 38, 0.2);
+        }
+
+        /* Moldura e Tabuleiro 8x8 Rígido */
+        .board-stage {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .board-frame {
+            padding: 6px;
+            background: linear-gradient(145deg, var(--board-frame), var(--board-border));
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65);
+            flex-shrink: 0;
+        }
+
+        .chess-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            width: var(--board-size);
+            height: var(--board-size);
+            flex-shrink: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            user-select: none;
+        }
+
+        .square {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .square.light {
+            background-color: var(--sq-light);
+        }
+
+        .square.dark {
+            background-color: var(--sq-dark);
+        }
+
+        .square.selected::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(250, 204, 21, 0.48);
+            pointer-events: none;
+        }
+
+        .square.last-move::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(234, 179, 8, 0.34);
+            pointer-events: none;
+        }
+
+        .square.hint-move::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-color: rgba(56, 189, 248, 0.45);
+            box-shadow: inset 0 0 0 3px #0284c7;
+            pointer-events: none;
+        }
+
+        .square.in-check {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.92) 0%, rgba(185, 28, 28, 0.72) 68%, transparent 100%) !important;
+        }
+
+        /* Coordenadas nas bordas */
+        .coord-rank {
+            position: absolute;
+            top: 2px;
+            left: 3px;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .coord-file {
+            position: absolute;
+            bottom: 2px;
+            right: 3px;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .square.light .coord-rank,
+        .square.light .coord-file {
+            color: var(--sq-dark);
+        }
+
+        .square.dark .coord-rank,
+        .square.dark .coord-file {
+            color: var(--sq-light);
+        }
+
+        /* Indicadores de Lances Válidos */
+        .legal-dot {
+            width: 28%;
+            height: 28%;
+            border-radius: 50%;
+            background-color: rgba(20, 20, 20, 0.28);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .legal-ring {
+            position: absolute;
+            inset: 7%;
+            border-radius: 50%;
+            border: 4px solid rgba(20, 20, 20, 0.32);
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* Peças SVG */
+        .piece-wrap {
+            width: 84%;
+            height: 84%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 4;
+            pointer-events: none;
+            filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.42));
+            transition: transform 0.14s ease;
+        }
+
+        .square:hover .piece-wrap {
+            transform: translateY(-1px) scale(1.03);
+        }
+
+        .piece-wrap.pop-in {
+            animation: pieceLand 0.18s ease-out;
+        }
+
+        @keyframes pieceLand {
+            0% { transform: scale(1.16); }
+            100% { transform: scale(1); }
+        }
+
+        /* Barra Vertical de Avaliação (Visível apenas na Revisão Pós-Partida) */
+        .eval-bar-box {
+            width: 22px;
+            height: calc(var(--board-size) + 12px);
+            background-color: #1e1b18;
+            border: 1px solid var(--border-strong);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            flex-shrink: 0;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+        }
+
+        .eval-fill-top {
+            width: 100%;
+            height: 50%;
+            background-color: #292524;
+            transition: height 0.3s ease;
+        }
+
+        .eval-fill-bottom {
+            width: 100%;
+            flex: 1;
+            background-color: #f5f5f4;
+            transition: height 0.3s ease;
+        }
+
+        .eval-score-tag {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            font-weight: 800;
+            padding: 1px 2px;
+            border-radius: 3px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* =====================================================================
+           4. BARRA FIXA DE CONTROLE DE REVISÃO LOGO ABAIXO DO TABULEIRO (44px)
+           ===================================================================== */
+        .board-dock {
+            width: var(--board-size);
+            height: 44px;
+            min-height: 44px;
+            max-height: 44px;
+            flex-shrink: 0;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 11px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .dock-live {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .dock-status-msg {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            color: var(--text-secondary);
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: var(--accent-gold-light);
+            flex-shrink: 0;
+        }
+
+        .dock-quick-btns {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .dock-btn {
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 7px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .dock-btn:hover:not(:disabled) {
+            background-color: var(--bg-card-hover);
+            border-color: var(--border-strong);
+        }
+
+        /* Controles de Revisão Pós-Partida no Dock */
+        .dock-review {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .rev-nav-group {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+
+        .rev-btn {
+            height: 30px;
+            min-width: 30px;
+            padding: 0 8px;
+            border-radius: 7px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .rev-btn:hover:not(:disabled) {
+            background-color: var(--bg-card-hover);
+            border-color: var(--border-strong);
+        }
+
+        .rev-btn-auto {
+            background-color: rgba(2, 132, 199, 0.2);
+            border-color: rgba(56, 189, 248, 0.45);
+            color: var(--accent-sky-light);
+        }
+
+        .rev-btn-auto:hover:not(:disabled) {
+            background-color: rgba(2, 132, 199, 0.32);
+        }
+
+        .rev-info-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .rev-counter {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--accent-sky-light);
+            white-space: nowrap;
+        }
+
+        .rev-san {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        .quality-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .q-best { background: rgba(22, 163, 74, 0.22); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .q-good { background: rgba(56, 189, 248, 0.16); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
+        .q-inacc { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); }
+        .q-mistake { background: rgba(249, 115, 22, 0.22); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.45); }
+        .q-blunder { background: rgba(220, 38, 38, 0.25); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+        .q-neutral { background: var(--bg-card); color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+
+        /* =====================================================================
+           5. PAINEL LATERAL DE HISTÓRICO E CONTROLES DO CLUBE
+           ===================================================================== */
+        .side-panel {
+            width: 340px;
+            height: calc(var(--board-size) + 12px + 48px + 48px + 44px + 24px);
+            min-height: 460px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+            flex-shrink: 0;
+        }
+
+        .panel-header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: rgba(0, 0, 0, 0.18);
+            flex-shrink: 0;
+        }
+
+        .panel-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+        }
+
+        .mode-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background-color: var(--bg-card);
+            color: var(--accent-gold-light);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Resumo Pós-Partida no Painel Lateral */
+        .review-summary-card {
+            padding: 10px 14px;
+            background: linear-gradient(180deg, rgba(2, 132, 199, 0.14), rgba(2, 132, 199, 0.04));
+            border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .review-summary-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-sky-light);
+        }
+
+        .review-summary-detail {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        /* Lista de Lances com Rolagem Interna Isolada */
+        .history-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overscroll-behavior: contain;
+        }
+
+        .history-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .history-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 3px;
+        }
+
+        .history-empty {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 24px;
+            gap: 6px;
+        }
+
+        .move-row {
+            display: grid;
+            grid-template-columns: 36px 1fr 1fr;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 4px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .move-row:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .move-num {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            padding-left: 4px;
+        }
+
+        .move-cell {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            text-align: left;
+            color: var(--text-primary);
+        }
+
+        .move-cell.clickable {
+            cursor: pointer;
+        }
+
+        .move-cell.clickable:hover {
+            background-color: var(--bg-card-hover);
+        }
+
+        .move-cell.active-review {
+            background-color: rgba(2, 132, 199, 0.28);
+            border: 1px solid rgba(56, 189, 248, 0.55);
+            color: #fff;
+        }
+
+        .move-glyph {
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        /* Toast Interno */
+        .toast-banner {
+            margin: 0 10px 8px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            background-color: rgba(217, 119, 6, 0.16);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: var(--accent-gold-light);
+            font-size: 11.5px;
+            text-align: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        /* Rodapé do Painel Lateral */
+        .panel-footer {
+            padding: 10px 12px;
+            border-top: 1px solid var(--border-subtle);
+            background-color: rgba(0, 0, 0, 0.22);
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .panel-action-btn {
+            height: 34px;
+            border-radius: 8px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .panel-action-btn:hover:not(:disabled) {
+            background-color: var(--bg-card-hover);
+            border-color: var(--border-strong);
+        }
+
+        /* =====================================================================
+           6. MODAIS (CONFIGURAÇÃO, PROMOÇÃO E FIM DE PARTIDA)
+           ===================================================================== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.78);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 100;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 420px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-strong);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-align: center;
+        }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .option-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .option-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .option-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+
+        .opt-btn {
+            padding: 9px 8px;
+            border-radius: 9px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .opt-btn:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .opt-btn.selected {
+            background-color: rgba(217, 119, 6, 0.2);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold-light);
+            font-weight: 700;
+        }
+
+        .modal-primary-btn {
+            width: 100%;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+            color: #1c1917;
+            font-size: 14px;
+            font-weight: 800;
+            box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+        }
+
+        .modal-primary-btn:hover {
+            background: linear-gradient(180deg, #fbbf24, #f59e0b);
+        }
+
+        .modal-secondary-btn {
+            width: 100%;
+            height: 40px;
+            border-radius: 10px;
+            background-color: rgba(2, 132, 199, 0.2);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: var(--accent-sky-light);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .modal-secondary-btn:hover {
+            background-color: rgba(2, 132, 199, 0.32);
+        }
+
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .promo-choice {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-strong);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 6px;
+        }
+
+        .promo-choice:hover {
+            background-color: var(--bg-card-hover);
+            border-color: var(--accent-gold);
+        }
+
+        /* Responsividade Mobile/Tablet */
+        @media (max-width: 920px) {
+            :root {
+                --board-size: min(90vw, calc(100vh - 245px), 480px);
+            }
+
+            .main-workspace {
+                flex-direction: column;
+                align-items: center;
+                padding: 10px 10px 24px;
+                gap: 14px;
+            }
+
+            .side-panel {
+                width: var(--board-size);
+                height: 280px;
+                min-height: 280px;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+            .theme-label {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="theme-wood">
+
+    <!-- =====================================================================
+         CABEÇALHO SUPERIOR
+         ===================================================================== -->
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-icon" aria-hidden="true">♞</div>
+            <div class="brand-title">
+                Xadrez Mestre <span class="brand-subtitle">— Edição de Clube</span>
+            </div>
+        </div>
+
+        <div class="topbar-actions">
+            <div class="theme-switcher" role="group" aria-label="Temas do tabuleiro">
+                <button type="button" class="theme-btn active" id="theme-btn-wood" onclick="setTheme('wood')" title="Madeira Nobre">
+                    <span class="swatch" style="background: linear-gradient(135deg, #e8cfa6 50%, #a66d46 50%);"></span>
+                    <span class="theme-label">Madeira</span>
+                </button>
+                <button type="button" class="theme-btn" id="theme-btn-emerald" onclick="setTheme('emerald')" title="Esmeralda Torneio">
+                    <span class="swatch" style="background: linear-gradient(135deg, #eeeed2 50%, #769656 50%);"></span>
+                    <span class="theme-label">Esmeralda</span>
+                </button>
+                <button type="button" class="theme-btn" id="theme-btn-slate" onclick="setTheme('slate')" title="Ardósia Moderna">
+                    <span class="swatch" style="background: linear-gradient(135deg, #dee3e6 50%, #6b7b8c 50%);"></span>
+                    <span class="theme-label">Ardósia</span>
+                </button>
+            </div>
+
+            <button type="button" class="btn-new-top" onclick="openSetupModal()">+ Nova Partida</button>
+        </div>
+    </header>
+
+    <!-- =====================================================================
+         ARENA PRINCIPAL (COLUNA DO TABULEIRO + PAINEL LATERAL)
+         ===================================================================== -->
+    <main class="main-workspace">
+        <section class="board-column" aria-label="Área do Tabuleiro">
+            <!-- Barra Fixa do Jogador Superior (48px) -->
+            <div id="top-player-bar" class="player-bar">
+                <div class="player-info">
+                    <div id="top-avatar" class="player-avatar avatar-b">♚</div>
+                    <div class="player-meta">
+                        <div class="player-name-row">
+                            <span id="top-name" class="player-name">Pretas (IA Intermediário)</span>
+                            <span id="top-turn-pill" class="turn-pill hidden">Sua vez</span>
+                        </div>
+                        <div id="top-captured" class="captured-row"></div>
+                    </div>
+                </div>
+                <div id="top-clock" class="player-clock hidden">05:00</div>
+            </div>
+
+            <!-- Palco do Tabuleiro 8x8 + Barra Vertical de Avaliação Pós-Partida -->
+            <div class="board-stage">
+                <div id="eval-bar-container" class="eval-bar-box hidden" title="Avaliação da Posição">
+                    <span id="eval-top-label" class="eval-score-tag" style="top: 4px; color: #e7e5e4;">0.0</span>
+                    <div id="eval-fill-top" class="eval-fill-top"></div>
+                    <div id="eval-fill-bottom" class="eval-fill-bottom"></div>
+                    <span id="eval-bottom-label" class="eval-score-tag" style="bottom: 4px; color: #1c1917;">0.0</span>
+                </div>
+
+                <div class="board-frame">
+                    <div id="chess-board" class="chess-board" role="grid" aria-label="Tabuleiro de Xadrez"></div>
+                </div>
+            </div>
+
+            <!-- Barra Fixa do Jogador Inferior (48px) -->
+            <div id="bottom-player-bar" class="player-bar active-turn">
+                <div class="player-info">
+                    <div id="bottom-avatar" class="player-avatar avatar-w">♔</div>
+                    <div class="player-meta">
+                        <div class="player-name-row">
+                            <span id="bottom-name" class="player-name">Brancas (Você)</span>
+                            <span id="bottom-turn-pill" class="turn-pill">Sua vez</span>
+                        </div>
+                        <div id="bottom-captured" class="captured-row"></div>
+                    </div>
+                </div>
+                <div id="bottom-clock" class="player-clock hidden">05:00</div>
+            </div>
+
+            <!-- BARRA FIXA DE CONTROLE LOGO ABAIXO DO TABULEIRO (44px) -->
+            <div class="board-dock" role="region" aria-label="Controles imediatos do tabuleiro">
+                <!-- Estado A: Partida em Andamento -->
+                <div id="dock-live" class="dock-live">
+                    <div class="dock-status-msg">
+                        <span id="dock-status-dot" class="status-dot"></span>
+                        <span id="dock-status-text">Partida em andamento • Clique na peça para mover</span>
+                    </div>
+                    <div class="dock-quick-btns">
+                        <button type="button" class="dock-btn" onclick="undoMove()" id="dock-btn-undo" title="Desfazer lance">↩ Desfazer</button>
+                        <button type="button" class="dock-btn" onclick="requestHint()" id="dock-btn-hint" title="Sugerir melhor lance">💡 Dica</button>
+                        <button type="button" class="dock-btn" onclick="flipBoard()" title="Girar tabuleiro">⇅</button>
+                        <button type="button" class="dock-btn" onclick="toggleSound()" id="dock-btn-sound" title="Alternar som">🔊</button>
+                    </div>
+                </div>
+
+                <!-- Estado B: Revisão Pós-Partida Imediata Junto ao Tabuleiro -->
+                <div id="dock-review" class="dock-review hidden">
+                    <div class="rev-nav-group" title="Atalhos: ←, →, Home, End, Espaço">
+                        <button type="button" class="rev-btn" id="rev-start" onclick="goToSnapshot(0)" title="Início (Home)">|◀</button>
+                        <button type="button" class="rev-btn" id="rev-prev" onclick="stepSnapshot(-1)" title="Anterior (←)">◀</button>
+                        <button type="button" class="rev-btn rev-btn-auto" id="rev-auto" onclick="toggleAutoPlay()" title="Auto-play / Pausar (Espaço)">
+                            <span id="rev-auto-icon">▶</span>
+                            <span id="rev-auto-text">Auto</span>
+                        </button>
+                        <button type="button" class="rev-btn" id="rev-next" onclick="stepSnapshot(1)" title="Próximo (→)">▶</button>
+                        <button type="button" class="rev-btn" id="rev-end" onclick="goToSnapshot(snapshots.length - 1)" title="Final (End)">▶|</button>
+                    </div>
+
+                    <div class="rev-info-pill">
+                        <span id="rev-counter" class="rev-counter">Lance 0/0</span>
+                        <span id="rev-san" class="rev-san">Início</span>
+                        <span id="rev-badge" class="quality-badge q-neutral">Posição Inicial</span>
+                    </div>
+
+                    <button type="button" class="rev-btn" onclick="copyPGN()" title="Copiar partida em PGN">📋 PGN</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Painel Lateral de Histórico e Ferramentas -->
+        <aside class="side-panel" aria-label="Histórico e Controles da Partida">
+            <div class="panel-header">
+                <span class="panel-title">Registro da Partida</span>
+                <span id="mode-badge" class="mode-tag">1P vs IA (Médio)</span>
+            </div>
+
+            <!-- Resumo da Análise (Aparece apenas após o fim da partida) -->
+            <div id="review-summary-card" class="review-summary-card hidden">
+                <div class="review-summary-top">
+                    <span>🔍 Revisão da Partida Ativa</span>
+                    <span id="summary-eval-text">Avaliação: 0.0</span>
+                </div>
+                <div class="review-summary-detail">
+                    <span id="summary-move-label">Posição Inicial</span>
+                    <span id="summary-quality-pill" class="quality-badge q-neutral">Início</span>
+                </div>
+            </div>
+
+            <!-- Lista de Lances com Rolagem Interna Isolada -->
+            <div id="move-history-scroll" class="history-scroll">
+                <div class="history-empty">
+                    <strong>Nenhum lance registrado</strong>
+                    <span>Clique em uma peça branca para iniciar o jogo.</span>
+                </div>
+            </div>
+
+            <!-- Mensagem Toast Interna -->
+            <div id="toast-banner" class="toast-banner hidden"></div>
+
+            <!-- Rodapé de Ações do Painel -->
+            <div class="panel-footer">
+                <button type="button" class="panel-action-btn" onclick="openSetupModal()">♟ Nova Partida</button>
+                <button type="button" class="panel-action-btn" onclick="flipBoard()">⇅ Girar Tabuleiro</button>
+                <button type="button" class="panel-action-btn" onclick="undoMove()" id="panel-btn-undo">↩ Desfazer Lance</button>
+                <button type="button" class="panel-action-btn" onclick="toggleSound()" id="panel-btn-sound">🔊 Som: Ligado</button>
+            </div>
+        </aside>
+    </main>
+
+    <!-- =====================================================================
+         MODAL 1: CONFIGURAÇÃO DE NOVA PARTIDA
+         ===================================================================== -->
+    <div id="setup-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="setup-title">
+        <div class="modal-card">
+            <h2 id="setup-title" class="modal-title">Configurar Nova Partida</h2>
+            <p class="modal-desc">Escolha o modo de jogo, dificuldade da IA, cor e ritmo de relógio.</p>
+
+            <div class="form-group">
+                <span class="form-label">Modo de Jogo</span>
+                <div class="option-grid-2">
+                    <button type="button" class="opt-btn selected" id="cfg-mode-ai" onclick="selectSetupOption('mode', 'ai')">1 Jogador vs IA</button>
+                    <button type="button" class="opt-btn" id="cfg-mode-pvp" onclick="selectSetupOption('mode', 'pvp')">2 Jogadores (Local)</button>
+                </div>
+            </div>
+
+            <div class="form-group" id="cfg-ai-group">
+                <span class="form-label">Nível da Inteligência Artificial</span>
+                <div class="option-grid-3">
+                    <button type="button" class="opt-btn" id="cfg-diff-1" onclick="selectSetupOption('difficulty', 1)">Iniciante</button>
+                    <button type="button" class="opt-btn selected" id="cfg-diff-2" onclick="selectSetupOption('difficulty', 2)">Intermediário</button>
+                    <button type="button" class="opt-btn" id="cfg-diff-3" onclick="selectSetupOption('difficulty', 3)">Avançado</button>
+                </div>
+            </div>
+
+            <div class="form-group" id="cfg-color-group">
+                <span class="form-label">Sua Cor</span>
+                <div class="option-grid-3">
+                    <button type="button" class="opt-btn selected" id="cfg-color-w" onclick="selectSetupOption('playerColor', 'w')">♔ Brancas</button>
+                    <button type="button" class="opt-btn" id="cfg-color-b" onclick="selectSetupOption('playerColor', 'b')">♚ Pretas</button>
+                    <button type="button" class="opt-btn" id="cfg-color-r" onclick="selectSetupOption('playerColor', 'random')">🎲 Aleatório</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <span class="form-label">Relógio da Partida</span>
+                <div class="option-grid-4">
+                    <button type="button" class="opt-btn selected" id="cfg-time-0" onclick="selectSetupOption('timeMinutes', 0)">Livre</button>
+                    <button type="button" class="opt-btn" id="cfg-time-3" onclick="selectSetupOption('timeMinutes', 3)">3 min</button>
+                    <button type="button" class="opt-btn" id="cfg-time-5" onclick="selectSetupOption('timeMinutes', 5)">5 min</button>
+                    <button type="button" class="opt-btn" id="cfg-time-10" onclick="selectSetupOption('timeMinutes', 10)">10 min</button>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button type="button" class="opt-btn" style="flex: 1;" onclick="closeSetupModal()">Cancelar</button>
+                <button type="button" class="modal-primary-btn" style="flex: 2;" onclick="startNewConfiguredGame()">Iniciar Partida</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         MODAL 2: PROMOÇÃO DE PEÃO
+         ===================================================================== -->
+    <div id="promotion-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="promo-title">
+        <div class="modal-card" style="max-width: 360px;">
+            <h2 id="promo-title" class="modal-title">Promoção de Peão</h2>
+            <p class="modal-desc">Escolha a peça para promover seu peão:</p>
+            <div id="promo-choices" class="promo-grid"></div>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         MODAL 3: FIM DE PARTIDA
+         ===================================================================== -->
+    <div id="gameover-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="gameover-title">
+        <div class="modal-card" style="max-width: 390px;">
+            <div id="gameover-trophy" style="font-size: 42px; text-align: center;">🏆</div>
+            <h2 id="gameover-title" class="modal-title">Xeque-Mate!</h2>
+            <p id="gameover-desc" class="modal-desc">As Brancas venceram a partida.</p>
+
+            <button type="button" class="modal-secondary-btn" onclick="enterPostGameReview()">🔍 Revisar Partida Lance a Lance</button>
+            <button type="button" class="modal-primary-btn" onclick="closeGameOverModal(); openSetupModal();">♟ Jogar Novamente</button>
+        </div>
+    </div>
+
+    <!-- =====================================================================
+         JAVASCRIPT AUTO-CONTIDO (MOTOR, PEÇAS SVG, IA, ÁUDIO E INTERFACE)
+         ===================================================================== -->
+    <script>
+        /* =====================================================================
+           A. PEÇAS STAUNTON VETORIAIS SVG INLINE NÍTIDAS
+           ===================================================================== */
+        const PIECE_SVGS = {
+            wK: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="none" fill-rule="evenodd" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 11.63V6M20 8h5" stroke-linejoin="miter"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#fffdf9" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10V37z" fill="#fffdf9"/><path d="M11.5 30c5.5-3 15.5-3 21 0M11.5 33.5c5.5-3 15.5-3 21 0M11.5 37c5.5-3 15.5-3 21 0"/></g></svg>`,
+            wQ: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="#fffdf9" fill-rule="evenodd" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.2"/><circle cx="14" cy="9" r="2.2"/><circle cx="22.5" cy="8" r="2.2"/><circle cx="31" cy="9" r="2.2"/><circle cx="39" cy="12" r="2.2"/><path d="M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14l2 12z" stroke-linecap="butt"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" stroke-linecap="butt"/><path d="M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0" fill="none"/></g></svg>`,
+            wR: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="#fffdf9" fill-rule="evenodd" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 39h27v-3H9v3zM12 36v-4h21v4H12zM11 14V9h4v2h5V9h5v2h5V9h4v5" stroke-linecap="butt"/><path d="M34 14l-3 3H14l-3-3"/><path d="M31 17v12.5H14V17" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M31 29.5l1.5 2.5h-20l1.5-2.5"/><path d="M11 14h23" fill="none" stroke-linejoin="miter"/></g></svg>`,
+            wB: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="none" fill-rule="evenodd" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g fill="#fffdf9" stroke-linecap="butt"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2z"/><path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/><circle cx="22.5" cy="8" r="2.2"/></g><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke-linejoin="miter"/></g></svg>`,
+            wN: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="none" fill-rule="evenodd" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="#fffdf9"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3" fill="#fffdf9"/><circle cx="14.5" cy="15.5" r="1.1" fill="#1c1917"/><path d="M9.5 25.5a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5z" fill="#1c1917"/></g></svg>`,
+            wP: `<svg viewBox="0 0 45 45" width="100%" height="100%"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#fffdf9" stroke="#1c1917" stroke-width="1.6" stroke-linecap="round"/></svg>`,
+
+            bK: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="none" fill-rule="evenodd" stroke="#0c0a09" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22.5 11.63V6" stroke-linejoin="miter"/><path d="M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5" fill="#292524" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10V37z" fill="#292524"/><path d="M20 8h5" stroke-linejoin="miter"/><path d="M32 29.5s8.5-4 6.03-9.65C34.15 14 25 18 22.5 24.5l.01 2.1-.01-2.1C20 18 9.906 14 6.997 19.85c-2.497 5.65 4.853 9 4.853 9M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0" stroke="#e7e5e4" stroke-width="1.2"/></g></svg>`,
+            bQ: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="#292524" fill-rule="evenodd" stroke="#0c0a09" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g stroke="none"><circle cx="6" cy="12" r="2.5"/><circle cx="14" cy="9" r="2.5"/><circle cx="22.5" cy="8" r="2.5"/><circle cx="31" cy="9" r="2.5"/><circle cx="39" cy="12" r="2.5"/></g><path d="M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5 9 26z" stroke-linecap="butt"/><path d="M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z" stroke-linecap="butt"/><path d="M11 38.5a35 35 1 0 0 23 0" fill="none" stroke-linecap="butt"/><path d="M11 29a35 35 1 0 1 23 0M12.5 31.5h20M11.5 34.5a35 35 1 0 0 22 0M10.5 37.5a35 35 1 0 0 24 0" fill="none" stroke="#e7e5e4" stroke-width="1.2"/></g></svg>`,
+            bR: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="#292524" fill-rule="evenodd" stroke="#0c0a09" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 39h27v-3H9v3zM12.5 32l1.5-2.5h17l1.5 2.5h-20zM12 36v-4h21v4H12z" stroke-linecap="butt"/><path d="M14 29.5v-13h17v13H14z" stroke-linecap="butt" stroke-linejoin="miter"/><path d="M14 16.5L11 14h23l-3 2.5H14zM11 14V9h4v2h5V9h5v2h5V9h4v5H11z" stroke-linecap="butt"/><path d="M12 35.5h21M13 31.5h19M14 29.5h17M14 16.5h17M11 14h23" fill="none" stroke="#e7e5e4" stroke-width="1.1" stroke-linejoin="miter"/></g></svg>`,
+            bB: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="none" fill-rule="evenodd" stroke="#0c0a09" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><g fill="#292524" stroke-linecap="butt"><path d="M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.354.49-2.323.47-3-.5 1.354-1.94 3-2 3-2z"/><path d="M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z"/><circle cx="22.5" cy="8" r="2.2"/></g><path d="M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5" stroke="#e7e5e4" stroke-width="1.3" stroke-linejoin="miter"/></g></svg>`,
+            bN: `<svg viewBox="0 0 45 45" width="100%" height="100%"><g fill="none" fill-rule="evenodd" stroke="#0c0a09" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21" fill="#292524"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3" fill="#292524"/><circle cx="14.5" cy="15.5" r="1.1" fill="#e7e5e4" stroke="#e7e5e4"/><path d="M9.5 25.5a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5z" fill="#e7e5e4" stroke="#e7e5e4"/><path d="M24.55 10.4l-.45 1.45.5.15c3.15 1 5.65 2.49 7.9 6.75S35.75 29.06 35.25 39l-.05.5h2.25l.05-.5c.5-10.06-.88-16.85-3.25-21.34-2.37-4.49-5.79-6.64-9.19-7.16l-.51-.1z" fill="#e7e5e4" stroke="none"/></g></svg>`,
+            bP: `<svg viewBox="0 0 45 45" width="100%" height="100%"><path d="M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z" fill="#292524" stroke="#0c0a09" stroke-width="1.6" stroke-linecap="round"/></svg>`
+        };
+
+        const PIECE_VALUES = { P: 100, N: 320, B: 330, R: 500, Q: 900, K: 20000 };
+        const PIECE_PT_NAMES = { Q: 'Dama', R: 'Torre', B: 'Bispo', N: 'Cavalo' };
+        const PIECE_PT_LETTERS = { K: 'R', Q: 'D', R: 'T', B: 'B', N: 'C', P: '' };
+
+        /* Tabelas Posicionais (Piece-Square Tables) para Brancas */
+        const PST = {
+            P: [
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [50, 50, 50, 50, 50, 50, 50, 50],
+                [10, 10, 20, 30, 30, 20, 10, 10],
+                [ 5,  5, 10, 25, 25, 10,  5,  5],
+                [ 0,  0,  0, 20, 20,  0,  0,  0],
+                [ 5, -5,-10,  0,  0,-10, -5,  5],
+                [ 5, 10, 10,-20,-20, 10, 10,  5],
+                [ 0,  0,  0,  0,  0,  0,  0,  0]
+            ],
+            N: [
+                [-50,-40,-30,-30,-30,-30,-40,-50],
+                [-40,-20,  0,  0,  0,  0,-20,-40],
+                [-30,  0, 10, 15, 15, 10,  0,-30],
+                [-30,  5, 15, 20, 20, 15,  5,-30],
+                [-30,  0, 15, 20, 20, 15,  0,-30],
+                [-30,  5, 10, 15, 15, 10,  5,-30],
+                [-40,-20,  0,  5,  5,  0,-20,-40],
+                [-50,-40,-30,-30,-30,-30,-40,-50]
+            ],
+            B: [
+                [-20,-10,-10,-10,-10,-10,-10,-20],
+                [-10,  0,  0,  0,  0,  0,  0,-10],
+                [-10,  0,  5, 10, 10,  5,  0,-10],
+                [-10,  5,  5, 10, 10,  5,  5,-10],
+                [-10,  0, 10, 10, 10, 10,  0,-10],
+                [-10, 10, 10, 10, 10, 10, 10,-10],
+                [-10,  5,  0,  0,  0,  0,  5,-10],
+                [-20,-10,-10,-10,-10,-10,-10,-20]
+            ],
+            R: [
+                [ 0,  0,  0,  0,  0,  0,  0,  0],
+                [ 5, 10, 10, 10, 10, 10, 10,  5],
+                [-5,  0,  0,  0,  0,  0,  0, -5],
+                [-5,  0,  0,  0,  0,  0,  0, -5],
+                [-5,  0,  0,  0,  0,  0,  0, -5],
+                [-5,  0,  0,  0,  0,  0,  0, -5],
+                [-5,  0,  0,  0,  0,  0,  0, -5],
+                [ 0,  0,  0,  5,  5,  0,  0,  0]
+            ],
+            Q: [
+                [-20,-10,-10, -5, -5,-10,-10,-20],
+                [-10,  0,  0,  0,  0,  0,  0,-10],
+                [-10,  0,  5,  5,  5,  5,  0,-10],
+                [ -5,  0,  5,  5,  5,  5,  0, -5],
+                [  0,  0,  5,  5,  5,  5,  0, -5],
+                [-10,  5,  5,  5,  5,  5,  0,-10],
+                [-10,  0,  5,  0,  0,  0,  0,-10],
+                [-20,-10,-10, -5, -5,-10,-10,-20]
+            ],
+            K: [
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-30,-40,-40,-50,-50,-40,-40,-30],
+                [-20,-30,-30,-40,-40,-30,-30,-20],
+                [-10,-20,-20,-20,-20,-20,-20,-10],
+                [ 20, 20,  0,  0,  0,  0, 20, 20],
+                [ 20, 30, 10,  0,  0, 10, 30, 20]
+            ]
+        };
+
+        /* =====================================================================
+           B. MOTOR DE XADREZ COMPLETO (REGRAS OFICIAIS + VALIDAÇÃO + SAN)
+           ===================================================================== */
+        class ChessEngine {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.board = [
+                    ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+                    ['bP','bP','bP','bP','bP','bP','bP','bP'],
+                    [null,null,null,null,null,null,null,null],
+                    [null,null,null,null,null,null,null,null],
+                    [null,null,null,null,null,null,null,null],
+                    [null,null,null,null,null,null,null,null],
+                    ['wP','wP','wP','wP','wP','wP','wP','wP'],
+                    ['wR','wN','wB','wQ','wK','wB','wN','wR']
+                ];
+                this.turn = 'w';
+                this.castling = { wK: true, wQ: true, bK: true, bQ: true };
+                this.epSquare = null; // { r, c }
+                this.halfMoveClock = 0;
+                this.fullMoveNumber = 1;
+                this.history = [];
+                this.positionCounts = {};
+                this.recordPositionKey();
+            }
+
+            cloneState() {
+                return {
+                    board: this.board.map(row => [...row]),
+                    turn: this.turn,
+                    castling: { ...this.castling },
+                    epSquare: this.epSquare ? { ...this.epSquare } : null,
+                    halfMoveClock: this.halfMoveClock,
+                    fullMoveNumber: this.fullMoveNumber
+                };
+            }
+
+            restoreState(st) {
+                this.board = st.board.map(row => [...row]);
+                this.turn = st.turn;
+                this.castling = { ...st.castling };
+                this.epSquare = st.epSquare ? { ...st.epSquare } : null;
+                this.halfMoveClock = st.halfMoveClock;
+                this.fullMoveNumber = st.fullMoveNumber;
+            }
+
+            getPositionKey() {
+                const rows = this.board.map(r => r.map(c => c || '..').join('')).join('/');
+                const cStr = `${this.castling.wK?'K':''}${this.castling.wQ?'Q':''}${this.castling.bK?'k':''}${this.castling.bQ?'q':''}` || '-';
+                const epStr = this.epSquare ? `${this.epSquare.r},${this.epSquare.c}` : '-';
+                return `${rows}|${this.turn}|${cStr}|${epStr}`;
+            }
+
+            recordPositionKey() {
+                const key = this.getPositionKey();
+                this.positionCounts[key] = (this.positionCounts[key] || 0) + 1;
+            }
+
+            inBounds(r, c) {
+                return r >= 0 && r < 8 && c >= 0 && c < 8;
+            }
+
+            findKing(color, board = this.board) {
+                const target = color + 'K';
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (board[r][c] === target) return { r, c };
+                    }
+                }
+                return null;
+            }
+
+            isSquareAttacked(r, c, byColor, board = this.board) {
+                // 1. Ataques de Peão
+                const pawnDir = byColor === 'w' ? 1 : -1;
+                for (const dc of [-1, 1]) {
+                    const pr = r + pawnDir, pc = c + dc;
+                    if (this.inBounds(pr, pc) && board[pr][pc] === byColor + 'P') return true;
+                }
+
+                // 2. Ataques de Cavalo
+                const knightOffsets = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+                for (const [dr, dc] of knightOffsets) {
+                    const nr = r + dr, nc = c + dc;
+                    if (this.inBounds(nr, nc) && board[nr][nc] === byColor + 'N') return true;
+                }
+
+                // 3. Ataques do Rei
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        const kr = r + dr, kc = c + dc;
+                        if (this.inBounds(kr, kc) && board[kr][kc] === byColor + 'K') return true;
+                    }
+                }
+
+                // 4. Ortogonais (Torre / Dama)
+                const orthoDirs = [[-1,0],[1,0],[0,-1],[0,1]];
+                for (const [dr, dc] of orthoDirs) {
+                    let sr = r + dr, sc = c + dc;
+                    while (this.inBounds(sr, sc)) {
+                        const p = board[sr][sc];
+                        if (p) {
+                            if (p[0] === byColor && (p[1] === 'R' || p[1] === 'Q')) return true;
+                            break;
+                        }
+                        sr += dr;
+                        sc += dc;
+                    }
+                }
+
+                // 5. Diagonais (Bispo / Dama)
+                const diagDirs = [[-1,-1],[-1,1],[1,-1],[1,1]];
+                for (const [dr, dc] of diagDirs) {
+                    let sr = r + dr, sc = c + dc;
+                    while (this.inBounds(sr, sc)) {
+                        const p = board[sr][sc];
+                        if (p) {
+                            if (p[0] === byColor && (p[1] === 'B' || p[1] === 'Q')) return true;
+                            break;
+                        }
+                        sr += dr;
+                        sc += dc;
+                    }
+                }
+
+                return false;
+            }
+
+            isInCheck(color, board = this.board) {
+                const kingPos = this.findKing(color, board);
+                if (!kingPos) return false;
+                const opp = color === 'w' ? 'b' : 'w';
+                return this.isSquareAttacked(kingPos.r, kingPos.c, opp, board);
+            }
+
+            generatePseudoMoves(color) {
+                const moves = [];
+                const opp = color === 'w' ? 'b' : 'w';
+
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        const piece = this.board[r][c];
+                        if (!piece || piece[0] !== color) continue;
+                        const type = piece[1];
+
+                        if (type === 'P') {
+                            const dir = color === 'w' ? -1 : 1;
+                            const startRow = color === 'w' ? 6 : 1;
+                            const promoRow = color === 'w' ? 0 : 7;
+
+                            // Avanço simples
+                            const r1 = r + dir;
+                            if (this.inBounds(r1, c) && !this.board[r1][c]) {
+                                if (r1 === promoRow) {
+                                    for (const p of ['Q','R','B','N']) {
+                                        moves.push({ fromR: r, fromC: c, toR: r1, toC: c, piece, promotion: p });
+                                    }
+                                } else {
+                                    moves.push({ fromR: r, fromC: c, toR: r1, toC: c, piece });
+                                    // Avanço duplo inicial
+                                    const r2 = r + dir * 2;
+                                    if (r === startRow && !this.board[r2][c]) {
+                                        moves.push({ fromR: r, fromC: c, toR: r2, toC: c, piece, isDoublePawn: true });
+                                    }
+                                }
+                            }
+
+                            // Capturas diagonais e En Passant
+                            for (const dc of [-1, 1]) {
+                                const nc = c + dc;
+                                if (!this.inBounds(r1, nc)) continue;
+                                const target = this.board[r1][nc];
+                                if (target && target[0] === opp) {
+                                    if (r1 === promoRow) {
+                                        for (const p of ['Q','R','B','N']) {
+                                            moves.push({ fromR: r, fromC: c, toR: r1, toC: nc, piece, captured: target, promotion: p });
+                                        }
+                                    } else {
+                                        moves.push({ fromR: r, fromC: c, toR: r1, toC: nc, piece, captured: target });
+                                    }
+                                } else if (this.epSquare && this.epSquare.r === r1 && this.epSquare.c === nc) {
+                                    moves.push({
+                                        fromR: r, fromC: c, toR: r1, toC: nc,
+                                        piece, captured: opp + 'P', isEnPassant: true
+                                    });
+                                }
+                            }
+                        } else if (type === 'N') {
+                            const jumps = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+                            for (const [dr, dc] of jumps) {
+                                const nr = r + dr, nc = c + dc;
+                                if (!this.inBounds(nr, nc)) continue;
+                                const target = this.board[nr][nc];
+                                if (!target || target[0] === opp) {
+                                    moves.push({ fromR: r, fromC: c, toR: nr, toC: nc, piece, captured: target || null });
+                                }
+                            }
+                        } else if (type === 'K') {
+                            for (let dr = -1; dr <= 1; dr++) {
+                                for (let dc = -1; dc <= 1; dc++) {
+                                    if (dr === 0 && dc === 0) continue;
+                                    const nr = r + dr, nc = c + dc;
+                                    if (!this.inBounds(nr, nc)) continue;
+                                    const target = this.board[nr][nc];
+                                    if (!target || target[0] === opp) {
+                                        moves.push({ fromR: r, fromC: c, toR: nr, toC: nc, piece, captured: target || null });
+                                    }
+                                }
+                            }
+                            // Roque
+                            const homeRow = color === 'w' ? 7 : 0;
+                            if (r === homeRow && c === 4 && !this.isInCheck(color)) {
+                                // Roque pequeno (Ala do Rei)
+                                if (this.castling[color + 'K'] &&
+                                    !this.board[homeRow][5] && !this.board[homeRow][6] &&
+                                    this.board[homeRow][7] === color + 'R' &&
+                                    !this.isSquareAttacked(homeRow, 5, opp) &&
+                                    !this.isSquareAttacked(homeRow, 6, opp)) {
+                                    moves.push({ fromR: homeRow, fromC: 4, toR: homeRow, toC: 6, piece, castle: 'K' });
+                                }
+                                // Roque grande (Ala da Dama)
+                                if (this.castling[color + 'Q'] &&
+                                    !this.board[homeRow][3] && !this.board[homeRow][2] && !this.board[homeRow][1] &&
+                                    this.board[homeRow][0] === color + 'R' &&
+                                    !this.isSquareAttacked(homeRow, 3, opp) &&
+                                    !this.isSquareAttacked(homeRow, 2, opp)) {
+                                    moves.push({ fromR: homeRow, fromC: 4, toR: homeRow, toC: 2, piece, castle: 'Q' });
+                                }
+                            }
+                        } else {
+                            const dirs = [];
+                            if (type === 'R' || type === 'Q') dirs.push([-1,0],[1,0],[0,-1],[0,1]);
+                            if (type === 'B' || type === 'Q') dirs.push([-1,-1],[-1,1],[1,-1],[1,1]);
+                            for (const [dr, dc] of dirs) {
+                                let nr = r + dr, nc = c + dc;
+                                while (this.inBounds(nr, nc)) {
+                                    const target = this.board[nr][nc];
+                                    if (!target) {
+                                        moves.push({ fromR: r, fromC: c, toR: nr, toC: nc, piece });
+                                    } else {
+                                        if (target[0] === opp) {
+                                            moves.push({ fromR: r, fromC: c, toR: nr, toC: nc, piece, captured: target });
+                                        }
+                                        break;
+                                    }
+                                    nr += dr;
+                                    nc += dc;
+                                }
+                            }
+                        }
+                    }
+                }
+                return moves;
+            }
+
+            getLegalMoves(color = this.turn) {
+                const pseudo = this.generatePseudoMoves(color);
+                const legal = [];
+                for (const m of pseudo) {
+                    const backup = this.cloneState();
+                    this.applyMoveRaw(m);
+                    if (!this.isInCheck(color)) {
+                        legal.push(m);
+                    }
+                    this.restoreState(backup);
+                }
+                return legal;
+            }
+
+            applyMoveRaw(m) {
+                const color = m.piece[0];
+                const type = m.piece[1];
+
+                this.board[m.fromR][m.fromC] = null;
+
+                if (m.isEnPassant) {
+                    const capRow = color === 'w' ? m.toR + 1 : m.toR - 1;
+                    this.board[capRow][m.toC] = null;
+                }
+
+                if (m.castle === 'K') {
+                    this.board[m.fromR][5] = color + 'R';
+                    this.board[m.fromR][7] = null;
+                } else if (m.castle === 'Q') {
+                    this.board[m.fromR][3] = color + 'R';
+                    this.board[m.fromR][0] = null;
+                }
+
+                this.board[m.toR][m.toC] = m.promotion ? (color + m.promotion) : m.piece;
+
+                // Atualizar direitos de roque
+                if (type === 'K') {
+                    this.castling[color + 'K'] = false;
+                    this.castling[color + 'Q'] = false;
+                }
+                if (type === 'R') {
+                    if (m.fromR === 7 && m.fromC === 0) this.castling.wQ = false;
+                    if (m.fromR === 7 && m.fromC === 7) this.castling.wK = false;
+                    if (m.fromR === 0 && m.fromC === 0) this.castling.bQ = false;
+                    if (m.fromR === 0 && m.fromC === 7) this.castling.bK = false;
+                }
+                if (m.toR === 7 && m.toC === 0) this.castling.wQ = false;
+                if (m.toR === 7 && m.toC === 7) this.castling.wK = false;
+                if (m.toR === 0 && m.toC === 0) this.castling.bQ = false;
+                if (m.toR === 0 && m.toC === 7) this.castling.bK = false;
+
+                // En Passant
+                if (m.isDoublePawn) {
+                    this.epSquare = { r: (m.fromR + m.toR) / 2, c: m.fromC };
+                } else {
+                    this.epSquare = null;
+                }
+
+                // Relógio de 50 lances
+                if (type === 'P' || m.captured) {
+                    this.halfMoveClock = 0;
+                } else {
+                    this.halfMoveClock++;
+                }
+
+                if (color === 'b') {
+                    this.fullMoveNumber++;
+                }
+
+                this.turn = color === 'w' ? 'b' : 'w';
+            }
+
+            coordToAlgebraic(r, c) {
+                return 'abcdefgh'[c] + (8 - r);
+            }
+
+            formatSAN(move, allLegalMoves) {
+                if (move.castle === 'K') return 'O-O';
+                if (move.castle === 'Q') return 'O-O-O';
+
+                const type = move.piece[1];
+                const dest = this.coordToAlgebraic(move.toR, move.toC);
+                let san = '';
+
+                if (type === 'P') {
+                    if (move.captured) {
+                        san += 'abcdefgh'[move.fromC] + 'x';
+                    }
+                    san += dest;
+                    if (move.promotion) {
+                        san += '=' + PIECE_PT_LETTERS[move.promotion];
+                    }
+                } else {
+                    san += PIECE_PT_LETTERS[type];
+                    // Desambiguação
+                    const sameType = allLegalMoves.filter(other =>
+                        other !== move &&
+                        other.piece === move.piece &&
+                        other.toR === move.toR &&
+                        other.toC === move.toC
+                    );
+                    if (sameType.length > 0) {
+                        const sameFile = sameType.some(o => o.fromC === move.fromC);
+                        const sameRank = sameType.some(o => o.fromR === move.fromR);
+                        if (!sameFile) {
+                            san += 'abcdefgh'[move.fromC];
+                        } else if (!sameRank) {
+                            san += (8 - move.fromR);
+                        } else {
+                            san += 'abcdefgh'[move.fromC] + (8 - move.fromR);
+                        }
+                    }
+                    if (move.captured) san += 'x';
+                    san += dest;
+                }
+
+                return san;
+            }
+
+            makeMove(move) {
+                const legalMoves = this.getLegalMoves(this.turn);
+                let san = this.formatSAN(move, legalMoves);
+                const stateBefore = this.cloneState();
+
+                this.applyMoveRaw(move);
+
+                const opp = this.turn;
+                const oppLegal = this.getLegalMoves(opp);
+                const oppCheck = this.isInCheck(opp);
+
+                if (oppCheck) {
+                    san += oppLegal.length === 0 ? '#' : '+';
+                }
+
+                const posKey = this.getPositionKey();
+                this.positionCounts[posKey] = (this.positionCounts[posKey] || 0) + 1;
+
+                const record = {
+                    ...move,
+                    san,
+                    stateBefore,
+                    posKey
+                };
+                this.history.push(record);
+                return record;
+            }
+
+            undoLastMove() {
+                if (this.history.length === 0) return null;
+                const last = this.history.pop();
+                if (this.positionCounts[last.posKey]) {
+                    this.positionCounts[last.posKey]--;
+                }
+                this.restoreState(last.stateBefore);
+                return last;
+            }
+
+            isInsufficientMaterial() {
+                const pieces = [];
+                for (let r = 0; r < 8; r++) {
+                    for (let c = 0; c < 8; c++) {
+                        if (this.board[r][c]) pieces.push({ p: this.board[r][c], r, c });
+                    }
+                }
+                if (pieces.length === 2) return true; // K vs K
+                if (pieces.length === 3) {
+                    const minor = pieces.find(x => x.p[1] === 'N' || x.p[1] === 'B');
+                    if (minor) return true; // K+B vs K ou K+N vs K
+                }
+                if (pieces.length === 4) {
+                    const bishops = pieces.filter(x => x.p[1] === 'B');
+                    if (bishops.length === 2 && bishops[0].p[0] !== bishops[1].p[0]) {
+                        const sqColor0 = (bishops[0].r + bishops[0].c) % 2;
+                        const sqColor1 = (bishops[1].r + bishops[1].c) % 2;
+                        if (sqColor0 === sqColor1) return true;
+                    }
+                }
+                return false;
+            }
+
+            getGameStatus() {
+                const legal = this.getLegalMoves(this.turn);
+                const inCheck = this.isInCheck(this.turn);
+
+                if (legal.length === 0) {
+                    if (inCheck) {
+                        const winner = this.turn === 'w' ? 'b' : 'w';
+                        return {
+                            over: true,
+                            winner,
+                            reason: `Xeque-Mate! Vitória das ${winner === 'w' ? 'Brancas' : 'Pretas'}.`,
+                            title: 'Xeque-Mate!'
+                        };
+                    }
+                    return {
+                        over: true,
+                        winner: 'draw',
+                        reason: 'Empate por Afogamento (Rei sem lances legais).',
+                        title: 'Empate por Afogamento'
+                    };
+                }
+
+                if (this.isInsufficientMaterial()) {
+                    return {
+                        over: true,
+                        winner: 'draw',
+                        reason: 'Empate por Insuficiência de Material.',
+                        title: 'Material Insuficiente'
+                    };
+                }
+
+                if (this.halfMoveClock >= 100) {
+                    return {
+                        over: true,
+                        winner: 'draw',
+                        reason: 'Empate pela Regra dos 50 Lances.',
+                        title: 'Regra dos 50 Lances'
+                    };
+                }
+
+                const key = this.getPositionKey();
+                if ((this.positionCounts[key] || 0) >= 3) {
+                    return {
+                        over: true,
+                        winner: 'draw',
+                        reason: 'Empate por Repetição Tripla de Posição.',
+                        title: 'Repetição Tripla'
+                    };
+                }
+
+                return { over: false, inCheck };
+            }
+        }
+
+        /* =====================================================================
+           C. MOTOR DE AVALIAÇÃO E INTELIGÊNCIA ARTIFICIAL (MINIMAX + ALFA-BETA)
+           ===================================================================== */
+        function evaluateBoardCp(engine) {
+            let score = 0;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const p = engine.board[r][c];
+                    if (!p) continue;
+                    const color = p[0];
+                    const type = p[1];
+                    const pstRow = color === 'w' ? r : 7 - r;
+                    const val = PIECE_VALUES[type] + (PST[type] ? PST[type][pstRow][c] : 0);
+                    score += color === 'w' ? val : -val;
+                }
+            }
+            return score;
+        }
+
+        function orderMoves(moves) {
+            return moves.sort((a, b) => {
+                const scoreA = (a.captured ? PIECE_VALUES[a.captured[1]] * 10 - PIECE_VALUES[a.piece[1]] : 0) + (a.promotion ? 800 : 0);
+                const scoreB = (b.captured ? PIECE_VALUES[b.captured[1]] * 10 - PIECE_VALUES[b.piece[1]] : 0) + (b.promotion ? 800 : 0);
+                return scoreB - scoreA;
+            });
+        }
+
+        function minimax(engine, depth, alpha, beta, maximizingWhite) {
+            const legal = engine.getLegalMoves(engine.turn);
+            if (legal.length === 0) {
+                if (engine.isInCheck(engine.turn)) {
+                    return maximizingWhite ? (-99000 - depth * 10) : (99000 + depth * 10);
+                }
+                return 0;
+            }
+            if (depth === 0) {
+                return evaluateBoardCp(engine);
+            }
+
+            orderMoves(legal);
+
+            if (maximizingWhite) {
+                let maxEval = -Infinity;
+                for (const m of legal) {
+                    const st = engine.cloneState();
+                    engine.applyMoveRaw(m);
+                    const ev = minimax(engine, depth - 1, alpha, beta, false);
+                    engine.restoreState(st);
+                    if (ev > maxEval) maxEval = ev;
+                    if (ev > alpha) alpha = ev;
+                    if (beta <= alpha) break;
+                }
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+                for (const m of legal) {
+                    const st = engine.cloneState();
+                    engine.applyMoveRaw(m);
+                    const ev = minimax(engine, depth - 1, alpha, beta, true);
+                    engine.restoreState(st);
+                    if (ev < minEval) minEval = ev;
+                    if (ev < beta) beta = ev;
+                    if (beta <= alpha) break;
+                }
+                return minEval;
+            }
+        }
+
+        function findBestMove(engine, difficulty = 2) {
+            const legal = engine.getLegalMoves(engine.turn);
+            if (legal.length === 0) return null;
+            if (legal.length === 1) return { move: legal[0], evalCp: evaluateBoardCp(engine) };
+
+            const maximizingWhite = engine.turn === 'w';
+            const depth = difficulty === 1 ? 1 : (difficulty === 2 ? 2 : 3);
+            orderMoves(legal);
+
+            let bestMove = legal[0];
+            let bestEval = maximizingWhite ? -Infinity : Infinity;
+            const scored = [];
+
+            for (const m of legal) {
+                const st = engine.cloneState();
+                engine.applyMoveRaw(m);
+                const ev = minimax(engine, depth - 1, -Infinity, Infinity, !maximizingWhite);
+                engine.restoreState(st);
+                scored.push({ move: m, ev });
+
+                if (maximizingWhite ? ev > bestEval : ev < bestEval) {
+                    bestEval = ev;
+                    bestMove = m;
+                }
+            }
+
+            // Nível Iniciante adiciona leve aleatoriedade entre bons lances
+            if (difficulty === 1 && scored.length > 1) {
+                scored.sort((a, b) => maximizingWhite ? b.ev - a.ev : a.ev - b.ev);
+                const pool = scored.slice(0, Math.min(3, scored.length));
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                return { move: pick.move, evalCp: pick.ev };
+            }
+
+            return { move: bestMove, evalCp: bestEval };
+        }
+
+        /* =====================================================================
+           D. EFEITOS SONOROS SINTETIZADOS VIA WEB AUDIO API
+           ===================================================================== */
+        class SoundEffects {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            ensureContext() {
+                if (!this.ctx && (window.AudioContext || window.webkitAudioContext)) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume().catch(() => {});
+                }
+            }
+
+            play(type) {
+                if (!this.enabled) return;
+                try {
+                    this.ensureContext();
+                    if (!this.ctx) return;
+
+                    const now = this.ctx.currentTime;
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+
+                    if (type === 'move') {
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(220, now);
+                        osc.frequency.exponentialRampToValueAtTime(110, now + 0.08);
+                        gain.gain.setValueAtTime(0.18, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+                        osc.start(now);
+                        osc.stop(now + 0.085);
+                    } else if (type === 'capture') {
+                        osc.type = 'sawtooth';
+                        osc.frequency.setValueAtTime(180, now);
+                        osc.frequency.exponentialRampToValueAtTime(65, now + 0.13);
+                        gain.gain.setValueAtTime(0.22, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
+                        osc.start(now);
+                        osc.stop(now + 0.14);
+                    } else if (type === 'castle') {
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(260, now);
+                        osc.frequency.setValueAtTime(340, now + 0.07);
+                        gain.gain.setValueAtTime(0.16, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+                        osc.start(now);
+                        osc.stop(now + 0.17);
+                    } else if (type === 'check') {
+                        osc.type = 'square';
+                        osc.frequency.setValueAtTime(520, now);
+                        osc.frequency.setValueAtTime(680, now + 0.09);
+                        gain.gain.setValueAtTime(0.14, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+                        osc.start(now);
+                        osc.stop(now + 0.23);
+                    } else if (type === 'gameover') {
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(440, now);
+                        osc.frequency.setValueAtTime(554.37, now + 0.12);
+                        osc.frequency.setValueAtTime(659.25, now + 0.24);
+                        gain.gain.setValueAtTime(0.2, now);
+                        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+                        osc.start(now);
+                        osc.stop(now + 0.46);
+                    }
+                } catch (e) {
+                    // Silencia erros se áudio for bloqueado pelo navegador
+                }
+            }
+        }
+
+        /* =====================================================================
+           E. ESTADO DA APLICAÇÃO, SNAPSHOTS DE REVISÃO E CONTROLE DE INTERFACE
+           ===================================================================== */
+        const game = new ChessEngine();
+        const sfx = new SoundEffects();
+
+        let setupDraft = {
+            mode: 'ai',
+            difficulty: 2,
+            playerColor: 'w',
+            timeMinutes: 0
+        };
+
+        let matchState = {
+            mode: 'ai',
+            difficulty: 2,
+            humanColor: 'w',
+            boardFlipped: false,
+            selectedSq: null,
+            legalMovesForSelected: [],
+            hintMove: null,
+            aiThinking: false,
+            gameOver: false,
+            resultTitle: '',
+            resultDesc: '',
+            timeEnabled: false,
+            whiteTime: 300,
+            blackTime: 300,
+            clockInterval: null
+        };
+
+        let snapshots = [];
+        let reviewIndex = 0;
+        let autoPlayTimer = null;
+        let toastTimeout = null;
+
+        function classifyMoveQuality(deltaForMoverCp, isMate) {
+            if (isMate) {
+                return { label: '★ Xeque-Mate', glyph: '#', cssClass: 'q-best' };
+            }
+            if (deltaForMoverCp >= -25) {
+                return { label: '★ Melhor', glyph: '★', cssClass: 'q-best' };
+            }
+            if (deltaForMoverCp >= -75) {
+                return { label: '✓ Bom Lance', glyph: '', cssClass: 'q-good' };
+            }
+            if (deltaForMoverCp >= -160) {
+                return { label: '?! Imprecisão', glyph: '?!', cssClass: 'q-inacc' };
+            }
+            if (deltaForMoverCp >= -320) {
+                return { label: '? Erro', glyph: '?', cssClass: 'q-mistake' };
+            }
+            return { label: '?? Capivarada', glyph: '??', cssClass: 'q-blunder' };
+        }
+
+        function computeCapturedAndMaterial(board) {
+            const initial = { wP: 8, wN: 2, wB: 2, wR: 2, wQ: 1, bP: 8, bN: 2, bB: 2, bR: 2, bQ: 1 };
+            const current = { wP: 0, wN: 0, wB: 0, wR: 0, wQ: 0, bP: 0, bN: 0, bB: 0, bR: 0, bQ: 0 };
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const p = board[r][c];
+                    if (p && current[p] !== undefined) current[p]++;
+                }
+            }
+
+            const order = ['Q', 'R', 'B', 'N', 'P'];
+            const capturedByWhite = []; // Peças pretas capturadas
+            const capturedByBlack = []; // Peças brancas capturadas
+            let whiteScore = 0;
+            let blackScore = 0;
+
+            for (const t of order) {
+                const lostB = Math.max(0, initial['b' + t] - current['b' + t]);
+                for (let i = 0; i < lostB; i++) capturedByWhite.push('b' + t);
+
+                const lostW = Math.max(0, initial['w' + t] - current['w' + t]);
+                for (let i = 0; i < lostW; i++) capturedByBlack.push('w' + t);
+
+                const pts = PIECE_VALUES[t] / 100;
+                whiteScore += current['w' + t] * Math.round(pts);
+                blackScore += current['b' + t] * Math.round(pts);
+            }
+
+            return {
+                capturedByWhite,
+                capturedByBlack,
+                diff: whiteScore - blackScore
+            };
+        }
+
+        function createSnapshot(moveRecord = null, prevEvalCp = 0) {
+            const evalCp = evaluateBoardCp(game);
+            const inCheck = game.isInCheck(game.turn);
+            const kingCheckPos = inCheck ? game.findKing(game.turn) : null;
+            const mat = computeCapturedAndMaterial(game.board);
+
+            let quality = { label: 'Posição Inicial', glyph: '', cssClass: 'q-neutral' };
+            if (moveRecord) {
+                const moverColor = moveRecord.piece[0];
+                const deltaForMover = moverColor === 'w' ? (evalCp - prevEvalCp) : (prevEvalCp - evalCp);
+                const isMate = moveRecord.san.endsWith('#');
+                quality = classifyMoveQuality(deltaForMover, isMate);
+            }
+
+            return {
+                index: snapshots.length,
+                board: game.board.map(r => [...r]),
+                turn: game.turn,
+                lastMove: moveRecord ? { fromR: moveRecord.fromR, fromC: moveRecord.fromC, toR: moveRecord.toR, toC: moveRecord.toC } : null,
+                san: moveRecord ? moveRecord.san : 'Início',
+                kingCheckPos,
+                evalCp,
+                quality,
+                capturedByWhite: mat.capturedByWhite,
+                capturedByBlack: mat.capturedByBlack,
+                matDiff: mat.diff
+            };
+        }
+
+        function initMatch() {
+            stopClock();
+            stopAutoPlay();
+            game.reset();
+
+            matchState.selectedSq = null;
+            matchState.legalMovesForSelected = [];
+            matchState.hintMove = null;
+            matchState.aiThinking = false;
+            matchState.gameOver = false;
+            matchState.resultTitle = '';
+            matchState.resultDesc = '';
+            matchState.boardFlipped = (matchState.mode === 'ai' && matchState.humanColor === 'b');
+
+            if (matchState.timeEnabled) {
+                matchState.whiteTime = setupDraft.timeMinutes * 60;
+                matchState.blackTime = setupDraft.timeMinutes * 60;
+            }
+
+            snapshots = [createSnapshot(null, 0)];
+            reviewIndex = 0;
+
+            updateModeLabels();
+            renderAll();
+
+            if (matchState.timeEnabled) {
+                startClock();
+            }
+
+            if (matchState.mode === 'ai' && matchState.humanColor === 'b') {
+                triggerAIMove();
+            }
+        }
+
+        function updateModeLabels() {
+            const badge = document.getElementById('mode-badge');
+            const diffNames = { 1: 'Iniciante', 2: 'Intermediário', 3: 'Avançado' };
+            if (matchState.mode === 'ai') {
+                badge.textContent = `1P vs IA (${diffNames[matchState.difficulty]})`;
+            } else {
+                badge.textContent = '2 Jogadores (Local)';
+            }
+        }
+
+        /* =====================================================================
+           F. RENDERIZAÇÃO PRINCIPAL (GARANTIDA NO DOMContentLoaded)
+           ===================================================================== */
+        function renderAll(animateLanding = false) {
+            const currentSnap = snapshots[reviewIndex] || snapshots[snapshots.length - 1];
+            renderPlayerBars(currentSnap);
+            renderBoard(currentSnap, animateLanding);
+            renderDockAndPanels(currentSnap);
+            renderHistoryList();
+        }
+
+        function renderPlayerBars(snap) {
+            const topColor = matchState.boardFlipped ? 'w' : 'b';
+            const bottomColor = matchState.boardFlipped ? 'b' : 'w';
+
+            const diffNames = { 1: 'Iniciante', 2: 'Intermediário', 3: 'Avançado' };
+            const getPlayerLabel = (c) => {
+                if (matchState.mode === 'pvp') {
+                    return c === 'w' ? 'Brancas (Jogador 1)' : 'Pretas (Jogador 2)';
+                }
+                if (c === matchState.humanColor) {
+                    return `${c === 'w' ? 'Brancas' : 'Pretas'} (Você)`;
+                }
+                return `${c === 'w' ? 'Brancas' : 'Pretas'} (IA ${diffNames[matchState.difficulty]})`;
+            };
+
+            const renderSide = (prefix, color) => {
+                const bar = document.getElementById(`${prefix}-player-bar`);
+                const avatar = document.getElementById(`${prefix}-avatar`);
+                const nameEl = document.getElementById(`${prefix}-name`);
+                const turnPill = document.getElementById(`${prefix}-turn-pill`);
+                const capEl = document.getElementById(`${prefix}-captured`);
+                const clockEl = document.getElementById(`${prefix}-clock`);
+
+                const isTurn = !matchState.gameOver && snap.turn === color;
+                bar.classList.toggle('active-turn', isTurn);
+
+                avatar.className = `player-avatar ${color === 'w' ? 'avatar-w' : 'avatar-b'}`;
+                avatar.textContent = color === 'w' ? '♔' : '♚';
+                nameEl.textContent = getPlayerLabel(color);
+                turnPill.classList.toggle('hidden', !isTurn);
+
+                // Peças capturadas e vantagem material
+                const caps = color === 'w' ? snap.capturedByWhite : snap.capturedByBlack;
+                const adv = color === 'w' ? snap.matDiff : -snap.matDiff;
+                let capHtml = caps.map(p => `<span class="cap-mini">${PIECE_SVGS[p]}</span>`).join('');
+                if (adv > 0) {
+                    capHtml += `<span class="mat-adv">+${adv}</span>`;
+                }
+                capEl.innerHTML = capHtml;
+
+                // Relógio
+                if (matchState.timeEnabled) {
+                    clockEl.classList.remove('hidden');
+                    const secs = color === 'w' ? matchState.whiteTime : matchState.blackTime;
+                    clockEl.textContent = formatTime(secs);
+                    clockEl.classList.toggle('clock-active', isTurn);
+                    clockEl.classList.toggle('clock-low', secs <= 20);
+                } else {
+                    clockEl.classList.add('hidden');
+                }
+            };
+
+            renderSide('top', topColor);
+            renderSide('bottom', bottomColor);
+        }
+
+        function renderBoard(snap, animateLanding = false) {
+            const boardEl = document.getElementById('chess-board');
+            if (!boardEl) return;
+
+            const flipped = matchState.boardFlipped;
+            const rows = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+            const cols = flipped ? [7,6,5,4,3,2,1,0] : [0,1,2,3,4,5,6,7];
+
+            const frag = document.createDocumentFragment();
+
+            for (let ri = 0; ri < 8; ri++) {
+                const r = rows[ri];
+                for (let ci = 0; ci < 8; ci++) {
+                    const c = cols[ci];
+                    const sq = document.createElement('div');
+                    const isLight = (r + c) % 2 === 0;
+                    sq.className = `square ${isLight ? 'light' : 'dark'}`;
+                    sq.setAttribute('role', 'gridcell');
+                    sq.dataset.r = r;
+                    sq.dataset.c = c;
+
+                    // Destaques de seleção, último lance, dica e xeque
+                    if (!matchState.gameOver && matchState.selectedSq &&
+                        matchState.selectedSq.r === r && matchState.selectedSq.c === c) {
+                        sq.classList.add('selected');
+                    }
+
+                    if (snap.lastMove &&
+                        ((snap.lastMove.fromR === r && snap.lastMove.fromC === c) ||
+                         (snap.lastMove.toR === r && snap.lastMove.toC === c))) {
+                        sq.classList.add('last-move');
+                    }
+
+                    if (!matchState.gameOver && matchState.hintMove &&
+                        ((matchState.hintMove.fromR === r && matchState.hintMove.fromC === c) ||
+                         (matchState.hintMove.toR === r && matchState.hintMove.toC === c))) {
+                        sq.classList.add('hint-move');
+                    }
+
+                    if (snap.kingCheckPos && snap.kingCheckPos.r === r && snap.kingCheckPos.c === c) {
+                        sq.classList.add('in-check');
+                    }
+
+                    // Coordenadas nas bordas esquerda e inferior
+                    if (ci === 0) {
+                        const rankSpan = document.createElement('span');
+                        rankSpan.className = 'coord-rank';
+                        rankSpan.textContent = 8 - r;
+                        sq.appendChild(rankSpan);
+                    }
+                    if (ri === 7) {
+                        const fileSpan = document.createElement('span');
+                        fileSpan.className = 'coord-file';
+                        fileSpan.textContent = 'abcdefgh'[c];
+                        sq.appendChild(fileSpan);
+                    }
+
+                    // Peça na casa
+                    const pieceCode = snap.board[r][c];
+                    if (pieceCode && PIECE_SVGS[pieceCode]) {
+                        const pWrap = document.createElement('div');
+                        pWrap.className = 'piece-wrap';
+                        if (animateLanding && snap.lastMove && snap.lastMove.toR === r && snap.lastMove.toC === c) {
+                            pWrap.classList.add('pop-in');
+                        }
+                        pWrap.innerHTML = PIECE_SVGS[pieceCode];
+                        sq.appendChild(pWrap);
+                    }
+
+                    // Indicadores de lances válidos para a peça selecionada
+                    if (!matchState.gameOver) {
+                        const legalTarget = matchState.legalMovesForSelected.find(m => m.toR === r && m.toC === c);
+                        if (legalTarget) {
+                            const marker = document.createElement('div');
+                            marker.className = pieceCode ? 'legal-ring' : 'legal-dot';
+                            sq.appendChild(marker);
+                        }
+                    }
+
+                    sq.addEventListener('click', () => handleSquareClick(r, c));
+                    frag.appendChild(sq);
+                }
+            }
+
+            boardEl.innerHTML = '';
+            boardEl.appendChild(frag);
+        }
+
+        function renderDockAndPanels(snap) {
+            const isOver = matchState.gameOver;
+
+            // Alternar Dock Inferior do Tabuleiro
+            document.getElementById('dock-live').classList.toggle('hidden', isOver);
+            document.getElementById('dock-review').classList.toggle('hidden', !isOver);
+
+            // Alternar Barra de Avaliação Lateral e Card de Resumo
+            document.getElementById('eval-bar-container').classList.toggle('hidden', !isOver);
+            document.getElementById('review-summary-card').classList.toggle('hidden', !isOver);
+
+            // Botões de Desfazer / Dica durante partida
+            const canUndo = !isOver && !matchState.aiThinking && game.history.length > 0;
+            document.getElementById('dock-btn-undo').disabled = !canUndo;
+            document.getElementById('panel-btn-undo').disabled = !canUndo;
+            document.getElementById('dock-btn-hint').disabled = isOver || matchState.aiThinking;
+
+            if (!isOver) {
+                const statusText = document.getElementById('dock-status-text');
+                const dot = document.getElementById('dock-status-dot');
+                if (matchState.aiThinking) {
+                    statusText.textContent = 'IA calculando melhor resposta...';
+                    dot.style.backgroundColor = '#38bdf8';
+                } else if (snap.kingCheckPos) {
+                    statusText.textContent = `XEQUE! Proteja o rei das ${snap.turn === 'w' ? 'Brancas' : 'Pretas'}`;
+                    dot.style.backgroundColor = '#ef4444';
+                } else {
+                    statusText.textContent = `Vez das ${snap.turn === 'w' ? 'Brancas' : 'Pretas'} • Clique na peça para mover`;
+                    dot.style.backgroundColor = '#fbbf24';
+                }
+            } else {
+                // Atualizar Dock de Revisão Pós-Partida
+                const totalMoves = snapshots.length - 1;
+                document.getElementById('rev-counter').textContent = `Lance ${reviewIndex}/${totalMoves}`;
+
+                const revSan = document.getElementById('rev-san');
+                const revBadge = document.getElementById('rev-badge');
+                const sumMoveLabel = document.getElementById('summary-move-label');
+                const sumQualityPill = document.getElementById('summary-quality-pill');
+
+                if (reviewIndex === 0) {
+                    revSan.textContent = 'Início';
+                    revBadge.textContent = 'Posição Inicial';
+                    revBadge.className = 'quality-badge q-neutral';
+
+                    sumMoveLabel.textContent = 'Posição Inicial';
+                    sumQualityPill.textContent = 'Início';
+                    sumQualityPill.className = 'quality-badge q-neutral';
+                } else {
+                    const moveNum = Math.ceil(reviewIndex / 2);
+                    const prefix = reviewIndex % 2 === 1 ? `${moveNum}.` : `${moveNum}...`;
+                    revSan.textContent = `${prefix} ${snap.san}`;
+                    revBadge.textContent = snap.quality.label;
+                    revBadge.className = `quality-badge ${snap.quality.cssClass}`;
+
+                    sumMoveLabel.textContent = `${prefix} ${snap.san}`;
+                    sumQualityPill.textContent = snap.quality.label;
+                    sumQualityPill.className = `quality-badge ${snap.quality.cssClass}`;
+                }
+
+                // Desabilitar botões nas extremidades
+                document.getElementById('rev-start').disabled = reviewIndex <= 0;
+                document.getElementById('rev-prev').disabled = reviewIndex <= 0;
+                document.getElementById('rev-next').disabled = reviewIndex >= totalMoves;
+                document.getElementById('rev-end').disabled = reviewIndex >= totalMoves;
+
+                // Atualizar Barra Vertical de Avaliação
+                renderEvalBar(snap.evalCp);
+            }
+        }
+
+        function renderEvalBar(evalCp) {
+            const clamped = Math.max(-1000, Math.min(1000, evalCp));
+            const whitePct = 50 + (clamped / 1000) * 45;
+            const blackPct = 100 - whitePct;
+
+            const fillTop = document.getElementById('eval-fill-top');
+            const fillBottom = document.getElementById('eval-fill-bottom');
+            const topLabel = document.getElementById('eval-top-label');
+            const bottomLabel = document.getElementById('eval-bottom-label');
+
+            const pawns = Math.abs(evalCp / 100);
+            const formatted = Math.abs(evalCp) >= 90000 ? 'M' : pawns.toFixed(1);
+
+            if (!matchState.boardFlipped) {
+                fillTop.style.height = `${blackPct}%`;
+                fillTop.style.backgroundColor = '#292524';
+                fillBottom.style.backgroundColor = '#f5f5f4';
+                topLabel.textContent = evalCp < 0 ? formatted : '';
+                bottomLabel.textContent = evalCp >= 0 ? formatted : '';
+            } else {
+                fillTop.style.height = `${whitePct}%`;
+                fillTop.style.backgroundColor = '#f5f5f4';
+                fillBottom.style.backgroundColor = '#292524';
+                topLabel.textContent = evalCp >= 0 ? formatted : '';
+                topLabel.style.color = '#1c1917';
+                bottomLabel.textContent = evalCp < 0 ? formatted : '';
+                bottomLabel.style.color = '#e7e5e4';
+            }
+
+            const sign = evalCp > 0 ? '+' : '';
+            document.getElementById('summary-eval-text').textContent =
+                Math.abs(evalCp) >= 90000 ? 'Avaliação: Mate' : `Avaliação: ${sign}${(evalCp / 100).toFixed(1)}`;
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('move-history-scroll');
+            const total = game.history.length;
+
+            if (total === 0) {
+                container.innerHTML = `
+                    <div class="history-empty">
+                        <strong>Nenhum lance registrado</strong>
+                        <span>Clique em uma peça branca para iniciar o jogo.</span>
+                    </div>
+                `;
+                return;
+            }
+
+            const isOver = matchState.gameOver;
+            let html = '';
+
+            for (let i = 0; i < total; i += 2) {
+                const moveNumber = Math.floor(i / 2) + 1;
+                const wSnap = snapshots[i + 1];
+                const bSnap = snapshots[i + 2];
+
+                const wActive = isOver && reviewIndex === (i + 1) ? 'active-review' : '';
+                const bActive = isOver && reviewIndex === (i + 2) ? 'active-review' : '';
+                const clickClass = isOver ? 'clickable' : '';
+
+                const wGlyph = (isOver && wSnap && wSnap.quality.glyph)
+                    ? `<span class="move-glyph">${wSnap.quality.glyph}</span>` : '';
+                const bGlyph = (isOver && bSnap && bSnap.quality.glyph)
+                    ? `<span class="move-glyph">${bSnap.quality.glyph}</span>` : '';
+
+                html += `
+                    <div class="move-row">
+                        <span class="move-num">${moveNumber}.</span>
+                        <button type="button" id="hist-step-${i + 1}" class="move-cell ${clickClass} ${wActive}"
+                            ${isOver ? `onclick="goToSnapshot(${i + 1})"` : 'disabled'}>
+                            <span>${wSnap ? wSnap.san : ''}</span>
+                            ${wGlyph}
+                        </button>
+                        ${bSnap ? `
+                        <button type="button" id="hist-step-${i + 2}" class="move-cell ${clickClass} ${bActive}"
+                            ${isOver ? `onclick="goToSnapshot(${i + 2})"` : 'disabled'}>
+                            <span>${bSnap.san}</span>
+                            ${bGlyph}
+                        </button>` : '<span></span>'}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+
+            // Rolagem estritamente interna dentro do container do histórico
+            if (!isOver) {
+                container.scrollTop = container.scrollHeight;
+            } else if (reviewIndex > 0) {
+                const activeBtn = document.getElementById(`hist-step-${reviewIndex}`);
+                if (activeBtn) {
+                    const targetTop = activeBtn.offsetTop - container.offsetTop - (container.clientHeight / 2) + (activeBtn.offsetHeight / 2);
+                    container.scrollTop = Math.max(0, targetTop);
+                }
+            } else {
+                container.scrollTop = 0;
+            }
+        }
+
+        /* =====================================================================
+           G. INTERAÇÃO DE JOGO, IA E REVISÃO PÓS-PARTIDA
+           ===================================================================== */
+        function handleSquareClick(r, c) {
+            if (matchState.gameOver || matchState.aiThinking) return;
+            if (matchState.mode === 'ai' && game.turn !== matchState.humanColor) return;
+
+            // 1. Verificar se o clique é em uma casa destino válida
+            if (matchState.selectedSq) {
+                const matchingMoves = matchState.legalMovesForSelected.filter(m => m.toR === r && m.toC === c);
+                if (matchingMoves.length > 0) {
+                    if (matchingMoves.length > 1 && matchingMoves[0].promotion) {
+                        openPromotionModal(matchingMoves);
+                    } else {
+                        executePlayerMove(matchingMoves[0]);
+                    }
+                    return;
+                }
+            }
+
+            // 2. Selecionar peça própria
+            const clickedPiece = game.board[r][c];
+            if (clickedPiece && clickedPiece[0] === game.turn) {
+                if (matchState.selectedSq && matchState.selectedSq.r === r && matchState.selectedSq.c === c) {
+                    matchState.selectedSq = null;
+                    matchState.legalMovesForSelected = [];
+                } else {
+                    matchState.selectedSq = { r, c };
+                    matchState.legalMovesForSelected = game.getLegalMoves(game.turn).filter(m => m.fromR === r && m.fromC === c);
+                }
+                renderAll(false);
+            } else {
+                matchState.selectedSq = null;
+                matchState.legalMovesForSelected = [];
+                renderAll(false);
+            }
+        }
+
+        function executePlayerMove(move) {
+            const prevEval = snapshots[snapshots.length - 1].evalCp;
+            const record = game.makeMove(move);
+
+            matchState.selectedSq = null;
+            matchState.legalMovesForSelected = [];
+            matchState.hintMove = null;
+
+            const snap = createSnapshot(record, prevEval);
+            snapshots.push(snap);
+            reviewIndex = snapshots.length - 1;
+
+            playMoveSound(record, snap.kingCheckPos !== null);
+
+            const status = game.getGameStatus();
+            if (status.over) {
+                finishMatch(status.title, status.reason);
+                return;
+            }
+
+            renderAll(true);
+
+            if (matchState.mode === 'ai' && game.turn !== matchState.humanColor) {
+                triggerAIMove();
+            }
+        }
+
+        function triggerAIMove() {
+            matchState.aiThinking = true;
+            renderAll(false);
+
+            setTimeout(() => {
+                if (matchState.gameOver) return;
+                const result = findBestMove(game, matchState.difficulty);
+                matchState.aiThinking = false;
+
+                if (!result || !result.move) {
+                    const status = game.getGameStatus();
+                    if (status.over) finishMatch(status.title, status.reason);
+                    return;
+                }
+
+                const prevEval = snapshots[snapshots.length - 1].evalCp;
+                const record = game.makeMove(result.move);
+                const snap = createSnapshot(record, prevEval);
+                snapshots.push(snap);
+                reviewIndex = snapshots.length - 1;
+
+                playMoveSound(record, snap.kingCheckPos !== null);
+
+                const status = game.getGameStatus();
+                if (status.over) {
+                    finishMatch(status.title, status.reason);
+                    return;
+                }
+
+                renderAll(true);
+            }, 260);
+        }
+
+        function playMoveSound(record, isCheck) {
+            if (record.san.endsWith('#')) {
+                sfx.play('gameover');
+            } else if (isCheck) {
+                sfx.play('check');
+            } else if (record.castle) {
+                sfx.play('castle');
+            } else if (record.captured) {
+                sfx.play('capture');
+            } else {
+                sfx.play('move');
+            }
+        }
+
+        function finishMatch(title, desc) {
+            stopClock();
+            matchState.gameOver = true;
+            matchState.aiThinking = false;
+            matchState.selectedSq = null;
+            matchState.legalMovesForSelected = [];
+            matchState.hintMove = null;
+            matchState.resultTitle = title;
+            matchState.resultDesc = desc;
+            reviewIndex = snapshots.length - 1;
+
+            sfx.play('gameover');
+            renderAll(true);
+
+            document.getElementById('gameover-trophy').textContent = title.includes('Empate') ? '🤝' : '🏆';
+            document.getElementById('gameover-title').textContent = title;
+            document.getElementById('gameover-desc').textContent = desc;
+            document.getElementById('gameover-modal').classList.remove('hidden');
+        }
+
+        function closeGameOverModal() {
+            document.getElementById('gameover-modal').classList.add('hidden');
+        }
+
+        function enterPostGameReview() {
+            closeGameOverModal();
+            stopAutoPlay();
+            if (snapshots.length > 1) {
+                reviewIndex = 1;
+                renderAll(true);
+                showToast('Modo Revisão: use |◀ ◀ ▶ ▶|, Espaço ou setas do teclado.');
+            }
+        }
+
+        /* =====================================================================
+           H. CONTROLES DE REVISÃO PÓS-PARTIDA E ATALHOS DE TECLADO
+           ===================================================================== */
+        function goToSnapshot(idx) {
+            if (!matchState.gameOver) return;
+            const clamped = Math.max(0, Math.min(snapshots.length - 1, idx));
+            reviewIndex = clamped;
+            renderAll(true);
+        }
+
+        function stepSnapshot(delta) {
+            if (!matchState.gameOver) return;
+            stopAutoPlay();
+            goToSnapshot(reviewIndex + delta);
+        }
+
+        function toggleAutoPlay() {
+            if (!matchState.gameOver) return;
+            if (autoPlayTimer) {
+                stopAutoPlay();
+                return;
+            }
+
+            if (reviewIndex >= snapshots.length - 1) {
+                reviewIndex = 0;
+                renderAll(false);
+            }
+
+            document.getElementById('rev-auto-icon').textContent = '⏸';
+            document.getElementById('rev-auto-text').textContent = 'Pausar';
+
+            autoPlayTimer = setInterval(() => {
+                if (reviewIndex < snapshots.length - 1) {
+                    reviewIndex++;
+                    const snap = snapshots[reviewIndex];
+                    sfx.play(snap.kingCheckPos ? 'check' : 'move');
+                    renderAll(true);
+                } else {
+                    stopAutoPlay();
+                }
+            }, 950);
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayTimer) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = null;
+            }
+            const icon = document.getElementById('rev-auto-icon');
+            const txt = document.getElementById('rev-auto-text');
+            if (icon) icon.textContent = '▶';
+            if (txt) txt.textContent = 'Auto';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!matchState.gameOver) return;
+            const anyModalOpen =
+                !document.getElementById('setup-modal').classList.contains('hidden') ||
+                !document.getElementById('promotion-modal').classList.contains('hidden') ||
+                !document.getElementById('gameover-modal').classList.contains('hidden');
+            if (anyModalOpen) return;
+
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                stepSnapshot(-1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                stepSnapshot(1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                stopAutoPlay();
+                goToSnapshot(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                stopAutoPlay();
+                goToSnapshot(snapshots.length - 1);
+            } else if (e.key === ' ') {
+                e.preventDefault();
+                toggleAutoPlay();
+            }
+        });
+
+        /* =====================================================================
+           I. FERRAMENTAS AUXILIARES (DESFAZER, DICA, GIRAR, PGN, RELÓGIO, TEMAS)
+           ===================================================================== */
+        function undoMove() {
+            if (matchState.gameOver || matchState.aiThinking || game.history.length === 0) return;
+
+            if (matchState.mode === 'ai') {
+                // Desfaz lance da IA + lance do jogador
+                if (game.turn === matchState.humanColor && game.history.length >= 2) {
+                    game.undoLastMove();
+                    game.undoLastMove();
+                    snapshots.splice(-2, 2);
+                } else {
+                    game.undoLastMove();
+                    snapshots.pop();
+                }
+            } else {
+                game.undoLastMove();
+                snapshots.pop();
+            }
+
+            reviewIndex = snapshots.length - 1;
+            matchState.selectedSq = null;
+            matchState.legalMovesForSelected = [];
+            matchState.hintMove = null;
+            renderAll(false);
+            showToast('Lance desfeito.');
+        }
+
+        function requestHint() {
+            if (matchState.gameOver || matchState.aiThinking) return;
+            const res = findBestMove(game, 2);
+            if (res && res.move) {
+                matchState.hintMove = res.move;
+                matchState.selectedSq = { r: res.move.fromR, c: res.move.fromC };
+                matchState.legalMovesForSelected = game.getLegalMoves(game.turn).filter(
+                    m => m.fromR === res.move.fromR && m.fromC === res.move.fromC
+                );
+                renderAll(false);
+                const fromAlg = game.coordToAlgebraic(res.move.fromR, res.move.fromC);
+                const toAlg = game.coordToAlgebraic(res.move.toR, res.move.toC);
+                showToast(`Sugestão: mover de ${fromAlg} para ${toAlg}`);
+            }
+        }
+
+        function flipBoard() {
+            matchState.boardFlipped = !matchState.boardFlipped;
+            renderAll(false);
+        }
+
+        function toggleSound() {
+            sfx.enabled = !sfx.enabled;
+            document.getElementById('dock-btn-sound').textContent = sfx.enabled ? '🔊' : '🔇';
+            document.getElementById('panel-btn-sound').textContent = sfx.enabled ? '🔊 Som: Ligado' : '🔇 Som: Mudo';
+            if (sfx.enabled) sfx.play('move');
+        }
+
+        function setTheme(themeName) {
+            document.body.classList.remove('theme-wood', 'theme-emerald', 'theme-slate');
+            document.body.classList.add(`theme-${themeName}`);
+
+            ['wood', 'emerald', 'slate'].forEach(t => {
+                document.getElementById(`theme-btn-${t}`).classList.toggle('active', t === themeName);
+            });
+        }
+
+        function copyPGN() {
+            let pgn = `[Event "Xadrez Mestre — Edição de Clube"]\n`;
+            pgn += `[Date "${new Date().toISOString().slice(0, 10).replace(/-/g, '.')}"]\n`;
+            pgn += `[White "${matchState.mode === 'ai' && matchState.humanColor === 'b' ? 'IA' : 'Brancas'}"]\n`;
+            pgn += `[Black "${matchState.mode === 'ai' && matchState.humanColor === 'w' ? 'IA' : 'Pretas'}"]\n\n`;
+
+            const lines = [];
+            for (let i = 0; i < game.history.length; i += 2) {
+                const num = Math.floor(i / 2) + 1;
+                const wSan = game.history[i].san;
+                const bSan = game.history[i + 1] ? ` ${game.history[i + 1].san}` : '';
+                lines.push(`${num}. ${wSan}${bSan}`);
+            }
+            pgn += lines.join(' ');
+
+            const ta = document.createElement('textarea');
+            ta.value = pgn;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('PGN copiado para a área de transferência!');
+            } catch (e) {
+                showToast('Não foi possível copiar o PGN.');
+            }
+            document.body.removeChild(ta);
+        }
+
+        function showToast(msg) {
+            const el = document.getElementById('toast-banner');
+            el.textContent = msg;
+            el.classList.remove('hidden');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                el.classList.add('hidden');
+            }, 3400);
+        }
+
+        /* Relógio Digital */
+        function formatTime(totalSeconds) {
+            const s = Math.max(0, Math.floor(totalSeconds));
+            const mins = String(Math.floor(s / 60)).padStart(2, '0');
+            const secs = String(s % 60).padStart(2, '0');
+            return `${mins}:${secs}`;
+        }
+
+        function startClock() {
+            stopClock();
+            matchState.clockInterval = setInterval(() => {
+                if (matchState.gameOver || !matchState.timeEnabled) return;
+                if (game.turn === 'w') {
+                    matchState.whiteTime--;
+                    if (matchState.whiteTime <= 0) {
+                        matchState.whiteTime = 0;
+                        finishMatch('Tempo Esgotado!', 'O tempo das Brancas acabou. Vitória das Pretas.');
+                        return;
+                    }
+                } else {
+                    matchState.blackTime--;
+                    if (matchState.blackTime <= 0) {
+                        matchState.blackTime = 0;
+                        finishMatch('Tempo Esgotado!', 'O tempo das Pretas acabou. Vitória das Brancas.');
+                        return;
+                    }
+                }
+                const snap = snapshots[reviewIndex] || snapshots[snapshots.length - 1];
+                renderPlayerBars(snap);
+            }, 1000);
+        }
+
+        function stopClock() {
+            if (matchState.clockInterval) {
+                clearInterval(matchState.clockInterval);
+                matchState.clockInterval = null;
+            }
+        }
+
+        /* Modais de Configuração e Promoção */
+        function openSetupModal() {
+            document.getElementById('setup-modal').classList.remove('hidden');
+        }
+
+        function closeSetupModal() {
+            document.getElementById('setup-modal').classList.add('hidden');
+        }
+
+        function selectSetupOption(key, value) {
+            setupDraft[key] = value;
+
+            if (key === 'mode') {
+                document.getElementById('cfg-mode-ai').classList.toggle('selected', value === 'ai');
+                document.getElementById('cfg-mode-pvp').classList.toggle('selected', value === 'pvp');
+                document.getElementById('cfg-ai-group').classList.toggle('hidden', value !== 'ai');
+                document.getElementById('cfg-color-group').classList.toggle('hidden', value !== 'ai');
+            } else if (key === 'difficulty') {
+                [1, 2, 3].forEach(d => document.getElementById(`cfg-diff-${d}`).classList.toggle('selected', d === value));
+            } else if (key === 'playerColor') {
+                ['w', 'b', 'r'].forEach(c => {
+                    const mapped = c === 'r' ? 'random' : c;
+                    document.getElementById(`cfg-color-${c}`).classList.toggle('selected', mapped === value);
+                });
+            } else if (key === 'timeMinutes') {
+                [0, 3, 5, 10].forEach(t => document.getElementById(`cfg-time-${t}`).classList.toggle('selected', t === value));
+            }
+        }
+
+        function startNewConfiguredGame() {
+            matchState.mode = setupDraft.mode;
+            matchState.difficulty = setupDraft.difficulty;
+            matchState.timeEnabled = setupDraft.timeMinutes > 0;
+
+            if (setupDraft.playerColor === 'random') {
+                matchState.humanColor = Math.random() < 0.5 ? 'w' : 'b';
+            } else {
+                matchState.humanColor = setupDraft.playerColor;
+            }
+
+            closeSetupModal();
+            initMatch();
+        }
+
+        function openPromotionModal(promoMoves) {
+            const modal = document.getElementById('promotion-modal');
+            const grid = document.getElementById('promo-choices');
+            const color = promoMoves[0].piece[0];
+
+            grid.innerHTML = '';
+            ['Q', 'R', 'B', 'N'].forEach(type => {
+                const move = promoMoves.find(m => m.promotion === type);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'promo-choice';
+                btn.innerHTML = `
+                    <div style="width: 44px; height: 44px;">${PIECE_SVGS[color + type]}</div>
+                    <span style="font-size: 11px; font-weight: 700;">${PIECE_PT_NAMES[type]}</span>
+                `;
+                btn.onclick = () => {
+                    modal.classList.add('hidden');
+                    executePlayerMove(move);
+                };
+                grid.appendChild(btn);
+            });
+
+            modal.classList.remove('hidden');
+        }
+
+        /* =====================================================================
+           J. INICIALIZAÇÃO IMEDIATA NO CARREGAMENTO DO DOM
+           ===================================================================== */
+        document.addEventListener('DOMContentLoaded', () => {
+            initMatch();
+        });
+    </script>
+</body>
+</html>
