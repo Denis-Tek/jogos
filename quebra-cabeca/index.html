@@ -1,0 +1,3143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Quebra-Cabeça Studio</title>
+  <style>
+    :root {
+      --bg-desk: #1e242b;
+      --bg-desk-grid: rgba(255, 255, 255, 0.035);
+      --board-bg: rgba(15, 19, 24, 0.55);
+      --board-border: rgba(255, 255, 255, 0.16);
+      --ui-surface: rgba(26, 32, 40, 0.92);
+      --ui-surface-solid: #1a2028;
+      --ui-card: #242c37;
+      --ui-card-hover: #2d3745;
+      --ui-border: rgba(255, 255, 255, 0.12);
+      --text-main: #f3f6fa;
+      --text-muted: #9aa7b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-soft: rgba(59, 130, 246, 0.18);
+      --success: #10b981;
+      --shadow-ui: 0 12px 32px rgba(0, 0, 0, 0.45);
+      --radius: 14px;
+    }
+
+    body.light-theme {
+      --bg-desk: #e6dfd3;
+      --bg-desk-grid: rgba(90, 72, 48, 0.06);
+      --board-bg: rgba(214, 203, 186, 0.65);
+      --board-border: rgba(90, 72, 48, 0.25);
+      --ui-surface: rgba(252, 249, 244, 0.93);
+      --ui-surface-solid: #fcf9f4;
+      --ui-card: #f0e9de;
+      --ui-card-hover: #e5dccd;
+      --ui-border: rgba(80, 65, 45, 0.15);
+      --text-main: #231f1a;
+      --text-muted: #6e6355;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.14);
+      --success: #059669;
+      --shadow-ui: 0 12px 32px rgba(60, 45, 25, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-desk);
+      color: var(--text-main);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Fundo texturizado sutil da mesa */
+    #app {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 50% 45%, rgba(255,255,255,0.04) 0%, transparent 70%),
+        linear-gradient(var(--bg-desk-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--bg-desk-grid) 1px, transparent 1px);
+      background-size: 100% 100%, 32px 32px, 32px 32px;
+    }
+
+    /* Canvas principal ocupando toda a área */
+    #puzzleCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+      cursor: grab;
+    }
+
+    #puzzleCanvas.dragging-piece,
+    #puzzleCanvas.panning {
+      cursor: grabbing;
+    }
+
+    /* Barra Superior / HUD */
+    .top-bar {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 14px;
+      margin: 10px 12px 0;
+      background: var(--ui-surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--ui-border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-ui);
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+      flex-shrink: 0;
+    }
+
+    .title-stack h1 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.15;
+    }
+
+    .title-stack span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .hud-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--ui-card);
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--ui-border);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--ui-border);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--ui-border);
+      background: var(--ui-card);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--ui-card-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-icon {
+      padding: 7px;
+      min-width: 34px;
+      min-height: 34px;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* Dock Inferior para Zoom e Ações Rápidas */
+    .bottom-dock {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      background: var(--ui-surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--ui-border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-ui);
+      max-width: calc(100vw - 24px);
+      overflow-x: auto;
+    }
+
+    .zoom-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      min-width: 44px;
+      text-align: center;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Dica flutuante de rotação */
+    .rotate-hint {
+      position: absolute;
+      bottom: 66px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 15;
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border);
+      color: var(--text-muted);
+      font-size: 0.74rem;
+      padding: 4px 12px;
+      border-radius: 999px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .rotate-hint.visible {
+      opacity: 1;
+    }
+
+    /* Modais */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(10, 14, 20, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .modal-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 780px;
+      max-height: 92dvh;
+      overflow-y: auto;
+      background: var(--ui-surface-solid);
+      border: 1px solid var(--ui-border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      transform: translateY(12px) scale(0.98);
+      transition: transform 0.22s ease;
+    }
+
+    .modal-backdrop.open .modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      font-weight: 800;
+    }
+
+    .modal-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Carrossel Horizontal de Exemplos (Navegação Exata Foto por Foto) */
+    .carousel-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .carousel-track {
+      display: flex;
+      align-items: stretch;
+      gap: 14px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      padding: 6px 26% 10px;
+      scrollbar-width: none;
+      flex: 1;
+    }
+
+    .carousel-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .carousel-nav {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--ui-border);
+      background: var(--ui-card);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.16s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .carousel-nav:hover:not(:disabled) {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .carousel-nav:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    /* Indicadores (Dots) abaixo do carrossel */
+    .carousel-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .carousel-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: none;
+      background: var(--ui-border);
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.2s ease;
+    }
+
+    .carousel-dot:hover {
+      background: var(--text-muted);
+    }
+
+    .carousel-dot.active {
+      width: 22px;
+      background: var(--accent);
+    }
+
+    .art-option {
+      position: relative;
+      flex: 0 0 auto;
+      scroll-snap-align: center;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid transparent;
+      background: var(--ui-card);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      opacity: 0.78;
+    }
+
+    .art-option:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    .art-option.selected {
+      opacity: 1;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .art-thumb-frame {
+      height: 132px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.22);
+      overflow: hidden;
+    }
+
+    .art-option canvas {
+      height: 100%;
+      width: auto;
+      display: block;
+    }
+
+    .orientation-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(12, 16, 22, 0.78);
+      backdrop-filter: blur(4px);
+      color: #f3f6fa;
+      font-size: 0.64rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      letter-spacing: 0.02em;
+      z-index: 2;
+    }
+
+    .art-option-label {
+      padding: 8px 10px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-align: center;
+      background: var(--ui-card);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Bloco de Upload e Resumo Contextual */
+    .source-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: var(--ui-card);
+      border: 1px solid var(--ui-border);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .source-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+
+    .native-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .upload-trigger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 13px;
+      border-radius: 10px;
+      border: 1px dashed var(--accent);
+      background: var(--accent-soft);
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .upload-trigger-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-style: solid;
+    }
+
+    /* Painel Exclusivo para Foto Própria */
+    .custom-photo-panel {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--ui-card);
+      border: 1px solid var(--accent);
+      margin-bottom: 16px;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .custom-photo-panel.visible {
+      display: flex;
+    }
+
+    .custom-preview-box {
+      width: 96px;
+      height: 96px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--ui-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .custom-preview-box canvas {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+    }
+
+    .custom-photo-controls {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Seletor de Orientação / Formato (apenas para foto própria) */
+    .format-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .format-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 8px 9px;
+      border-radius: 10px;
+      border: 1px solid var(--ui-border);
+      background: var(--ui-surface-solid);
+      color: var(--text-main);
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .format-pill:hover {
+      background: var(--ui-card-hover);
+    }
+
+    .format-pill.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .ratio-icon {
+      display: inline-block;
+      border: 1.8px solid currentColor;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .ratio-icon.h { width: 15px; height: 11px; }
+    .ratio-icon.v { width: 11px; height: 15px; }
+    .ratio-icon.s { width: 13px; height: 13px; }
+    .ratio-icon.a { width: 14px; height: 14px; border-style: dashed; }
+
+    /* Opções de Dificuldade e Modo */
+    .config-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: end;
+      margin-bottom: 20px;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .diff-pills {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .diff-pill {
+      padding: 10px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--ui-border);
+      background: var(--ui-card);
+      color: var(--text-main);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.16s ease;
+    }
+
+    .diff-pill strong {
+      display: block;
+      font-size: 0.85rem;
+    }
+
+    .diff-pill span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .diff-pill.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .diff-pill.selected strong {
+      color: var(--accent);
+    }
+
+    /* Toggle Switch */
+    .toggle-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      background: var(--ui-card);
+      border: 1px solid var(--ui-border);
+      cursor: pointer;
+      min-width: 210px;
+    }
+
+    .toggle-box-text strong {
+      display: block;
+      font-size: 0.84rem;
+    }
+
+    .toggle-box-text span {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .switch {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      background: rgba(120, 130, 145, 0.35);
+      border-radius: 999px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+
+    .toggle-box.active .switch {
+      background: var(--accent);
+    }
+
+    .toggle-box.active .switch::after {
+      transform: translateX(18px);
+    }
+
+    /* Modal Pré-visualização */
+    #previewModal .modal-card {
+      max-width: 640px;
+      text-align: center;
+    }
+
+    #previewImageCanvas {
+      max-width: 100%;
+      max-height: 62dvh;
+      width: auto;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--ui-border);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      margin: 0 auto 14px;
+      display: block;
+    }
+
+    /* Modal de Vitória */
+    #victoryModal .modal-card {
+      max-width: 460px;
+      text-align: center;
+    }
+
+    .trophy-circle {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f59e0b, #10b981);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.35);
+    }
+
+    .victory-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .v-stat {
+      background: var(--ui-card);
+      border: 1px solid var(--ui-border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .v-stat label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .v-stat value {
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .record-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.16);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    /* Toast discreto */
+    .toast {
+      position: fixed;
+      top: 74px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      z-index: 60;
+      background: var(--ui-surface-solid);
+      color: var(--text-main);
+      border: 1px solid var(--ui-border);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-ui);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 720px) {
+      .top-bar {
+        padding: 8px 10px;
+        margin: 8px 8px 0;
+        gap: 6px;
+      }
+      .title-stack span {
+        display: none;
+      }
+      .title-stack h1 {
+        font-size: 0.88rem;
+      }
+      .btn span.hide-mobile {
+        display: none;
+      }
+      .carousel-track {
+        padding: 6px 18% 10px;
+      }
+      .config-row {
+        grid-template-columns: 1fr;
+      }
+      .diff-pills {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .format-pills {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .custom-photo-panel.visible {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .custom-preview-box {
+        width: 100%;
+        height: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Canvas interativo principal -->
+    <canvas id="puzzleCanvas"></canvas>
+
+    <!-- Barra Superior -->
+    <header class="top-bar">
+      <div class="brand-group">
+        <div class="logo-badge" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/>
+          </svg>
+        </div>
+        <div class="title-stack">
+          <h1>Quebra-Cabeça Studio</h1>
+          <span id="currentArtSubtitle">Pôr do Sol na Serra • 48 peças</span>
+        </div>
+      </div>
+
+      <div class="hud-stats" aria-label="Progresso do jogo">
+        <div class="stat-item" title="Tempo decorrido">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span id="timerDisplay">00:00</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" title="Peças encaixadas">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <span id="progressDisplay">0 / 48</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" title="Movimentos realizados">
+          <span style="font-size:0.74rem;color:var(--text-muted);font-weight:600;">Mov:</span>
+          <span id="movesDisplay">0</span>
+        </div>
+      </div>
+
+      <div class="toolbar-actions">
+        <button class="btn btn-primary" id="btnNewGame" title="Escolher arte ou dificuldade">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Novo Jogo</span>
+        </button>
+
+        <button class="btn" id="btnGuide" title="Alternar imagem guia no fundo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+          <span class="hide-mobile" id="guideLabel">Guia: Sutil</span>
+        </button>
+
+        <button class="btn" id="btnPreview" title="Visualizar imagem completa">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <span class="hide-mobile">Modelo</span>
+        </button>
+
+        <button class="btn btn-icon" id="btnTheme" title="Alternar tema Claro/Escuro" aria-label="Alternar tema">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+
+        <button class="btn btn-icon active" id="btnSound" title="Ativar/Desativar efeitos sonoros" aria-label="Som">
+          <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dica para modo rotação -->
+    <div class="rotate-hint" id="rotateHint">Toque rápido ou pressione R para girar a peça em 90°</div>
+
+    <!-- Dock Inferior de Ferramentas da Mesa -->
+    <div class="bottom-dock">
+      <button class="btn" id="btnScatter" title="Reorganizar peças soltas ao redor do tabuleiro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
+          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
+          <line x1="4" y1="4" x2="9" y2="9"/>
+        </svg>
+        <span>Organizar Soltas</span>
+      </button>
+
+      <button class="btn" id="btnEdgesOnly" title="Separar apenas peças de borda nas laterais">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4 2"/>
+        </svg>
+        <span>Separar Bordas</span>
+      </button>
+
+      <div class="stat-divider"></div>
+
+      <button class="btn btn-icon" id="btnZoomOut" title="Diminuir zoom (-)" aria-label="Diminuir zoom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </button>
+      <span class="zoom-label" id="zoomLabel">100%</span>
+      <button class="btn btn-icon" id="btnZoomIn" title="Aumentar zoom (+)" aria-label="Aumentar zoom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </button>
+      <button class="btn" id="btnZoomReset" title="Centralizar mesa">Centralizar</button>
+    </div>
+
+    <!-- Toast de feedback -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Modal de Configuração / Novo Jogo -->
+    <div class="modal-backdrop open" id="setupModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h2>Novo Quebra-Cabeça</h2>
+            <p class="modal-subtitle">Navegue foto por foto no carrossel ou envie sua própria imagem</p>
+          </div>
+          <button class="btn btn-icon" id="btnCloseSetup" title="Fechar" aria-label="Fechar">✕</button>
+        </div>
+
+        <span class="section-label">1. Galeria de Exemplos (<span id="carouselCounter">1 / 8</span>)</span>
+        <div class="carousel-wrapper">
+          <button type="button" class="carousel-nav" id="carouselPrev" title="Foto anterior" aria-label="Foto anterior">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <div class="carousel-track" id="galleryCarousel">
+            <!-- Miniaturas inseridas via JS -->
+          </div>
+          <button type="button" class="carousel-nav" id="carouselNext" title="Próxima foto" aria-label="Próxima foto">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Pontos indicadores sincronizados -->
+        <div class="carousel-dots" id="carouselDots" aria-label="Indicadores da galeria"></div>
+
+        <!-- Barra de Resumo Nativo + Botão de Upload -->
+        <div class="source-bar" id="nativeSourceBar">
+          <div class="source-summary">
+            <span class="native-pill" id="nativeFormatBadge">Formato nativo • Horizontal 4:3</span>
+            <span style="color:var(--text-muted);font-size:0.78rem;" id="nativeArtName">Pôr do Sol na Serra</span>
+          </div>
+          <label class="upload-trigger-btn" title="Carregar imagem do seu dispositivo">
+            <input type="file" id="fileInput" accept="image/*" hidden />
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <span>Usar Sua Foto</span>
+          </label>
+        </div>
+
+        <!-- Bloco Contextual de Formato (exibido SOMENTE quando uma foto própria é carregada) -->
+        <div class="custom-photo-panel" id="customPhotoPanel">
+          <div class="custom-preview-box">
+            <canvas id="customPreviewCanvas" width="120" height="90"></canvas>
+          </div>
+          <div class="custom-photo-controls">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+              <div>
+                <strong style="font-size:0.86rem;" id="customPhotoTitle">Sua Foto</strong>
+                <span style="display:block;font-size:0.73rem;color:var(--text-muted);">Ajuste o recorte e a orientação do tabuleiro</span>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <label class="btn" style="padding:5px 10px;font-size:0.74rem;cursor:pointer;">
+                  <input type="file" id="fileInputChange" accept="image/*" hidden />
+                  Trocar Foto
+                </label>
+                <button type="button" class="btn" id="btnBackToExamples" style="padding:5px 10px;font-size:0.74rem;">
+                  Voltar aos Exemplos
+                </button>
+              </div>
+            </div>
+
+            <div class="format-pills" id="formatPills">
+              <button type="button" class="format-pill selected" data-format="auto">
+                <span class="ratio-icon a"></span>
+                <span>Original</span>
+              </button>
+              <button type="button" class="format-pill" data-format="landscape">
+                <span class="ratio-icon h"></span>
+                <span>Horizontal 4:3</span>
+              </button>
+              <button type="button" class="format-pill" data-format="portrait">
+                <span class="ratio-icon v"></span>
+                <span>Vertical 3:4</span>
+              </button>
+              <button type="button" class="format-pill" data-format="square">
+                <span class="ratio-icon s"></span>
+                <span>Quadrado 1:1</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-row">
+          <div>
+            <span class="section-label">2. Dificuldade (Quantidade de Peças)</span>
+            <div class="diff-pills" id="diffPills">
+              <button type="button" class="diff-pill" data-level="easy" data-name="Fácil">
+                <strong>Fácil</strong>
+                <span id="diffSub-easy">24 peças (6×4)</span>
+              </button>
+              <button type="button" class="diff-pill selected" data-level="medium" data-name="Médio">
+                <strong>Médio</strong>
+                <span id="diffSub-medium">48 peças (8×6)</span>
+              </button>
+              <button type="button" class="diff-pill" data-level="hard" data-name="Difícil">
+                <strong>Difícil</strong>
+                <span id="diffSub-hard">96 peças (12×8)</span>
+              </button>
+              <button type="button" class="diff-pill" data-level="master" data-name="Mestre">
+                <strong>Mestre</strong>
+                <span id="diffSub-master">150 peças (15×10)</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <span class="section-label">3. Desafio Extra</span>
+            <div class="toggle-box" id="rotationToggle" role="switch" aria-checked="false" tabindex="0">
+              <div class="toggle-box-text">
+                <strong>Rotação de Peças</strong>
+                <span>Girar em 90° ao clicar</span>
+              </div>
+              <div class="switch"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:10px;">
+          <button class="btn btn-primary" id="btnStartGame" style="padding:11px 24px;font-size:0.92rem;">
+            Montar Quebra-Cabeça
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Pré-visualização -->
+    <div class="modal-backdrop" id="previewModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div>
+            <h2 id="previewTitle">Imagem Original</h2>
+            <p class="modal-subtitle">Referência completa para montagem</p>
+          </div>
+          <button class="btn btn-icon" id="btnClosePreview" aria-label="Fechar">✕</button>
+        </div>
+        <canvas id="previewImageCanvas" width="900" height="600"></canvas>
+        <button class="btn btn-primary" id="btnClosePreviewBottom" style="width:100%;">Voltar ao Tabuleiro</button>
+      </div>
+    </div>
+
+    <!-- Modal de Vitória -->
+    <div class="modal-backdrop" id="victoryModal">
+      <div class="modal-card">
+        <div class="trophy-circle">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+          </svg>
+        </div>
+        <h2>Quebra-Cabeça Concluído!</h2>
+        <p class="modal-subtitle" id="victorySubtitle">Excelente trabalho!</p>
+        <div id="newRecordBadge" class="record-badge" style="display:none;">★ Novo Recorde Pessoal!</div>
+
+        <div class="victory-stats">
+          <div class="v-stat">
+            <label>Tempo Final</label>
+            <value id="vTime">00:00</value>
+          </div>
+          <div class="v-stat">
+            <label>Melhor Tempo</label>
+            <value id="vBest">--:--</value>
+          </div>
+          <div class="v-stat">
+            <label>Dificuldade & Formato</label>
+            <value id="vDiff">Médio (48)</value>
+          </div>
+          <div class="v-stat">
+            <label>Movimentos / Rotação</label>
+            <value id="vRot">0 mov</value>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button class="btn" id="btnReplaySame" style="flex:1;">Jogar Novamente</button>
+          <button class="btn btn-primary" id="btnVictoryNew" style="flex:1;">Escolher Outra Arte</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      /* =========================================================================
+         1. MOTOR DE ÁUDIO PROCEDURAL (WEB AUDIO API - ZERO DEPENDÊNCIAS)
+         ========================================================================= */
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.enabled = true;
+        }
+
+        ensureContext() {
+          if (!this.enabled) return null;
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === "suspended") {
+            this.ctx.resume().catch(() => {});
+          }
+          return this.ctx;
+        }
+
+        playPick() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(240, now);
+          osc.frequency.exponentialRampToValueAtTime(420, now + 0.055);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.065);
+        }
+
+        playDrop() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(190, now);
+          osc.frequency.exponentialRampToValueAtTime(95, now + 0.07);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.075);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+
+        playRotate() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(360, now);
+          osc.frequency.exponentialRampToValueAtTime(520, now + 0.05);
+          gain.gain.setValueAtTime(0.06, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.06);
+        }
+
+        playSnap(groupSize = 2) {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+          const pitchBoost = Math.min(groupSize * 12, 220);
+
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc1.type = "triangle";
+          osc2.type = "sine";
+          osc1.frequency.setValueAtTime(480 + pitchBoost, now);
+          osc1.frequency.exponentialRampToValueAtTime(760 + pitchBoost, now + 0.09);
+
+          osc2.frequency.setValueAtTime(720 + pitchBoost, now + 0.03);
+          osc2.frequency.exponentialRampToValueAtTime(1040 + pitchBoost, now + 0.13);
+
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc1.start(now);
+          osc1.stop(now + 0.14);
+          osc2.start(now + 0.03);
+          osc2.stop(now + 0.16);
+        }
+
+        playVictory() {
+          const ctx = this.ensureContext();
+          if (!ctx) return;
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+          notes.forEach((freq, idx) => {
+            const start = ctx.currentTime + idx * 0.09;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(freq, start);
+            gain.gain.setValueAtTime(0.13, start);
+            gain.gain.exponentialRampToValueAtTime(0.001, start + 0.45);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(start);
+            osc.stop(start + 0.48);
+          });
+        }
+      }
+
+      /* =========================================================================
+         2. GERADOR DE ARTES PROCEDURAIS (8 CENÁRIOS: HORIZONTAL, VERTICAL E QUADRADO)
+         ========================================================================= */
+      const ART_GALLERY = [
+        {
+          id: "sunset",
+          title: "Pôr do Sol na Serra",
+          orientation: "landscape",
+          badge: "Horizontal",
+          render(ctx, w, h) {
+            const sky = ctx.createLinearGradient(0, 0, 0, h * 0.68);
+            sky.addColorStop(0, "#1d1b4b");
+            sky.addColorStop(0.38, "#7c2d5e");
+            sky.addColorStop(0.72, "#ea580c");
+            sky.addColorStop(1, "#fde047");
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, w, h);
+
+            const sunX = w * 0.62;
+            const sunY = h * 0.44;
+            const sunGlow = ctx.createRadialGradient(sunX, sunY, 10, sunX, sunY, Math.min(w, h) * 0.45);
+            sunGlow.addColorStop(0, "rgba(255, 251, 214, 1)");
+            sunGlow.addColorStop(0.25, "rgba(253, 224, 71, 0.85)");
+            sunGlow.addColorStop(0.6, "rgba(249, 115, 22, 0.25)");
+            sunGlow.addColorStop(1, "rgba(249, 115, 22, 0)");
+            ctx.fillStyle = sunGlow;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.beginPath();
+            ctx.arc(sunX, sunY, Math.min(w, h) * 0.14, 0, Math.PI * 2);
+            ctx.fillStyle = "#fef9c3";
+            ctx.fill();
+
+            const drawMountain = (baseY, amp, freq, phase, color) => {
+              ctx.beginPath();
+              ctx.moveTo(0, h);
+              for (let x = 0; x <= w; x += 6) {
+                const n = Math.sin(x * freq + phase) * amp +
+                          Math.cos(x * freq * 2.3 + phase) * (amp * 0.35);
+                ctx.lineTo(x, baseY - Math.abs(n));
+              }
+              ctx.lineTo(w, h);
+              ctx.closePath();
+              ctx.fillStyle = color;
+              ctx.fill();
+            };
+
+            drawMountain(h * 0.62, h * 0.17, 0.0045, 0.6, "#4c1d4b");
+            drawMountain(h * 0.66, h * 0.14, 0.006, 2.2, "#311036");
+            drawMountain(h * 0.70, h * 0.11, 0.008, 4.1, "#1e0a24");
+
+            const lakeY = h * 0.68;
+            const lake = ctx.createLinearGradient(0, lakeY, 0, h);
+            lake.addColorStop(0, "#fb923c");
+            lake.addColorStop(0.35, "#6b2158");
+            lake.addColorStop(1, "#110c24");
+            ctx.fillStyle = lake;
+            ctx.fillRect(0, lakeY, w, h - lakeY);
+
+            for (let i = 0; i < 28; i++) {
+              const ry = lakeY + 8 + i * ((h - lakeY) / 28);
+              const rw = (1 - i / 32) * (w * 0.18) + Math.sin(i * 1.7) * 16;
+              ctx.fillStyle = `rgba(254, 240, 138, ${0.42 - i * 0.012})`;
+              ctx.fillRect(sunX - rw / 2, ry, rw, 3);
+            }
+
+            ctx.strokeStyle = "#1a081f";
+            ctx.lineWidth = 2.5;
+            const birds = [[0.28, 0.25], [0.32, 0.23], [0.35, 0.27], [0.24, 0.28]];
+            birds.forEach(([bx, by]) => {
+              const x = w * bx, y = h * by;
+              ctx.beginPath();
+              ctx.moveTo(x - 10, y + 3);
+              ctx.quadraticCurveTo(x - 4, y - 5, x, y);
+              ctx.quadraticCurveTo(x + 4, y - 5, x + 10, y + 3);
+              ctx.stroke();
+            });
+          }
+        },
+        {
+          id: "lighthouse",
+          title: "Farol sob a Lua",
+          orientation: "portrait",
+          badge: "Vertical",
+          render(ctx, w, h) {
+            const sky = ctx.createLinearGradient(0, 0, 0, h * 0.72);
+            sky.addColorStop(0, "#060b19");
+            sky.addColorStop(0.45, "#0f2347");
+            sky.addColorStop(0.85, "#1e4976");
+            sky.addColorStop(1, "#38bdf8");
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, w, h);
+
+            for (let i = 0; i < 140; i++) {
+              const sx = ((i * 89) % 1000) / 1000 * w;
+              const sy = ((i * 149) % 1000) / 1000 * (h * 0.62);
+              ctx.fillStyle = i % 4 === 0 ? "#fef08a" : "rgba(255,255,255,0.85)";
+              ctx.beginPath();
+              ctx.arc(sx, sy, i % 3 === 0 ? 1.8 : 1.0, 0, Math.PI * 2);
+              ctx.fill();
+            }
+
+            const moonX = w * 0.72, moonY = h * 0.20, moonR = Math.min(w, h) * 0.11;
+            const halo = ctx.createRadialGradient(moonX, moonY, moonR * 0.4, moonX, moonY, moonR * 3.2);
+            halo.addColorStop(0, "rgba(254, 249, 195, 0.55)");
+            halo.addColorStop(0.5, "rgba(186, 230, 253, 0.15)");
+            halo.addColorStop(1, "rgba(186, 230, 253, 0)");
+            ctx.fillStyle = halo;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.beginPath();
+            ctx.arc(moonX, moonY, moonR, 0, Math.PI * 2);
+            ctx.fillStyle = "#fef9c3";
+            ctx.fill();
+
+            const seaY = h * 0.68;
+            const sea = ctx.createLinearGradient(0, seaY, 0, h);
+            sea.addColorStop(0, "#0284c7");
+            sea.addColorStop(0.4, "#0c4a6e");
+            sea.addColorStop(1, "#082f49");
+            ctx.fillStyle = sea;
+            ctx.fillRect(0, seaY, w, h - seaY);
+
+            for (let i = 0; i < 24; i++) {
+              const wy = seaY + 6 + i * ((h - seaY) / 24);
+              const ww = 18 + Math.sin(i * 1.4) * 14 + i * 1.6;
+              ctx.fillStyle = `rgba(254, 249, 195, ${0.45 - i * 0.015})`;
+              ctx.fillRect(moonX - ww / 2, wy, ww, 3);
+            }
+
+            ctx.fillStyle = "#0f172a";
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            ctx.lineTo(0, h * 0.56);
+            ctx.lineTo(w * 0.34, h * 0.58);
+            ctx.lineTo(w * 0.52, h * 0.76);
+            ctx.lineTo(w * 0.62, h);
+            ctx.closePath();
+            ctx.fill();
+
+            const lx = w * 0.27, baseY = h * 0.58, topY = h * 0.27;
+            const towerH = baseY - topY;
+            const bands = 5;
+            for (let b = 0; b < bands; b++) {
+              const t0 = b / bands, t1 = (b + 1) / bands;
+              const y0 = topY + t0 * towerH, y1 = topY + t1 * towerH;
+              const w0 = w * (0.045 + t0 * 0.032), w1 = w * (0.045 + t1 * 0.032);
+              ctx.fillStyle = b % 2 === 0 ? "#ef4444" : "#f8fafc";
+              ctx.beginPath();
+              ctx.moveTo(lx - w0, y0);
+              ctx.lineTo(lx + w0, y0);
+              ctx.lineTo(lx + w1, y1);
+              ctx.lineTo(lx - w1, y1);
+              ctx.closePath();
+              ctx.fill();
+            }
+
+            const lampY = topY - h * 0.035;
+            ctx.fillStyle = "#fef08a";
+            ctx.fillRect(lx - w * 0.038, lampY, w * 0.076, h * 0.035);
+            ctx.fillStyle = "#dc2626";
+            ctx.beginPath();
+            ctx.moveTo(lx - w * 0.052, lampY);
+            ctx.lineTo(lx + w * 0.052, lampY);
+            ctx.lineTo(lx, lampY - h * 0.035);
+            ctx.closePath();
+            ctx.fill();
+
+            const beamGrad = ctx.createLinearGradient(lx, lampY + 10, w, lampY - h * 0.06);
+            beamGrad.addColorStop(0, "rgba(254, 240, 138, 0.55)");
+            beamGrad.addColorStop(1, "rgba(254, 240, 138, 0)");
+            ctx.fillStyle = beamGrad;
+            ctx.beginPath();
+            ctx.moveTo(lx + w * 0.03, lampY + 4);
+            ctx.lineTo(w, lampY - h * 0.14);
+            ctx.lineTo(w, lampY + h * 0.08);
+            ctx.lineTo(lx + w * 0.03, lampY + h * 0.028);
+            ctx.closePath();
+            ctx.fill();
+          }
+        },
+        {
+          id: "zen_waterfall",
+          title: "Cachoeira & Cerejeiras",
+          orientation: "portrait",
+          badge: "Vertical",
+          render(ctx, w, h) {
+            const sky = ctx.createLinearGradient(0, 0, 0, h * 0.5);
+            sky.addColorStop(0, "#fbcfe8");
+            sky.addColorStop(0.55, "#fde68a");
+            sky.addColorStop(1, "#bae6fd");
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, w, h);
+
+            ctx.fillStyle = "#475569";
+            ctx.beginPath();
+            ctx.moveTo(w * 0.05, h * 0.48);
+            ctx.lineTo(w * 0.48, h * 0.16);
+            ctx.lineTo(w * 0.54, h * 0.16);
+            ctx.lineTo(w * 0.95, h * 0.48);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = "#f8fafc";
+            ctx.beginPath();
+            ctx.moveTo(w * 0.36, h * 0.25);
+            ctx.lineTo(w * 0.48, h * 0.16);
+            ctx.lineTo(w * 0.54, h * 0.16);
+            ctx.lineTo(w * 0.65, h * 0.25);
+            ctx.lineTo(w * 0.56, h * 0.23);
+            ctx.lineTo(w * 0.51, h * 0.27);
+            ctx.lineTo(w * 0.45, h * 0.23);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = "#14532d";
+            ctx.fillRect(0, h * 0.44, w, h * 0.56);
+
+            const wfX = w * 0.38, wfW = w * 0.24, wfTop = h * 0.44, wfBot = h * 0.80;
+            const wfGrad = ctx.createLinearGradient(wfX, wfTop, wfX + wfW, wfBot);
+            wfGrad.addColorStop(0, "#e0f2fe");
+            wfGrad.addColorStop(0.5, "#38bdf8");
+            wfGrad.addColorStop(1, "#bae6fd");
+            ctx.fillStyle = wfGrad;
+            ctx.fillRect(wfX, wfTop, wfW, wfBot - wfTop);
+
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.65)";
+            ctx.lineWidth = 2.5;
+            for (let i = 1; i < 8; i++) {
+              const lx = wfX + (wfW / 8) * i;
+              ctx.beginPath();
+              ctx.moveTo(lx, wfTop);
+              ctx.lineTo(lx, wfBot);
+              ctx.stroke();
+            }
+
+            const pool = ctx.createLinearGradient(0, wfBot, 0, h);
+            pool.addColorStop(0, "#7dd3fc");
+            pool.addColorStop(0.4, "#0284c7");
+            pool.addColorStop(1, "#0f172a");
+            ctx.fillStyle = pool;
+            ctx.fillRect(0, wfBot, w, h - wfBot);
+
+            const tx = w * 0.76, ty = h * 0.72;
+            ctx.fillStyle = "#dc2626";
+            ctx.fillRect(tx - 26, ty, 7, 46);
+            ctx.fillRect(tx + 19, ty, 7, 46);
+            ctx.fillRect(tx - 34, ty + 10, 68, 6);
+            ctx.fillStyle = "#1e293b";
+            ctx.fillRect(tx - 38, ty - 2, 76, 7);
+
+            const blossoms = [
+              [0.14, 0.14, 65], [0.26, 0.10, 52], [0.10, 0.26, 48],
+              [0.84, 0.18, 62], [0.74, 0.12, 46], [0.88, 0.30, 44]
+            ];
+            blossoms.forEach(([bx, by, br]) => {
+              const cx = w * bx, cy = h * by;
+              for (let k = 0; k < 18; k++) {
+                const ang = k * 2.1;
+                const dist = (k / 18) * br;
+                ctx.fillStyle = k % 2 === 0 ? "#f472b6" : "#fbcfe8";
+                ctx.beginPath();
+                ctx.arc(cx + Math.cos(ang) * dist, cy + Math.sin(ang) * dist, 11, 0, Math.PI * 2);
+                ctx.fill();
+              }
+            });
+          }
+        },
+        {
+          id: "cosmic_mandala",
+          title: "Mandala Cósmica",
+          orientation: "square",
+          badge: "Quadrado",
+          render(ctx, w, h) {
+            const cx = w / 2, cy = h / 2;
+            const maxR = Math.hypot(cx, cy);
+
+            const bg = ctx.createRadialGradient(cx, cy, 12, cx, cy, maxR);
+            bg.addColorStop(0, "#311042");
+            bg.addColorStop(0.55, "#110c2e");
+            bg.addColorStop(1, "#050714");
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+
+            for (let i = 0; i < 150; i++) {
+              const sx = ((i * 97) % 1000) / 1000 * w;
+              const sy = ((i * 173) % 1000) / 1000 * h;
+              ctx.fillStyle = "rgba(255,255,255,0.75)";
+              ctx.fillRect(sx, sy, 2, 2);
+            }
+
+            const rings = [
+              { r: Math.min(w, h) * 0.44, petals: 16, col1: "#ec4899", col2: "#8b5cf6" },
+              { r: Math.min(w, h) * 0.34, petals: 12, col1: "#06b6d4", col2: "#3b82f6" },
+              { r: Math.min(w, h) * 0.23, petals: 12, col1: "#f59e0b", col2: "#ef4444" },
+              { r: Math.min(w, h) * 0.13, petals: 8,  col1: "#fde047", col2: "#10b981" }
+            ];
+
+            rings.forEach((ring, rIdx) => {
+              for (let i = 0; i < ring.petals; i++) {
+                const ang = (i / ring.petals) * Math.PI * 2 + rIdx * 0.15;
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(ang);
+                const g = ctx.createLinearGradient(0, 0, ring.r, 0);
+                g.addColorStop(0, ring.col2);
+                g.addColorStop(1, ring.col1);
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(ring.r * 0.55, -ring.r * 0.24, ring.r, 0);
+                ctx.quadraticCurveTo(ring.r * 0.55, ring.r * 0.24, 0, 0);
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+                ctx.lineWidth = 1.4;
+                ctx.stroke();
+                ctx.restore();
+              }
+            });
+
+            const core = ctx.createRadialGradient(cx, cy, 2, cx, cy, Math.min(w, h) * 0.08);
+            core.addColorStop(0, "#ffffff");
+            core.addColorStop(0.5, "#fde047");
+            core.addColorStop(1, "#f97316");
+            ctx.beginPath();
+            ctx.arc(cx, cy, Math.min(w, h) * 0.075, 0, Math.PI * 2);
+            ctx.fillStyle = core;
+            ctx.fill();
+          }
+        },
+        {
+          id: "cyberpunk",
+          title: "Noite Neon Cyberpunk",
+          orientation: "landscape",
+          badge: "Horizontal",
+          render(ctx, w, h) {
+            const bg = ctx.createLinearGradient(0, 0, 0, h);
+            bg.addColorStop(0, "#090418");
+            bg.addColorStop(0.55, "#1b0b3b");
+            bg.addColorStop(1, "#090418");
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+
+            const cx = w * 0.5, cy = h * 0.42, r = Math.min(w, h) * 0.26;
+            const sunGrad = ctx.createLinearGradient(0, cy - r, 0, cy + r);
+            sunGrad.addColorStop(0, "#fde047");
+            sunGrad.addColorStop(0.5, "#f43f5e");
+            sunGrad.addColorStop(1, "#9333ea");
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx, cy, r, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.fillStyle = sunGrad;
+            ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+            ctx.fillStyle = "#14082e";
+            for (let y = cy; y < cy + r; y += 14) {
+              ctx.fillRect(cx - r, y, r * 2, (y - cy) * 0.08 + 2);
+            }
+            ctx.restore();
+
+            const horizon = h * 0.64;
+            const buildings = [
+              [0.03, 0.11, 0.34], [0.13, 0.09, 0.42], [0.21, 0.12, 0.28],
+              [0.34, 0.08, 0.36], [0.58, 0.09, 0.39], [0.68, 0.11, 0.31],
+              [0.78, 0.10, 0.44], [0.87, 0.11, 0.35]
+            ];
+            buildings.forEach(([bx, bw, bh], idx) => {
+              const x = w * bx, width = w * bw, height = h * bh, y = horizon - height;
+              ctx.fillStyle = idx % 2 === 0 ? "#0d0924" : "#150e38";
+              ctx.fillRect(x, y, width, height);
+              ctx.strokeStyle = idx % 2 === 0 ? "#06b6d4" : "#ec4899";
+              ctx.lineWidth = 2;
+              ctx.strokeRect(x, y, width, height);
+
+              for (let wy = y + 12; wy < horizon - 10; wy += 14) {
+                for (let wx = x + 8; wx < x + width - 10; wx += 12) {
+                  if ((wx + wy + idx) % 3 !== 0) {
+                    ctx.fillStyle = (wx + idx) % 2 === 0 ? "#22d3ee" : "#f472b6";
+                    ctx.fillRect(wx, wy, 5, 7);
+                  }
+                }
+              }
+            });
+
+            ctx.fillStyle = "#090418";
+            ctx.fillRect(0, horizon, w, h - horizon);
+            ctx.strokeStyle = "rgba(236, 72, 153, 0.65)";
+            ctx.lineWidth = 1.6;
+            for (let i = -10; i <= 10; i++) {
+              ctx.beginPath();
+              ctx.moveTo(w * 0.5 + i * 28, horizon);
+              ctx.lineTo(w * 0.5 + i * 130, h);
+              ctx.stroke();
+            }
+            for (let j = 0; j < 8; j++) {
+              const gy = horizon + Math.pow(j / 7, 1.7) * (h - horizon);
+              ctx.beginPath();
+              ctx.moveTo(0, gy);
+              ctx.lineTo(w, gy);
+              ctx.stroke();
+            }
+          }
+        },
+        {
+          id: "stained_glass",
+          title: "Vitral Geométrico",
+          orientation: "landscape",
+          badge: "Horizontal",
+          render(ctx, w, h) {
+            const palette = [
+              "#ef4444", "#f97316", "#f59e0b", "#10b981",
+              "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"
+            ];
+            const cols = 12, rows = 8;
+            const cw = w / cols, ch = h / rows;
+
+            const pts = [];
+            for (let r = 0; r <= rows; r++) {
+              pts[r] = [];
+              for (let c = 0; c <= cols; c++) {
+                const jx = (c === 0 || c === cols) ? 0 : Math.sin(r * 3.1 + c * 1.7) * cw * 0.28;
+                const jy = (r === 0 || r === rows) ? 0 : Math.cos(r * 2.3 + c * 2.9) * ch * 0.28;
+                pts[r][c] = { x: c * cw + jx, y: r * ch + jy };
+              }
+            }
+
+            ctx.lineJoin = "round";
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                const p00 = pts[r][c], p10 = pts[r][c + 1];
+                const p11 = pts[r + 1][c + 1], p01 = pts[r + 1][c];
+                const tris = (r + c) % 2 === 0
+                  ? [[p00, p10, p11], [p00, p11, p01]]
+                  : [[p00, p10, p01], [p10, p11, p01]];
+
+                tris.forEach((tri, tIdx) => {
+                  const colorIdx = Math.abs((r * 5 + c * 3 + tIdx * 2)) % palette.length;
+                  const baseCol = palette[colorIdx];
+                  const cx = (tri[0].x + tri[1].x + tri[2].x) / 3;
+                  const cy = (tri[0].y + tri[1].y + tri[2].y) / 3;
+
+                  const grad = ctx.createRadialGradient(cx, cy, 4, cx, cy, Math.max(cw, ch) * 0.9);
+                  grad.addColorStop(0, "#ffffff");
+                  grad.addColorStop(0.22, baseCol);
+                  grad.addColorStop(1, "#1e1b4b");
+
+                  ctx.beginPath();
+                  ctx.moveTo(tri[0].x, tri[0].y);
+                  ctx.lineTo(tri[1].x, tri[1].y);
+                  ctx.lineTo(tri[2].x, tri[2].y);
+                  ctx.closePath();
+                  ctx.fillStyle = grad;
+                  ctx.fill();
+                  ctx.strokeStyle = "#111827";
+                  ctx.lineWidth = 3.5;
+                  ctx.stroke();
+                });
+              }
+            }
+          }
+        },
+        {
+          id: "botanical",
+          title: "Jardim Botânico",
+          orientation: "landscape",
+          badge: "Horizontal",
+          render(ctx, w, h) {
+            const bg = ctx.createLinearGradient(0, 0, w, h);
+            bg.addColorStop(0, "#064e3b");
+            bg.addColorStop(1, "#022c22");
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, w, h);
+
+            const leaves = [
+              [0.12, 0.25, 0.35, "#10b981"], [0.85, 0.22, -0.45, "#059669"],
+              [0.18, 0.82, 0.65, "#34d399"], [0.84, 0.78, -0.75, "#10b981"],
+              [0.50, 0.15, 0.12, "#047857"], [0.50, 0.88, -0.15, "#059669"]
+            ];
+            leaves.forEach(([lx, ly, ang, col]) => {
+              ctx.save();
+              ctx.translate(w * lx, h * ly);
+              ctx.rotate(ang);
+              ctx.fillStyle = col;
+              ctx.beginPath();
+              ctx.ellipse(0, 0, w * 0.16, h * 0.08, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.strokeStyle = "rgba(255,255,255,0.22)";
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              ctx.moveTo(-w * 0.14, 0);
+              ctx.lineTo(w * 0.14, 0);
+              ctx.stroke();
+              ctx.restore();
+            });
+
+            const drawFlower = (fx, fy, radius, petalCol, centerCol) => {
+              const petals = 8;
+              for (let i = 0; i < petals; i++) {
+                const a = (i / petals) * Math.PI * 2;
+                ctx.save();
+                ctx.translate(fx, fy);
+                ctx.rotate(a);
+                ctx.fillStyle = petalCol;
+                ctx.beginPath();
+                ctx.ellipse(radius * 0.58, 0, radius * 0.52, radius * 0.25, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+              }
+              ctx.beginPath();
+              ctx.arc(fx, fy, radius * 0.34, 0, Math.PI * 2);
+              ctx.fillStyle = centerCol;
+              ctx.fill();
+            };
+
+            const rBase = Math.min(w, h);
+            drawFlower(w * 0.34, h * 0.44, rBase * 0.18, "#fb7185", "#fde047");
+            drawFlower(w * 0.66, h * 0.52, rBase * 0.20, "#f59e0b", "#7c2d12");
+            drawFlower(w * 0.50, h * 0.30, rBase * 0.13, "#f472b6", "#fef08a");
+            drawFlower(w * 0.48, h * 0.70, rBase * 0.15, "#38bdf8", "#fde047");
+          }
+        },
+        {
+          id: "bauhaus",
+          title: "Mosaico Bauhaus",
+          orientation: "square",
+          badge: "Quadrado",
+          render(ctx, w, h) {
+            ctx.fillStyle = "#f5efe6";
+            ctx.fillRect(0, 0, w, h);
+
+            const cols = 5, rows = 5;
+            const cw = w / cols, ch = h / rows;
+            const colors = ["#d93829", "#1d4ed8", "#eab308", "#18181b", "#f5efe6"];
+
+            for (let r = 0; r < rows; r++) {
+              for (let c = 0; c < cols; c++) {
+                const x = c * cw, y = r * ch;
+                const idx = (r * 3 + c * 2) % 5;
+                ctx.fillStyle = colors[(idx + 4) % 5];
+                ctx.fillRect(x, y, cw, ch);
+
+                ctx.fillStyle = colors[idx];
+                const shape = (r + c) % 4;
+                ctx.beginPath();
+                if (shape === 0) {
+                  ctx.arc(x + cw / 2, y + ch / 2, Math.min(cw, ch) * 0.38, 0, Math.PI * 2);
+                } else if (shape === 1) {
+                  ctx.moveTo(x, y + ch);
+                  ctx.lineTo(x + cw, y + ch);
+                  ctx.lineTo(x + cw / 2, y);
+                  ctx.closePath();
+                } else if (shape === 2) {
+                  ctx.arc(x, y, Math.min(cw, ch) * 0.85, 0, Math.PI / 2);
+                  ctx.lineTo(x, y);
+                } else {
+                  ctx.rect(x + cw * 0.2, y + ch * 0.2, cw * 0.6, ch * 0.6);
+                }
+                ctx.fill();
+
+                ctx.strokeStyle = "#18181b";
+                ctx.lineWidth = 3;
+                ctx.strokeRect(x, y, cw, ch);
+              }
+            }
+          }
+        }
+      ];
+
+      /* =========================================================================
+         3. MOTOR GEOMÉTRICO DAS PEÇAS (CURVAS DE BÉZIER E CHANFRO 3D)
+         ========================================================================= */
+      function tracePuzzleEdge(ctx, x1, y1, x2, y2, tab) {
+        if (tab === 0) {
+          ctx.lineTo(x2, y2);
+          return;
+        }
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const len = Math.hypot(dx, dy);
+        const ux = dx / len;
+        const uy = dy / len;
+        const nx = uy * tab;
+        const ny = -ux * tab;
+
+        const p = (along, out) => ({
+          x: x1 + ux * (len * along) + nx * (len * out),
+          y: y1 + uy * (len * along) + ny * (len * out)
+        });
+
+        const neckStart = p(0.36, 0);
+        const c1 = p(0.42, 0.02);
+        const c2 = p(0.33, 0.16);
+        const bulbLeft = p(0.36, 0.22);
+        const c3 = p(0.39, 0.29);
+        const c4 = p(0.61, 0.29);
+        const bulbRight = p(0.64, 0.22);
+        const c5 = p(0.67, 0.16);
+        const c6 = p(0.58, 0.02);
+        const neckEnd = p(0.64, 0);
+
+        ctx.lineTo(neckStart.x, neckStart.y);
+        ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, bulbLeft.x, bulbLeft.y);
+        ctx.bezierCurveTo(c3.x, c3.y, c4.x, c4.y, bulbRight.x, bulbRight.y);
+        ctx.bezierCurveTo(c5.x, c5.y, c6.x, c6.y, neckEnd.x, neckEnd.y);
+        ctx.lineTo(x2, y2);
+      }
+
+      function buildPiecePath(ctx, pw, ph, tabs) {
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        tracePuzzleEdge(ctx, 0, 0, pw, 0, tabs.top);
+        tracePuzzleEdge(ctx, pw, 0, pw, ph, tabs.right);
+        tracePuzzleEdge(ctx, pw, ph, 0, ph, tabs.bottom);
+        tracePuzzleEdge(ctx, 0, ph, 0, 0, tabs.left);
+        ctx.closePath();
+      }
+
+      /* =========================================================================
+         4. ESTADO GLOBAL E INICIALIZAÇÃO DO JOGO
+         ========================================================================= */
+      const canvas = document.getElementById("puzzleCanvas");
+      const ctx = canvas.getContext("2d");
+      const sound = new SoundEngine();
+
+      const state = {
+        selectedArtId: "sunset",
+        carouselIndex: 0,
+        customImage: null,
+        customTitle: "Foto Personalizada",
+        formatMode: "auto", // "auto" | "landscape" | "portrait" | "square"
+        diffLevel: "medium", // "easy" | "medium" | "hard" | "master"
+        cols: 8,
+        rows: 6,
+        diffName: "Médio",
+        rotationEnabled: false,
+
+        sourceCanvas: document.createElement("canvas"),
+        boardWidth: 880,
+        boardHeight: 660,
+        pieceW: 110,
+        pieceH: 110,
+
+        pieces: [],
+        groups: [],
+
+        camX: 0,
+        camY: 0,
+        zoom: 1,
+
+        activeGroup: null,
+        dragOffsetX: 0,
+        dragOffsetY: 0,
+        pointerDownPos: null,
+        pointerMoved: false,
+        isPanning: false,
+        panStartX: 0,
+        panStartY: 0,
+        camStartX: 0,
+        camStartY: 0,
+        activePointers: new Map(),
+        pinchStartDist: 0,
+        pinchStartZoom: 1,
+
+        guideMode: 1, // 0 = Off, 1 = Sutil, 2 = Nítida
+        elapsedSeconds: 0,
+        movesCount: 0,
+        timerInterval: null,
+        isCompleted: false,
+        snapFlashTime: 0,
+        snapFlashPieces: []
+      };
+
+      /* =========================================================================
+         5. RESOLUÇÃO INTELIGENTE DE PROPORÇÃO E GRADE (HORIZONTAL, VERTICAL, QUADRADA)
+         ========================================================================= */
+      const TARGET_PIECES = {
+        easy: 24,
+        medium: 48,
+        hard: 96,
+        master: 150
+      };
+
+      function getEffectiveAspectRatio() {
+        if (state.customImage && state.customImage.width && state.customImage.height) {
+          if (state.formatMode === "landscape") return 4 / 3;
+          if (state.formatMode === "portrait") return 3 / 4;
+          if (state.formatMode === "square") return 1;
+          const nat = state.customImage.width / state.customImage.height;
+          return Math.max(0.45, Math.min(2.2, nat));
+        }
+
+        const art = ART_GALLERY.find(a => a.id === state.selectedArtId) || ART_GALLERY[0];
+        if (art.orientation === "portrait") return 3 / 4;
+        if (art.orientation === "square") return 1;
+        return 4 / 3;
+      }
+
+      function computeGridForDifficulty(level, ratio) {
+        if (Math.abs(ratio - 4 / 3) < 0.04) {
+          return { easy: [6, 4], medium: [8, 6], hard: [12, 8], master: [15, 10] }[level];
+        }
+        if (Math.abs(ratio - 3 / 4) < 0.04) {
+          return { easy: [4, 6], medium: [6, 8], hard: [8, 12], master: [10, 15] }[level];
+        }
+        if (Math.abs(ratio - 1) < 0.04) {
+          return { easy: [5, 5], medium: [7, 7], hard: [10, 10], master: [12, 12] }[level];
+        }
+
+        const target = TARGET_PIECES[level] || 48;
+        let bestCols = Math.max(3, Math.round(Math.sqrt(target * ratio)));
+        let bestRows = Math.max(3, Math.round(target / bestCols));
+
+        let bestScore = Infinity;
+        for (let c = Math.max(3, bestCols - 2); c <= bestCols + 2; c++) {
+          for (let r = Math.max(3, bestRows - 2); r <= bestRows + 2; r++) {
+            const pieceRatio = (ratio / c) * r;
+            const ratioErr = Math.abs(Math.log(pieceRatio));
+            const countErr = Math.abs(c * r - target) / target;
+            const score = ratioErr * 2.2 + countErr;
+            if (score < bestScore) {
+              bestScore = score;
+              bestCols = c;
+              bestRows = r;
+            }
+          }
+        }
+        return [bestCols, bestRows];
+      }
+
+      function refreshDifficultyLabels() {
+        const ratio = getEffectiveAspectRatio();
+        ["easy", "medium", "hard", "master"].forEach(lvl => {
+          const [c, r] = computeGridForDifficulty(lvl, ratio);
+          const el = document.getElementById(`diffSub-${lvl}`);
+          if (el) el.textContent = `${c * r} peças (${c}×${r})`;
+        });
+      }
+
+      function updateCustomPhotoPreview() {
+        if (!state.customImage) return;
+        const previewCanvas = document.getElementById("customPreviewCanvas");
+        if (!previewCanvas) return;
+
+        const ratio = getEffectiveAspectRatio();
+        const maxSide = 110;
+        let pw, ph;
+        if (ratio >= 1) {
+          pw = maxSide;
+          ph = Math.round(maxSide / ratio);
+        } else {
+          ph = maxSide;
+          pw = Math.round(maxSide * ratio);
+        }
+        previewCanvas.width = pw;
+        previewCanvas.height = ph;
+
+        const pctx = previewCanvas.getContext("2d");
+        const img = state.customImage;
+        const imgRatio = img.width / img.height;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+        if (imgRatio > ratio) {
+          sw = img.height * ratio;
+          sx = (img.width - sw) / 2;
+        } else {
+          sh = img.width / ratio;
+          sy = (img.height - sh) / 2;
+        }
+        pctx.clearRect(0, 0, pw, ph);
+        pctx.drawImage(img, sx, sy, sw, sh, 0, 0, pw, ph);
+      }
+
+      function syncSourceModeUI() {
+        const nativeBar = document.getElementById("nativeSourceBar");
+        const customPanel = document.getElementById("customPhotoPanel");
+
+        if (state.customImage) {
+          nativeBar.style.display = "none";
+          customPanel.classList.add("visible");
+          document.getElementById("customPhotoTitle").textContent = state.customTitle;
+          updateCustomPhotoPreview();
+        } else {
+          customPanel.classList.remove("visible");
+          nativeBar.style.display = "flex";
+          const art = ART_GALLERY.find(a => a.id === state.selectedArtId) || ART_GALLERY[0];
+          const ratioLabel = art.orientation === "portrait"
+            ? "Vertical 3:4"
+            : (art.orientation === "square" ? "Quadrado 1:1" : "Horizontal 4:3");
+          document.getElementById("nativeFormatBadge").textContent = `Formato nativo • ${ratioLabel}`;
+          document.getElementById("nativeArtName").textContent = art.title;
+        }
+        refreshDifficultyLabels();
+      }
+
+      /* =========================================================================
+         5B. CARROSSEL COM NAVEGAÇÃO EXATA FOTO POR FOTO + DOTS SINCRONIZADOS
+         ========================================================================= */
+      let carouselCards = [];
+      let carouselDotButtons = [];
+      let isProgrammaticCarouselScroll = false;
+      let scrollUnlockTimer = null;
+
+      function updateCarouselIndicators(index) {
+        const total = ART_GALLERY.length;
+        const clamped = Math.max(0, Math.min(total - 1, index));
+        state.carouselIndex = clamped;
+
+        document.getElementById("carouselCounter").textContent = `${clamped + 1} / ${total}`;
+        document.getElementById("carouselPrev").disabled = clamped === 0;
+        document.getElementById("carouselNext").disabled = clamped === total - 1;
+
+        carouselDotButtons.forEach((dot, idx) => {
+          dot.classList.toggle("active", idx === clamped);
+        });
+
+        // Se nenhuma foto própria está carregada, sincroniza a seleção da arte ativa
+        if (!state.customImage) {
+          const art = ART_GALLERY[clamped];
+          state.selectedArtId = art.id;
+          carouselCards.forEach((card, idx) => {
+            card.classList.toggle("selected", idx === clamped);
+          });
+          syncSourceModeUI();
+        }
+      }
+
+      function goToCarouselSlide(index, smooth = true) {
+        const track = document.getElementById("galleryCarousel");
+        const total = carouselCards.length;
+        if (!track || total === 0) return;
+
+        const targetIdx = Math.max(0, Math.min(total - 1, index));
+        const targetCard = carouselCards[targetIdx];
+
+        // Se estava em foto própria, retorna automaticamente ao modo galeria ao navegar
+        if (state.customImage) {
+          state.customImage = null;
+        }
+
+        updateCarouselIndicators(targetIdx);
+
+        // Centralização matemática exata: offsetLeft + offsetWidth / 2 - clientWidth / 2
+        const targetLeft = targetCard.offsetLeft + (targetCard.offsetWidth / 2) - (track.clientWidth / 2);
+
+        isProgrammaticCarouselScroll = true;
+        clearTimeout(scrollUnlockTimer);
+        track.scrollTo({
+          left: Math.max(0, targetLeft),
+          behavior: smooth ? "smooth" : "auto"
+        });
+
+        scrollUnlockTimer = setTimeout(() => {
+          isProgrammaticCarouselScroll = false;
+        }, 380);
+      }
+
+      function initGalleryCarousel() {
+        const track = document.getElementById("galleryCarousel");
+        const dotsContainer = document.getElementById("carouselDots");
+        carouselCards = [];
+        carouselDotButtons = [];
+
+        ART_GALLERY.forEach((art, index) => {
+          const card = document.createElement("div");
+          card.className = "art-option" + (index === 0 ? " selected" : "");
+          card.dataset.artId = art.id;
+
+          if (art.orientation === "portrait") {
+            card.style.width = "108px";
+          } else if (art.orientation === "square") {
+            card.style.width = "136px";
+          } else {
+            card.style.width = "174px";
+          }
+
+          const frame = document.createElement("div");
+          frame.className = "art-thumb-frame";
+
+          const thumb = document.createElement("canvas");
+          if (art.orientation === "portrait") {
+            thumb.width = 240;
+            thumb.height = 320;
+          } else if (art.orientation === "square") {
+            thumb.width = 260;
+            thumb.height = 260;
+          } else {
+            thumb.width = 320;
+            thumb.height = 240;
+          }
+          art.render(thumb.getContext("2d"), thumb.width, thumb.height);
+
+          const badge = document.createElement("span");
+          badge.className = "orientation-badge";
+          badge.textContent = art.badge;
+
+          const label = document.createElement("div");
+          label.className = "art-option-label";
+          label.textContent = art.title;
+
+          frame.appendChild(thumb);
+          card.appendChild(badge);
+          card.appendChild(frame);
+          card.appendChild(label);
+
+          card.addEventListener("click", () => {
+            goToCarouselSlide(index, true);
+          });
+
+          track.appendChild(card);
+          carouselCards.push(card);
+
+          // Criar ponto indicador (Dot)
+          const dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "carousel-dot" + (index === 0 ? " active" : "");
+          dot.title = art.title;
+          dot.setAttribute("aria-label", `Selecionar ${art.title}`);
+          dot.addEventListener("click", () => {
+            goToCarouselSlide(index, true);
+          });
+          dotsContainer.appendChild(dot);
+          carouselDotButtons.push(dot);
+        });
+
+        // Botões Anterior / Próximo: exatamente 1 cartão por clique
+        document.getElementById("carouselPrev").addEventListener("click", () => {
+          goToCarouselSlide(state.carouselIndex - 1, true);
+        });
+        document.getElementById("carouselNext").addEventListener("click", () => {
+          goToCarouselSlide(state.carouselIndex + 1, true);
+        });
+
+        // Sincronização ao rolar manualmente (toque ou trackpad)
+        track.addEventListener("scroll", () => {
+          if (isProgrammaticCarouselScroll) return;
+          const trackCenter = track.scrollLeft + track.clientWidth / 2;
+          let closestIdx = 0;
+          let minDistance = Infinity;
+
+          carouselCards.forEach((card, idx) => {
+            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+            const dist = Math.abs(trackCenter - cardCenter);
+            if (dist < minDistance) {
+              minDistance = dist;
+              closestIdx = idx;
+            }
+          });
+
+          if (closestIdx !== state.carouselIndex) {
+            updateCarouselIndicators(closestIdx);
+          }
+        }, { passive: true });
+
+        // Posiciona o primeiro slide no centro após renderização inicial
+        requestAnimationFrame(() => goToCarouselSlide(0, false));
+      }
+
+      function prepareSourceImage() {
+        const ratio = getEffectiveAspectRatio();
+        const [cols, rows] = computeGridForDifficulty(state.diffLevel, ratio);
+        state.cols = cols;
+        state.rows = rows;
+
+        const baseArea = 880 * 660;
+        const bw = Math.round(Math.sqrt(baseArea * ratio));
+        const bh = Math.round(bw / ratio);
+
+        state.boardWidth = bw;
+        state.boardHeight = bh;
+        state.sourceCanvas.width = bw;
+        state.sourceCanvas.height = bh;
+        const sctx = state.sourceCanvas.getContext("2d");
+
+        if (state.customImage) {
+          const img = state.customImage;
+          const targetRatio = bw / bh;
+          const imgRatio = img.width / img.height;
+          let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+          if (imgRatio > targetRatio) {
+            sw = img.height * targetRatio;
+            sx = (img.width - sw) / 2;
+          } else {
+            sh = img.width / targetRatio;
+            sy = (img.height - sh) / 2;
+          }
+          sctx.drawImage(img, sx, sy, sw, sh, 0, 0, bw, bh);
+        } else {
+          const art = ART_GALLERY.find(a => a.id === state.selectedArtId) || ART_GALLERY[0];
+          art.render(sctx, bw, bh);
+        }
+      }
+
+      /* =========================================================================
+         6. CRIAÇÃO DAS PEÇAS COM PRÉ-RENDERIZAÇÃO CHANFRADA (3D)
+         ========================================================================= */
+      function createPuzzlePieces() {
+        const { cols, rows, boardWidth, boardHeight } = state;
+        const pw = boardWidth / cols;
+        const ph = boardHeight / rows;
+        state.pieceW = pw;
+        state.pieceH = ph;
+
+        const hTabs = Array.from({ length: rows }, () =>
+          Array.from({ length: cols - 1 }, () => (Math.random() > 0.5 ? 1 : -1))
+        );
+        const vTabs = Array.from({ length: rows - 1 }, () =>
+          Array.from({ length: cols }, () => (Math.random() > 0.5 ? 1 : -1))
+        );
+
+        const pad = Math.ceil(Math.max(pw, ph) * 0.36);
+        state.pieces = [];
+        state.groups = [];
+
+        for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            const tabs = {
+              top: r === 0 ? 0 : -vTabs[r - 1][c],
+              right: c === cols - 1 ? 0 : hTabs[r][c],
+              bottom: r === rows - 1 ? 0 : vTabs[r][c],
+              left: c === 0 ? 0 : -hTabs[r][c - 1]
+            };
+
+            const pCanvas = document.createElement("canvas");
+            pCanvas.width = Math.ceil(pw + pad * 2);
+            pCanvas.height = Math.ceil(ph + pad * 2);
+            const pctx = pCanvas.getContext("2d");
+
+            pctx.save();
+            pctx.translate(pad, pad);
+            buildPiecePath(pctx, pw, ph, tabs);
+            pctx.clip();
+
+            pctx.drawImage(
+              state.sourceCanvas,
+              c * pw - pad,
+              r * ph - pad,
+              pw + pad * 2,
+              ph + pad * 2,
+              -pad,
+              -pad,
+              pw + pad * 2,
+              ph + pad * 2
+            );
+
+            // Realce iluminado superior/esquerdo (chanfro 3D)
+            pctx.save();
+            pctx.translate(1.4, 1.4);
+            buildPiecePath(pctx, pw, ph, tabs);
+            pctx.strokeStyle = "rgba(255, 255, 255, 0.42)";
+            pctx.lineWidth = 2.2;
+            pctx.stroke();
+            pctx.restore();
+
+            // Sombra interna inferior/direita
+            pctx.save();
+            pctx.translate(-1.4, -1.4);
+            buildPiecePath(pctx, pw, ph, tabs);
+            pctx.strokeStyle = "rgba(0, 0, 0, 0.42)";
+            pctx.lineWidth = 2.2;
+            pctx.stroke();
+            pctx.restore();
+
+            // Contorno fino de definição
+            buildPiecePath(pctx, pw, ph, tabs);
+            pctx.strokeStyle = "rgba(15, 20, 28, 0.55)";
+            pctx.lineWidth = 1.1;
+            pctx.stroke();
+
+            pctx.restore();
+
+            const piece = {
+              id: r * cols + c,
+              row: r,
+              col: c,
+              correctX: c * pw,
+              correctY: r * ph,
+              x: 0,
+              y: 0,
+              rotation: state.rotationEnabled ? Math.floor(Math.random() * 4) * 90 : 0,
+              canvas: pCanvas,
+              pad,
+              tabs,
+              isEdge: r === 0 || r === rows - 1 || c === 0 || c === cols - 1,
+              group: null
+            };
+
+            const group = {
+              id: piece.id,
+              pieces: [piece],
+              lockedToBoard: false
+            };
+            piece.group = group;
+
+            state.pieces.push(piece);
+            state.groups.push(group);
+          }
+        }
+
+        scatterLoosePieces(false);
+        resetCamera();
+      }
+
+      /* =========================================================================
+         7. DISTRIBUIÇÃO E ORGANIZAÇÃO DAS PEÇAS NA MESA (ADAPTADA À ORIENTAÇÃO)
+         ========================================================================= */
+      function scatterLoosePieces(edgesOnly = false) {
+        const { boardWidth, boardHeight, pieceW, pieceH, groups } = state;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const isScreenPortrait = vh > vw;
+        const isBoardTall = boardHeight > boardWidth;
+
+        groups.forEach(group => {
+          if (group.lockedToBoard || group.pieces.length > 1) return;
+          const p = group.pieces[0];
+          if (edgesOnly && !p.isEdge) return;
+
+          const preferSides = !isScreenPortrait || isBoardTall;
+          const roll = Math.random();
+          let zone = 0;
+
+          if (preferSides) {
+            if (roll < 0.38) zone = 0;
+            else if (roll < 0.76) zone = 1;
+            else if (roll < 0.88) zone = 2;
+            else zone = 3;
+          } else {
+            if (roll < 0.34) zone = 2;
+            else if (roll < 0.68) zone = 3;
+            else if (roll < 0.84) zone = 0;
+            else zone = 1;
+          }
+
+          let targetX = 0, targetY = 0;
+
+          if (zone === 0) {
+            targetX = -pieceW * (1.35 + Math.random() * 2.1);
+            targetY = -pieceH * 0.2 + Math.random() * (boardHeight - pieceH * 0.6);
+          } else if (zone === 1) {
+            targetX = boardWidth + pieceW * (0.35 + Math.random() * 2.1);
+            targetY = -pieceH * 0.2 + Math.random() * (boardHeight - pieceH * 0.6);
+          } else if (zone === 2) {
+            targetX = -pieceW * 1.1 + Math.random() * (boardWidth + pieceW * 1.2);
+            targetY = -pieceH * (1.3 + Math.random() * 1.1);
+          } else {
+            targetX = -pieceW * 1.1 + Math.random() * (boardWidth + pieceW * 1.2);
+            targetY = boardHeight + pieceH * (0.3 + Math.random() * 1.1);
+          }
+
+          p.x = targetX;
+          p.y = targetY;
+        });
+
+        if (edgesOnly) {
+          showToast("Peças de borda separadas ao redor do tabuleiro!");
+        }
+      }
+
+      /* =========================================================================
+         8. FÍSICA DE AGRUPAMENTO MAGNÉTICO (SNAPPING) E ROTAÇÃO
+         ========================================================================= */
+      function rotateGroup(group, deltaDeg = 90) {
+        if (!state.rotationEnabled || !group || group.lockedToBoard) return;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        group.pieces.forEach(p => {
+          minX = Math.min(minX, p.x);
+          minY = Math.min(minY, p.y);
+          maxX = Math.max(maxX, p.x + state.pieceW);
+          maxY = Math.max(maxY, p.y + state.pieceH);
+        });
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2;
+        const rad = (deltaDeg * Math.PI) / 180;
+        const cos = Math.round(Math.cos(rad));
+        const sin = Math.round(Math.sin(rad));
+
+        group.pieces.forEach(p => {
+          const pcx = p.x + state.pieceW / 2 - cx;
+          const pcy = p.y + state.pieceH / 2 - cy;
+          const nx = pcx * cos - pcy * sin + cx;
+          const ny = pcx * sin + pcy * cos + cy;
+          p.x = nx - state.pieceW / 2;
+          p.y = ny - state.pieceH / 2;
+          p.rotation = (p.rotation + deltaDeg + 360) % 360;
+        });
+
+        sound.playRotate();
+        checkSnapForGroup(group);
+      }
+
+      function checkSnapForGroup(activeGroup) {
+        if (!activeGroup) return;
+        const tolerance = Math.min(state.pieceW, state.pieceH) * 0.26;
+        let snappedAnything = false;
+        const newlySnapped = [];
+
+        const allZeroRot = activeGroup.pieces.every(p => p.rotation === 0);
+        if (allZeroRot && !activeGroup.lockedToBoard) {
+          const ref = activeGroup.pieces[0];
+          const dxBoard = ref.correctX - ref.x;
+          const dyBoard = ref.correctY - ref.y;
+          if (Math.hypot(dxBoard, dyBoard) <= tolerance) {
+            activeGroup.pieces.forEach(p => {
+              p.x = p.correctX;
+              p.y = p.correctY;
+              newlySnapped.push(p);
+            });
+            activeGroup.lockedToBoard = true;
+            snappedAnything = true;
+          }
+        }
+
+        let merged = true;
+        while (merged) {
+          merged = false;
+          for (const pA of activeGroup.pieces) {
+            for (const pB of state.pieces) {
+              if (pB.group === activeGroup) continue;
+              if (pA.rotation !== pB.rotation) continue;
+
+              const dRow = pB.row - pA.row;
+              const dCol = pB.col - pA.col;
+              if (Math.abs(dRow) + Math.abs(dCol) !== 1) continue;
+
+              const rotRad = (pA.rotation * Math.PI) / 180;
+              const rawDx = dCol * state.pieceW;
+              const rawDy = dRow * state.pieceH;
+              const expectedDx = rawDx * Math.cos(rotRad) - rawDy * Math.sin(rotRad);
+              const expectedDy = rawDx * Math.sin(rotRad) + rawDy * Math.cos(rotRad);
+
+              const actualDx = pB.x - pA.x;
+              const actualDy = pB.y - pA.y;
+
+              if (Math.hypot(expectedDx - actualDx, expectedDy - actualDy) <= tolerance) {
+                const shiftX = (pA.x + expectedDx) - pB.x;
+                const shiftY = (pA.y + expectedDy) - pB.y;
+                const otherGroup = pB.group;
+
+                if (otherGroup.lockedToBoard) {
+                  activeGroup.pieces.forEach(p => {
+                    p.x -= shiftX;
+                    p.y -= shiftY;
+                  });
+                  activeGroup.lockedToBoard = true;
+                } else {
+                  otherGroup.pieces.forEach(p => {
+                    p.x += shiftX;
+                    p.y += shiftY;
+                  });
+                }
+
+                otherGroup.pieces.forEach(p => {
+                  p.group = activeGroup;
+                  activeGroup.pieces.push(p);
+                  newlySnapped.push(p);
+                });
+                state.groups = state.groups.filter(g => g !== otherGroup);
+
+                merged = true;
+                snappedAnything = true;
+                break;
+              }
+            }
+            if (merged) break;
+          }
+        }
+
+        if (snappedAnything) {
+          sound.playSnap(activeGroup.pieces.length);
+          state.snapFlashTime = performance.now();
+          state.snapFlashPieces = newlySnapped;
+          bringGroupToFront(activeGroup);
+          updateProgressHUD();
+          checkVictoryCondition();
+        }
+      }
+
+      function bringGroupToFront(group) {
+        if (group.lockedToBoard) return;
+        const set = new Set(group.pieces);
+        const rest = state.pieces.filter(p => !set.has(p));
+        state.pieces = [...rest, ...group.pieces];
+      }
+
+      function checkVictoryCondition() {
+        if (state.isCompleted) return;
+        const allAligned = state.groups.length === 1 && state.pieces.every(p => p.rotation === 0);
+
+        if (allAligned) {
+          state.pieces.forEach(p => {
+            p.x = p.correctX;
+            p.y = p.correctY;
+          });
+          state.groups[0].lockedToBoard = true;
+          state.isCompleted = true;
+          stopTimer();
+          sound.playVictory();
+          showVictoryModal();
+        }
+      }
+
+      /* =========================================================================
+         9. CONTROLE DE CÂMERA (ZOOM, PAN E CONVERSÃO DE COORDENADAS)
+         ========================================================================= */
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function resetCamera() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const availW = vw * 0.66;
+        const availH = (vh - 135) * 0.68;
+        const scale = Math.min(availW / state.boardWidth, availH / state.boardHeight, 1.15);
+
+        state.zoom = Math.max(0.32, Math.min(1.6, scale));
+        state.camX = (vw - state.boardWidth * state.zoom) / 2;
+        state.camY = (vh - state.boardHeight * state.zoom) / 2 + 12;
+        updateZoomLabel();
+      }
+
+      function setZoom(newZoom, centerX = window.innerWidth / 2, centerY = window.innerHeight / 2) {
+        const clamped = Math.max(0.28, Math.min(2.4, newZoom));
+        const worldX = (centerX - state.camX) / state.zoom;
+        const worldY = (centerY - state.camY) / state.zoom;
+
+        state.zoom = clamped;
+        state.camX = centerX - worldX * state.zoom;
+        state.camY = centerY - worldY * state.zoom;
+        updateZoomLabel();
+      }
+
+      function updateZoomLabel() {
+        document.getElementById("zoomLabel").textContent = `${Math.round(state.zoom * 100)}%`;
+      }
+
+      function screenToWorld(sx, sy) {
+        return {
+          x: (sx - state.camX) / state.zoom,
+          y: (sy - state.camY) / state.zoom
+        };
+      }
+
+      function hitTestPiece(wx, wy) {
+        for (let i = state.pieces.length - 1; i >= 0; i--) {
+          const p = state.pieces[i];
+          if (p.group.lockedToBoard) continue;
+
+          const cx = p.x + state.pieceW / 2;
+          const cy = p.y + state.pieceH / 2;
+          const rad = (-p.rotation * Math.PI) / 180;
+          const dx = wx - cx;
+          const dy = wy - cy;
+          const lx = dx * Math.cos(rad) - dy * Math.sin(rad) + state.pieceW / 2;
+          const ly = dx * Math.sin(rad) + dy * Math.cos(rad) + state.pieceH / 2;
+
+          const margin = Math.min(state.pieceW, state.pieceH) * 0.14;
+          if (lx >= -margin && lx <= state.pieceW + margin && ly >= -margin && ly <= state.pieceH + margin) {
+            return p;
+          }
+        }
+        return null;
+      }
+
+      /* =========================================================================
+         10. LOOP DE RENDERIZAÇÃO PRINCIPAL (CANVAS 2D)
+         ========================================================================= */
+      function renderLoop(now) {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        ctx.clearRect(0, 0, vw, vh);
+
+        ctx.save();
+        ctx.translate(state.camX, state.camY);
+        ctx.scale(state.zoom, state.zoom);
+
+        const isLight = document.body.classList.contains("light-theme");
+        ctx.save();
+        ctx.fillStyle = isLight ? "rgba(210, 198, 180, 0.65)" : "rgba(12, 16, 22, 0.58)";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
+        ctx.shadowBlur = 24;
+        ctx.beginPath();
+        ctx.roundRect(-6, -6, state.boardWidth + 12, state.boardHeight + 12, 12);
+        ctx.fill();
+        ctx.restore();
+
+        if (state.guideMode > 0 && !state.isCompleted) {
+          ctx.save();
+          ctx.globalAlpha = state.guideMode === 1 ? 0.16 : 0.38;
+          ctx.drawImage(state.sourceCanvas, 0, 0, state.boardWidth, state.boardHeight);
+          ctx.restore();
+        }
+
+        ctx.save();
+        ctx.strokeStyle = isLight ? "rgba(70, 55, 35, 0.18)" : "rgba(255, 255, 255, 0.12)";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(0, 0, state.boardWidth, state.boardHeight);
+        ctx.restore();
+
+        const flashAge = now - state.snapFlashTime;
+        const showFlash = flashAge < 340;
+
+        for (const p of state.pieces) {
+          const isDragging = state.activeGroup && p.group === state.activeGroup;
+          const cx = p.x + state.pieceW / 2;
+          const cy = p.y + state.pieceH / 2;
+
+          ctx.save();
+          ctx.translate(cx, cy);
+          if (p.rotation !== 0) {
+            ctx.rotate((p.rotation * Math.PI) / 180);
+          }
+
+          if (isDragging) {
+            ctx.scale(1.035, 1.035);
+            ctx.shadowColor = "rgba(0, 0, 0, 0.48)";
+            ctx.shadowBlur = 18;
+            ctx.shadowOffsetX = 6;
+            ctx.shadowOffsetY = 10;
+          } else if (!p.group.lockedToBoard) {
+            ctx.shadowColor = "rgba(0, 0, 0, 0.32)";
+            ctx.shadowBlur = 6;
+            ctx.shadowOffsetX = 2;
+            ctx.shadowOffsetY = 3;
+          }
+
+          ctx.drawImage(
+            p.canvas,
+            -state.pieceW / 2 - p.pad,
+            -state.pieceH / 2 - p.pad
+          );
+
+          if (showFlash && state.snapFlashPieces.includes(p)) {
+            const alpha = (1 - flashAge / 340) * 0.45;
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.fillRect(-state.pieceW / 2, -state.pieceH / 2, state.pieceW, state.pieceH);
+          }
+
+          ctx.restore();
+        }
+
+        ctx.restore();
+        requestAnimationFrame(renderLoop);
+      }
+
+      /* =========================================================================
+         11. EVENTOS DE PONTEIRO (MOUSE, TOQUE E PINÇA)
+         ========================================================================= */
+      canvas.addEventListener("pointerdown", (e) => {
+        if (state.isCompleted) return;
+        canvas.setPointerCapture(e.pointerId);
+        state.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (state.activePointers.size === 2) {
+          const pts = Array.from(state.activePointers.values());
+          state.pinchStartDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          state.pinchStartZoom = state.zoom;
+          state.activeGroup = null;
+          state.isPanning = false;
+          return;
+        }
+
+        const world = screenToWorld(e.clientX, e.clientY);
+        const hit = hitTestPiece(world.x, world.y);
+
+        state.pointerDownPos = { x: e.clientX, y: e.clientY };
+        state.pointerMoved = false;
+
+        if (hit && e.button !== 2 && e.button !== 1) {
+          state.activeGroup = hit.group;
+          state.dragOffsetX = world.x;
+          state.dragOffsetY = world.y;
+          bringGroupToFront(hit.group);
+          canvas.classList.add("dragging-piece");
+          sound.playPick();
+        } else {
+          state.isPanning = true;
+          state.panStartX = e.clientX;
+          state.panStartY = e.clientY;
+          state.camStartX = state.camX;
+          state.camStartY = state.camY;
+          canvas.classList.add("panning");
+        }
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (state.activePointers.has(e.pointerId)) {
+          state.activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        }
+
+        if (state.activePointers.size === 2 && state.pinchStartDist > 0) {
+          const pts = Array.from(state.activePointers.values());
+          const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          const midX = (pts[0].x + pts[1].x) / 2;
+          const midY = (pts[0].y + pts[1].y) / 2;
+          setZoom(state.pinchStartZoom * (dist / state.pinchStartDist), midX, midY);
+          return;
+        }
+
+        if (state.pointerDownPos) {
+          const movedDist = Math.hypot(
+            e.clientX - state.pointerDownPos.x,
+            e.clientY - state.pointerDownPos.y
+          );
+          if (movedDist > 6) state.pointerMoved = true;
+        }
+
+        if (state.activeGroup) {
+          const world = screenToWorld(e.clientX, e.clientY);
+          const dx = world.x - state.dragOffsetX;
+          const dy = world.y - state.dragOffsetY;
+          state.dragOffsetX = world.x;
+          state.dragOffsetY = world.y;
+
+          state.activeGroup.pieces.forEach(p => {
+            p.x += dx;
+            p.y += dy;
+          });
+        } else if (state.isPanning) {
+          state.camX = state.camStartX + (e.clientX - state.panStartX);
+          state.camY = state.camStartY + (e.clientY - state.panStartY);
+        }
+      });
+
+      const endPointer = (e) => {
+        state.activePointers.delete(e.pointerId);
+        if (state.activePointers.size < 2) {
+          state.pinchStartDist = 0;
+        }
+
+        if (state.activeGroup) {
+          const group = state.activeGroup;
+          state.activeGroup = null;
+          canvas.classList.remove("dragging-piece");
+
+          if (!state.pointerMoved && state.rotationEnabled) {
+            rotateGroup(group, 90);
+            incrementMoves();
+          } else {
+            sound.playDrop();
+            if (state.pointerMoved) incrementMoves();
+            checkSnapForGroup(group);
+          }
+        }
+
+        if (state.isPanning) {
+          state.isPanning = false;
+          canvas.classList.remove("panning");
+        }
+      };
+
+      canvas.addEventListener("pointerup", endPointer);
+      canvas.addEventListener("pointercancel", endPointer);
+
+      canvas.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (!state.rotationEnabled || state.isCompleted) return;
+        const world = screenToWorld(e.clientX, e.clientY);
+        const hit = hitTestPiece(world.x, world.y);
+        if (hit) {
+          bringGroupToFront(hit.group);
+          rotateGroup(hit.group, 90);
+          incrementMoves();
+        }
+      });
+
+      window.addEventListener("keydown", (e) => {
+        if ((e.key === "r" || e.key === "R") && state.rotationEnabled && state.activeGroup) {
+          rotateGroup(state.activeGroup, 90);
+          incrementMoves();
+        }
+      });
+
+      canvas.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        const factor = e.deltaY < 0 ? 1.1 : 0.9;
+        setZoom(state.zoom * factor, e.clientX, e.clientY);
+      }, { passive: false });
+
+      /* =========================================================================
+         12. HUD, CRONÔMETRO, RECORDES E MODAIS
+         ========================================================================= */
+      function formatTime(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, "0");
+        const s = String(sec % 60).padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      function startTimer() {
+        stopTimer();
+        state.elapsedSeconds = 0;
+        state.movesCount = 0;
+        document.getElementById("timerDisplay").textContent = "00:00";
+        document.getElementById("movesDisplay").textContent = "0";
+        state.timerInterval = setInterval(() => {
+          state.elapsedSeconds++;
+          document.getElementById("timerDisplay").textContent = formatTime(state.elapsedSeconds);
+        }, 1000);
+      }
+
+      function incrementMoves() {
+        state.movesCount++;
+        document.getElementById("movesDisplay").textContent = String(state.movesCount);
+      }
+
+      function stopTimer() {
+        if (state.timerInterval) {
+          clearInterval(state.timerInterval);
+          state.timerInterval = null;
+        }
+      }
+
+      function updateProgressHUD() {
+        const total = state.pieces.length;
+        const connected = state.pieces.filter(p => p.group.pieces.length > 1 || p.group.lockedToBoard).length;
+        document.getElementById("progressDisplay").textContent = `${connected} / ${total}`;
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.textContent = msg;
+        toast.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => toast.classList.remove("show"), 2400);
+      }
+
+      function startNewSession() {
+        state.isCompleted = false;
+        prepareSourceImage();
+        createPuzzlePieces();
+        updateProgressHUD();
+        startTimer();
+
+        const title = state.customImage
+          ? state.customTitle
+          : (ART_GALLERY.find(a => a.id === state.selectedArtId)?.title || "Arte");
+        const orientLabel = state.boardHeight > state.boardWidth
+          ? "Vertical"
+          : (state.boardWidth === state.boardHeight ? "Quadrado" : "Horizontal");
+
+        document.getElementById("currentArtSubtitle").textContent =
+          `${title} • ${orientLabel} (${state.cols}×${state.rows} • ${state.cols * state.rows} peças)`;
+
+        document.getElementById("rotateHint").classList.toggle("visible", state.rotationEnabled);
+        document.getElementById("setupModal").classList.remove("open");
+        document.getElementById("victoryModal").classList.remove("open");
+      }
+
+      function showVictoryModal() {
+        const total = state.cols * state.rows;
+        const key = `jigsaw_best_${total}_${state.rotationEnabled ? "rot" : "std"}`;
+        const prevBest = localStorage.getItem(key);
+        let isNewRecord = false;
+
+        if (!prevBest || state.elapsedSeconds < Number(prevBest)) {
+          localStorage.setItem(key, String(state.elapsedSeconds));
+          isNewRecord = true;
+        }
+        const bestSec = Number(localStorage.getItem(key));
+        const orientLabel = state.boardHeight > state.boardWidth
+          ? "Vertical"
+          : (state.boardWidth === state.boardHeight ? "Quadrado" : "Horizontal");
+
+        document.getElementById("vTime").textContent = formatTime(state.elapsedSeconds);
+        document.getElementById("vBest").textContent = formatTime(bestSec);
+        document.getElementById("vDiff").textContent = `${state.diffName} • ${orientLabel} (${total})`;
+        document.getElementById("vRot").textContent = `${state.movesCount} mov • ${state.rotationEnabled ? "Rot. ON" : "Padrão"}`;
+        document.getElementById("newRecordBadge").style.display = isNewRecord ? "inline-block" : "none";
+        document.getElementById("victoryModal").classList.add("open");
+      }
+
+      /* =========================================================================
+         13. BINDING DOS BOTÕES E CONTROLES DA INTERFACE
+         ========================================================================= */
+      document.querySelectorAll(".format-pill").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".format-pill").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          state.formatMode = btn.dataset.format;
+          updateCustomPhotoPreview();
+          refreshDifficultyLabels();
+        });
+      });
+
+      document.querySelectorAll(".diff-pill").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".diff-pill").forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+          state.diffLevel = btn.dataset.level;
+          state.diffName = btn.dataset.name;
+        });
+      });
+
+      const rotationToggle = document.getElementById("rotationToggle");
+      rotationToggle.addEventListener("click", () => {
+        state.rotationEnabled = !state.rotationEnabled;
+        rotationToggle.classList.toggle("active", state.rotationEnabled);
+        rotationToggle.setAttribute("aria-checked", String(state.rotationEnabled));
+      });
+
+      function handleCustomPhotoFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            state.customImage = img;
+            state.customTitle = file.name.replace(/\.[^/.]+$/, "").slice(0, 26) || "Sua Foto";
+            carouselCards.forEach(el => el.classList.remove("selected"));
+
+            state.formatMode = "auto";
+            document.querySelectorAll(".format-pill").forEach(b => {
+              b.classList.toggle("selected", b.dataset.format === "auto");
+            });
+            syncSourceModeUI();
+
+            const tipo = img.height > img.width ? "Vertical" : (img.width === img.height ? "Quadrada" : "Horizontal");
+            showToast(`Foto ${tipo} "${state.customTitle}" carregada!`);
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      document.getElementById("fileInput").addEventListener("change", (e) => {
+        handleCustomPhotoFile(e.target.files?.[0]);
+        e.target.value = "";
+      });
+
+      document.getElementById("fileInputChange").addEventListener("change", (e) => {
+        handleCustomPhotoFile(e.target.files?.[0]);
+        e.target.value = "";
+      });
+
+      document.getElementById("btnBackToExamples").addEventListener("click", () => {
+        state.customImage = null;
+        goToCarouselSlide(state.carouselIndex, true);
+      });
+
+      document.getElementById("btnStartGame").addEventListener("click", startNewSession);
+      document.getElementById("btnNewGame").addEventListener("click", () => {
+        document.getElementById("setupModal").classList.add("open");
+        if (!state.customImage) {
+          requestAnimationFrame(() => goToCarouselSlide(state.carouselIndex, false));
+        }
+      });
+      document.getElementById("btnCloseSetup").addEventListener("click", () => {
+        document.getElementById("setupModal").classList.remove("open");
+      });
+
+      const guideLabels = ["Guia: Off", "Guia: Sutil", "Guia: Nítida"];
+      document.getElementById("btnGuide").addEventListener("click", () => {
+        state.guideMode = (state.guideMode + 1) % 3;
+        document.getElementById("guideLabel").textContent = guideLabels[state.guideMode];
+      });
+
+      document.getElementById("btnPreview").addEventListener("click", () => {
+        const pCanvas = document.getElementById("previewImageCanvas");
+        pCanvas.width = state.boardWidth;
+        pCanvas.height = state.boardHeight;
+        pCanvas.getContext("2d").drawImage(state.sourceCanvas, 0, 0);
+        document.getElementById("previewModal").classList.add("open");
+      });
+      document.getElementById("btnClosePreview").addEventListener("click", () => {
+        document.getElementById("previewModal").classList.remove("open");
+      });
+      document.getElementById("btnClosePreviewBottom").addEventListener("click", () => {
+        document.getElementById("previewModal").classList.remove("open");
+      });
+
+      document.getElementById("btnScatter").addEventListener("click", () => {
+        scatterLoosePieces(false);
+        showToast("Peças soltas reorganizadas ao redor do tabuleiro.");
+      });
+      document.getElementById("btnEdgesOnly").addEventListener("click", () => {
+        scatterLoosePieces(true);
+      });
+
+      document.getElementById("btnZoomIn").addEventListener("click", () => setZoom(state.zoom * 1.18));
+      document.getElementById("btnZoomOut").addEventListener("click", () => setZoom(state.zoom / 1.18));
+      document.getElementById("btnZoomReset").addEventListener("click", resetCamera);
+
+      document.getElementById("btnTheme").addEventListener("click", () => {
+        document.body.classList.toggle("light-theme");
+      });
+
+      const btnSound = document.getElementById("btnSound");
+      btnSound.addEventListener("click", () => {
+        sound.enabled = !sound.enabled;
+        btnSound.classList.toggle("active", sound.enabled);
+        showToast(sound.enabled ? "Efeitos sonoros ativados" : "Som silenciado");
+      });
+
+      document.getElementById("btnReplaySame").addEventListener("click", startNewSession);
+      document.getElementById("btnVictoryNew").addEventListener("click", () => {
+        document.getElementById("victoryModal").classList.remove("open");
+        document.getElementById("setupModal").classList.add("open");
+        if (!state.customImage) {
+          requestAnimationFrame(() => goToCarouselSlide(state.carouselIndex, false));
+        }
+      });
+
+      // Inicialização
+      window.addEventListener("resize", resizeCanvas);
+      initGalleryCarousel();
+      syncSourceModeUI();
+      resizeCanvas();
+      prepareSourceImage();
+      createPuzzlePieces();
+      updateProgressHUD();
+      requestAnimationFrame(renderLoop);
+    })();
+  </script>
+</body>
+</html>
