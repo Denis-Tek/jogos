@@ -1,0 +1,232 @@
+{
+  "meta": {
+    "titulo": "Jogo da Forca Bíblico",
+    "versao": "1.0",
+    "descricao": "Banco de dados editável com palavras, categorias, dicas e referências bíblicas."
+  },
+  "categorias": [
+    "Personagens",
+    "Livros da Bíblia",
+    "Lugares e Cidades",
+    "Objetos e Símbolos",
+    "Eventos e Milagres"
+  ],
+  "palavras": [
+    {
+      "palavra": "ABRAÃO",
+      "categoria": "Personagens",
+      "dica": "Chamado de Pai da Fé, saiu de Ur dos Caldeus rumo à terra prometida.",
+      "referencia": "Gênesis 12:1-4"
+    },
+    {
+      "palavra": "MOISÉS",
+      "categoria": "Personagens",
+      "dica": "Líder escolhido por Deus para libertar Israel do Egito e receber as Tábuas da Lei.",
+      "referencia": "Êxodo 3:10"
+    },
+    {
+      "palavra": "DAVI",
+      "categoria": "Personagens",
+      "dica": "Pastor de ovelhas que derrotou Golias e se tornou rei de Israel.",
+      "referencia": "1 Samuel 17:45-50"
+    },
+    {
+      "palavra": "ESTER",
+      "categoria": "Personagens",
+      "dica": "Rainha judia na Pérsia que arriscou sua vida para salvar seu povo.",
+      "referencia": "Ester 4:14-16"
+    },
+    {
+      "palavra": "DANIEL",
+      "categoria": "Personagens",
+      "dica": "Profeta fiel em Babilônia que sobreviveu à cova dos leões.",
+      "referencia": "Daniel 6:16-22"
+    },
+    {
+      "palavra": "RUTE",
+      "categoria": "Personagens",
+      "dica": "Moabita leal à sua sogra Noemi que se tornou bisavó do rei Davi.",
+      "referencia": "Rute 1:16"
+    },
+    {
+      "palavra": "SALOMÃO",
+      "categoria": "Personagens",
+      "dica": "Rei que pediu sabedoria a Deus e construiu o primeiro Templo em Jerusalém.",
+      "referencia": "1 Reis 3:9"
+    },
+    {
+      "palavra": "DÉBORA",
+      "categoria": "Personagens",
+      "dica": "Profetisa e juíza de Israel que liderou o povo à vitória com Baraque.",
+      "referencia": "Juízes 4:4-9"
+    },
+    {
+      "palavra": "GIDEÃO",
+      "categoria": "Personagens",
+      "dica": "Juiz de Israel que venceu os midianitas com um exército de apenas trezentos homens.",
+      "referencia": "Juízes 7:7"
+    },
+    {
+      "palavra": "PAULO",
+      "categoria": "Personagens",
+      "dica": "Apóstolo dos gentios que realizou grandes viagens missionárias e escreveu diversas epístolas.",
+      "referencia": "Atos 9:15"
+    },
+    {
+      "palavra": "ELIAS",
+      "categoria": "Personagens",
+      "dica": "Profeta que desafiou os profetas de Baal no Monte Carmelo e foi levado ao céu num redemoinho.",
+      "referencia": "2 Reis 2:11"
+    },
+    {
+      "palavra": "JOSUÉ",
+      "categoria": "Personagens",
+      "dica": "Sucessor de Moisés que liderou o povo na travessia do Jordão e na conquista de Jericó.",
+      "referencia": "Josué 1:1-9"
+    },
+    {
+      "palavra": "GÊNESIS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Primeiro livro da Bíblia; narra a Criação, o Dilúvio e a história dos patriarcas.",
+      "referencia": "Gênesis 1:1"
+    },
+    {
+      "palavra": "ÊXODO",
+      "categoria": "Livros da Bíblia",
+      "dica": "Narra a saída do povo de Israel da escravidão no Egito e a entrega dos Dez Mandamentos.",
+      "referencia": "Êxodo 20:1-17"
+    },
+    {
+      "palavra": "SALMOS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Coletânea de cânticos, orações e louvores, muitos escritos pelo rei Davi.",
+      "referencia": "Salmos 23:1"
+    },
+    {
+      "palavra": "PROVÉRBIOS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Livro poético repleto de conselhos práticos sobre sabedoria, justiça e temor do Senhor.",
+      "referencia": "Provérbios 1:7"
+    },
+    {
+      "palavra": "ISAÍAS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Grande livro profético com muitas profecias messiânicas sobre o Servo Sofredor.",
+      "referencia": "Isaías 53:5"
+    },
+    {
+      "palavra": "APOCALIPSE",
+      "categoria": "Livros da Bíblia",
+      "dica": "Último livro do Novo Testamento, escrito por João na ilha de Patmos.",
+      "referencia": "Apocalipse 1:1-9"
+    },
+    {
+      "palavra": "FILIPENSES",
+      "categoria": "Livros da Bíblia",
+      "dica": "Carta da alegria escrita por Paulo enquanto estava preso.",
+      "referencia": "Filipenses 4:4"
+    },
+    {
+      "palavra": "HEBREUS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Epístola que apresenta a galeria dos heróis da fé no capítulo 11.",
+      "referencia": "Hebreus 11:1"
+    },
+    {
+      "palavra": "JERUSALÉM",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade de Davi e capital espiritual onde ficava o Templo do Senhor.",
+      "referencia": "Salmos 122:6"
+    },
+    {
+      "palavra": "BELÉM",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade da Judeia onde nasceram o rei Davi e Jesus Cristo.",
+      "referencia": "Miqueias 5:2 / Mateus 2:1"
+    },
+    {
+      "palavra": "NAZARÉ",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade da Galileia onde Jesus cresceu e viveu sua juventude.",
+      "referencia": "Lucas 2:39-40"
+    },
+    {
+      "palavra": "MONTE SINAI",
+      "categoria": "Lugares e Cidades",
+      "dica": "Montanha no deserto onde Deus falou com Moisés e entregou a Lei.",
+      "referencia": "Êxodo 19:20"
+    },
+    {
+      "palavra": "JERICÓ",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade fortificada cujas muralhas ruíram após sete dias de marcha e toque de trombetas.",
+      "referencia": "Josué 6:20"
+    },
+    {
+      "palavra": "CAFARNAUM",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade às margens do Mar da Galileia que serviu de base para o ministério de Jesus.",
+      "referencia": "Mateus 4:13"
+    },
+    {
+      "palavra": "RIO JORDÃO",
+      "categoria": "Lugares e Cidades",
+      "dica": "Rio onde Naamã mergulhou sete vezes e onde Jesus foi batizado por João.",
+      "referencia": "Mateus 3:13"
+    },
+    {
+      "palavra": "ARCA DA ALIANÇA",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Cofre de madeira revestido de ouro que guardava as Tábuas da Lei, o maná e a vara de Arão.",
+      "referencia": "Hebreus 9:4"
+    },
+    {
+      "palavra": "MENORÁ",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Candelabro de ouro puro com sete braços usado no Tabernáculo e no Templo.",
+      "referencia": "Êxodo 25:31-32"
+    },
+    {
+      "palavra": "SHOFAR",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Instrumento de sopro feito de chifre de carneiro usado em festas e batalhas bíblicas.",
+      "referencia": "Josué 6:4"
+    },
+    {
+      "palavra": "MANÁ",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Alimento celestial enviado diariamente por Deus para sustentar Israel no deserto.",
+      "referencia": "Êxodo 16:14-15"
+    },
+    {
+      "palavra": "SARÇA ARDENTE",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Arbusto no deserto que queimava sem se consumir quando Deus chamou Moisés.",
+      "referencia": "Êxodo 3:2"
+    },
+    {
+      "palavra": "FUNDA",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Arma simples de pastor usada por Davi com uma pedra lisa para vencer o gigante.",
+      "referencia": "1 Samuel 17:49"
+    },
+    {
+      "palavra": "PENTECOSTES",
+      "categoria": "Eventos e Milagres",
+      "dica": "Dia em que o Espírito Santo desceu sobre os discípulos reunidos em Jerusalém.",
+      "referencia": "Atos 2:1-4"
+    },
+    {
+      "palavra": "TRANSFIGURAÇÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Momento em que o rosto de Jesus resplandeceu no monte e Moisés e Elias apareceram.",
+      "referencia": "Mateus 17:1-3"
+    },
+    {
+      "palavra": "MULTIPLICAÇÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Milagre em que cinco pães e dois peixinhos alimentaram uma grande multidão.",
+      "referencia": "João 6:9-11"
+    }
+  ]
+}
