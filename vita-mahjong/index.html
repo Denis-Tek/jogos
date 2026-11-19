@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Mahjong Brasil — Edição Vita</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-start: #1c2f4f;
+      --bg-end: #0c1526;
+      --tile-face: linear-gradient(165deg, #ffffff 0%, #fcf8ef 70%, #efe5cf 100%);
+      --tile-border: #d8c8a6;
+      --tile-rim-light: #cbb790;
+      --tile-rim-dark: #9c845a;
+      --tile-base-accent: #2c436b;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 42%, var(--bg-start), var(--bg-end));
+      color: #f8fafc;
+    }
+
+    .felt-texture {
+      background-image:
+        radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0),
+        radial-gradient(rgba(0, 0, 0, 0.16) 1px, transparent 0);
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+    }
+
+    /* Peça 3D Tátil com Iluminação Uniforme por Padrão */
+    .mj-tile {
+      position: absolute;
+      border-radius: var(--tile-radius, 11px);
+      cursor: pointer;
+      transition: transform 0.14s cubic-bezier(0.2, 0.9, 0.3, 1.15), opacity 0.18s ease;
+      will-change: transform, opacity;
+    }
+
+    .mj-tile-face {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: var(--tile-radius, 11px);
+      background: var(--tile-face);
+      border: 1.5px solid var(--tile-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4% 5% 5% 5%;
+      box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.98),
+        inset 0 -2px 3px rgba(135, 110, 70, 0.16);
+      overflow: hidden;
+      transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    /* Borda inferior espessa em relevo 3D (6px+) */
+    .mj-tile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--tile-radius, 11px);
+      transform: translate(var(--depth-x, 3px), var(--depth-y, 6px));
+      background: linear-gradient(145deg, var(--tile-rim-light) 0%, var(--tile-rim-dark) 62%, var(--tile-base-accent) 100%);
+      box-shadow: 2px 6px 11px rgba(0, 0, 0, 0.46);
+      z-index: -1;
+    }
+
+    /* Modo opcional "Livres": escurece suavemente peças bloqueadas */
+    .mj-tile.dim-blocked .mj-tile-face {
+      filter: brightness(0.62) saturate(0.75);
+    }
+
+    @media (hover: hover) {
+      .mj-tile:hover {
+        transform: translate(-1.5px, -2.5px);
+      }
+      .mj-tile:hover .mj-tile-face {
+        border-color: #f59e0b;
+      }
+    }
+
+    /* Peça Selecionada */
+    .mj-tile.selected {
+      transform: translate(-2px, -6px) scale(1.045) !important;
+      z-index: 95000 !important;
+    }
+    .mj-tile.selected .mj-tile-face {
+      background: linear-gradient(165deg, #fffef0 0%, #fef08a 100%);
+      border: 2.5px solid #eab308;
+      box-shadow:
+        0 0 0 3.5px rgba(250, 204, 21, 0.5),
+        inset 0 2px 0 #ffffff;
+    }
+
+    /* Destaque dourado durante a finalização automática */
+    .mj-tile.auto-highlight {
+      transform: translate(0, -4px) scale(1.08) !important;
+      z-index: 96000 !important;
+    }
+    .mj-tile.auto-highlight .mj-tile-face {
+      background: linear-gradient(165deg, #fffbeb 0%, #fde68a 100%);
+      border: 2.5px solid #f59e0b;
+      box-shadow:
+        0 0 18px 4px rgba(251, 191, 36, 0.85),
+        inset 0 2px 0 #ffffff;
+    }
+
+    /* Peça Destacada pela Dica */
+    .mj-tile.hinted {
+      animation: hintBounce 1s infinite ease-in-out;
+    }
+    .mj-tile.hinted .mj-tile-face {
+      background: linear-gradient(165deg, #ecfdf5 0%, #a7f3d0 100%);
+      border: 2.5px solid #10b981;
+      box-shadow: 0 0 0 3.5px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Feedback visual ao clicar em peça bloqueada */
+    .mj-tile.blocked-shake {
+      animation: blockedShake 0.16s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    .mj-tile.blocked-shake .mj-tile-face {
+      border-color: #f87171;
+      box-shadow: 0 0 0 2.5px rgba(248, 113, 113, 0.45);
+    }
+
+    /* Remoção manual suave */
+    .mj-tile.removing {
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.76) translateY(-6px);
+      transition: opacity 0.18s ease-out, transform 0.18s ease-out;
+    }
+
+    /* Remoção em cascata na finalização automática */
+    .mj-tile.auto-removing {
+      pointer-events: none;
+      animation: autoFinishOut 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes autoFinishOut {
+      0% {
+        opacity: 1;
+        transform: scale(1.15) translateY(-4px);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0) translateY(-28px);
+      }
+    }
+
+    @keyframes hintBounce {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-1.5px, -3.5px) scale(1.04); }
+    }
+
+    @keyframes blockedShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+      75% { transform: translateX(-3px); }
+    }
+
+    .sparkle-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 99000;
+      animation: sparkleOut 0.48s ease-out forwards;
+    }
+
+    @keyframes sparkleOut {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+    }
+
+    .btn-tactile {
+      transition: transform 0.1s ease, background-color 0.15s ease;
+    }
+    .btn-tactile:active:not(:disabled) {
+      transform: translateY(2px) scale(0.97);
+    }
+    .btn-tactile:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Oculta barra de rolagem horizontal mantendo deslize tátil fluido */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="felt-texture flex flex-col justify-between">
+
+  <!-- BARRA SUPERIOR COMPACTA NA ORDEM EXATA: 1. Som (ícone) -> 2. Livres -> 3. Peças -> 4. Temas (Bíblia, Brasil, Clássico) -> 5. Formatos -->
+  <header class="w-full px-2.5 sm:px-5 py-1.5 flex items-center justify-between gap-2 bg-black/40 backdrop-blur-md border-b border-white/10 z-30 shrink-0 overflow-x-auto no-scrollbar">
+    <!-- Grupo Esquerdo: Som, Livres e Contador de Peças -->
+    <div class="flex items-center gap-1.5 shrink-0">
+      <!-- 1. Botão de Controle de Som (somente ícone, compacto, sem texto) -->
+      <button id="soundBtn" aria-label="Alternar som" title="Ativar ou silenciar som" class="btn-tactile p-1.5 rounded-xl bg-black/55 hover:bg-white/15 text-white border border-white/15 flex items-center justify-center cursor-pointer shrink-0">
+        <svg id="soundOnIcon" viewBox="0 0 24 24" class="w-4 h-4 text-emerald-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+        <svg id="soundOffIcon" viewBox="0 0 24 24" class="w-4 h-4 text-rose-400 hidden shrink-0" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+      </button>
+
+      <!-- 2. Botão toggle 'Livres' -->
+      <button id="toggleFreeBtn" title="Opcional: escurece peças bloqueadas para acessibilidade" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer shrink-0">
+        <span id="freeDot" class="w-2 h-2 rounded-full inline-block"></span>
+        <span>Livres</span>
+      </button>
+
+      <!-- 3. Contador de Peças restantes -->
+      <div class="flex items-center gap-1 bg-black/55 px-2.5 py-1.5 rounded-xl border border-white/15 text-xs shrink-0">
+        <span class="text-slate-300 font-bold">Peças:</span>
+        <span id="remainingCount" class="font-black text-amber-300">72</span>
+      </div>
+    </div>
+
+    <!-- Grupo Direito: 4. Seletor de Temas (Bíblia padrão, Brasil, Clássico) -> 5. Formatos/Tamanhos -->
+    <div class="flex items-center gap-1.5 shrink-0 sm:ml-auto">
+      <div class="flex items-center bg-black/55 p-0.5 rounded-xl border border-white/15 shrink-0" role="group" aria-label="Tema de símbolos">
+        <button data-theme="biblia" class="theme-btn px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0">
+          🕊️ Bíblia
+        </button>
+        <button data-theme="brasil" class="theme-btn px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0">
+          🇧🇷 Brasil
+        </button>
+        <button data-theme="classico" class="theme-btn px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0">
+          🀄 Clássico
+        </button>
+      </div>
+
+      <select id="layoutSelect" aria-label="Formato do tabuleiro" class="bg-black/55 text-white text-xs font-bold px-2.5 py-1.5 rounded-xl border border-white/15 focus:outline-none focus:border-amber-400 cursor-pointer shrink-0">
+        <option value="desafio_rapido">Desafio Rápido (48)</option>
+        <option value="piramide">Pirâmide (60)</option>
+        <option value="pao_acucar" selected>Pão de Açúcar (72)</option>
+        <option value="coroa">Coroa (84)</option>
+        <option value="catedral">Catedral (96)</option>
+      </select>
+    </div>
+  </header>
+
+  <!-- ÁREA CENTRAL DO TABULEIRO -->
+  <main id="boardViewport" class="relative flex-1 w-full overflow-hidden flex items-center justify-center">
+    <div id="toastBanner" class="pointer-events-none absolute top-2 left-1/2 -translate-x-1/2 z-40 px-3.5 py-1 rounded-full bg-amber-400 text-slate-950 font-extrabold text-xs shadow-lg opacity-0 transition-opacity duration-200">
+      Par combinado!
+    </div>
+
+    <!-- Indicador discreto durante a finalização automática -->
+    <div id="autoFinishBadge" class="pointer-events-none hidden absolute top-3 left-1/2 -translate-x-1/2 z-50 px-4 py-1.5 rounded-full bg-slate-900/90 border border-amber-400/70 text-amber-300 font-extrabold text-xs tracking-wide shadow-xl items-center gap-2 backdrop-blur-md">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+      <span>Finalizando...</span>
+    </div>
+
+    <div id="boardContainer" class="relative shrink-0"></div>
+  </main>
+
+  <!-- BARRA INFERIOR COM ROLAGEM HORIZONTAL E BOTÕES GRANDES -->
+  <footer class="w-full bg-black/40 backdrop-blur-md border-t border-white/10 z-30 shrink-0">
+    <div class="w-full max-w-4xl mx-auto flex items-center sm:justify-center gap-2 overflow-x-auto no-scrollbar px-3 py-2">
+      <button id="undoBtn" class="btn-tactile shrink-0 flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-slate-800/95 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm border border-white/15 shadow-md cursor-pointer">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>
+        </svg>
+        <span>Desfazer</span>
+      </button>
+
+      <button id="hintBtn" class="btn-tactile shrink-0 flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm border border-emerald-300/30 shadow-md cursor-pointer">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/>
+        </svg>
+        <span>Dica</span>
+      </button>
+
+      <button id="shuffleBtn" class="btn-tactile shrink-0 flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs sm:text-sm border border-amber-200/50 shadow-md cursor-pointer">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/>
+        </svg>
+        <span>Embaralhar</span>
+      </button>
+
+      <button id="newGameBtn" class="btn-tactile shrink-0 flex items-center justify-center gap-1.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-slate-800/95 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm border border-white/15 shadow-md cursor-pointer">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 sm:w-5 sm:h-5 text-sky-300 shrink-0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+        </svg>
+        <span>Novo Jogo</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- MODAL NO NÍVEL RAIZ DO BODY COM Z-INDEX 999999 E BACKDROP ESCURO -->
+  <div id="gameModal" style="z-index: 999999; background-color: rgba(10, 15, 28, 0.84);" class="fixed inset-0 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-amber-400/50 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl">
+      <div id="modalIcon" class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-gradient-to-br from-amber-400 to-emerald-500 flex items-center justify-center text-3xl shadow-lg">
+        🏆
+      </div>
+      <h2 id="modalTitle" class="text-2xl font-extrabold text-white mb-1">Tabuleiro Concluído!</h2>
+      <p id="modalDesc" class="text-sm text-slate-300 mb-5">Todas as peças foram combinadas com sucesso.</p>
+
+      <div id="modalStats" class="grid grid-cols-2 gap-2 bg-black/40 p-3 rounded-2xl border border-white/10 mb-5">
+        <div>
+          <span class="block text-[11px] text-slate-400 uppercase">Tempo</span>
+          <span id="modalTime" class="text-base font-extrabold text-white">00:00</span>
+        </div>
+        <div>
+          <span class="block text-[11px] text-slate-400 uppercase">Pontuação</span>
+          <span id="modalScore" class="text-base font-extrabold text-amber-300">0</span>
+        </div>
+      </div>
+
+      <div id="modalActions" class="flex flex-col sm:flex-row gap-2.5 justify-center"></div>
+    </div>
+  </div>
+
+<script>
+/**
+ * ============================================================================
+ * MAHJONG BRASIL — EDIÇÃO VITA (SINGLE-FILE)
+ * - Barra superior na ordem exata: Som -> Livres -> Peças -> Temas (Bíblia, Brasil, Clássico) -> Formatos
+ * - 34 tipos únicos de peças com SVG vetorial nítido e combinação estrita (typeId === typeId)
+ * - 5 tabuleiros verticais compactos (máx. 6 colunas): 48, 60, 72, 84 e 96 peças
+ * - Gerador 100% solucionável + Embaralhamento com dispersão espacial
+ * - Finalização automática em cascata (Auto-Finish) com escala pentatônica ascendente
+ * ============================================================================
+ */
+
+/* ------------------------- 1. ÁUDIO PROCEDURAL (WEB AUDIO API) ------------------------- */
+class SoundFX {
+  constructor() {
+    this.ctx = null;
+    this.muted = false;
+  }
+
+  ensureCtx() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  // Toque tátil de madeira/marfim
+  playClick() {
+    if (this.muted) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(640, t);
+    osc.frequency.exponentialRampToValueAtTime(210, t + 0.048);
+    gain.gain.setValueAtTime(0.22, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.052);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.055);
+  }
+
+  // Som grave abafado de bloqueio
+  playBlocked() {
+    if (this.muted) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(135, t);
+    osc.frequency.exponentialRampToValueAtTime(82, t + 0.11);
+    gain.gain.setValueAtTime(0.24, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.125);
+  }
+
+  // Combinação de par com pitch progressivo
+  playMatch(combo = 1) {
+    if (this.muted) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const root = 523.25 * Math.pow(1.06, Math.min(combo - 1, 8));
+
+    [root, root * 1.25, root * 1.5].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = idx === 0 ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(freq, t + idx * 0.03);
+      gain.gain.setValueAtTime(0.16 / (idx + 1), t + idx * 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.03 + 0.24);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t + idx * 0.03);
+      osc.stop(t + idx * 0.03 + 0.26);
+    });
+  }
+
+  // Escala pentatônica ascendente para a finalização automática
+  playPentatonicStep(stepIndex = 0) {
+    if (this.muted) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const semitoneOffsets = [0, 2, 4, 7, 9];
+    const octave = Math.floor(stepIndex / 5);
+    const degree = semitoneOffsets[stepIndex % 5];
+    const totalSemitones = Math.min(octave * 12 + degree, 28);
+    const freq = 523.25 * Math.pow(2, totalSemitones / 12);
+
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc1.type = 'triangle';
+    osc2.type = 'sine';
+    osc1.frequency.setValueAtTime(freq, t);
+    osc2.frequency.setValueAtTime(freq * 2, t);
+
+    gain.gain.setValueAtTime(0.19, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + 0.25);
+    osc2.stop(t + 0.25);
+  }
+
+  // Embaralhar
+  playShuffle() {
+    if (this.muted) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    for (let i = 0; i < 6; i++) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(290 + i * 70, t + i * 0.038);
+      gain.gain.setValueAtTime(0.12, t + i * 0.038);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.038 + 0.045);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t + i * 0.038);
+      osc.stop(t + i * 0.038 + 0.05);
+    }
+  }
+
+  // Fanfarra de vitória
+  playVictory() {
+    if (this.muted) return;
+    this.ensureCtx();
+    if (!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.50, 783.99, 1046.50];
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, t + idx * 0.11);
+      gain.gain.setValueAtTime(0.2, t + idx * 0.11);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + idx * 0.11 + 0.38);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t + idx * 0.11);
+      osc.stop(t + idx * 0.11 + 0.4);
+    });
+  }
+}
+
+const sfx = new SoundFX();
+
+/* ------------------------- 2. CATÁLOGO EXATO DOS 3 TEMAS (34 TIPOS ÚNICOS) ------------------------- */
+const TILE_TYPES = [
+  // === NAIPE 1 (1 a 9): Criação/Natureza (Bíblia) | Fauna (Brasil) | Bambus (Clássico) ===
+  { id: 0,
+    biblia: { label: 'Sol/Lua', badge: '1', color: '#d97706', bg: '#fef3c7', suit: '#0284c7', icon: 'sol_lua' },
+    brasil: { label: 'Arara', badge: '1', color: '#0284c7', bg: '#e0f2fe', suit: '#16a34a', icon: 'arara' },
+    classico: { label: '1 Bambu', badge: '1', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_1' } },
+  { id: 1,
+    biblia: { label: 'Arco-íris', badge: '2', color: '#0284c7', bg: '#e0f2fe', suit: '#0284c7', icon: 'arco_iris' },
+    brasil: { label: 'Onça', badge: '2', color: '#b45309', bg: '#fef3c7', suit: '#16a34a', icon: 'onca' },
+    classico: { label: '2 Bambu', badge: '2', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_2' } },
+  { id: 2,
+    biblia: { label: 'Pomba', badge: '3', color: '#0369a1', bg: '#e0f2fe', suit: '#0284c7', icon: 'pomba' },
+    brasil: { label: 'Tucano', badge: '3', color: '#ea580c', bg: '#ffedd5', suit: '#16a34a', icon: 'tucano' },
+    classico: { label: '3 Bambu', badge: '3', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_3' } },
+  { id: 3,
+    biblia: { label: 'Videira', badge: '4', color: '#7e22ce', bg: '#f3e8ff', suit: '#0284c7', icon: 'videira' },
+    brasil: { label: 'Capivara', badge: '4', color: '#78350f', bg: '#fef3c7', suit: '#16a34a', icon: 'capivara' },
+    classico: { label: '4 Bambu', badge: '4', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_4' } },
+  { id: 4,
+    biblia: { label: 'Trigo', badge: '5', color: '#b45309', bg: '#fef3c7', suit: '#0284c7', icon: 'trigo' },
+    brasil: { label: 'Mico', badge: '5', color: '#c2410c', bg: '#ffedd5', suit: '#16a34a', icon: 'mico' },
+    classico: { label: '5 Bambu', badge: '5', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_5' } },
+  { id: 5,
+    biblia: { label: 'Oliveira', badge: '6', color: '#15803d', bg: '#dcfce7', suit: '#0284c7', icon: 'oliveira' },
+    brasil: { label: 'Tartaruga', badge: '6', color: '#0f766e', bg: '#ccfbf1', suit: '#16a34a', icon: 'tartaruga' },
+    classico: { label: '6 Bambu', badge: '6', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_6' } },
+  { id: 6,
+    biblia: { label: 'Cordeiro', badge: '7', color: '#475569', bg: '#f1f5f9', suit: '#0284c7', icon: 'cordeiro' },
+    brasil: { label: 'Boto', badge: '7', color: '#be185d', bg: '#fce7f3', suit: '#16a34a', icon: 'boto' },
+    classico: { label: '7 Bambu', badge: '7', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_7' } },
+  { id: 7,
+    biblia: { label: 'Peixe', badge: '8', color: '#0284c7', bg: '#e0f2fe', suit: '#0284c7', icon: 'peixe' },
+    brasil: { label: 'Tamanduá', badge: '8', color: '#374151', bg: '#f3f4f6', suit: '#16a34a', icon: 'tamandua' },
+    classico: { label: '8 Bambu', badge: '8', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_8' } },
+  { id: 8,
+    biblia: { label: 'Leão', badge: '9', color: '#b45309', bg: '#fef3c7', suit: '#0284c7', icon: 'leao' },
+    brasil: { label: 'Lobo', badge: '9', color: '#b91c1c', bg: '#fee2e2', suit: '#16a34a', icon: 'lobo' },
+    classico: { label: '9 Bambu', badge: '9', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'bambu_9' } },
+
+  // === NAIPE 2 (1 a 9): Objetos Sagrados (Bíblia) | Flora/Frutas (Brasil) | Círculos (Clássico) ===
+  { id: 9,
+    biblia: { label: 'Tábuas', badge: '1', color: '#475569', bg: '#f1f5f9', suit: '#d97706', icon: 'tabuas' },
+    brasil: { label: 'Açaí', badge: '1', color: '#6b21a8', bg: '#f3e8ff', suit: '#eab308', icon: 'acai' },
+    classico: { label: '1 Círc.', badge: '1', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_1' } },
+  { id: 10,
+    biblia: { label: 'Menorá', badge: '2', color: '#b45309', bg: '#fef3c7', suit: '#d97706', icon: 'menora' },
+    brasil: { label: 'Caju', badge: '2', color: '#dc2626', bg: '#fee2e2', suit: '#eab308', icon: 'caju' },
+    classico: { label: '2 Círc.', badge: '2', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_2' } },
+  { id: 11,
+    biblia: { label: 'Arca', badge: '3', color: '#ca8a04', bg: '#fef9c3', suit: '#d97706', icon: 'arca_alianca' },
+    brasil: { label: 'Guaraná', badge: '3', color: '#b91c1c', bg: '#fee2e2', suit: '#eab308', icon: 'guarana' },
+    classico: { label: '3 Círc.', badge: '3', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_3' } },
+  { id: 12,
+    biblia: { label: 'Rolo', badge: '4', color: '#92400e', bg: '#fef3c7', suit: '#d97706', icon: 'pergaminho' },
+    brasil: { label: 'Abacaxi', badge: '4', color: '#d97706', bg: '#fef3c7', suit: '#eab308', icon: 'abacaxi' },
+    classico: { label: '4 Círc.', badge: '4', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_4' } },
+  { id: 13,
+    biblia: { label: 'Harpa', badge: '5', color: '#b45309', bg: '#fef3c7', suit: '#d97706', icon: 'harpa' },
+    brasil: { label: 'Ipê', badge: '5', color: '#ca8a04', bg: '#fef9c3', suit: '#eab308', icon: 'ipe' },
+    classico: { label: '5 Círc.', badge: '5', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_5' } },
+  { id: 14,
+    biblia: { label: 'Shofar', badge: '6', color: '#78350f', bg: '#fef3c7', suit: '#d97706', icon: 'shofar' },
+    brasil: { label: 'Vitória', badge: '6', color: '#059669', bg: '#d1fae5', suit: '#eab308', icon: 'vitoria_regia' },
+    classico: { label: '6 Círc.', badge: '6', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_6' } },
+  { id: 15,
+    biblia: { label: 'Cálice', badge: '7', color: '#9f1239', bg: '#ffe4e6', suit: '#d97706', icon: 'calice' },
+    brasil: { label: 'Araucária', badge: '7', color: '#166534', bg: '#dcfce7', suit: '#eab308', icon: 'araucaria' },
+    classico: { label: '7 Círc.', badge: '7', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_7' } },
+  { id: 16,
+    biblia: { label: 'Âncora', badge: '8', color: '#1e40af', bg: '#dbeafe', suit: '#d97706', icon: 'ancora' },
+    brasil: { label: 'Café', badge: '8', color: '#5c2d16', bg: '#f5ebe0', suit: '#eab308', icon: 'cafe' },
+    classico: { label: '8 Círc.', badge: '8', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_8' } },
+  { id: 17,
+    biblia: { label: 'Lâmpada', badge: '9', color: '#d97706', bg: '#fef3c7', suit: '#d97706', icon: 'lampada' },
+    brasil: { label: 'Cacau', badge: '9', color: '#9a3412', bg: '#ffedd5', suit: '#eab308', icon: 'cacau' },
+    classico: { label: '9 Círc.', badge: '9', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'circ_9' } },
+
+  // === NAIPE 3 (1 a 9): História/Fé (Bíblia) | Cultura (Brasil) | Caracteres (Clássico) ===
+  { id: 18,
+    biblia: { label: 'Noé', badge: '1', color: '#0369a1', bg: '#e0f2fe', suit: '#991b1b', icon: 'arca_noe' },
+    brasil: { label: 'Pandeiro', badge: '1', color: '#d97706', bg: '#fef3c7', suit: '#0284c7', icon: 'pandeiro' },
+    classico: { label: '1 Caract.', badge: '1', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_1' } },
+  { id: 19,
+    biblia: { label: 'Sarça', badge: '2', color: '#dc2626', bg: '#fee2e2', suit: '#991b1b', icon: 'sarca' },
+    brasil: { label: 'Violão', badge: '2', color: '#92400e', bg: '#fef3c7', suit: '#0284c7', icon: 'violao' },
+    classico: { label: '2 Caract.', badge: '2', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_2' } },
+  { id: 20,
+    biblia: { label: 'Estrela', badge: '3', color: '#ca8a04', bg: '#fef9c3', suit: '#991b1b', icon: 'estrela_belem' },
+    brasil: { label: 'Berimbau', badge: '3', color: '#15803d', bg: '#dcfce7', suit: '#0284c7', icon: 'berimbau' },
+    classico: { label: '3 Caract.', badge: '3', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_3' } },
+  { id: 21,
+    biblia: { label: 'Coroa', badge: '4', color: '#b45309', bg: '#fef3c7', suit: '#991b1b', icon: 'coroa' },
+    brasil: { label: 'Cristo', badge: '4', color: '#0284c7', bg: '#e0f2fe', suit: '#0284c7', icon: 'cristo' },
+    classico: { label: '4 Caract.', badge: '4', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_4' } },
+  { id: 22,
+    biblia: { label: 'Funda', badge: '5', color: '#475569', bg: '#f1f5f9', suit: '#991b1b', icon: 'funda' },
+    brasil: { label: 'Pão Açúcar', badge: '5', color: '#0d9488', bg: '#ccfbf1', suit: '#0284c7', icon: 'pao_acucar' },
+    classico: { label: '5 Caract.', badge: '5', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_5' } },
+  { id: 23,
+    biblia: { label: 'Escudo', badge: '6', color: '#1d4ed8', bg: '#dbeafe', suit: '#991b1b', icon: 'escudo' },
+    brasil: { label: 'Chapéu', badge: '6', color: '#b45309', bg: '#fef3c7', suit: '#0284c7', icon: 'cangaceiro' },
+    classico: { label: '6 Caract.', badge: '6', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_6' } },
+  { id: 24,
+    biblia: { label: 'Poço', badge: '7', color: '#0284c7', bg: '#e0f2fe', suit: '#991b1b', icon: 'poco' },
+    brasil: { label: 'Chimarrão', badge: '7', color: '#166534', bg: '#dcfce7', suit: '#0284c7', icon: 'chimarrao' },
+    classico: { label: '7 Caract.', badge: '7', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_7' } },
+  { id: 25,
+    biblia: { label: 'Sinai', badge: '8', color: '#6d28d9', bg: '#ede9fe', suit: '#991b1b', icon: 'monte' },
+    brasil: { label: 'Boi', badge: '8', color: '#be123c', bg: '#ffe4e6', suit: '#0284c7', icon: 'boi' },
+    classico: { label: '8 Caract.', badge: '8', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_8' } },
+  { id: 26,
+    biblia: { label: 'Cruz', badge: '9', color: '#991b1b', bg: '#fee2e2', suit: '#991b1b', icon: 'cruz' },
+    brasil: { label: 'Filtro', badge: '9', color: '#c2410c', bg: '#ffedd5', suit: '#0284c7', icon: 'filtro' },
+    classico: { label: '9 Caract.', badge: '9', color: '#b91c1c', bg: '#fee2e2', suit: '#b91c1c', icon: 'wan_9' } },
+
+  // === HONRAS 1 (4 peças): Evangelistas (Bíblia) | Biomas (Brasil) | Ventos (Clássico) ===
+  { id: 27,
+    biblia: { label: 'Mateus', badge: 'MT', color: '#1d4ed8', bg: '#dbeafe', suit: '#4338ca', icon: 'mateus' },
+    brasil: { label: 'Amazônia', badge: 'AM', color: '#15803d', bg: '#dcfce7', suit: '#0f766e', icon: 'amazonia' },
+    classico: { label: 'Leste', badge: '東', color: '#1e293b', bg: '#f1f5f9', suit: '#334155', icon: 'vento_leste' } },
+  { id: 28,
+    biblia: { label: 'Marcos', badge: 'MC', color: '#b45309', bg: '#fef3c7', suit: '#4338ca', icon: 'marcos' },
+    brasil: { label: 'Cerrado', badge: 'CE', color: '#b45309', bg: '#fef3c7', suit: '#0f766e', icon: 'cerrado' },
+    classico: { label: 'Sul', badge: '南', color: '#1e293b', bg: '#f1f5f9', suit: '#334155', icon: 'vento_sul' } },
+  { id: 29,
+    biblia: { label: 'Lucas', badge: 'LC', color: '#15803d', bg: '#dcfce7', suit: '#4338ca', icon: 'lucas' },
+    brasil: { label: 'Caatinga', badge: 'CA', color: '#c2410c', bg: '#ffedd5', suit: '#0f766e', icon: 'caatinga' },
+    classico: { label: 'Oeste', badge: '西', color: '#1e293b', bg: '#f1f5f9', suit: '#334155', icon: 'vento_oeste' } },
+  { id: 30,
+    biblia: { label: 'João', badge: 'JO', color: '#6d28d9', bg: '#ede9fe', suit: '#4338ca', icon: 'joao' },
+    brasil: { label: 'Mata', badge: 'MA', color: '#0f766e', bg: '#ccfbf1', suit: '#0f766e', icon: 'mata' },
+    classico: { label: 'Norte', badge: '北', color: '#1e293b', bg: '#f1f5f9', suit: '#334155', icon: 'vento_norte' } },
+
+  // === HONRAS 2 (3 peças): Virtudes (Bíblia) | Ritmos (Brasil) | Dragões (Clássico) ===
+  { id: 31,
+    biblia: { label: 'Fé', badge: 'FE', color: '#1d4ed8', bg: '#dbeafe', suit: '#1d4ed8', icon: 'fe' },
+    brasil: { label: 'Samba', badge: 'SA', color: '#be123c', bg: '#ffe4e6', suit: '#be123c', icon: 'samba' },
+    classico: { label: 'Vermelho', badge: '中', color: '#dc2626', bg: '#fee2e2', suit: '#dc2626', icon: 'dragao_verm' } },
+  { id: 32,
+    biblia: { label: 'Esperança', badge: 'ES', color: '#059669', bg: '#d1fae5', suit: '#059669', icon: 'esperanca' },
+    brasil: { label: 'Frevo', badge: 'FR', color: '#0284c7', bg: '#e0f2fe', suit: '#0284c7', icon: 'frevo' },
+    classico: { label: 'Verde', badge: '發', color: '#15803d', bg: '#dcfce7', suit: '#15803d', icon: 'dragao_verde' } },
+  { id: 33,
+    biblia: { label: 'Amor', badge: 'AM', color: '#dc2626', bg: '#fee2e2', suit: '#dc2626', icon: 'amor' },
+    brasil: { label: 'Forró', badge: 'FO', color: '#d97706', bg: '#fef3c7', suit: '#d97706', icon: 'forro' },
+    classico: { label: 'Branco', badge: '白', color: '#1e40af', bg: '#dbeafe', suit: '#1e40af', icon: 'dragao_branco' } }
+];
+
+/* ------------------------- 3. RENDERIZAÇÃO SVG VETORIAL NÍTIDA ------------------------- */
+function getTileSVG(iconKey) {
+  const drawCircles = (count) => {
+    const coords = {
+      1: [[50, 50, 28]],
+      2: [[50, 30, 16], [50, 70, 16]],
+      3: [[28, 28, 13], [50, 50, 13], [72, 72, 13]],
+      4: [[32, 32, 14], [68, 32, 14], [32, 68, 14], [68, 68, 14]],
+      5: [[28, 28, 12], [72, 28, 12], [50, 50, 12], [28, 72, 12], [72, 72, 12]],
+      6: [[34, 24, 11], [66, 24, 11], [34, 50, 11], [66, 50, 11], [34, 76, 11], [66, 76, 11]],
+      7: [[26, 22, 9], [50, 30, 9], [74, 38, 9], [34, 58, 9.5], [66, 58, 9.5], [34, 80, 9.5], [66, 80, 9.5]],
+      8: [[34, 20, 9], [66, 20, 9], [34, 40, 9], [66, 40, 9], [34, 60, 9], [66, 60, 9], [34, 80, 9], [66, 80, 9]],
+      9: [[26, 24, 9], [50, 24, 9], [74, 24, 9], [26, 50, 9], [50, 50, 9], [74, 50, 9], [26, 76, 9], [50, 76, 9], [74, 76, 9]]
+    }[count] || [[50, 50, 22]];
+
+    return coords.map(([cx, cy, r], i) => {
+      const c = count === 1 ? '#dc2626' : (i % 2 === 0 ? '#1d4ed8' : '#15803d');
+      return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" stroke="#fff" stroke-width="2"/><circle cx="${cx}" cy="${cy}" r="${r * 0.45}" fill="none" stroke="#fff" stroke-width="2"/>`;
+    }).join('');
+  };
+
+  const drawBamboos = (count) => {
+    if (count === 1) {
+      return `<path d="M24 66 Q45 24 76 34 Q60 55 72 76 Q48 66 24 66 Z" fill="#15803d"/><circle cx="62" cy="40" r="3.5" fill="#fff"/><path d="M74 36 L86 33 L75 42 Z" fill="#dc2626"/>`;
+    }
+    const cols = count <= 3 ? count : Math.ceil(count / 2);
+    let sticks = '';
+    for (let i = 0; i < count; i++) {
+      const row = count <= 3 ? 0 : Math.floor(i / cols);
+      const col = count <= 3 ? i : i % cols;
+      const totalInRow = count <= 3 ? count : (row === 0 ? cols : count - cols);
+      const x = 50 + (col - (totalInRow - 1) / 2) * 23;
+      const y = count <= 3 ? 20 : (row === 0 ? 15 : 53);
+      const h = count <= 3 ? 60 : 34;
+      const c = i % 2 === 0 ? '#15803d' : '#1d4ed8';
+      sticks += `<rect x="${x - 4.5}" y="${y}" width="9" height="${h}" rx="4.5" fill="${c}"/><line x1="${x - 5.5}" y1="${y + h / 2}" x2="${x + 5.5}" y2="${y + h / 2}" stroke="#fff" stroke-width="2"/>`;
+    }
+    return sticks;
+  };
+
+  if (iconKey.startsWith('circ_')) return `<svg viewBox="0 0 100 100" class="w-full h-full">${drawCircles(Number(iconKey.split('_')[1]))}</svg>`;
+  if (iconKey.startsWith('bambu_')) return `<svg viewBox="0 0 100 100" class="w-full h-full">${drawBamboos(Number(iconKey.split('_')[1]))}</svg>`;
+  if (iconKey.startsWith('wan_')) {
+    const chars = ['一','二','三','四','五','六','七','八','九'];
+    const ch = chars[Number(iconKey.split('_')[1]) - 1];
+    return `<svg viewBox="0 0 100 100" class="w-full h-full"><text x="50" y="44" text-anchor="middle" font-size="40" font-weight="900" fill="#1e293b">${ch}</text><text x="50" y="85" text-anchor="middle" font-size="38" font-weight="900" fill="#dc2626">萬</text></svg>`;
+  }
+
+  const icons = {
+    // BÍBLIA
+    sol_lua: `<circle cx="39" cy="44" r="18.5" fill="#f59e0b"/><path d="M64 33 A18.5 18.5 0 1 0 75 69 A14.5 14.5 0 1 1 64 33 Z" fill="#1e3a8a"/>`,
+    arco_iris: `<path d="M17 73 A33 33 0 0 1 83 73" stroke="#ef4444" stroke-width="6.5" fill="none"/><path d="M23 73 A27 27 0 0 1 77 73" stroke="#facc15" stroke-width="6.5" fill="none"/><path d="M29 73 A21 21 0 0 1 71 73" stroke="#22c55e" stroke-width="6.5" fill="none"/><path d="M35 73 A15 15 0 0 1 65 73" stroke="#3b82f6" stroke-width="6.5" fill="none"/>`,
+    pomba: `<path d="M23 54 C38 35 56 35 69 27 C64 46 75 58 60 67 C48 73 33 67 23 54 Z" fill="#0284c7"/><path d="M66 34 L83 40" stroke="#16a34a" stroke-width="3.5" stroke-linecap="round"/>`,
+    videira: `<circle cx="39" cy="44" r="9.5" fill="#7e22ce"/><circle cx="61" cy="44" r="9.5" fill="#9333ea"/><circle cx="50" cy="58" r="9.5" fill="#6b21a8"/><circle cx="41" cy="71" r="8.5" fill="#7e22ce"/><circle cx="59" cy="71" r="8.5" fill="#9333ea"/><path d="M50 34 V19 L63 23" stroke="#15803d" stroke-width="4.5" fill="none"/>`,
+    trigo: `<line x1="50" y1="85" x2="50" y2="19" stroke="#b45309" stroke-width="4.5"/><ellipse cx="40" cy="32" rx="6.5" ry="10.5" transform="rotate(-30 40 32)" fill="#f59e0b"/><ellipse cx="60" cy="32" rx="6.5" ry="10.5" transform="rotate(30 60 32)" fill="#f59e0b"/><ellipse cx="40" cy="52" rx="6.5" ry="10.5" transform="rotate(-30 40 52)" fill="#f59e0b"/><ellipse cx="60" cy="52" rx="6.5" ry="10.5" transform="rotate(30 60 52)" fill="#f59e0b"/>`,
+    oliveira: `<path d="M25 75 Q52 54 75 25" stroke="#15803d" stroke-width="5" fill="none"/><ellipse cx="43" cy="44" rx="10.5" ry="5.5" transform="rotate(-40 43 44)" fill="#22c55e"/><ellipse cx="63" cy="48" rx="10.5" ry="5.5" transform="rotate(20 63 48)" fill="#16a34a"/><circle cx="54" cy="61" r="5.5" fill="#1e293b"/>`,
+    cordeiro: `<circle cx="50" cy="54" r="25" fill="#cbd5e1"/><circle cx="50" cy="56" r="14.5" fill="#475569"/><ellipse cx="31" cy="48" rx="8.5" ry="5.5" fill="#475569"/><ellipse cx="69" cy="48" rx="8.5" ry="5.5" fill="#475569"/><circle cx="45" cy="54" r="2.5" fill="#fff"/><circle cx="55" cy="54" r="2.5" fill="#fff"/>`,
+    peixe: `<path d="M19 50 Q50 21 83 65 M19 50 Q50 79 83 35" stroke="#0284c7" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="34" cy="48" r="3.5" fill="#0284c7"/>`,
+    leao: `<circle cx="50" cy="52" r="31" fill="#b45309"/><circle cx="50" cy="52" r="21" fill="#f59e0b"/><circle cx="43" cy="48" r="3" fill="#1e293b"/><circle cx="57" cy="48" r="3" fill="#1e293b"/><polygon points="46,56 54,56 50,63" fill="#78350f"/>`,
+    tabuas: `<path d="M23 34 A12.5 12.5 0 0 1 48 34 V79 H23 Z" fill="#64748b"/><path d="M52 34 A12.5 12.5 0 0 1 77 34 V79 H52 Z" fill="#475569"/><line x1="29" y1="42" x2="42" y2="42" stroke="#f8fafc" stroke-width="3"/><line x1="29" y1="53" x2="42" y2="53" stroke="#f8fafc" stroke-width="3"/><line x1="58" y1="42" x2="71" y2="42" stroke="#f8fafc" stroke-width="3"/><line x1="58" y1="53" x2="71" y2="53" stroke="#f8fafc" stroke-width="3"/>`,
+    menora: `<rect x="47" y="23" width="6" height="56" fill="#d97706"/><rect x="33" y="77" width="34" height="6.5" rx="2" fill="#b45309"/><path d="M23 29 V44 A27 21 0 0 0 77 44 V29" stroke="#d97706" stroke-width="5" fill="none"/><path d="M33 29 V42 A17 13 0 0 0 67 42 V29" stroke="#d97706" stroke-width="5" fill="none"/>`,
+    arca_alianca: `<rect x="25" y="42" width="50" height="29" rx="3" fill="#eab308"/><line x1="15" y1="62" x2="85" y2="62" stroke="#92400e" stroke-width="5.5" stroke-linecap="round"/><path d="M31 42 Q42 25 48 38 M69 42 Q58 25 52 38" stroke="#ca8a04" stroke-width="4.5" fill="none"/>`,
+    pergaminho: `<rect x="27" y="25" width="46" height="50" fill="#fef3c7" stroke="#92400e" stroke-width="3"/><rect x="21" y="21" width="58" height="8.5" rx="4" fill="#b45309"/><rect x="21" y="71" width="58" height="8.5" rx="4" fill="#b45309"/><line x1="35" y1="42" x2="65" y2="42" stroke="#78350f" stroke-width="3"/><line x1="35" y1="55" x2="65" y2="55" stroke="#78350f" stroke-width="3"/>`,
+    harpa: `<path d="M31 21 V79 H69 C69 54 50 48 50 21 Z" fill="none" stroke="#b45309" stroke-width="6.5" stroke-linejoin="round"/><line x1="41" y1="25" x2="41" y2="77" stroke="#f59e0b" stroke-width="2.5"/><line x1="50" y1="36" x2="50" y2="77" stroke="#f59e0b" stroke-width="2.5"/><line x1="59" y1="48" x2="59" y2="77" stroke="#f59e0b" stroke-width="2.5"/>`,
+    shofar: `<path d="M23 68 C46 73 65 56 77 23 L85 27 C73 67 50 83 21 77 Z" fill="#92400e"/>`,
+    calice: `<path d="M33 23 H67 L61 48 C59 56 41 56 39 48 Z" fill="#d97706"/><rect x="47" y="54" width="6" height="21" fill="#b45309"/><rect x="35" y="75" width="30" height="6.5" rx="3" fill="#b45309"/>`,
+    ancora: `<circle cx="50" cy="23" r="6.5" fill="none" stroke="#1e40af" stroke-width="4.5"/><line x1="50" y1="29" x2="50" y2="79" stroke="#1e40af" stroke-width="5.5"/><line x1="33" y1="40" x2="67" y2="40" stroke="#1e40af" stroke-width="5.5"/><path d="M25 62 A25 21 0 0 0 75 62" stroke="#1e40af" stroke-width="5.5" fill="none"/>`,
+    lampada: `<path d="M23 56 H65 L77 48 L63 69 H27 Z" fill="#d97706"/><path d="M77 44 Q83 31 75 25 Q69 34 77 44 Z" fill="#ef4444"/>`,
+    arca_noe: `<polygon points="19,54 81,54 71,77 29,77" fill="#78350f"/><rect x="31" y="35" width="38" height="19" fill="#b45309"/><polygon points="27,35 50,21 73,35" fill="#92400e"/>`,
+    sarca: `<rect x="46" y="58" width="8" height="25" fill="#78350f"/><circle cx="50" cy="44" r="21" fill="#16a34a"/><path d="M50 21 Q63 36 50 53 Q37 36 50 21 Z" fill="#ef4444"/><path d="M37 34 Q46 44 37 54 Q29 44 37 34 Z" fill="#f97316"/><path d="M63 34 Q71 44 63 54 Q54 44 63 34 Z" fill="#f97316"/>`,
+    estrela_belem: `<polygon points="50,13 58,38 85,38 63,52 72,79 50,62 28,79 37,52 15,38 42,38" fill="#eab308"/>`,
+    coroa: `<polygon points="19,71 23,33 40,50 50,25 60,50 77,33 81,71" fill="#f59e0b" stroke="#b45309" stroke-width="3" stroke-linejoin="round"/>`,
+    funda: `<path d="M31 23 L46 56 L69 23" stroke="#78350f" stroke-width="5.5" fill="none"/><ellipse cx="46" cy="58" rx="12.5" ry="7.5" fill="#92400e"/><circle cx="50" cy="77" r="8.5" fill="#64748b"/>`,
+    escudo: `<path d="M27 23 H73 V50 C73 69 50 83 50 83 C50 83 27 69 27 50 Z" fill="#1d4ed8"/><line x1="50" y1="31" x2="50" y2="71" stroke="#facc15" stroke-width="5.5"/><line x1="35" y1="46" x2="65" y2="46" stroke="#facc15" stroke-width="5.5"/>`,
+    poco: `<rect x="25" y="54" width="50" height="27" rx="3" fill="#64748b"/><line x1="31" y1="27" x2="31" y2="54" stroke="#78350f" stroke-width="5.5"/><line x1="69" y1="27" x2="69" y2="54" stroke="#78350f" stroke-width="5.5"/><polygon points="23,29 50,15 77,29" fill="#92400e"/>`,
+    monte: `<polygon points="50,19 17,79 83,79" fill="#6d28d9"/><polygon points="50,19 37,42 50,38 63,42" fill="#ede9fe"/>`,
+    cruz: `<rect x="44" y="17" width="12" height="66" rx="2" fill="#991b1b"/><rect x="25" y="34" width="50" height="12" rx="2" fill="#991b1b"/>`,
+    mateus: `<rect x="29" y="23" width="42" height="54" rx="4" fill="#1d4ed8"/><line x1="37" y1="38" x2="63" y2="38" stroke="#fff" stroke-width="4.5"/><line x1="37" y1="51" x2="63" y2="51" stroke="#fff" stroke-width="4.5"/>`,
+    marcos: `<circle cx="50" cy="50" r="27" fill="#d97706"/><text x="50" y="59" text-anchor="middle" font-size="27" font-weight="900" fill="#fff">MC</text>`,
+    lucas: `<circle cx="50" cy="50" r="27" fill="#15803d"/><text x="50" y="59" text-anchor="middle" font-size="27" font-weight="900" fill="#fff">LC</text>`,
+    joao: `<path d="M19 46 Q50 21 81 46 Q50 40 19 46 Z" fill="#6d28d9"/><circle cx="50" cy="59" r="14.5" fill="#6d28d9"/>`,
+    fe: `<path d="M50 19 C69 42 69 69 50 79 C31 69 31 42 50 19 Z" fill="#1d4ed8"/><path d="M50 38 C58 50 58 64 50 73 C42 64 42 50 50 38 Z" fill="#93c5fd"/>`,
+    esperanca: `<circle cx="50" cy="50" r="25" fill="#059669"/><polygon points="50,19 56,44 81,50 56,56 50,81 44,56 19,50 44,44" fill="#fef08a"/>`,
+    amor: `<path d="M50 79 C19 58 19 29 38 29 C46 29 50 38 50 38 C50 38 54 29 62 29 C81 29 81 58 50 79 Z" fill="#dc2626"/>`,
+
+    // BRASIL
+    arara: `<path d="M68 18 C45 16 29 34 31 62 L21 88 L36 79 L42 90 L48 69 C65 62 75 41 68 18 Z" fill="#0284c7"/><path d="M66 23 C77 23 81 34 70 40 Z" fill="#facc15"/><circle cx="60" cy="29" r="3.5" fill="#fff"/><circle cx="61" cy="29" r="1.8" fill="#0f172a"/>`,
+    onca: `<circle cx="29" cy="29" r="10.5" fill="#f59e0b"/><circle cx="71" cy="29" r="10.5" fill="#f59e0b"/><circle cx="50" cy="54" r="31" fill="#f59e0b"/><circle cx="38" cy="48" r="4" fill="#1e293b"/><circle cx="62" cy="48" r="4" fill="#1e293b"/><path d="M44 63 L56 63 L50 70 Z" fill="#78350f"/>`,
+    tucano: `<path d="M25 75 C25 41 42 25 56 27 L56 77 Z" fill="#1e293b"/><path d="M42 35 C54 35 56 54 42 58 Z" fill="#facc15"/><path d="M55 27 C79 25 89 37 85 46 L55 44 Z" fill="#f97316"/><circle cx="48" cy="34" r="3" fill="#38bdf8"/>`,
+    capivara: `<rect x="23" y="33" width="54" height="40" rx="19" fill="#92400e"/><circle cx="33" cy="31" r="7.5" fill="#78350f"/><circle cx="67" cy="31" r="7.5" fill="#78350f"/><circle cx="38" cy="48" r="3.5" fill="#1e293b"/><circle cx="62" cy="48" r="3.5" fill="#1e293b"/><ellipse cx="50" cy="61" rx="11.5" ry="7.5" fill="#b45309"/>`,
+    mico: `<circle cx="50" cy="52" r="33" fill="#f97316"/><circle cx="50" cy="54" r="20" fill="#fed7aa"/><circle cx="43" cy="50" r="3.5" fill="#1e293b"/><circle cx="57" cy="50" r="3.5" fill="#1e293b"/><path d="M45 63 Q50 68 55 63" stroke="#7c2d12" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    tartaruga: `<ellipse cx="50" cy="52" rx="25" ry="31" fill="#0d9488"/><circle cx="50" cy="17" r="8.5" fill="#14b8a6"/><ellipse cx="21" cy="40" rx="10.5" ry="5.5" transform="rotate(-25 21 40)" fill="#14b8a6"/><ellipse cx="79" cy="40" rx="10.5" ry="5.5" transform="rotate(25 79 40)" fill="#14b8a6"/><polygon points="50,32 64,44 60,64 40,64 36,44" fill="#115e59"/>`,
+    boto: `<path d="M19 62 C27 31 62 27 77 48 L89 46 L81 56 L89 65 L72 60 C58 71 36 69 19 62 Z" fill="#f472b6"/><circle cx="36" cy="48" r="3" fill="#1e293b"/>`,
+    tamandua: `<path d="M21 67 C25 39 52 33 69 48 L89 62 L85 69 L62 58 L54 75 L29 75 Z" fill="#4b5563"/><path d="M36 44 L58 64 L48 68 L30 50 Z" fill="#f3f4f6"/>`,
+    lobo: `<polygon points="27,19 42,42 25,48" fill="#dc2626"/><polygon points="73,19 58,42 75,48" fill="#dc2626"/><polygon points="25,44 75,44 50,83" fill="#ea580c"/><polygon points="36,56 64,56 50,83" fill="#fef3c7"/><circle cx="50" cy="77" r="4.5" fill="#1e293b"/>`,
+    acai: `<path d="M23 52 Q50 87 77 52 Z" fill="#7c2d12"/><circle cx="38" cy="44" r="9.5" fill="#581c87"/><circle cx="52" cy="42" r="9.5" fill="#6b21a8"/><circle cx="64" cy="46" r="8.5" fill="#581c87"/><circle cx="45" cy="33" r="8.5" fill="#7e22ce"/>`,
+    caju: `<path d="M35 21 Q50 13 65 21 Q69 34 50 36 Q31 34 35 21 Z" fill="#65a30d"/><path d="M31 36 C25 57 33 81 50 83 C67 81 75 57 69 36 Z" fill="#ef4444"/>`,
+    guarana: `<circle cx="50" cy="52" r="29" fill="#dc2626"/><circle cx="50" cy="52" r="19" fill="#ffffff"/><circle cx="50" cy="52" r="9.5" fill="#1e293b"/>`,
+    abacaxi: `<polygon points="50,11 40,32 60,32" fill="#15803d"/><polygon points="33,17 38,34 48,30" fill="#16a34a"/><polygon points="67,17 62,34 52,30" fill="#16a34a"/><ellipse cx="50" cy="59" rx="23" ry="28" fill="#f59e0b"/>`,
+    ipe: `<rect x="45" y="56" width="10" height="29" rx="3" fill="#78350f"/><circle cx="50" cy="39" r="23" fill="#facc15"/><circle cx="33" cy="48" r="16.5" fill="#eab308"/><circle cx="67" cy="48" r="16.5" fill="#fde047"/>`,
+    vitoria_regia: `<circle cx="50" cy="54" r="33" fill="#10b981"/><polygon points="50,54 85,41 85,67" fill="#ecfdf5"/><circle cx="50" cy="50" r="12.5" fill="#f472b6"/><circle cx="50" cy="50" r="6" fill="#fef08a"/>`,
+    araucaria: `<rect x="46" y="42" width="8" height="43" fill="#78350f"/><path d="M21 42 Q50 56 79 42" stroke="#78350f" stroke-width="5" fill="none"/><ellipse cx="25" cy="36" rx="14.5" ry="7.5" fill="#15803d"/><ellipse cx="75" cy="36" rx="14.5" ry="7.5" fill="#15803d"/><ellipse cx="50" cy="25" rx="23" ry="9.5" fill="#16a34a"/>`,
+    cafe: `<ellipse cx="42" cy="52" rx="16.5" ry="25" transform="rotate(-15 42 52)" fill="#78350f"/><path d="M38 29 Q45 52 46 75" stroke="#fef3c7" stroke-width="3" fill="none"/><ellipse cx="64" cy="56" rx="14.5" ry="21" transform="rotate(15 64 56)" fill="#92400e"/>`,
+    cacau: `<ellipse cx="50" cy="52" rx="25" ry="33" fill="#ea580c"/><path d="M50 19 L50 85 M35 25 Q29 52 35 79 M65 25 Q71 52 65 79" stroke="#9a3412" stroke-width="3" fill="none"/>`,
+    pandeiro: `<circle cx="50" cy="50" r="31" fill="#fef3c7" stroke="#b45309" stroke-width="7"/><circle cx="50" cy="19" r="4.5" fill="#facc15"/><circle cx="50" cy="81" r="4.5" fill="#facc15"/><circle cx="19" cy="50" r="4.5" fill="#facc15"/><circle cx="81" cy="50" r="4.5" fill="#facc15"/>`,
+    violao: `<rect x="64" y="15" width="8.5" height="33" rx="3" transform="rotate(40 64 15)" fill="#78350f"/><circle cx="38" cy="64" r="18.5" fill="#d97706"/><circle cx="50" cy="50" r="13.5" fill="#d97706"/><circle cx="43" cy="58" r="6.5" fill="#451a03"/>`,
+    berimbau: `<path d="M36 15 Q69 50 36 85" stroke="#92400e" stroke-width="6.5" fill="none" stroke-linecap="round"/><line x1="36" y1="15" x2="36" y2="85" stroke="#475569" stroke-width="2"/><circle cx="32" cy="66" r="12.5" fill="#d97706"/>`,
+    cristo: `<rect x="44" y="27" width="12" height="56" rx="3" fill="#0284c7"/><rect x="17" y="36" width="66" height="10.5" rx="4" fill="#0284c7"/><circle cx="50" cy="19" r="7.5" fill="#0284c7"/>`,
+    pao_acucar: `<path d="M13 79 Q34 21 52 79 Z" fill="#0d9488"/><path d="M44 79 Q66 35 87 79 Z" fill="#14b8a6"/><line x1="34" y1="46" x2="64" y2="54" stroke="#f59e0b" stroke-width="2.5"/>`,
+    cangaceiro: `<path d="M17 65 Q50 48 83 65 L75 73 Q50 58 25 73 Z" fill="#b45309"/><path d="M30 58 L38 27 L62 27 L70 58 Z" fill="#92400e"/><polygon points="50,36 53,43 60,43 54,48 56,55 50,51 44,55 46,48 40,43 47,43" fill="#facc15"/>`,
+    chimarrao: `<path d="M31 42 C25 60 31 83 50 83 C69 83 75 60 69 42 Z" fill="#78350f"/><ellipse cx="50" cy="42" rx="19" ry="6.5" fill="#16a34a"/><line x1="56" y1="42" x2="75" y2="17" stroke="#94a3b8" stroke-width="4.5" stroke-linecap="round"/>`,
+    boi: `<ellipse cx="50" cy="58" rx="23" ry="21" fill="#1e293b"/><path d="M27 46 Q17 31 27 23" stroke="#fef3c7" stroke-width="6.5" fill="none" stroke-linecap="round"/><path d="M73 46 Q83 31 73 23" stroke="#fef3c7" stroke-width="6.5" fill="none" stroke-linecap="round"/><polygon points="50,44 53,51 60,51 54,55 56,62 50,58 44,62 46,55 40,51 47,51" fill="#f43f5e"/>`,
+    filtro: `<rect x="29" y="23" width="42" height="29" rx="8" fill="#ea580c"/><rect x="27" y="52" width="46" height="31" rx="10" fill="#c2410c"/><path d="M73 64 L83 64 L83 71" stroke="#475569" stroke-width="4" fill="none"/>`,
+    amazonia: `<path d="M19 73 Q50 37 81 73" stroke="#0284c7" stroke-width="10.5" fill="none"/><circle cx="33" cy="36" r="14.5" fill="#15803d"/><circle cx="67" cy="36" r="14.5" fill="#16a34a"/><circle cx="50" cy="27" r="16.5" fill="#22c55e"/>`,
+    cerrado: `<path d="M48 81 L48 52 L31 35 M48 56 L67 37" stroke="#78350f" stroke-width="6.5" fill="none" stroke-linecap="round"/><ellipse cx="29" cy="31" rx="14.5" ry="8.5" fill="#65a30d"/><ellipse cx="69" cy="33" rx="14.5" ry="8.5" fill="#84cc16"/>`,
+    caatinga: `<rect x="45" y="23" width="10" height="60" rx="5" fill="#16a34a"/><path d="M45 52 L29 52 L29 35" stroke="#16a34a" stroke-width="8.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M55 44 L71 44 L71 29" stroke="#16a34a" stroke-width="8.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    mata: `<polygon points="50,17 23,58 77,58" fill="#0f766e"/><polygon points="50,35 19,77 81,77" fill="#14b8a6"/><rect x="45" y="77" width="10" height="10" fill="#78350f"/>`,
+    samba: `<circle cx="35" cy="40" r="8.5" fill="#e11d48"/><circle cx="65" cy="40" r="8.5" fill="#e11d48"/><path d="M35 48 Q50 75 65 48" stroke="#f59e0b" stroke-width="6.5" fill="none"/>`,
+    frevo: `<path d="M21 50 Q50 19 79 50 Z" fill="#ef4444"/><path d="M33 50 Q50 19 67 50 Z" fill="#facc15"/><path d="M44 50 Q50 19 56 50 Z" fill="#2563eb"/><path d="M50 50 L50 79 Q50 85 44 85" stroke="#78350f" stroke-width="4.5" fill="none"/>`,
+    forro: `<rect x="25" y="29" width="14.5" height="44" rx="3" fill="#d97706"/><rect x="60.5" y="29" width="14.5" height="44" rx="3" fill="#d97706"/><path d="M39.5 34 L60.5 34 M39.5 44 L60.5 44 M39.5 54 L60.5 54 M39.5 64 L60.5 64" stroke="#1e293b" stroke-width="4"/>`,
+
+    // CLÁSSICO
+    vento_leste: `<text x="50" y="69" text-anchor="middle" font-size="58" font-weight="900" fill="#0f172a">東</text>`,
+    vento_sul: `<text x="50" y="69" text-anchor="middle" font-size="58" font-weight="900" fill="#0f172a">南</text>`,
+    vento_oeste: `<text x="50" y="69" text-anchor="middle" font-size="58" font-weight="900" fill="#0f172a">西</text>`,
+    vento_norte: `<text x="50" y="69" text-anchor="middle" font-size="58" font-weight="900" fill="#0f172a">北</text>`,
+    dragao_verm: `<text x="50" y="71" text-anchor="middle" font-size="60" font-weight="900" fill="#dc2626">中</text>`,
+    dragao_verde: `<text x="50" y="71" text-anchor="middle" font-size="60" font-weight="900" fill="#15803d">發</text>`,
+    dragao_branco: `<rect x="25" y="19" width="50" height="62" rx="6" fill="none" stroke="#1d4ed8" stroke-width="7.5"/>`
+  };
+
+  return `<svg viewBox="0 0 100 100" class="w-full h-full overflow-visible">${icons[iconKey] || ''}</svg>`;
+}
+
+/* ------------------------- 4. 5 LAYOUTS VERTICAIS COMPACTOS (48 A 96 PEÇAS, MÁX. 6 COLS) ------------------------- */
+function createLayouts() {
+  // 1. Desafio Rápido (48 peças, 3 camadas, 5 cols x 6 linhas)
+  const desafio_rapido = [];
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 5; c++) desafio_rapido.push({ x: c, y: r, z: 0 });            // 30
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) desafio_rapido.push({ x: 1 + c, y: 1 + r, z: 1 });    // 12
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) desafio_rapido.push({ x: 1.5 + c, y: 1.5 + r, z: 2 });// 6 -> 48
+
+  // 2. Pirâmide (60 peças, 5 camadas, 5 cols x 6 linhas)
+  const piramide = [];
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 5; c++) piramide.push({ x: c, y: r, z: 0 });               // 30
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 4; c++) piramide.push({ x: 0.5 + c, y: 1 + r, z: 1 });     // 16
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) piramide.push({ x: 1 + c, y: 1.5 + r, z: 2 });     // 9
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) piramide.push({ x: 1.5 + c, y: 2 + r, z: 3 });     // 4
+  piramide.push({ x: 2, y: 2.5, z: 4 });                                                                     // 1 -> 60
+
+  // 3. Pão de Açúcar (72 peças, 4 camadas, 6 cols x 6 linhas)
+  const pao_acucar = [];
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 6; c++) pao_acucar.push({ x: c, y: r, z: 0 });          // 36
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 5; c++) pao_acucar.push({ x: 0.5 + c, y: 1 + r, z: 1 });  // 20
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) pao_acucar.push({ x: 1 + c, y: 1.5 + r, z: 2 });  // 12
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) pao_acucar.push({ x: 2 + c, y: 2 + r, z: 3 });    // 4 -> 72
+
+  // 4. Coroa (84 peças, 5 camadas, 6 cols x 7 linhas)
+  const coroa = [];
+  for (let r = 0; r < 7; r++) for (let c = 0; c < 6; c++) coroa.push({ x: c, y: r, z: 0 });               // 42
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 4; c++) coroa.push({ x: 1 + c, y: 1 + r, z: 1 });       // 20
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 3; c++) coroa.push({ x: 1.5 + c, y: 1.5 + r, z: 2 });   // 12
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) coroa.push({ x: 2 + c, y: 1.5 + r, z: 3 });     // 8
+  for (let r = 0; r < 2; r++) coroa.push({ x: 2.5, y: 2.5 + r, z: 4 });                                   // 2 -> 84
+
+  // 5. Catedral (96 peças, 6 camadas, 6 cols x 7 linhas)
+  const catedral = [];
+  for (let r = 0; r < 7; r++) for (let c = 0; c < 6; c++) catedral.push({ x: c, y: r, z: 0 });            // 42
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 4; c++) catedral.push({ x: 1 + c, y: 0.5 + r, z: 1 });  // 24
+  for (let r = 0; r < 5; r++) for (let c = 0; c < 3; c++) catedral.push({ x: 1.5 + c, y: 1 + r, z: 2 });  // 15
+  for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) catedral.push({ x: 2 + c, y: 1.5 + r, z: 3 });  // 8
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) catedral.push({ x: 2 + c, y: 2.5 + r, z: 4 });  // 4
+  for (let c = 0; c < 3; c++) catedral.push({ x: 1.5 + c, y: 3, z: 5 });                                  // 3 -> 96
+
+  return { desafio_rapido, piramide, pao_acucar, coroa, catedral };
+}
+
+const LAYOUTS = createLayouts();
+
+/* ------------------------- 5. REGRAS DE LIBERDADE E GERADOR SOLUCIONÁVEL ------------------------- */
+function isTileFree(target, activeTiles) {
+  let leftBlocked = false;
+  let rightBlocked = false;
+
+  for (let i = 0; i < activeTiles.length; i++) {
+    const other = activeTiles[i];
+    if (other.uid === target.uid || other.removed) continue;
+
+    // Sobreposição na camada superior z + 1
+    if (other.z === target.z + 1) {
+      if (Math.abs(other.x - target.x) < 0.95 && Math.abs(other.y - target.y) < 0.95) {
+        return false;
+      }
+    }
+
+    // Bloqueio lateral esquerdo ou direito na mesma camada z
+    if (other.z === target.z && Math.abs(other.y - target.y) < 0.95) {
+      const dx = other.x - target.x;
+      if (dx >= -1.05 && dx <= -0.5) leftBlocked = true;
+      if (dx >= 0.5 && dx <= 1.05) rightBlocked = true;
+    }
+  }
+
+  return !leftBlocked || !rightBlocked;
+}
+
+function canTilesMatch(a, b) {
+  return Boolean(a && b && a.uid !== b.uid && a.typeId === b.typeId);
+}
+
+function buildPairPool(totalSlots) {
+  const numPairs = totalSlots / 2;
+  const pool = [];
+  while (pool.length < numPairs) {
+    const ids = TILE_TYPES.map(t => t.id);
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [ids[i], ids[j]] = [ids[j], ids[i]];
+    }
+    pool.push(...ids);
+  }
+  return pool.slice(0, numPairs);
+}
+
+/**
+ * Pontua dispersão espacial entre duas peças (a, b) e cópias prévias do mesmo tipo.
+ * Penaliza fortemente pares adjacentes (distância < 2.2) ou empilhados na mesma coluna/linha.
+ */
+function scorePairDispersion(a, b, sameTypePositions = []) {
+  const dx = Math.abs(a.x - b.x);
+  const dy = Math.abs(a.y - b.y);
+  const dz = Math.abs(a.z - b.z);
+  const euclid = Math.hypot(dx, dy);
+  const manhattan = dx + dy;
+
+  let score = euclid * 14 + manhattan * 6;
+
+  // Penalidade severa para empilhamento na mesma coluna/linha
+  if (dx < 0.6 && dy < 0.6) {
+    score -= 190;
+  } else if (dx < 0.4 || dy < 0.4) {
+    score -= 35;
+  }
+
+  // Penalidade forte para peças adjacentes ou muito próximas (< 2.2 unidades)
+  if (euclid < 2.2) {
+    score -= (2.2 - euclid) * 65 + 45;
+  }
+
+  if (dx >= 2.0) score += 18;
+  if (dy >= 2.0) score += 18;
+  if (dz >= 1 && euclid >= 2.2) score += 12;
+
+  for (let i = 0; i < sameTypePositions.length; i++) {
+    const prev = sameTypePositions[i];
+    const d1 = Math.hypot(a.x - prev.x, a.y - prev.y);
+    const d2 = Math.hypot(b.x - prev.x, b.y - prev.y);
+    if (d1 < 1.5) score -= 50;
+    if (d2 < 1.5) score -= 50;
+    score += Math.min(d1, 5) * 2 + Math.min(d2, 5) * 2;
+  }
+
+  return score + (Math.random() - 0.5) * 14;
+}
+
+function pickDispersedFreePair(freeList, sameTypePositions = []) {
+  if (freeList.length < 2) return null;
+  if (freeList.length === 2) return [freeList[0], freeList[1]];
+
+  const totalCandidates = Math.min(54, (freeList.length * (freeList.length - 1)) / 2);
+  let bestPair = null;
+  let bestScore = -Infinity;
+
+  for (let c = 0; c < totalCandidates; c++) {
+    const idx1 = Math.floor(Math.random() * freeList.length);
+    let idx2 = Math.floor(Math.random() * (freeList.length - 1));
+    if (idx2 >= idx1) idx2++;
+
+    const a = freeList[idx1];
+    const b = freeList[idx2];
+    const s = scorePairDispersion(a, b, sameTypePositions);
+    if (s > bestScore) {
+      bestScore = s;
+      bestPair = [a, b];
+    }
+  }
+
+  return bestPair;
+}
+
+function generateSolvableBoard(coords) {
+  const pairTypes = buildPairPool(coords.length);
+  let bestBoard = null;
+  let bestBoardGlobalScore = -Infinity;
+
+  for (let attempt = 0; attempt < 45; attempt++) {
+    const sim = coords.map((pos, idx) => ({
+      uid: idx,
+      x: pos.x,
+      y: pos.y,
+      z: pos.z,
+      typeId: -1,
+      removed: false
+    }));
+
+    const assignedByType = new Map();
+    const pairs = [];
+    let ok = true;
+    let totalDispersion = 0;
+
+    for (let step = 0; step < pairTypes.length; step++) {
+      const free = sim.filter(t => !t.removed && isTileFree(t, sim));
+      if (free.length < 2) {
+        ok = false;
+        break;
+      }
+
+      const typeId = pairTypes[step];
+      const existingOfType = assignedByType.get(typeId) || [];
+      const [t1, t2] = pickDispersedFreePair(free, existingOfType);
+
+      totalDispersion += scorePairDispersion(t1, t2, existingOfType);
+      t1.removed = true;
+      t2.removed = true;
+      pairs.push([t1.uid, t2.uid, typeId]);
+      assignedByType.set(typeId, [...existingOfType, { x: t1.x, y: t1.y, z: t1.z }, { x: t2.x, y: t2.y, z: t2.z }]);
+    }
+
+    if (ok && totalDispersion > bestBoardGlobalScore) {
+      bestBoardGlobalScore = totalDispersion;
+      const candidate = coords.map((pos, idx) => ({
+        uid: idx,
+        x: pos.x,
+        y: pos.y,
+        z: pos.z,
+        typeId: 0,
+        removed: false
+      }));
+      pairs.forEach(([u1, u2, typeId]) => {
+        candidate[u1].typeId = typeId;
+        candidate[u2].typeId = typeId;
+      });
+      bestBoard = candidate;
+    }
+  }
+
+  if (bestBoard) return bestBoard;
+
+  return coords.map((pos, idx) => ({
+    uid: idx,
+    x: pos.x,
+    y: pos.y,
+    z: pos.z,
+    typeId: pairTypes[Math.floor(idx / 2)],
+    removed: false
+  }));
+}
+
+/* ------------------------- 6. ESTADO DO JOGO (TEMA PADRÃO: BÍBLIA) ------------------------- */
+const STORAGE_KEY = 'mahjong_brasil_vita_v3';
+
+const state = {
+  theme: 'biblia',         // Padrão: Bíblia
+  layout: 'pao_acucar',    // Padrão: 72 peças
+  highlightFree: false,    // Padrão: todas as peças 100% iluminadas
+  tiles: [],
+  selectedUid: null,
+  hintUids: [],
+  history: [],
+  score: 0,
+  combo: 0,
+  lastMatchTime: 0,
+  elapsedSeconds: 0,
+  timerInterval: null,
+  isAutoFinishing: false,
+  autoFinishTimers: []
+};
+
+function loadPrefs() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (saved.theme && ['biblia', 'brasil', 'classico'].includes(saved.theme)) state.theme = saved.theme;
+    if (saved.layout && LAYOUTS[saved.layout]) state.layout = saved.layout;
+    if (typeof saved.highlightFree === 'boolean') state.highlightFree = saved.highlightFree;
+    if (typeof saved.muted === 'boolean') sfx.muted = saved.muted;
+  } catch (e) {}
+}
+
+function savePrefs() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      theme: state.theme,
+      layout: state.layout,
+      highlightFree: state.highlightFree,
+      muted: sfx.muted
+    }));
+  } catch (e) {}
+}
+
+/* ------------------------- 7. RENDERIZAÇÃO E LAYOUT RESPONSIVO ------------------------- */
+const boardViewport = document.getElementById('boardViewport');
+const boardContainer = document.getElementById('boardContainer');
+const tileElements = new Map();
+
+function applyThemePalette() {
+  const root = document.documentElement;
+  if (state.theme === 'biblia') {
+    root.style.setProperty('--bg-start', '#1c2f4f');
+    root.style.setProperty('--bg-end', '#0c1526');
+    root.style.setProperty('--tile-base-accent', '#2c436b');
+  } else if (state.theme === 'brasil') {
+    root.style.setProperty('--bg-start', '#124832');
+    root.style.setProperty('--bg-end', '#071f15');
+    root.style.setProperty('--tile-base-accent', '#185c3d');
+  } else {
+    root.style.setProperty('--bg-start', '#1b4322');
+    root.style.setProperty('--bg-end', '#0b2110');
+    root.style.setProperty('--tile-base-accent', '#166534');
+  }
+
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    const active = btn.dataset.theme === state.theme;
+    btn.className = `theme-btn px-2.5 py-1 rounded-lg text-xs font-extrabold transition-all cursor-pointer shrink-0 ${
+      active
+        ? 'bg-amber-400 text-slate-950 shadow-sm'
+        : 'text-slate-200 hover:text-white hover:bg-white/10'
+    }`;
+  });
+}
+
+function updateFreeToggleUI() {
+  const btn = document.getElementById('toggleFreeBtn');
+  const dot = document.getElementById('freeDot');
+  if (state.highlightFree) {
+    btn.className = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border border-emerald-400/50 bg-emerald-500/20 text-emerald-200 transition-all cursor-pointer shrink-0';
+    dot.className = 'w-2 h-2 rounded-full bg-emerald-400 inline-block';
+  } else {
+    btn.className = 'flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold border border-white/15 bg-black/55 text-slate-300 hover:bg-white/10 transition-all cursor-pointer shrink-0';
+    dot.className = 'w-2 h-2 rounded-full bg-slate-500 inline-block';
+  }
+}
+
+function updateSoundUI() {
+  document.getElementById('soundOnIcon').classList.toggle('hidden', sfx.muted);
+  document.getElementById('soundOffIcon').classList.toggle('hidden', !sfx.muted);
+}
+
+function renderTileFace(el, typeId, tileW) {
+  const data = TILE_TYPES[typeId][state.theme];
+  const face = el.querySelector('.mj-tile-face');
+
+  const badgeFont = Math.max(10, Math.round(tileW * 0.2));
+  const labelFont = Math.max(9, Math.round(tileW * 0.165));
+  const dotSize = Math.max(6, Math.round(tileW * 0.11));
+
+  face.innerHTML = `
+    <div class="w-full flex items-center justify-between leading-none px-0.5 shrink-0">
+      <span class="font-black px-1.5 py-0.5 rounded-md" style="font-size:${badgeFont}px; background:${data.bg}; color:${data.color};">
+        ${data.badge}
+      </span>
+      <span class="rounded-full shrink-0 border border-black/15" style="width:${dotSize}px; height:${dotSize}px; background:${data.suit};"></span>
+    </div>
+    <div class="w-[78%] h-[62%] flex items-center justify-center my-auto">
+      ${getTileSVG(data.icon)}
+    </div>
+    <div class="w-full text-center leading-none shrink-0">
+      <span class="block font-extrabold tracking-tight" style="font-size:${labelFont}px; color:${data.color};">
+        ${data.label}
+      </span>
+    </div>
+  `;
+}
+
+function layoutBoard(rebuildDOM = true) {
+  if (state.tiles.length === 0) return;
+
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, maxZ = 0;
+  state.tiles.forEach(t => {
+    minX = Math.min(minX, t.x);
+    maxX = Math.max(maxX, t.x + 1.0);
+    minY = Math.min(minY, t.y);
+    maxY = Math.max(maxY, t.y + 1.0);
+    maxZ = Math.max(maxZ, t.z);
+  });
+
+  const unitsW = maxX - minX;
+  const unitsH = maxY - minY;
+
+  const vp = boardViewport.getBoundingClientRect();
+  const isMobile = vp.width < 640;
+
+  const layerShiftRatioX = 0.06;
+  const layerShiftRatioY = 0.075;
+  const depthRatioX = 0.06;
+  const depthRatioY = 0.095;
+
+  const extraW = maxZ * layerShiftRatioX + depthRatioX;
+  const extraH = (maxZ * layerShiftRatioY + depthRatioY) * (4 / 3);
+
+  const availW = vp.width * (isMobile ? 0.95 : 0.90);
+  const availH = vp.height * (isMobile ? 0.95 : 0.90);
+
+  const maxWByWidth = availW / (unitsW + extraW);
+  const maxWByHeight = (availH * 0.75) / (unitsH + extraH);
+
+  const tileW = Math.floor(Math.min(maxWByWidth, maxWByHeight, 98));
+  const tileH = Math.round(tileW * (4 / 3));
+
+  const layerShiftX = Math.round(tileW * layerShiftRatioX);
+  const layerShiftY = Math.round(tileH * layerShiftRatioY);
+  const depthX = Math.max(3, Math.round(tileW * depthRatioX));
+  const depthY = Math.max(6, Math.round(tileH * depthRatioY));
+  const radius = Math.max(8, Math.round(tileW * 0.14));
+
+  const containerW = Math.round(unitsW * tileW + maxZ * layerShiftX + depthX);
+  const containerH = Math.round(unitsH * tileH + maxZ * layerShiftY + depthY);
+
+  boardContainer.style.width = `${containerW}px`;
+  boardContainer.style.height = `${containerH}px`;
+  boardContainer.style.setProperty('--depth-x', `${depthX}px`);
+  boardContainer.style.setProperty('--depth-y', `${depthY}px`);
+  boardContainer.style.setProperty('--tile-radius', `${radius}px`);
+
+  if (rebuildDOM) {
+    boardContainer.innerHTML = '';
+    tileElements.clear();
+  }
+
+  state.tiles.forEach(tile => {
+    let el = tileElements.get(tile.uid);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'mj-tile';
+      el.dataset.uid = tile.uid;
+
+      const face = document.createElement('div');
+      face.className = 'mj-tile-face';
+      el.appendChild(face);
+
+      el.addEventListener('click', () => onTileClick(tile.uid));
+      boardContainer.appendChild(el);
+      tileElements.set(tile.uid, el);
+    }
+
+    const left = Math.round((tile.x - minX) * tileW + (maxZ - tile.z) * layerShiftX);
+    const top = Math.round((tile.y - minY) * tileH + (maxZ - tile.z) * layerShiftY);
+
+    el.style.width = `${tileW}px`;
+    el.style.height = `${tileH}px`;
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+    el.style.zIndex = Math.round(tile.z * 10000 + tile.y * 100 + tile.x * 10);
+
+    renderTileFace(el, tile.typeId, tileW);
+  });
+
+  syncBoardStates();
+}
+
+window.addEventListener('resize', () => layoutBoard(false));
+
+/* ------------------------- 8. FINALIZAÇÃO AUTOMÁTICA EM CASCATA (AUTO-FINISH) ------------------------- */
+function cancelAutoFinish() {
+  state.autoFinishTimers.forEach(id => clearTimeout(id));
+  state.autoFinishTimers = [];
+  state.isAutoFinishing = false;
+
+  const badge = document.getElementById('autoFinishBadge');
+  badge.classList.add('hidden');
+  badge.classList.remove('flex');
+}
+
+function canTriggerAutoFinish() {
+  if (state.isAutoFinishing) return false;
+  const active = state.tiles.filter(t => !t.removed);
+  if (active.length < 2 || active.length % 2 !== 0) return false;
+
+  // 1. Todas as peças restantes devem estar livres simultaneamente
+  for (let i = 0; i < active.length; i++) {
+    if (!isTileFree(active[i], active)) return false;
+  }
+
+  // 2. Todas devem formar pares idênticos válidos
+  const counts = new Map();
+  for (let i = 0; i < active.length; i++) {
+    const id = active[i].typeId;
+    counts.set(id, (counts.get(id) || 0) + 1);
+  }
+  for (const cnt of counts.values()) {
+    if (cnt % 2 !== 0) return false;
+  }
+
+  return true;
+}
+
+function startAutoFinish() {
+  if (state.isAutoFinishing) return;
+  state.isAutoFinishing = true;
+  state.selectedUid = null;
+  state.hintUids = [];
+
+  const badge = document.getElementById('autoFinishBadge');
+  badge.classList.remove('hidden');
+  badge.classList.add('flex');
+
+  document.getElementById('undoBtn').disabled = true;
+  document.getElementById('hintBtn').disabled = true;
+  document.getElementById('shuffleBtn').disabled = true;
+
+  let stepIndex = 0;
+
+  const processNextPair = () => {
+    if (!state.isAutoFinishing) return;
+
+    const pairs = getAvailablePairs();
+    if (pairs.length === 0) {
+      const remaining = state.tiles.filter(t => !t.removed);
+      if (remaining.length === 0) {
+        stopTimer();
+        const winTimer = setTimeout(() => {
+          if (!state.isAutoFinishing) return;
+          cancelAutoFinish();
+          sfx.playVictory();
+          openVictoryModal();
+        }, 280);
+        state.autoFinishTimers.push(winTimer);
+      } else {
+        cancelAutoFinish();
+        syncBoardStates();
+      }
+      return;
+    }
+
+    const [t1, t2] = pairs[0];
+    const el1 = tileElements.get(t1.uid);
+    const el2 = tileElements.get(t2.uid);
+
+    if (el1) el1.classList.add('auto-highlight');
+    if (el2) el2.classList.add('auto-highlight');
+
+    const highlightTimer = setTimeout(() => {
+      if (!state.isAutoFinishing) return;
+
+      if (el1) {
+        el1.classList.remove('auto-highlight');
+        spawnGoldSparkles(el1);
+        el1.classList.add('auto-removing');
+      }
+      if (el2) {
+        el2.classList.remove('auto-highlight');
+        spawnGoldSparkles(el2);
+        el2.classList.add('auto-removing');
+      }
+
+      sfx.playPentatonicStep(stepIndex);
+      stepIndex += 1;
+      state.combo = Math.max(1, state.combo + 1);
+      state.score += 100 * state.combo;
+
+      t1.removed = true;
+      t2.removed = true;
+
+      const leftCount = state.tiles.filter(t => !t.removed).length;
+      document.getElementById('remainingCount').textContent = leftCount;
+
+      const hideTimer = setTimeout(() => {
+        if (el1 && t1.removed) {
+          el1.style.display = 'none';
+          el1.classList.remove('auto-removing');
+        }
+        if (el2 && t2.removed) {
+          el2.style.display = 'none';
+          el2.classList.remove('auto-removing');
+        }
+      }, 240);
+      state.autoFinishTimers.push(hideTimer);
+
+      const nextStepTimer = setTimeout(processNextPair, 70);
+      state.autoFinishTimers.push(nextStepTimer);
+    }, 80);
+
+    state.autoFinishTimers.push(highlightTimer);
+  };
+
+  const initialTimer = setTimeout(processNextPair, 120);
+  state.autoFinishTimers.push(initialTimer);
+}
+
+/* ------------------------- 9. SINCRONIZAÇÃO DE ESTADOS ------------------------- */
+function getAvailablePairs() {
+  const active = state.tiles.filter(t => !t.removed);
+  const free = active.filter(t => isTileFree(t, active));
+  const pairs = [];
+  for (let i = 0; i < free.length; i++) {
+    for (let j = i + 1; j < free.length; j++) {
+      if (canTilesMatch(free[i], free[j])) {
+        pairs.push([free[i], free[j]]);
+      }
+    }
+  }
+  return pairs;
+}
+
+function syncBoardStates() {
+  if (state.isAutoFinishing) return;
+
+  const active = state.tiles.filter(t => !t.removed);
+  const freeSet = new Set();
+  active.forEach(t => {
+    if (isTileFree(t, active)) freeSet.add(t.uid);
+  });
+
+  state.tiles.forEach(t => {
+    const el = tileElements.get(t.uid);
+    if (!el) return;
+
+    if (t.removed) {
+      if (!el.classList.contains('removing') && !el.classList.contains('auto-removing')) {
+        el.style.display = 'none';
+      }
+      return;
+    } else {
+      el.style.display = 'block';
+      el.classList.remove('removing', 'auto-removing', 'auto-highlight');
+    }
+
+    const isFree = freeSet.has(t.uid);
+    el.classList.toggle('dim-blocked', state.highlightFree && !isFree);
+    el.classList.toggle('selected', state.selectedUid === t.uid);
+    el.classList.toggle('hinted', state.hintUids.includes(t.uid));
+  });
+
+  const pairs = getAvailablePairs();
+  document.getElementById('remainingCount').textContent = active.length;
+  document.getElementById('undoBtn').disabled = state.history.length === 0;
+  document.getElementById('hintBtn').disabled = pairs.length === 0;
+  document.getElementById('shuffleBtn').disabled = active.length < 2;
+
+  if (active.length === 0) {
+    stopTimer();
+    sfx.playVictory();
+    openVictoryModal();
+  } else if (canTriggerAutoFinish()) {
+    startAutoFinish();
+  } else if (pairs.length === 0) {
+    openNoMovesModal();
+  }
+}
+
+/* ------------------------- 10. INTERAÇÃO ------------------------- */
+function spawnSparkles(el) {
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const vpRect = boardViewport.getBoundingClientRect();
+  const cx = rect.left - vpRect.left + rect.width / 2;
+  const cy = rect.top - vpRect.top + rect.height / 2;
+  const colors = ['#facc15', '#34d399', '#38bdf8', '#fb923c'];
+
+  for (let i = 0; i < 8; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'sparkle-dot';
+    const angle = (Math.PI * 2 * i) / 8;
+    const dist = 28 + Math.random() * 18;
+    dot.style.left = `${cx}px`;
+    dot.style.top = `${cy}px`;
+    dot.style.background = colors[i % colors.length];
+    dot.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    dot.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+    boardViewport.appendChild(dot);
+    setTimeout(() => dot.remove(), 500);
+  }
+}
+
+function spawnGoldSparkles(el) {
+  if (!el) return;
+  const rect = el.getBoundingClientRect();
+  const vpRect = boardViewport.getBoundingClientRect();
+  const cx = rect.left - vpRect.left + rect.width / 2;
+  const cy = rect.top - vpRect.top + rect.height / 2;
+  const golds = ['#fef08a', '#facc15', '#f59e0b', '#ffffff'];
+
+  for (let i = 0; i < 10; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'sparkle-dot';
+    const angle = (Math.PI * 2 * i) / 10;
+    const dist = 32 + Math.random() * 20;
+    dot.style.left = `${cx}px`;
+    dot.style.top = `${cy}px`;
+    dot.style.background = golds[i % golds.length];
+    dot.style.boxShadow = '0 0 6px #facc15';
+    dot.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    dot.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+    boardViewport.appendChild(dot);
+    setTimeout(() => dot.remove(), 500);
+  }
+}
+
+function showToast(msg) {
+  const banner = document.getElementById('toastBanner');
+  banner.textContent = msg;
+  banner.style.opacity = '1';
+  clearTimeout(banner._t);
+  banner._t = setTimeout(() => {
+    banner.style.opacity = '0';
+  }, 1250);
+}
+
+function onTileClick(uid) {
+  if (state.isAutoFinishing) return;
+
+  const tile = state.tiles.find(t => t.uid === uid);
+  if (!tile || tile.removed) return;
+
+  const active = state.tiles.filter(t => !t.removed);
+  const el = tileElements.get(uid);
+
+  if (!isTileFree(tile, active)) {
+    sfx.playBlocked();
+    el.classList.remove('blocked-shake');
+    void el.offsetWidth;
+    el.classList.add('blocked-shake');
+    setTimeout(() => el.classList.remove('blocked-shake'), 170);
+    return;
+  }
+
+  state.hintUids = [];
+
+  if (state.selectedUid === uid) {
+    sfx.playClick();
+    state.selectedUid = null;
+    syncBoardStates();
+    return;
+  }
+
+  if (state.selectedUid === null) {
+    sfx.playClick();
+    state.selectedUid = uid;
+    syncBoardStates();
+    return;
+  }
+
+  const prevTile = state.tiles.find(t => t.uid === state.selectedUid);
+  if (canTilesMatch(prevTile, tile)) {
+    const now = Date.now();
+    state.combo = (now - state.lastMatchTime < 4500) ? state.combo + 1 : 1;
+    state.lastMatchTime = now;
+
+    const gained = 100 * state.combo;
+    state.score += gained;
+    if (state.combo >= 2) {
+      showToast(`Combo x${state.combo}! +${gained}`);
+    }
+
+    sfx.playMatch(state.combo);
+
+    const prevEl = tileElements.get(prevTile.uid);
+    spawnSparkles(prevEl);
+    spawnSparkles(el);
+
+    prevTile.removed = true;
+    tile.removed = true;
+    state.selectedUid = null;
+
+    state.history.push({ uid1: prevTile.uid, uid2: tile.uid, scoreDelta: gained });
+
+    prevEl.classList.remove('selected', 'hinted');
+    el.classList.remove('selected', 'hinted');
+    prevEl.classList.add('removing');
+    el.classList.add('removing');
+
+    syncBoardStates();
+
+    setTimeout(() => {
+      if (prevTile.removed) {
+        prevEl.style.display = 'none';
+        prevEl.classList.remove('removing');
+      }
+      if (tile.removed) {
+        el.style.display = 'none';
+        el.classList.remove('removing');
+      }
+    }, 180);
+  } else {
+    sfx.playClick();
+    state.selectedUid = uid;
+    syncBoardStates();
+  }
+}
+
+/* ------------------------- 11. ASSISTENTES ------------------------- */
+function undoMove() {
+  if (state.isAutoFinishing || state.history.length === 0) return;
+  closeModal();
+  sfx.playClick();
+  const last = state.history.pop();
+  const t1 = state.tiles.find(t => t.uid === last.uid1);
+  const t2 = state.tiles.find(t => t.uid === last.uid2);
+  if (t1) t1.removed = false;
+  if (t2) t2.removed = false;
+  state.score = Math.max(0, state.score - last.scoreDelta);
+  state.combo = 0;
+  state.selectedUid = null;
+  state.hintUids = [];
+  syncBoardStates();
+}
+
+function triggerHint() {
+  if (state.isAutoFinishing) return;
+  const pairs = getAvailablePairs();
+  if (pairs.length === 0) return;
+  sfx.playClick();
+  const chosen = pairs[0];
+  state.selectedUid = null;
+  state.hintUids = [chosen[0].uid, chosen[1].uid];
+  syncBoardStates();
+}
+
+function shuffleRemaining() {
+  if (state.isAutoFinishing) return;
+  const active = state.tiles.filter(t => !t.removed);
+  if (active.length < 2) return;
+
+  closeModal();
+  sfx.playShuffle();
+
+  const countByType = new Map();
+  active.forEach(t => countByType.set(t.typeId, (countByType.get(t.typeId) || 0) + 1));
+
+  const remainingPairTypes = [];
+  countByType.forEach((cnt, typeId) => {
+    for (let k = 0; k < Math.floor(cnt / 2); k++) {
+      remainingPairTypes.push(typeId);
+    }
+  });
+
+  for (let i = remainingPairTypes.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [remainingPairTypes[i], remainingPairTypes[j]] = [remainingPairTypes[j], remainingPairTypes[i]];
+  }
+
+  let appliedSolvable = false;
+  for (let attempt = 0; attempt < 35; attempt++) {
+    const sim = active.map(t => ({
+      uid: t.uid,
+      x: t.x,
+      y: t.y,
+      z: t.z,
+      removed: false
+    }));
+
+    const assignedByType = new Map();
+    const assignments = [];
+    let ok = true;
+
+    for (let step = 0; step < remainingPairTypes.length; step++) {
+      const free = sim.filter(t => !t.removed && isTileFree(t, sim));
+      if (free.length < 2) {
+        ok = false;
+        break;
+      }
+      const typeId = remainingPairTypes[step];
+      const existingOfType = assignedByType.get(typeId) || [];
+      const [t1, t2] = pickDispersedFreePair(free, existingOfType);
+      t1.removed = true;
+      t2.removed = true;
+      assignments.push([t1.uid, t2.uid, typeId]);
+      assignedByType.set(typeId, [...existingOfType, { x: t1.x, y: t1.y, z: t1.z }, { x: t2.x, y: t2.y, z: t2.z }]);
+    }
+
+    if (ok) {
+      const byUid = new Map(active.map(t => [t.uid, t]));
+      assignments.forEach(([u1, u2, typeId]) => {
+        byUid.get(u1).typeId = typeId;
+        byUid.get(u2).typeId = typeId;
+      });
+      appliedSolvable = true;
+      break;
+    }
+  }
+
+  if (!appliedSolvable) {
+    let bestTypes = active.map(t => t.typeId);
+    let bestScore = -Infinity;
+
+    for (let attempt = 0; attempt < 80; attempt++) {
+      const candidate = [...bestTypes];
+      for (let i = candidate.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [candidate[i], candidate[j]] = [candidate[j], candidate[i]];
+      }
+
+      let validPairs = 0;
+      for (let i = 0; i < active.length; i++) {
+        for (let j = i + 1; j < active.length; j++) {
+          if (candidate[i] === candidate[j] && isTileFree(active[i], active) && isTileFree(active[j], active)) {
+            validPairs++;
+          }
+        }
+      }
+      if (validPairs === 0) continue;
+
+      let score = validPairs * 10;
+      for (let i = 0; i < active.length; i++) {
+        for (let j = i + 1; j < active.length; j++) {
+          if (candidate[i] === candidate[j]) {
+            score += scorePairDispersion(active[i], active[j]);
+          }
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestTypes = candidate;
+      }
+    }
+
+    active.forEach((tile, idx) => {
+      tile.typeId = bestTypes[idx];
+    });
+  }
+
+  const currentTileW = parseFloat(boardContainer.firstChild?.style.width) || 64;
+  active.forEach(tile => {
+    const el = tileElements.get(tile.uid);
+    if (el) renderTileFace(el, tile.typeId, currentTileW);
+  });
+
+  state.selectedUid = null;
+  state.hintUids = [];
+  state.combo = 0;
+  showToast('Peças embaralhadas!');
+  syncBoardStates();
+}
+
+/* ------------------------- 12. TEMPORIZADOR E MODAIS ------------------------- */
+function formatSeconds(s) {
+  const m = String(Math.floor(s / 60)).padStart(2, '0');
+  const sec = String(s % 60).padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+function startTimer() {
+  stopTimer();
+  state.elapsedSeconds = 0;
+  state.timerInterval = setInterval(() => {
+    state.elapsedSeconds += 1;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (state.timerInterval) {
+    clearInterval(state.timerInterval);
+    state.timerInterval = null;
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('gameModal');
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
+
+function openVictoryModal() {
+  document.getElementById('modalIcon').textContent = '🏆';
+  document.getElementById('modalTitle').textContent = 'Tabuleiro Concluído!';
+  document.getElementById('modalDesc').textContent = 'Todas as peças foram combinadas com sucesso.';
+  document.getElementById('modalStats').classList.remove('hidden');
+  document.getElementById('modalTime').textContent = formatSeconds(state.elapsedSeconds);
+  document.getElementById('modalScore').textContent = state.score;
+
+  const actions = document.getElementById('modalActions');
+  actions.innerHTML = `
+    <button id="playAgainBtn" class="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg cursor-pointer">
+      Novo Jogo
+    </button>
+  `;
+  document.getElementById('playAgainBtn').addEventListener('click', () => {
+    closeModal();
+    startNewGame();
+  });
+
+  const modal = document.getElementById('gameModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function openNoMovesModal() {
+  document.getElementById('modalIcon').textContent = '🔄';
+  document.getElementById('modalTitle').textContent = 'Sem Movimentos Válidos';
+  document.getElementById('modalDesc').textContent = 'Não há pares livres no momento. Deseja embaralhar as peças restantes?';
+  document.getElementById('modalStats').classList.add('hidden');
+
+  const actions = document.getElementById('modalActions');
+  actions.innerHTML = `
+    <button id="modalShuffleBtn" class="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm shadow-lg cursor-pointer">
+      Embaralhar Peças
+    </button>
+    ${state.history.length > 0 ? `
+      <button id="modalUndoBtn" class="px-5 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm cursor-pointer">
+        Desfazer
+      </button>
+    ` : ''}
+  `;
+  document.getElementById('modalShuffleBtn').addEventListener('click', shuffleRemaining);
+  const uBtn = document.getElementById('modalUndoBtn');
+  if (uBtn) uBtn.addEventListener('click', undoMove);
+
+  const modal = document.getElementById('gameModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+function openConfirmRestartModal() {
+  if (state.isAutoFinishing || state.history.length === 0) {
+    startNewGame();
+    return;
+  }
+
+  document.getElementById('modalIcon').textContent = '🔁';
+  document.getElementById('modalTitle').textContent = 'Iniciar Novo Jogo?';
+  document.getElementById('modalDesc').textContent = 'O progresso atual do tabuleiro será perdido e uma nova partida será gerada.';
+  document.getElementById('modalStats').classList.add('hidden');
+
+  const actions = document.getElementById('modalActions');
+  actions.innerHTML = `
+    <button id="confirmRestartBtn" class="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm shadow-lg cursor-pointer">
+      Sim, Novo Jogo
+    </button>
+    <button id="cancelRestartBtn" class="px-5 py-3 rounded-2xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-sm cursor-pointer">
+      Continuar Jogando
+    </button>
+  `;
+  document.getElementById('confirmRestartBtn').addEventListener('click', () => {
+    closeModal();
+    startNewGame();
+  });
+  document.getElementById('cancelRestartBtn').addEventListener('click', () => {
+    sfx.playClick();
+    closeModal();
+  });
+
+  const modal = document.getElementById('gameModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
+
+/* ------------------------- 13. INICIALIZAÇÃO ------------------------- */
+function startNewGame() {
+  cancelAutoFinish();
+  closeModal();
+  state.selectedUid = null;
+  state.hintUids = [];
+  state.history = [];
+  state.score = 0;
+  state.combo = 0;
+
+  const coords = LAYOUTS[state.layout] || LAYOUTS.pao_acucar;
+  state.tiles = generateSolvableBoard(coords);
+
+  applyThemePalette();
+  layoutBoard(true);
+  startTimer();
+}
+
+function changeTheme(newTheme) {
+  if (state.theme === newTheme) return;
+  state.theme = newTheme;
+  savePrefs();
+  applyThemePalette();
+
+  const currentTileW = parseFloat(boardContainer.firstChild?.style.width) || 64;
+  state.tiles.forEach(tile => {
+    const el = tileElements.get(tile.uid);
+    if (el) renderTileFace(el, tile.typeId, currentTileW);
+  });
+  sfx.playClick();
+}
+
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => changeTheme(btn.dataset.theme));
+});
+
+const layoutSelect = document.getElementById('layoutSelect');
+layoutSelect.addEventListener('change', (e) => {
+  cancelAutoFinish();
+  state.layout = e.target.value;
+  savePrefs();
+  startNewGame();
+});
+
+document.getElementById('toggleFreeBtn').addEventListener('click', () => {
+  state.highlightFree = !state.highlightFree;
+  savePrefs();
+  updateFreeToggleUI();
+  syncBoardStates();
+  sfx.playClick();
+});
+
+document.getElementById('undoBtn').addEventListener('click', undoMove);
+document.getElementById('hintBtn').addEventListener('click', triggerHint);
+document.getElementById('shuffleBtn').addEventListener('click', shuffleRemaining);
+document.getElementById('newGameBtn').addEventListener('click', () => {
+  sfx.playClick();
+  openConfirmRestartModal();
+});
+
+document.getElementById('soundBtn').addEventListener('click', () => {
+  sfx.muted = !sfx.muted;
+  savePrefs();
+  updateSoundUI();
+  if (!sfx.muted) sfx.playClick();
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  loadPrefs();
+  layoutSelect.value = state.layout;
+  updateFreeToggleUI();
+  updateSoundUI();
+  startNewGame();
+});
+</script>
+</body>
+</html>
