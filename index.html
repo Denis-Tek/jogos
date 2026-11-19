@@ -24,6 +24,61 @@
       --radius-md: 12px;
     }
 
+
+    [data-theme="light"] {
+      --bg-primary: #f1f5f9;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --border-subtle: rgba(15, 23, 42, 0.12);
+      --border-accent: rgba(2, 132, 199, 0.55);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-blue: #0284c7;
+      --accent-emerald: #059669;
+      --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.14);
+    }
+
+    [data-theme="light"] body {
+      background: radial-gradient(circle at top center, #ffffff 0%, #f1f5f9 65%, #e2e8f0 100%);
+    }
+
+    [data-theme="light"] header {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    [data-theme="light"] .icon-btn:hover {
+      background: #f1f5f9;
+    }
+
+    [data-theme="light"] .filter-pill {
+      background: rgba(255, 255, 255, 0.85);
+    }
+
+    [data-theme="light"] .filter-pill:hover {
+      border-color: rgba(15, 23, 42, 0.28);
+    }
+
+    [data-theme="light"] .search-box input {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    [data-theme="light"] .tech-tag {
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    [data-theme="light"] .game-card {
+      box-shadow: 0 10px 25px -12px rgba(15, 23, 42, 0.12);
+    }
+
+    [data-theme="light"] .toast-notification {
+      background: rgba(255, 255, 255, 0.96);
+      color: #0f172a;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -471,6 +526,9 @@
         </div>
       </div>
       <div class="header-actions">
+        <button id="themeToggle" class="icon-btn" type="button" title="Alternar entre tema claro e escuro" aria-label="Alternar tema">
+          <span id="themeIcon">☀️</span>
+        </button>
         <button id="soundToggle" class="icon-btn" type="button" title="Alternar efeitos sonoros do menu">
           <span id="soundIcon">🔊</span>
           <span id="soundLabel">Som Ativo</span>
@@ -1470,6 +1528,38 @@
           osc.stop(audioCtx.currentTime + duration);
         } catch (e) {}
       }
+
+      // Tema Claro / Escuro persistente no localStorage
+      const THEME_STORAGE_KEY = 'denis_tek_jogos_tema';
+      const themeToggle = document.getElementById('themeToggle');
+      const themeIcon = document.getElementById('themeIcon');
+
+      function applyTheme(theme) {
+        const isLight = theme === 'light';
+        document.documentElement.setAttribute('data-theme', isLight ? 'light' : 'dark');
+        themeIcon.textContent = isLight ? '🌙' : '☀️';
+        themeToggle.title = isLight ? 'Mudar para tema escuro' : 'Mudar para tema claro';
+      }
+
+      let savedTheme = 'dark';
+      try {
+        const stored = localStorage.getItem(THEME_STORAGE_KEY);
+        if (stored === 'light' || stored === 'dark') {
+          savedTheme = stored;
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          savedTheme = 'light';
+        }
+      } catch (e) {}
+      applyTheme(savedTheme);
+
+      themeToggle.addEventListener('click', () => {
+        const nextTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        applyTheme(nextTheme);
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+        } catch (e) {}
+        playTone(nextTheme === 'light' ? 580 : 420, 0.08, 'triangle');
+      });
 
       const soundToggle = document.getElementById('soundToggle');
       const soundIcon = document.getElementById('soundIcon');
