@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="sunsetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2e1a47" />
+      <stop offset="48%" stop-color="#c2593f" />
+      <stop offset="68%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#1e1533" />
+    </linearGradient>
+  </defs>
+  <rect x="28" y="34" width="144" height="114" rx="10" fill="url(#sunsetGrad)" stroke="#475569" stroke-width="2.5" />
+  <circle cx="116" cy="84" r="18" fill="#fef08a" opacity="0.88" />
+  <path d="M 28 104 Q 68 86 106 104 T 172 96 L 172 112 L 28 112 Z" fill="#1e1330" />
+  <line x1="28" y1="112" x2="172" y2="112" stroke="#f59e0b" stroke-width="1" opacity="0.5" />
+  <g stroke="rgba(255,255,255,0.22)" stroke-width="1" fill="none">
+    <line x1="64" y1="34" x2="64" y2="148" /><line x1="100" y1="34" x2="100" y2="148" /><line x1="136" y1="34" x2="136" y2="148" />
+    <line x1="28" y1="72" x2="172" y2="72" /><line x1="28" y1="110" x2="172" y2="110" />
+  </g>
+  <path d="M 18 68 H 32 A 5 5 0 1 1 40 68 H 50 V 80 A 5 5 0 1 0 50 88 V 98 H 18 Z" fill="#ea580c" stroke="#fed7aa" stroke-width="1.2" transform="rotate(-12 34 83)" />
+  <path d="M 150 96 H 182 V 126 H 168 A 5 5 0 1 0 160 126 H 150 V 114 A 5 5 0 1 1 150 106 Z" fill="#7c3aed" stroke="#ddd6fe" stroke-width="1.2" transform="rotate(14 166 111)" />
+  <path d="M 82 154 H 96 A 5 5 0 1 1 104 154 H 118 V 182 H 82 Z" fill="#d97706" stroke="#fde68a" stroke-width="1.2" transform="rotate(-6 100 168)" />
+</svg>

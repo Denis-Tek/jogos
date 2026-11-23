@@ -24,7 +24,6 @@
       --radius-md: 12px;
     }
 
-
     [data-theme="light"] {
       --bg-primary: #f1f5f9;
       --bg-secondary: #ffffff;
@@ -290,6 +289,7 @@
       justify-content: center;
       overflow: hidden;
       border-bottom: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at center, #1e293b 0%, #111827 74%, #090d16 100%);
     }
 
     .visual-batalhanaval { background: radial-gradient(circle at center, #0c2738 0%, #071926 75%, #040f17 100%); }
@@ -458,6 +458,30 @@
       border-radius: var(--radius-lg);
     }
 
+    .error-state {
+      text-align: center;
+      padding: 3rem 1.5rem;
+      color: var(--text-secondary);
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+    }
+
+    .error-state h3 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .error-state code {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.75);
+      color: var(--accent-blue);
+      font-size: 0.85rem;
+    }
+
     footer {
       border-top: 1px solid var(--border-subtle);
       padding: 1.4rem;
@@ -474,7 +498,6 @@
     footer a:hover {
       text-decoration: underline;
     }
-
 
     .toast-notification {
       position: fixed;
@@ -507,6 +530,7 @@
     .svg-art {
       width: 168px;
       height: 168px;
+      object-fit: contain;
       filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
       transition: transform 0.3s ease;
     }
@@ -547,7 +571,7 @@
   <main>
     <div class="toolbar">
       <div class="filters" role="tablist" aria-label="Filtrar jogos por categoria">
-        <button class="filter-pill active" data-filter="all" type="button">Todos (18)</button>
+        <button class="filter-pill active" data-filter="all" type="button">Todos (<span id="totalCount">0</span>)</button>
         <button class="filter-pill" data-filter="favorites" type="button">⭐ Favoritos (<span id="favCount">0</span>)</button>
         <button class="filter-pill" data-filter="memoria" type="button">Memória &amp; Som</button>
         <button class="filter-pill" data-filter="tabuleiro" type="button">Raciocínio &amp; Tabuleiro</button>
@@ -562,986 +586,7 @@
       </div>
     </div>
 
-    <section class="games-grid" id="gamesGrid">
-      <!-- 1. Batalha Naval -->
-      <article class="game-card" data-id="batalha-naval" data-title="Batalha Naval" data-category="tabuleiro" data-keywords="batalha naval navios frota radar oceano ia probabilistica">
-        <div class="card-visual visual-batalhanaval">
-          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Batalha Naval">☆</button>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Batalha Naval">
-            <rect x="20" y="20" width="160" height="160" rx="14" fill="#091f2e" stroke="#1e4963" stroke-width="2.2" />
-            <g stroke="#163b52" stroke-width="1">
-              <line x1="20" y1="52" x2="180" y2="52" />
-              <line x1="20" y1="84" x2="180" y2="84" />
-              <line x1="20" y1="116" x2="180" y2="116" />
-              <line x1="20" y1="148" x2="180" y2="148" />
-              <line x1="52" y1="20" x2="52" y2="180" />
-              <line x1="84" y1="20" x2="84" y2="180" />
-              <line x1="116" y1="20" x2="116" y2="180" />
-              <line x1="148" y1="20" x2="148" y2="180" />
-            </g>
-            <rect x="26" y="90" width="84" height="20" rx="10" fill="#334155" stroke="#64748b" stroke-width="2" />
-            <rect x="122" y="122" width="20" height="52" rx="10" fill="#334155" stroke="#64748b" stroke-width="2" />
-            <rect x="148" y="52" width="32" height="32" rx="4" fill="rgba(225, 29, 72, 0.32)" stroke="#fbbf24" stroke-width="2" />
-            <path d="M157 61 L171 75 M171 61 L157 75" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
-            <rect x="148" y="84" width="32" height="32" rx="4" fill="rgba(225, 29, 72, 0.25)" />
-            <path d="M157 93 L171 107 M171 93 L157 107" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
-            <circle cx="68" cy="36" r="5" fill="#38bdf8" />
-            <circle cx="36" cy="164" r="5" fill="#38bdf8" />
-            <circle cx="100" cy="68" r="5" fill="#38bdf8" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Batalha Naval</h2>
-          </div>
-          <p class="card-desc">
-            Comando tático de frota em grade 10×10 com posicionamento manual ou aleatório, IA com mapa de densidade probabilística e modo 2 jogadores com cortina de privacidade.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">IA Probabilística</span>
-            <span class="tech-tag">1P &amp; 2P</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./batalha-naval/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 2. Campo Minado Pro -->
-      <article class="game-card" data-id="campo-minado" data-title="Campo Minado Pro" data-category="puzzle" data-keywords="campo minado pro minesweeper bombas bandeiras flood fill logica anos 90">
-        <div class="card-visual visual-campominado">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Campo Minado Pro">☆</button>
-          <span class="record-badge" id="badge-campominado">🏆 Recorde: <strong id="score-campominado">0s</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Campo Minado Pro">
-            <rect x="28" y="14" width="144" height="172" rx="14" fill="#1e293b" stroke="#334155" stroke-width="3" />
-            <rect x="38" y="24" width="34" height="18" rx="4" fill="#090d16" stroke="#334155" stroke-width="1.5" />
-            <text x="55" y="37" text-anchor="middle" fill="#ef4444" font-family="'Courier New', monospace" font-weight="900" font-size="13" letter-spacing="1">010</text>
-            <rect x="89" y="22" width="22" height="22" rx="6" fill="#293548" stroke="#475569" stroke-width="1.5" />
-            <circle cx="100" cy="33" r="6.5" fill="#fbbf24" />
-            <path d="M 97.2 31.5 Q 98.2 30.3 99.2 31.5" fill="none" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round" />
-            <path d="M 100.8 31.5 Q 101.8 30.3 102.8 31.5" fill="none" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round" />
-            <path d="M 97.5 34.5 Q 100 37 102.5 34.5" fill="none" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round" />
-            <rect x="128" y="24" width="34" height="18" rx="4" fill="#090d16" stroke="#334155" stroke-width="1.5" />
-            <text x="145" y="37" text-anchor="middle" fill="#ef4444" font-family="'Courier New', monospace" font-weight="900" font-size="13" letter-spacing="1">000</text>
-            <g transform="translate(38, 50)">
-              <rect x="-2" y="-2" width="128" height="128" rx="6" fill="#0f172a" />
-              <g fill="#334155">
-                <rect x="0" y="0" width="12.5" height="12.5" rx="2" /><rect x="14" y="0" width="12.5" height="12.5" rx="2" /><rect x="28" y="0" width="12.5" height="12.5" rx="2" /><rect x="42" y="0" width="12.5" height="12.5" rx="2" /><rect x="56" y="0" width="12.5" height="12.5" rx="2" /><rect x="70" y="0" width="12.5" height="12.5" rx="2" /><rect x="84" y="0" width="12.5" height="12.5" rx="2" /><rect x="98" y="0" width="12.5" height="12.5" rx="2" /><rect x="112" y="0" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="14" width="12.5" height="12.5" rx="2" /><rect x="14" y="14" width="12.5" height="12.5" rx="2" /><rect x="28" y="14" width="12.5" height="12.5" rx="2" /><rect x="42" y="14" width="12.5" height="12.5" rx="2" /><rect x="56" y="14" width="12.5" height="12.5" rx="2" /><rect x="70" y="14" width="12.5" height="12.5" rx="2" /><rect x="84" y="14" width="12.5" height="12.5" rx="2" /><rect x="98" y="14" width="12.5" height="12.5" rx="2" /><rect x="112" y="14" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="28" width="12.5" height="12.5" rx="2" /><rect x="14" y="28" width="12.5" height="12.5" rx="2" /><rect x="28" y="28" width="12.5" height="12.5" rx="2" /><rect x="42" y="28" width="12.5" height="12.5" rx="2" /><rect x="56" y="28" width="12.5" height="12.5" rx="2" /><rect x="70" y="28" width="12.5" height="12.5" rx="2" /><rect x="84" y="28" width="12.5" height="12.5" rx="2" /><rect x="98" y="28" width="12.5" height="12.5" rx="2" /><rect x="112" y="28" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="42" width="12.5" height="12.5" rx="2" /><rect x="14" y="42" width="12.5" height="12.5" rx="2" /><rect x="28" y="42" width="12.5" height="12.5" rx="2" /><rect x="42" y="42" width="12.5" height="12.5" rx="2" /><rect x="56" y="42" width="12.5" height="12.5" rx="2" /><rect x="70" y="42" width="12.5" height="12.5" rx="2" /><rect x="84" y="42" width="12.5" height="12.5" rx="2" /><rect x="98" y="42" width="12.5" height="12.5" rx="2" /><rect x="112" y="42" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="56" width="12.5" height="12.5" rx="2" /><rect x="14" y="56" width="12.5" height="12.5" rx="2" /><rect x="28" y="56" width="12.5" height="12.5" rx="2" /><rect x="42" y="56" width="12.5" height="12.5" rx="2" /><rect x="56" y="56" width="12.5" height="12.5" rx="2" /><rect x="70" y="56" width="12.5" height="12.5" rx="2" /><rect x="84" y="56" width="12.5" height="12.5" rx="2" /><rect x="98" y="56" width="12.5" height="12.5" rx="2" /><rect x="112" y="56" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="70" width="12.5" height="12.5" rx="2" /><rect x="14" y="70" width="12.5" height="12.5" rx="2" /><rect x="28" y="70" width="12.5" height="12.5" rx="2" /><rect x="42" y="70" width="12.5" height="12.5" rx="2" /><rect x="56" y="70" width="12.5" height="12.5" rx="2" /><rect x="70" y="70" width="12.5" height="12.5" rx="2" /><rect x="84" y="70" width="12.5" height="12.5" rx="2" /><rect x="98" y="70" width="12.5" height="12.5" rx="2" /><rect x="112" y="70" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="84" width="12.5" height="12.5" rx="2" /><rect x="14" y="84" width="12.5" height="12.5" rx="2" /><rect x="28" y="84" width="12.5" height="12.5" rx="2" /><rect x="42" y="84" width="12.5" height="12.5" rx="2" /><rect x="56" y="84" width="12.5" height="12.5" rx="2" /><rect x="70" y="84" width="12.5" height="12.5" rx="2" /><rect x="84" y="84" width="12.5" height="12.5" rx="2" /><rect x="98" y="84" width="12.5" height="12.5" rx="2" /><rect x="112" y="84" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="98" width="12.5" height="12.5" rx="2" /><rect x="14" y="98" width="12.5" height="12.5" rx="2" /><rect x="28" y="98" width="12.5" height="12.5" rx="2" /><rect x="42" y="98" width="12.5" height="12.5" rx="2" /><rect x="56" y="98" width="12.5" height="12.5" rx="2" /><rect x="70" y="98" width="12.5" height="12.5" rx="2" /><rect x="84" y="98" width="12.5" height="12.5" rx="2" /><rect x="98" y="98" width="12.5" height="12.5" rx="2" /><rect x="112" y="98" width="12.5" height="12.5" rx="2" />
-                <rect x="0" y="112" width="12.5" height="12.5" rx="2" /><rect x="14" y="112" width="12.5" height="12.5" rx="2" /><rect x="28" y="112" width="12.5" height="12.5" rx="2" /><rect x="42" y="112" width="12.5" height="12.5" rx="2" /><rect x="56" y="112" width="12.5" height="12.5" rx="2" /><rect x="70" y="112" width="12.5" height="12.5" rx="2" /><rect x="84" y="112" width="12.5" height="12.5" rx="2" /><rect x="98" y="112" width="12.5" height="12.5" rx="2" /><rect x="112" y="112" width="12.5" height="12.5" rx="2" />
-              </g>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Campo Minado Pro</h2>
-          </div>
-          <p class="card-desc">
-            Versão moderna e responsiva do clássico Minesweeper com 1º clique seguro, abertura em cascata (Flood Fill), Chording, dica lógica e temas Dark Moderno ou Anos 90.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Flood Fill BFS</span>
-            <span class="tech-tag">Duplo Tema</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./campo-minado/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 3. Cubo Mágico 3x3 -->
-      <article class="game-card" data-id="cubo-magico" data-title="Cubo Mágico 3x3" data-category="puzzle" data-keywords="cubo magico 3x3 rubik speedcubing 3d canvas wca rotacao">
-        <div class="card-visual visual-cubomagico">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Cubo Mágico 3x3">☆</button>
-          <span class="record-badge" id="badge-cubomagico">🏆 Recorde: <strong id="score-cubomagico">--:--</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Cubo Mágico 3x3">
-            <g stroke="#0f172a" stroke-width="2.4" stroke-linejoin="round">
-              <polygon points="100,22 124,33 100,44 76,33" fill="#ffffff" />
-              <polygon points="124,33 148,44 124,55 100,44" fill="#ffffff" />
-              <polygon points="148,44 172,55 148,66 124,55" fill="#ffffff" />
-              <polygon points="76,33 100,44 76,55 52,44" fill="#ffffff" />
-              <polygon points="100,44 124,55 100,66 76,55" fill="#ffffff" />
-              <polygon points="124,55 148,66 124,77 100,66" fill="#ffffff" />
-              <polygon points="52,44 76,55 52,66 28,55" fill="#ffffff" />
-              <polygon points="76,55 100,66 76,77 52,66" fill="#ffffff" />
-              <polygon points="100,66 124,77 100,88 76,77" fill="#f8fafc" />
-            </g>
-            <g stroke="#0f172a" stroke-width="2.4" stroke-linejoin="round">
-              <polygon points="28,55 52,66 52,96 28,85" fill="#16a34a" />
-              <polygon points="52,66 76,77 76,107 52,96" fill="#16a34a" />
-              <polygon points="76,77 100,88 100,118 76,107" fill="#22c55e" />
-              <polygon points="28,85 52,96 52,126 28,115" fill="#15803d" />
-              <polygon points="52,96 76,107 76,137 52,126" fill="#16a34a" />
-              <polygon points="76,107 100,118 100,148 76,137" fill="#16a34a" />
-              <polygon points="28,115 52,126 52,156 28,145" fill="#15803d" />
-              <polygon points="52,126 76,137 76,167 52,156" fill="#15803d" />
-              <polygon points="76,137 100,148 100,178 76,167" fill="#16a34a" />
-            </g>
-            <g stroke="#0f172a" stroke-width="2.4" stroke-linejoin="round">
-              <polygon points="100,88 124,77 124,107 100,118" fill="#dc2626" />
-              <polygon points="124,77 148,66 148,96 124,107" fill="#b91c1c" />
-              <polygon points="148,66 172,55 172,85 148,96" fill="#b91c1c" />
-              <polygon points="100,118 124,107 124,137 100,148" fill="#b91c1c" />
-              <polygon points="124,107 148,96 148,126 124,137" fill="#b91c1c" />
-              <polygon points="148,96 172,85 172,115 148,126" fill="#991b1b" />
-              <polygon points="100,148 124,137 124,167 100,178" fill="#b91c1c" />
-              <polygon points="124,137 148,126 148,156 124,167" fill="#991b1b" />
-              <polygon points="148,126 172,115 172,145 148,156" fill="#991b1b" />
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Cubo Mágico 3x3</h2>
-          </div>
-          <p class="card-desc">
-            Simulador 3D interativo com motor próprio em Canvas 2D, rotação livre em 360°, notação oficial WCA, cronômetro de speedcubing e resolução automática passo a passo.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Canvas 3D Engine</span>
-            <span class="tech-tag">Notação WCA</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./cubo-magico/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 4. Dots & Boxes -->
-      <article class="game-card" data-id="dots-and-boxes" data-title="Dots & Boxes" data-category="tabuleiro" data-keywords="dots and boxes pontinhos caixas quadrados ia svg 2 jogadores">
-        <div class="card-visual visual-dotsandboxes">
-          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Dots & Boxes">☆</button>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Dots & Boxes">
-            <rect x="20" y="20" width="160" height="160" rx="14" fill="#172033" stroke="#2c3a52" stroke-width="2" />
-            <g stroke="#293549" stroke-width="4" stroke-linecap="round">
-              <line x1="35" y1="35" x2="165" y2="35" /><line x1="35" y1="61" x2="165" y2="61" /><line x1="35" y1="87" x2="165" y2="87" /><line x1="35" y1="113" x2="165" y2="113" /><line x1="35" y1="139" x2="165" y2="139" /><line x1="35" y1="165" x2="165" y2="165" />
-              <line x1="35" y1="35" x2="35" y2="165" /><line x1="61" y1="35" x2="61" y2="165" /><line x1="87" y1="35" x2="87" y2="165" /><line x1="113" y1="35" x2="113" y2="165" /><line x1="139" y1="35" x2="139" y2="165" /><line x1="165" y1="35" x2="165" y2="165" />
-            </g>
-            <g fill="#e2e8f0">
-              <circle cx="35" cy="35" r="4.2" /><circle cx="61" cy="35" r="4.2" /><circle cx="87" cy="35" r="4.2" /><circle cx="113" cy="35" r="4.2" /><circle cx="139" cy="35" r="4.2" /><circle cx="165" cy="35" r="4.2" />
-              <circle cx="35" cy="61" r="4.2" /><circle cx="61" cy="61" r="4.2" /><circle cx="87" cy="61" r="4.2" /><circle cx="113" cy="61" r="4.2" /><circle cx="139" cy="61" r="4.2" /><circle cx="165" cy="61" r="4.2" />
-              <circle cx="35" cy="87" r="4.2" /><circle cx="61" cy="87" r="4.2" /><circle cx="87" cy="87" r="4.2" /><circle cx="113" cy="87" r="4.2" /><circle cx="139" cy="87" r="4.2" /><circle cx="165" cy="87" r="4.2" />
-              <circle cx="35" cy="113" r="4.2" /><circle cx="61" cy="113" r="4.2" /><circle cx="87" cy="113" r="4.2" /><circle cx="113" cy="113" r="4.2" /><circle cx="139" cy="113" r="4.2" /><circle cx="165" cy="113" r="4.2" />
-              <circle cx="35" cy="139" r="4.2" /><circle cx="61" cy="139" r="4.2" /><circle cx="87" cy="139" r="4.2" /><circle cx="113" cy="139" r="4.2" /><circle cx="139" cy="139" r="4.2" /><circle cx="165" cy="139" r="4.2" />
-              <circle cx="35" cy="165" r="4.2" /><circle cx="61" cy="165" r="4.2" /><circle cx="87" cy="165" r="4.2" /><circle cx="113" cy="165" r="4.2" /><circle cx="139" cy="165" r="4.2" /><circle cx="165" cy="165" r="4.2" />
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Dots &amp; Boxes</h2>
-          </div>
-          <p class="card-desc">
-            O clássico Jogo dos Pontinhos com modo solo contra IA em 3 níveis (com análise de cadeias) ou 2 jogadores locais, grades de 3×3 a 7×7 e renderização vetorial em SVG.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">SVG Dinâmico</span>
-            <span class="tech-tag">IA Heurística</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./dots-and-boxes/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 5. Food Hunt: Formigas Pixeladas -->
-      <article class="game-card" data-id="food-hunt" data-title="Food Hunt: Formigas Pixeladas" data-category="puzzle" data-keywords="food hunt formigas pixeladas puzzle estrategia bfs kmeans conversor">
-        <div class="card-visual visual-foodhunt">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Food Hunt">☆</button>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Food Hunt: Formigas Pixeladas">
-            <rect x="26" y="16" width="148" height="114" rx="16" fill="#f5efe6" stroke="#d5c3ad" stroke-width="4" />
-            <rect x="44" y="28" width="22" height="14" rx="2" fill="#22c55e" />
-            <rect x="134" y="28" width="22" height="14" rx="2" fill="#22c55e" />
-            <rect x="86" y="26" width="28" height="10" rx="2" fill="#84cc16" />
-            <rect x="68" y="36" width="64" height="14" rx="2" fill="#e9a8d8" />
-            <rect x="64" y="50" width="72" height="22" rx="2" fill="#7c7585" />
-            <rect x="82" y="56" width="8" height="8" rx="1" fill="#1e1b24" />
-            <rect x="110" y="56" width="8" height="8" rx="1" fill="#1e1b24" />
-            <rect x="94" y="65" width="12" height="6" rx="1" fill="#ec4899" />
-            <rect x="72" y="72" width="56" height="10" rx="2" fill="#e7d39c" />
-            <rect x="84" y="82" width="32" height="14" rx="2" fill="#65c434" />
-            <rect x="96" y="86" width="8" height="5" rx="1" fill="#1e1b24" />
-            <rect x="52" y="96" width="96" height="12" rx="2" fill="#1f8a5b" />
-            <rect x="64" y="108" width="72" height="10" rx="2" fill="#166548" />
-            <ellipse cx="100" cy="143" rx="14" ry="8" fill="#4a2c18" stroke="#c89666" stroke-width="2.5" />
-            <g font-family="Arial, sans-serif" font-weight="800" font-size="11" text-anchor="middle" fill="#ffffff">
-              <rect x="26" y="158" width="26" height="26" rx="6" fill="#ec4899" stroke="#be185d" stroke-width="2" />
-              <text x="39" y="175">4</text>
-              <rect x="56" y="158" width="26" height="26" rx="6" fill="#7c7585" stroke="#524d59" stroke-width="2" />
-              <text x="69" y="175">9</text>
-              <rect x="87" y="158" width="26" height="26" rx="6" fill="#164e56" stroke="#0f353b" stroke-width="2" />
-              <text x="100" y="175">8</text>
-              <rect x="118" y="158" width="26" height="26" rx="6" fill="#22c55e" stroke="#15803d" stroke-width="2" />
-              <text x="131" y="175">5</text>
-              <rect x="148" y="158" width="26" height="26" rx="6" fill="#10b981" stroke="#047857" stroke-width="2" />
-              <text x="161" y="175">20</text>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Food Hunt: Formigas Pixeladas</h2>
-          </div>
-          <p class="card-desc">
-            Gerencie 5 slots de cores para comandar formigas que escavam desenhos pixelizados pelas bordas e túneis abertos. Inclui conversor de fotos próprias via K-Means.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Canvas 2D &amp; BFS</span>
-            <span class="tech-tag">K-Means Fotos</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./food-hunt/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 6. Genius Estrela -->
-      <article class="game-card" data-id="genius-estrela" data-title="Genius Estrela" data-category="memoria" data-keywords="genius estrela memoria som sequencia retro anos 80">
-        <div class="card-visual visual-genius">
-          <span class="category-tag">Memória &amp; Som</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Genius Estrela">☆</button>
-          <span class="record-badge" id="badge-genius">🏆 Recorde: <strong id="score-genius">0</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do brinquedo Genius Estrela">
-            <defs>
-              <radialGradient id="geniusBody" cx="50%" cy="45%" r="55%">
-                <stop offset="0%" stop-color="#3f3f46" />
-                <stop offset="70%" stop-color="#18181b" />
-                <stop offset="100%" stop-color="#09090b" />
-              </radialGradient>
-            </defs>
-            <circle cx="100" cy="100" r="92" fill="url(#geniusBody)" stroke="#52525b" stroke-width="3" />
-            <path d="M 94 22 A 78 78 0 0 0 22 94 L 58 94 A 42 42 0 0 1 94 58 Z" fill="#22c55e" stroke="#14532d" stroke-width="2" />
-            <path d="M 106 22 A 78 78 0 0 1 178 94 L 142 94 A 42 42 0 0 0 106 58 Z" fill="#ef4444" stroke="#7f1d1d" stroke-width="2" />
-            <path d="M 22 106 A 78 78 0 0 0 94 178 L 94 142 A 42 42 0 0 1 58 106 Z" fill="#eab308" stroke="#713f12" stroke-width="2" />
-            <path d="M 178 106 A 78 78 0 0 1 106 178 L 106 142 A 42 42 0 0 0 142 106 Z" fill="#3b82f6" stroke="#1e3a8a" stroke-width="2" />
-            <circle cx="100" cy="100" r="36" fill="#d4d4d8" stroke="#27272a" stroke-width="3" />
-            <circle cx="100" cy="100" r="31" fill="#18181b" />
-            <text x="100" y="96" text-anchor="middle" fill="#f8fafc" font-family="Arial, sans-serif" font-weight="800" font-size="11" letter-spacing="1">GENIUS</text>
-            <rect x="78" y="104" width="8" height="4" rx="1" fill="#ef4444" />
-            <rect x="90" y="104" width="8" height="4" rx="1" fill="#ef4444" />
-            <rect x="102" y="104" width="8" height="4" rx="1" fill="#451a1a" />
-            <rect x="114" y="104" width="8" height="4" rx="1" fill="#451a1a" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Genius Estrela</h2>
-          </div>
-          <p class="card-desc">
-            Recriação fiel do clássico eletrônico dos anos 80. Repita sequências luminosas e sonoras cada vez mais rápidas em 3 modos de jogo e 4 níveis de dificuldade.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Web Audio API</span>
-            <span class="tech-tag">3 Modos</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./genius-estrela/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 7. Jogo da Forca -->
-      <article class="game-card" data-id="jogo-da-forca" data-title="Jogo da Forca" data-category="puzzle" data-keywords="jogo da forca hangman palavras biblia categorias dicas 2 jogadores json">
-        <div class="card-visual visual-forca">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Jogo da Forca">☆</button>
-          <span class="record-badge" id="badge-forca">🏆 Recorde: <strong id="score-forca">0</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do Jogo da Forca">
-            <rect x="20" y="20" width="160" height="160" rx="14" fill="#131022" stroke="#2e274d" stroke-width="2.2" />
-            <g stroke="#d97706" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-              <line x1="36" y1="126" x2="90" y2="126" />
-              <line x1="54" y1="126" x2="54" y2="38" />
-              <line x1="54" y1="38" x2="102" y2="38" />
-              <line x1="54" y1="54" x2="70" y2="38" />
-            </g>
-            <line x1="102" y1="38" x2="102" y2="52" stroke="#94a3b8" stroke-width="2.2" />
-            <g stroke="#f8fafc" stroke-width="2.8" stroke-linecap="round" fill="none">
-              <circle cx="102" cy="61" r="9" />
-              <line x1="102" y1="70" x2="102" y2="96" />
-              <line x1="102" y1="77" x2="89" y2="88" />
-              <line x1="102" y1="77" x2="115" y2="88" />
-              <line x1="102" y1="96" x2="91" y2="113" />
-            </g>
-            <g transform="translate(118, 72)" font-family="'Courier New', monospace" font-weight="800" font-size="13" text-anchor="middle">
-              <text x="8" y="0" fill="#38bdf8">F</text><line x1="2" y1="5" x2="14" y2="5" stroke="#475569" stroke-width="2" />
-              <text x="24" y="0" fill="#38bdf8">O</text><line x1="18" y1="5" x2="30" y2="5" stroke="#475569" stroke-width="2" />
-              <line x1="34" y1="5" x2="46" y2="5" stroke="#38bdf8" stroke-width="2" />
-              <text x="56" y="0" fill="#38bdf8">C</text><line x1="50" y1="5" x2="62" y2="5" stroke="#475569" stroke-width="2" />
-              <text x="72" y="0" fill="#38bdf8">A</text><line x1="66" y1="5" x2="78" y2="5" stroke="#475569" stroke-width="2" />
-            </g>
-            <g transform="translate(36, 144)" font-family="Arial, sans-serif" font-weight="800" font-size="10" text-anchor="middle" fill="#ffffff">
-              <rect x="0" y="0" width="22" height="22" rx="5" fill="#16a34a" /><text x="11" y="15">F</text>
-              <rect x="26" y="0" width="22" height="22" rx="5" fill="#16a34a" /><text x="37" y="15">O</text>
-              <rect x="52" y="0" width="22" height="22" rx="5" fill="#dc2626" opacity="0.8" /><text x="63" y="15">E</text>
-              <rect x="78" y="0" width="22" height="22" rx="5" fill="#16a34a" /><text x="89" y="15">C</text>
-              <rect x="104" y="0" width="22" height="22" rx="5" fill="#16a34a" /><text x="115" y="15">A</text>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Jogo da Forca</h2>
-          </div>
-          <p class="card-desc">
-            Adivinhe palavras e expressões bíblicas por categoria antes de completar o boneco. Inclui banco de dados em JSON, dicas, referências bíblicas e modo 2 jogadores.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Banco JSON</span>
-            <span class="tech-tag">1P &amp; 2P</span>
-            <span class="tech-tag">Web Audio API</span>
-          </div>
-          <a class="play-btn" href="./jogo-da-forca/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 8. Jogo de Damas -->
-      <article class="game-card" data-id="damas" data-title="Jogo de Damas" data-category="tabuleiro" data-keywords="jogo de damas checkers tabuleiro 8x8 dama voadora minimax alfa beta">
-        <div class="card-visual visual-damas">
-          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Jogo de Damas">☆</button>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do Jogo de Damas">
-            <rect x="20" y="20" width="160" height="160" rx="14" fill="#452715" stroke="#854d27" stroke-width="3" />
-            <g transform="translate(28, 28)">
-              <rect x="0" y="0" width="36" height="36" fill="#e7d7c1" />
-              <rect x="36" y="0" width="36" height="36" fill="#6b3e26" />
-              <rect x="72" y="0" width="36" height="36" fill="#e7d7c1" />
-              <rect x="108" y="0" width="36" height="36" fill="#6b3e26" />
-
-              <rect x="0" y="36" width="36" height="36" fill="#6b3e26" />
-              <rect x="36" y="36" width="36" height="36" fill="#e7d7c1" />
-              <rect x="72" y="36" width="36" height="36" fill="#6b3e26" />
-              <rect x="108" y="36" width="36" height="36" fill="#e7d7c1" />
-
-              <rect x="0" y="72" width="36" height="36" fill="#e7d7c1" />
-              <rect x="36" y="72" width="36" height="36" fill="#6b3e26" />
-              <rect x="72" y="72" width="36" height="36" fill="#e7d7c1" />
-              <rect x="108" y="72" width="36" height="36" fill="#6b3e26" />
-
-              <rect x="0" y="108" width="36" height="36" fill="#6b3e26" />
-              <rect x="36" y="108" width="36" height="36" fill="#e7d7c1" />
-              <rect x="72" y="108" width="36" height="36" fill="#6b3e26" />
-              <rect x="108" y="108" width="36" height="36" fill="#e7d7c1" />
-
-              <circle cx="54" cy="18" r="13" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-              <circle cx="54" cy="18" r="9" fill="none" stroke="#475569" stroke-width="1.5" />
-              <circle cx="126" cy="18" r="13" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-              <circle cx="126" cy="18" r="9" fill="none" stroke="#475569" stroke-width="1.5" />
-              <circle cx="18" cy="54" r="13" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
-              <circle cx="18" cy="54" r="9" fill="none" stroke="#475569" stroke-width="1.5" />
-
-              <circle cx="54" cy="90" r="13" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
-              <circle cx="54" cy="90" r="9" fill="none" stroke="#cbd5e1" stroke-width="1.5" />
-              <text x="54" y="94" text-anchor="middle" fill="#d97706" font-size="11" font-weight="900">♛</text>
-
-              <circle cx="18" cy="126" r="13" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
-              <circle cx="18" cy="126" r="9" fill="none" stroke="#cbd5e1" stroke-width="1.5" />
-              <circle cx="90" cy="126" r="13" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
-              <circle cx="90" cy="126" r="9" fill="none" stroke="#cbd5e1" stroke-width="1.5" />
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Jogo de Damas</h2>
-          </div>
-          <p class="card-desc">
-            Tabuleiro 8×8 com Dama Voadora, Lei da Maioria, capturas em cadeia, modo casual opcional e Inteligência Artificial em 3 níveis via Minimax com poda Alfa-Beta.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Minimax Alfa-Beta</span>
-            <span class="tech-tag">Dama Voadora</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./damas/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 9. Mahjong Brasil (Vita Mahjong) -->
-      <article class="game-card" data-id="vita-mahjong" data-title="Mahjong Brasil" data-category="puzzle" data-keywords="mahjong brasil vita solitaire pecas pares biblia classico tabuleiro">
-        <div class="card-visual visual-mahjong">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Mahjong Brasil">☆</button>
-          <span class="record-badge" id="badge-mahjong">🏆 Recorde: <strong id="score-mahjong">0</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Mahjong Brasil">
-            <g transform="translate(22, 22)">
-              <rect x="6" y="14" width="44" height="58" rx="7" fill="#1e3a5f" />
-              <rect x="4" y="10" width="44" height="58" rx="7" fill="#d97706" />
-              <rect x="2" y="6" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
-              <text x="9" y="18" fill="#2563eb" font-family="Arial, sans-serif" font-weight="800" font-size="9">8</text>
-              <text x="24" y="42" text-anchor="middle" fill="#2563eb" font-size="20">⚓</text>
-              <text x="24" y="57" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Âncora</text>
-
-              <rect x="110" y="14" width="44" height="58" rx="7" fill="#1e3a5f" />
-              <rect x="108" y="10" width="44" height="58" rx="7" fill="#d97706" />
-              <rect x="106" y="6" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
-              <text x="113" y="18" fill="#059669" font-family="Arial, sans-serif" font-weight="800" font-size="9">2</text>
-              <path d="M 118 41 A 10 10 0 0 1 138 41" fill="none" stroke="#ef4444" stroke-width="2.5" />
-              <path d="M 121 41 A 7 7 0 0 1 135 41" fill="none" stroke="#f59e0b" stroke-width="2.2" />
-              <path d="M 124 41 A 4 4 0 0 1 132 41" fill="none" stroke="#3b82f6" stroke-width="2" />
-              <text x="128" y="57" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Arco-íris</text>
-
-              <rect x="6" y="92" width="44" height="58" rx="7" fill="#1e3a5f" />
-              <rect x="4" y="88" width="44" height="58" rx="7" fill="#d97706" />
-              <rect x="2" y="84" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
-              <text x="9" y="96" fill="#d97706" font-family="Arial, sans-serif" font-weight="800" font-size="9">2</text>
-              <text x="24" y="119" text-anchor="middle" fill="#eab308" font-size="19">🕎</text>
-              <text x="24" y="135" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Menorá</text>
-
-              <rect x="110" y="92" width="44" height="58" rx="7" fill="#1e3a5f" />
-              <rect x="108" y="88" width="44" height="58" rx="7" fill="#d97706" />
-              <rect x="106" y="84" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
-              <text x="113" y="96" fill="#16a34a" font-family="Arial, sans-serif" font-weight="800" font-size="9">6</text>
-              <text x="128" y="119" text-anchor="middle" fill="#16a34a" font-size="19">🌿</text>
-              <text x="128" y="135" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Oliveira</text>
-
-              <rect x="34" y="52" width="46" height="60" rx="8" fill="#0f172a" opacity="0.45" />
-              <rect x="31" y="47" width="46" height="60" rx="8" fill="#b45309" />
-              <rect x="28" y="42" width="46" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
-              <text x="34" y="54" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="8.5">AM</text>
-              <circle cx="67" cy="51" r="2.2" fill="#dc2626" />
-              <text x="51" y="79" text-anchor="middle" fill="#ef4444" font-size="22">♥</text>
-              <text x="51" y="95" text-anchor="middle" fill="#334155" font-family="Arial, sans-serif" font-weight="800" font-size="8">Amor</text>
-
-              <rect x="84" y="52" width="46" height="60" rx="8" fill="#0f172a" opacity="0.45" />
-              <rect x="81" y="47" width="46" height="60" rx="8" fill="#b45309" />
-              <rect x="78" y="42" width="46" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
-              <text x="85" y="54" fill="#d97706" font-family="Arial, sans-serif" font-weight="800" font-size="9">3</text>
-              <circle cx="117" cy="51" r="2.2" fill="#d97706" />
-              <text x="101" y="79" text-anchor="middle" fill="#facc15" font-size="22">★</text>
-              <text x="101" y="95" text-anchor="middle" fill="#334155" font-family="Arial, sans-serif" font-weight="800" font-size="8">Estrela</text>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Mahjong Brasil</h2>
-          </div>
-          <p class="card-desc">
-            Edição Vita com peças grandes em relevo 3D, troca instantânea entre os temas Bíblia, Brasil e Clássico, 5 formatos verticais e gerador reverso 100% solucionável.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">3 Temas SVG</span>
-            <span class="tech-tag">5 Tabuleiros</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./vita-mahjong/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 10. Paciência Clássica -->
-      <article class="game-card" data-id="paciencia" data-title="Paciência Clássica" data-category="tabuleiro" data-keywords="paciencia classica klondike solitaire cartas baralho naipes bfs deadlock">
-        <div class="card-visual visual-paciencia">
-          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Paciência Clássica">☆</button>
-          <span class="record-badge" id="badge-paciencia">🏆 Recorde: <strong id="score-paciencia">0 pts</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Paciência Clássica">
-            <defs>
-              <pattern id="cardBackPattern" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-                <rect width="6" height="6" fill="#3b52c4" />
-                <path d="M 0 0 L 6 0 M 0 0 L 0 6" stroke="#6078ea" stroke-width="1.2" />
-              </pattern>
-            </defs>
-            <rect x="14" y="16" width="32" height="44" rx="5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1.8" />
-            <rect x="31" y="49" width="13" height="9" rx="4.5" fill="#0f172a" />
-            <text x="37.5" y="55.8" text-anchor="middle" fill="#ffffff" font-family="Arial, sans-serif" font-weight="800" font-size="6.5">24</text>
-            <g fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.28)" stroke-width="1.2" stroke-dasharray="2.5 1.5">
-              <rect x="86" y="16" width="22" height="32" rx="4" /><rect x="112" y="16" width="22" height="32" rx="4" /><rect x="138" y="16" width="22" height="32" rx="4" /><rect x="164" y="16" width="22" height="32" rx="4" />
-            </g>
-            <g fill="rgba(255,255,255,0.35)" font-family="Arial, sans-serif" font-size="11" text-anchor="middle">
-              <text x="97" y="36">♠</text><text x="123" y="36">♥</text><text x="149" y="36">♣</text><text x="175" y="36">♦</text>
-            </g>
-            <g transform="translate(14, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="9" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">10</text>
-              <text x="4" y="16" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♠</text>
-              <text x="11" y="25" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♠</text>
-            </g>
-            <g transform="translate(39, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="5" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="14" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">8</text>
-              <text x="3.5" y="21" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♣</text>
-              <text x="11" y="30" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♣</text>
-            </g>
-            <g transform="translate(64, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="9" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="18" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">2</text>
-              <text x="3.5" y="25" fill="#dc2626" font-family="Arial, sans-serif" font-size="7">♦</text>
-              <text x="11" y="34" text-anchor="middle" fill="#dc2626" font-family="Arial, sans-serif" font-size="13">♦</text>
-            </g>
-            <g transform="translate(89, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="13" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="22" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">10</text>
-              <text x="3.5" y="29" fill="#dc2626" font-family="Arial, sans-serif" font-size="7">♦</text>
-              <text x="11" y="38" text-anchor="middle" fill="#dc2626" font-family="Arial, sans-serif" font-size="13">♦</text>
-            </g>
-            <g transform="translate(114, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="12" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="17" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="26" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">9</text>
-              <text x="3.5" y="33" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♠</text>
-              <text x="11" y="42" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♠</text>
-            </g>
-            <g transform="translate(139, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="12" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="16" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="21" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="30" fill="#1e293b" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">10</text>
-              <text x="3.5" y="37" fill="#1e293b" font-family="Arial, sans-serif" font-size="7">♣</text>
-              <text x="11" y="46" text-anchor="middle" fill="#1e293b" font-family="Arial, sans-serif" font-size="13">♣</text>
-            </g>
-            <g transform="translate(164, 72)">
-              <rect x="0" y="0" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="4" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="8" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="12" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="16" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="20" width="22" height="34" rx="3.5" fill="url(#cardBackPattern)" stroke="#e2e8f0" stroke-width="1" />
-              <rect x="0" y="25" width="22" height="34" rx="3.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1" />
-              <text x="3" y="34" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="7.5">K</text>
-              <text x="3.5" y="41" fill="#dc2626" font-family="Arial, sans-serif" font-size="7">♦</text>
-              <rect x="6" y="35" width="11" height="16" rx="1.5" fill="none" stroke="#dc2626" stroke-width="0.7" />
-              <text x="11.5" y="46" text-anchor="middle" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="9">K</text>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Paciência Clássica</h2>
-          </div>
-          <p class="card-desc">
-            Klondike Solitaire completo em layout zero-scroll com clique automático, Drag-and-Drop, compra de 1 ou 3 cartas, detector BFS de impasses e dicas inteligentes.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Deadlock Solver BFS</span>
-            <span class="tech-tag">Zero-Scroll</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./paciencia/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 11. Quebra-Cabeça Studio -->
-      <article class="game-card" data-id="quebra-cabeca" data-title="Quebra-Cabeça Studio" data-category="puzzle" data-keywords="quebra cabeca studio jigsaw puzzle pecas bezier fotos">
-        <div class="card-visual visual-quebracabeca">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Quebra-Cabeça Studio">☆</button>
-          <span class="record-badge" id="badge-quebracabeca">🏆 Recorde: <strong id="score-quebracabeca">--:--</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Quebra-Cabeça Studio">
-            <defs>
-              <linearGradient id="sunsetGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#2e1a47" />
-                <stop offset="48%" stop-color="#c2593f" />
-                <stop offset="68%" stop-color="#f59e0b" />
-                <stop offset="100%" stop-color="#1e1533" />
-              </linearGradient>
-            </defs>
-            <rect x="28" y="34" width="144" height="114" rx="10" fill="url(#sunsetGrad)" stroke="#475569" stroke-width="2.5" />
-            <circle cx="116" cy="84" r="18" fill="#fef08a" opacity="0.88" />
-            <path d="M 28 104 Q 68 86 106 104 T 172 96 L 172 112 L 28 112 Z" fill="#1e1330" />
-            <line x1="28" y1="112" x2="172" y2="112" stroke="#f59e0b" stroke-width="1" opacity="0.5" />
-            <g stroke="rgba(255,255,255,0.22)" stroke-width="1" fill="none">
-              <line x1="64" y1="34" x2="64" y2="148" /><line x1="100" y1="34" x2="100" y2="148" /><line x1="136" y1="34" x2="136" y2="148" />
-              <line x1="28" y1="72" x2="172" y2="72" /><line x1="28" y1="110" x2="172" y2="110" />
-            </g>
-            <path d="M 18 68 H 32 A 5 5 0 1 1 40 68 H 50 V 80 A 5 5 0 1 0 50 88 V 98 H 18 Z" fill="#ea580c" stroke="#fed7aa" stroke-width="1.2" transform="rotate(-12 34 83)" />
-            <path d="M 150 96 H 182 V 126 H 168 A 5 5 0 1 0 160 126 H 150 V 114 A 5 5 0 1 1 150 106 Z" fill="#7c3aed" stroke="#ddd6fe" stroke-width="1.2" transform="rotate(14 166 111)" />
-            <path d="M 82 154 H 96 A 5 5 0 1 1 104 154 H 118 V 182 H 82 Z" fill="#d97706" stroke="#fde68a" stroke-width="1.2" transform="rotate(-6 100 168)" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Quebra-Cabeça Studio</h2>
-          </div>
-          <p class="card-desc">
-            Jigsaw Puzzle com recorte realista em curvas de Bézier, agrupamento magnético, modo de rotação em 90°, 8 cenários procedurais e upload de fotos próprias.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Curvas de Bézier</span>
-            <span class="tech-tag">Upload de Fotos</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./quebra-cabeca/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 12. Resta Um -->
-      <article class="game-card" data-id="resta-um" data-title="Resta Um" data-category="tabuleiro" data-keywords="resta um peg solitaire tabuleiro logica madeira dfs dicas">
-        <div class="card-visual visual-restaum">
-          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Resta Um">☆</button>
-          <span class="record-badge" id="badge-restaum">🏆 Melhor: <strong id="score-restaum">1 peça</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do tabuleiro Resta Um">
-            <defs>
-              <radialGradient id="woodBoard" cx="45%" cy="40%" r="60%">
-                <stop offset="0%" stop-color="#b45309" />
-                <stop offset="70%" stop-color="#78350f" />
-                <stop offset="100%" stop-color="#451a03" />
-              </radialGradient>
-              <radialGradient id="ivoryPeg" cx="35%" cy="30%" r="65%">
-                <stop offset="0%" stop-color="#ffffff" />
-                <stop offset="65%" stop-color="#e2e8f0" />
-                <stop offset="100%" stop-color="#94a3b8" />
-              </radialGradient>
-            </defs>
-            <circle cx="100" cy="100" r="90" fill="url(#woodBoard)" stroke="#d97706" stroke-width="3" />
-            <circle cx="100" cy="100" r="78" fill="none" stroke="#451a03" stroke-width="5" opacity="0.65" />
-            <circle cx="80" cy="44" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="44" r="7.5" fill="url(#ivoryPeg)" /><circle cx="120" cy="44" r="7.5" fill="url(#ivoryPeg)" />
-            <circle cx="80" cy="64" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="64" r="7.5" fill="url(#ivoryPeg)" /><circle cx="120" cy="64" r="7.5" fill="url(#ivoryPeg)" />
-            <circle cx="40" cy="82" r="7.5" fill="url(#ivoryPeg)" /><circle cx="60" cy="82" r="7.5" fill="url(#ivoryPeg)" /><circle cx="80" cy="82" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="82" r="7.5" fill="url(#ivoryPeg)" /><circle cx="120" cy="82" r="7.5" fill="url(#ivoryPeg)" /><circle cx="140" cy="82" r="7.5" fill="url(#ivoryPeg)" /><circle cx="160" cy="82" r="7.5" fill="url(#ivoryPeg)" />
-            <circle cx="40" cy="100" r="7.5" fill="url(#ivoryPeg)" /><circle cx="60" cy="100" r="7.5" fill="url(#ivoryPeg)" /><circle cx="80" cy="100" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="100" r="5.5" fill="#270e02" stroke="#92400e" stroke-width="1.5" /><circle cx="120" cy="100" r="7.5" fill="url(#ivoryPeg)" /><circle cx="140" cy="100" r="7.5" fill="url(#ivoryPeg)" /><circle cx="160" cy="100" r="7.5" fill="url(#ivoryPeg)" />
-            <circle cx="40" cy="118" r="7.5" fill="url(#ivoryPeg)" /><circle cx="60" cy="118" r="7.5" fill="url(#ivoryPeg)" /><circle cx="80" cy="118" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="118" r="7.5" fill="url(#ivoryPeg)" /><circle cx="120" cy="118" r="7.5" fill="url(#ivoryPeg)" /><circle cx="140" cy="118" r="7.5" fill="url(#ivoryPeg)" /><circle cx="160" cy="118" r="7.5" fill="url(#ivoryPeg)" />
-            <circle cx="80" cy="136" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="136" r="7.5" fill="url(#ivoryPeg)" /><circle cx="120" cy="136" r="7.5" fill="url(#ivoryPeg)" />
-            <circle cx="80" cy="156" r="7.5" fill="url(#ivoryPeg)" /><circle cx="100" cy="156" r="7.5" fill="url(#ivoryPeg)" /><circle cx="120" cy="156" r="7.5" fill="url(#ivoryPeg)" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Resta Um</h2>
-          </div>
-          <p class="card-desc">
-            O tradicional Peg Solitaire em tabuleiro de madeira nobre. Conta com 5 formatos de tabuleiro, modos de desafio e solucionador inteligente com dicas passo a passo.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Bitboard &amp; DFS</span>
-            <span class="tech-tag">5 Tabuleiros</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./resta-um/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 13. Snake -->
-      <article class="game-card" data-id="snake" data-title="Snake" data-category="puzzle" data-keywords="snake cobrinha neon nokia 3310 arcade fruta">
-        <div class="card-visual visual-snake">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Snake">☆</button>
-          <span class="record-badge" id="badge-snake">🏆 Recorde: <strong id="score-snake">0</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Snake">
-            <rect x="20" y="20" width="160" height="160" rx="16" fill="#0d1b14" stroke="#1e3f2f" stroke-width="2.5" />
-            <g stroke="#142b20" stroke-width="1">
-              <line x1="20" y1="52" x2="180" y2="52" /><line x1="20" y1="84" x2="180" y2="84" /><line x1="20" y1="116" x2="180" y2="116" /><line x1="20" y1="148" x2="180" y2="148" />
-              <line x1="52" y1="20" x2="52" y2="180" /><line x1="84" y1="20" x2="84" y2="180" /><line x1="116" y1="20" x2="116" y2="180" /><line x1="148" y1="20" x2="148" y2="180" />
-            </g>
-            <circle cx="52" cy="52" r="10" fill="#f43f5e" />
-            <circle cx="49" cy="49" r="3" fill="#fda4af" />
-            <rect x="136" y="136" width="22" height="22" rx="7" fill="#15803d" />
-            <rect x="110" y="136" width="24" height="24" rx="7" fill="#16a34a" />
-            <rect x="110" y="110" width="24" height="24" rx="7" fill="#22c55e" />
-            <rect x="110" y="82" width="26" height="26" rx="8" fill="#4ade80" />
-            <circle cx="117" cy="89" r="3" fill="#052e16" />
-            <circle cx="129" cy="89" r="3" fill="#052e16" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Snake</h2>
-          </div>
-          <p class="card-desc">
-            Clássico Jogo da Cobrinha em Canvas 2D com temas Neon Moderno e Nokia 3310 LCD, arenas com ou sem paredes, fruta bônus dourada e controles por swipe ou D-Pad.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Neon &amp; Nokia 3310</span>
-            <span class="tech-tag">Input Buffering</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./snake/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 14. Sudoku Pro -->
-      <article class="game-card" data-id="sudoku" data-title="Sudoku Pro" data-category="puzzle" data-keywords="sudoku pro numeros grade 9x9 logica backtracking lapis dicas">
-        <div class="card-visual visual-sudoku">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Sudoku Pro">☆</button>
-          <span class="record-badge" id="badge-sudoku">🏆 Recorde: <strong id="score-sudoku">--:--</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Sudoku Pro">
-            <rect x="19" y="19" width="162" height="162" rx="8" fill="#1e293b" stroke="#94a3b8" stroke-width="2.4" />
-            <rect x="20" y="91" width="160" height="18" fill="rgba(59, 130, 246, 0.14)" />
-            <rect x="91" y="20" width="18" height="160" fill="rgba(59, 130, 246, 0.14)" />
-            <rect x="73" y="73" width="54" height="54" fill="rgba(59, 130, 246, 0.10)" />
-            <rect x="91" y="91" width="18" height="18" fill="#3b6ea5" />
-            <g stroke="#334155" stroke-width="1">
-              <line x1="37" y1="19" x2="37" y2="181" /><line x1="55" y1="19" x2="55" y2="181" /><line x1="91" y1="19" x2="91" y2="181" /><line x1="109" y1="19" x2="109" y2="181" /><line x1="145" y1="19" x2="145" y2="181" /><line x1="163" y1="19" x2="163" y2="181" />
-              <line x1="19" y1="37" x2="181" y2="37" /><line x1="19" y1="55" x2="181" y2="55" /><line x1="19" y1="91" x2="181" y2="91" /><line x1="19" y1="109" x2="181" y2="109" /><line x1="19" y1="145" x2="181" y2="145" /><line x1="19" y1="163" x2="181" y2="163" />
-            </g>
-            <g stroke="#94a3b8" stroke-width="2">
-              <line x1="73" y1="19" x2="73" y2="181" /><line x1="127" y1="19" x2="127" y2="181" /><line x1="19" y1="73" x2="181" y2="73" /><line x1="19" y1="127" x2="181" y2="127" />
-            </g>
-            <g fill="#f1f5f9" font-family="Arial, sans-serif" font-weight="800" font-size="11.5" text-anchor="middle">
-              <text x="46" y="32">5</text><text x="82" y="32">4</text><text x="136" y="32">8</text><text x="154" y="32">9</text>
-              <text x="28" y="50">4</text><text x="46" y="50">6</text><text x="136" y="50">7</text><text x="172" y="50">5</text>
-              <text x="28" y="68">1</text><text x="46" y="68">9</text><text x="100" y="68">3</text>
-              <text x="28" y="86">6</text><text x="46" y="86">8</text><text x="118" y="86">5</text><text x="136" y="86">9</text>
-              <text x="46" y="104">4</text><text x="82" y="104">9</text><text x="118" y="104">3</text><text x="154" y="104">5</text>
-              <text x="64" y="122">5</text><text x="82" y="122">8</text><text x="154" y="122">1</text><text x="172" y="122">3</text>
-              <text x="100" y="140">5</text><text x="154" y="140">4</text><text x="172" y="140">9</text>
-              <text x="28" y="158">2</text><text x="64" y="158">9</text><text x="154" y="158">8</text><text x="172" y="158">7</text>
-              <text x="46" y="176">1</text><text x="64" y="176">4</text><text x="118" y="176">8</text><text x="154" y="176">2</text>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Sudoku Pro</h2>
-          </div>
-          <p class="card-desc">
-            Tabuleiros gerados com solução única garantida por Backtracking, 4 níveis de dificuldade, modo lápis inteligente com limpeza automática e dicas pedagógicas.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Backtracking</span>
-            <span class="tech-tag">Dicas Lógicas</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./sudoku/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 15. Tetris -->
-      <article class="game-card" data-id="tetris" data-title="Tetris" data-category="puzzle" data-keywords="tetris blocos tetrominos arcade linhas 7-bag ghost piece hold">
-        <div class="card-visual visual-tetris">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Tetris">☆</button>
-          <span class="record-badge" id="badge-tetris">🏆 Recorde: <strong id="score-tetris">0</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Tetris">
-            <rect x="44" y="16" width="112" height="168" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2.5" />
-            <g stroke="#1e293b" stroke-width="0.9">
-              <line x1="56" y1="22" x2="56" y2="178" /><line x1="68" y1="22" x2="68" y2="178" /><line x1="80" y1="22" x2="80" y2="178" /><line x1="92" y1="22" x2="92" y2="178" /><line x1="104" y1="22" x2="104" y2="178" /><line x1="116" y1="22" x2="116" y2="178" /><line x1="128" y1="22" x2="128" y2="178" /><line x1="140" y1="22" x2="140" y2="178" />
-              <line x1="48" y1="34" x2="152" y2="34" /><line x1="48" y1="46" x2="152" y2="46" /><line x1="48" y1="58" x2="152" y2="58" /><line x1="48" y1="70" x2="152" y2="70" /><line x1="48" y1="82" x2="152" y2="82" /><line x1="48" y1="94" x2="152" y2="94" /><line x1="48" y1="106" x2="152" y2="106" /><line x1="48" y1="118" x2="152" y2="118" /><line x1="48" y1="130" x2="152" y2="130" /><line x1="48" y1="142" x2="152" y2="142" /><line x1="48" y1="154" x2="152" y2="154" /><line x1="48" y1="166" x2="152" y2="166" />
-            </g>
-            <g stroke="#0f172a" stroke-width="1.2">
-              <rect x="92" y="34" width="12" height="12" rx="2" fill="#a855f7" />
-              <rect x="80" y="46" width="12" height="12" rx="2" fill="#a855f7" />
-              <rect x="92" y="46" width="12" height="12" rx="2" fill="#c084fc" />
-              <rect x="104" y="46" width="12" height="12" rx="2" fill="#a855f7" />
-            </g>
-            <g fill="none" stroke="#c084fc" stroke-width="1.1" stroke-dasharray="2.2 1.5" opacity="0.65">
-              <rect x="92.5" y="130.5" width="11" height="11" rx="1.5" />
-              <rect x="80.5" y="142.5" width="11" height="11" rx="1.5" />
-              <rect x="92.5" y="142.5" width="11" height="11" rx="1.5" />
-              <rect x="104.5" y="142.5" width="11" height="11" rx="1.5" />
-            </g>
-            <g stroke="#0f172a" stroke-width="1.2">
-              <rect x="56" y="142" width="12" height="12" rx="2" fill="#f97316" /><rect x="56" y="154" width="12" height="12" rx="2" fill="#f97316" /><rect x="56" y="166" width="12" height="12" rx="2" fill="#fb923c" /><rect x="68" y="166" width="12" height="12" rx="2" fill="#f97316" />
-              <rect x="80" y="154" width="12" height="12" rx="2" fill="#facc15" /><rect x="92" y="154" width="12" height="12" rx="2" fill="#fde047" /><rect x="80" y="166" width="12" height="12" rx="2" fill="#eab308" /><rect x="92" y="166" width="12" height="12" rx="2" fill="#facc15" />
-              <rect x="116" y="154" width="12" height="12" rx="2" fill="#22c55e" /><rect x="128" y="154" width="12" height="12" rx="2" fill="#4ade80" /><rect x="104" y="166" width="12" height="12" rx="2" fill="#16a34a" /><rect x="116" y="166" width="12" height="12" rx="2" fill="#22c55e" />
-              <rect x="140" y="142" width="12" height="12" rx="2" fill="#3b82f6" /><rect x="140" y="154" width="12" height="12" rx="2" fill="#3b82f6" /><rect x="140" y="166" width="12" height="12" rx="2" fill="#60a5fa" /><rect x="128" y="166" width="12" height="12" rx="2" fill="#2563eb" />
-              <rect x="44" y="130" width="12" height="12" rx="2" fill="#06b6d4" /><rect x="44" y="142" width="12" height="12" rx="2" fill="#22d3ee" /><rect x="44" y="154" width="12" height="12" rx="2" fill="#06b6d4" /><rect x="44" y="166" width="12" height="12" rx="2" fill="#0891b2" />
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Tetris</h2>
-          </div>
-          <p class="card-desc">
-            O clássico quebra-cabeça de blocos empilháveis em matriz 10×20 com gerador 7-Bag, rotação com wall kicks, peça fantasma (Ghost Piece), reserva (Hold) e velocidade progressiva.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">7-Bag &amp; Wall Kicks</span>
-            <span class="tech-tag">Web Audio API</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./tetris/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 16. Two Dots -->
-      <article class="game-card" data-id="two-dots" data-title="Two Dots" data-category="puzzle" data-keywords="two dots puzzle conexoes pontos cores loop quadrado gravidade">
-        <div class="card-visual visual-twodots">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Two Dots">☆</button>
-          <span class="record-badge" id="badge-twodots">🏆 Recorde: <strong id="score-twodots">0</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Two Dots">
-            <defs>
-              <radialGradient id="dotPurple" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#c4a5ff" /><stop offset="55%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#7c3aed" /></radialGradient>
-              <radialGradient id="dotCoral" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#ffa89e" /><stop offset="55%" stop-color="#f87171" /><stop offset="100%" stop-color="#dc2626" /></radialGradient>
-              <radialGradient id="dotBlue" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#a5d0ff" /><stop offset="55%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></radialGradient>
-              <radialGradient id="dotGreen" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#9cf2c8" /><stop offset="55%" stop-color="#4ade80" /><stop offset="100%" stop-color="#16a34a" /></radialGradient>
-              <radialGradient id="dotYellow" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#fde68a" /><stop offset="55%" stop-color="#fbbf24" /><stop offset="100%" stop-color="#d97706" /></radialGradient>
-            </defs>
-            <rect x="18" y="18" width="164" height="164" rx="16" fill="#1e2738" stroke="#313f59" stroke-width="2" />
-            <circle cx="36" cy="36" r="8.2" fill="url(#dotPurple)" /><circle cx="61.6" cy="36" r="8.2" fill="url(#dotCoral)" /><circle cx="87.2" cy="36" r="8.2" fill="url(#dotBlue)" /><circle cx="112.8" cy="36" r="8.2" fill="url(#dotPurple)" /><circle cx="138.4" cy="36" r="8.2" fill="url(#dotPurple)" /><circle cx="164" cy="36" r="8.2" fill="url(#dotPurple)" />
-            <circle cx="36" cy="61.6" r="8.2" fill="url(#dotGreen)" /><circle cx="61.6" cy="61.6" r="8.2" fill="url(#dotGreen)" /><circle cx="87.2" cy="61.6" r="8.2" fill="url(#dotYellow)" /><circle cx="112.8" cy="61.6" r="8.2" fill="url(#dotYellow)" /><circle cx="138.4" cy="61.6" r="8.2" fill="url(#dotBlue)" /><circle cx="164" cy="61.6" r="8.2" fill="url(#dotYellow)" />
-            <circle cx="36" cy="87.2" r="8.2" fill="url(#dotBlue)" /><circle cx="61.6" cy="87.2" r="8.2" fill="url(#dotGreen)" /><circle cx="87.2" cy="87.2" r="8.2" fill="url(#dotPurple)" /><circle cx="112.8" cy="87.2" r="8.2" fill="url(#dotBlue)" /><circle cx="138.4" cy="87.2" r="8.2" fill="url(#dotCoral)" /><circle cx="164" cy="87.2" r="8.2" fill="url(#dotGreen)" />
-            <circle cx="36" cy="112.8" r="8.2" fill="url(#dotPurple)" /><circle cx="61.6" cy="112.8" r="8.2" fill="url(#dotBlue)" /><circle cx="87.2" cy="112.8" r="8.2" fill="url(#dotBlue)" /><circle cx="112.8" cy="112.8" r="8.2" fill="url(#dotBlue)" /><circle cx="138.4" cy="112.8" r="8.2" fill="url(#dotCoral)" /><circle cx="164" cy="112.8" r="8.2" fill="url(#dotCoral)" />
-            <circle cx="36" cy="138.4" r="8.2" fill="url(#dotBlue)" /><circle cx="61.6" cy="138.4" r="8.2" fill="url(#dotYellow)" /><circle cx="87.2" cy="138.4" r="8.2" fill="url(#dotCoral)" /><circle cx="112.8" cy="138.4" r="8.2" fill="url(#dotBlue)" /><circle cx="138.4" cy="138.4" r="8.2" fill="url(#dotCoral)" /><circle cx="164" cy="138.4" r="8.2" fill="url(#dotGreen)" />
-            <circle cx="36" cy="164" r="8.2" fill="url(#dotCoral)" /><circle cx="61.6" cy="164" r="8.2" fill="url(#dotPurple)" /><circle cx="87.2" cy="164" r="8.2" fill="url(#dotYellow)" /><circle cx="112.8" cy="164" r="8.2" fill="url(#dotYellow)" /><circle cx="138.4" cy="164" r="8.2" fill="url(#dotPurple)" /><circle cx="164" cy="164" r="8.2" fill="url(#dotYellow)" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Two Dots</h2>
-          </div>
-          <p class="card-desc">
-            Conecte pontos adjacentes da mesma cor ou feche quadrados (loops) para eliminar toda a cor do tabuleiro. Inclui modos de 30 movimentos, 60 segundos e Zen.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Grafos &amp; Loops</span>
-            <span class="tech-tag">3 Modos</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./two-dots/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 17. Water Sort Puzzle -->
-      <article class="game-card" data-id="water-sort" data-title="Water Sort Puzzle" data-category="puzzle" data-keywords="water sort puzzle tubos liquidos cores logica frascos dfs">
-        <div class="card-visual visual-watersort">
-          <span class="category-tag">Estratégia &amp; Lógica</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Water Sort Puzzle">☆</button>
-          <span class="record-badge" id="badge-watersort">🏆 Nível: <strong id="score-watersort">1</strong></span>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Water Sort Puzzle">
-            <defs>
-              <linearGradient id="glassShine" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="rgba(255,255,255,0.22)" />
-                <stop offset="35%" stop-color="rgba(255,255,255,0.04)" />
-                <stop offset="100%" stop-color="rgba(255,255,255,0.12)" />
-              </linearGradient>
-              <clipPath id="tube1Clip"><path d="M 19 48 L 43 48 L 43 142 A 12 12 0 0 1 19 142 Z" /></clipPath>
-              <clipPath id="tube2Clip"><path d="M 55 48 L 79 48 L 79 142 A 12 12 0 0 1 55 142 Z" /></clipPath>
-              <clipPath id="tube3Clip"><path d="M 91 48 L 115 48 L 115 142 A 12 12 0 0 1 91 142 Z" /></clipPath>
-            </defs>
-            <g clip-path="url(#tube1Clip)">
-              <rect x="19" y="54" width="24" height="25" fill="#9333ea" /><rect x="19" y="79" width="24" height="25" fill="#ec4899" /><rect x="19" y="104" width="24" height="25" fill="#2563eb" /><rect x="19" y="129" width="24" height="28" fill="#ec4899" /><rect x="19" y="48" width="24" height="108" fill="url(#glassShine)" />
-            </g>
-            <path d="M 19 48 L 43 48 L 43 142 A 12 12 0 0 1 19 142 Z" fill="none" stroke="#94a3b8" stroke-width="2.4" />
-            <rect x="16" y="44" width="30" height="4.5" rx="2.2" fill="#cbd5e1" />
-            <g clip-path="url(#tube2Clip)">
-              <rect x="55" y="54" width="24" height="25" fill="#9333ea" /><rect x="55" y="79" width="24" height="25" fill="#2563eb" /><rect x="55" y="104" width="24" height="25" fill="#9333ea" /><rect x="55" y="129" width="24" height="28" fill="#2563eb" /><rect x="55" y="48" width="24" height="108" fill="url(#glassShine)" />
-            </g>
-            <path d="M 55 48 L 79 48 L 79 142 A 12 12 0 0 1 55 142 Z" fill="none" stroke="#94a3b8" stroke-width="2.4" />
-            <rect x="52" y="44" width="30" height="4.5" rx="2.2" fill="#cbd5e1" />
-            <g clip-path="url(#tube3Clip)">
-              <rect x="91" y="54" width="24" height="25" fill="#2563eb" /><rect x="91" y="79" width="24" height="25" fill="#ec4899" /><rect x="91" y="104" width="24" height="25" fill="#9333ea" /><rect x="91" y="129" width="24" height="28" fill="#ec4899" /><rect x="91" y="48" width="24" height="108" fill="url(#glassShine)" />
-            </g>
-            <path d="M 91 48 L 115 48 L 115 142 A 12 12 0 0 1 91 142 Z" fill="none" stroke="#94a3b8" stroke-width="2.4" />
-            <rect x="88" y="44" width="30" height="4.5" rx="2.2" fill="#cbd5e1" />
-            <path d="M 127 48 L 151 48 L 151 142 A 12 12 0 0 1 127 142 Z" fill="url(#glassShine)" stroke="#94a3b8" stroke-width="2.4" />
-            <rect x="124" y="44" width="30" height="4.5" rx="2.2" fill="#cbd5e1" />
-            <path d="M 163 48 L 187 48 L 187 142 A 12 12 0 0 1 163 142 Z" fill="url(#glassShine)" stroke="#94a3b8" stroke-width="2.4" />
-            <rect x="160" y="44" width="30" height="4.5" rx="2.2" fill="#cbd5e1" />
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Water Sort Puzzle</h2>
-          </div>
-          <p class="card-desc">
-            Organize líquidos coloridos misturados em tubos de ensaio até separar todas as cores. Geração garantidamente solucionável via Solver DFS, temas claro/escuro e áudio procedural.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Solver DFS</span>
-            <span class="tech-tag">Web Audio API</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./water-sort/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-
-      <!-- 18. Xadrez Mestre -->
-      <article class="game-card" data-id="xadrez" data-title="Xadrez Mestre" data-category="tabuleiro" data-keywords="xadrez mestre chess clube staunton minimax alfa-beta pgn revisao tabuleiro">
-        <div class="card-visual visual-xadrez">
-          <span class="category-tag">Raciocínio &amp; Tabuleiro</span>
-          <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar Xadrez Mestre">☆</button>
-          <svg class="svg-art" viewBox="0 0 200 200" aria-label="Ilustração do jogo Xadrez Mestre">
-            <rect x="16" y="16" width="168" height="168" rx="12" fill="#462b17" stroke="#6b4426" stroke-width="3" />
-            <g transform="translate(24, 24)">
-              <rect x="0" y="0" width="152" height="152" fill="#e6cfa8" />
-              <g fill="#9e6c46">
-                <rect x="19" y="0" width="19" height="19" /><rect x="57" y="0" width="19" height="19" /><rect x="95" y="0" width="19" height="19" /><rect x="133" y="0" width="19" height="19" />
-                <rect x="0" y="19" width="19" height="19" /><rect x="38" y="19" width="19" height="19" /><rect x="76" y="19" width="19" height="19" /><rect x="114" y="19" width="19" height="19" />
-                <rect x="19" y="38" width="19" height="19" /><rect x="57" y="38" width="19" height="19" /><rect x="95" y="38" width="19" height="19" /><rect x="133" y="38" width="19" height="19" />
-                <rect x="0" y="57" width="19" height="19" /><rect x="38" y="57" width="19" height="19" /><rect x="76" y="57" width="19" height="19" /><rect x="114" y="57" width="19" height="19" />
-                <rect x="19" y="76" width="19" height="19" /><rect x="57" y="76" width="19" height="19" /><rect x="95" y="76" width="19" height="19" /><rect x="133" y="76" width="19" height="19" />
-                <rect x="0" y="95" width="19" height="19" /><rect x="38" y="95" width="19" height="19" /><rect x="76" y="95" width="19" height="19" /><rect x="114" y="95" width="19" height="19" />
-                <rect x="19" y="114" width="19" height="19" /><rect x="57" y="114" width="19" height="19" /><rect x="95" y="114" width="19" height="19" /><rect x="133" y="114" width="19" height="19" />
-                <rect x="0" y="133" width="19" height="19" /><rect x="38" y="133" width="19" height="19" /><rect x="76" y="133" width="19" height="19" /><rect x="114" y="133" width="19" height="19" />
-              </g>
-              <rect x="19" y="0" width="19" height="19" fill="#d9a441" opacity="0.72" />
-              <rect x="38" y="38" width="19" height="19" fill="#f3d266" opacity="0.82" />
-              <g font-family="'Segoe UI Symbol', 'DejaVu Sans', serif" font-size="15.5" text-anchor="middle" fill="#18181b" stroke="#f8fafc" stroke-width="0.45">
-                <text x="9.5" y="15">♜</text><text x="47.5" y="15">♝</text><text x="66.5" y="15">♛</text><text x="85.5" y="15">♚</text><text x="104.5" y="15">♝</text><text x="123.5" y="15">♞</text><text x="142.5" y="15">♜</text>
-                <text x="9.5" y="34">♟</text><text x="28.5" y="34">♟</text><text x="47.5" y="34">♟</text><text x="66.5" y="34">♟</text><text x="85.5" y="34">♟</text><text x="104.5" y="34">♟</text><text x="123.5" y="34">♟</text><text x="142.5" y="34">♟</text>
-                <text x="47.5" y="53">♞</text>
-              </g>
-              <g font-family="'Segoe UI Symbol', 'DejaVu Sans', serif" font-size="15.5" text-anchor="middle" fill="#ffffff" stroke="#18181b" stroke-width="0.75">
-                <text x="85.5" y="91">♟</text>
-                <text x="9.5" y="129">♟</text><text x="28.5" y="129">♟</text><text x="47.5" y="129">♟</text><text x="66.5" y="129">♟</text><text x="104.5" y="129">♟</text><text x="123.5" y="129">♟</text><text x="142.5" y="129">♟</text>
-                <text x="9.5" y="148">♜</text><text x="28.5" y="148">♞</text><text x="47.5" y="148">♝</text><text x="66.5" y="148">♛</text><text x="85.5" y="148">♚</text><text x="104.5" y="148">♝</text><text x="123.5" y="148">♞</text><text x="142.5" y="148">♜</text>
-              </g>
-            </g>
-          </svg>
-        </div>
-        <div class="card-body">
-          <div class="card-title-row">
-            <h2>Xadrez Mestre</h2>
-          </div>
-          <p class="card-desc">
-            Edição de clube com peças Staunton vetoriais, regras oficiais completas, IA Minimax Alfa-Beta em 3 níveis, relógio digital, revisão tática pós-partida e exportação PGN.
-          </p>
-          <div class="tech-tags">
-            <span class="tech-tag">Minimax Alfa-Beta</span>
-            <span class="tech-tag">Revisão &amp; PGN</span>
-            <span class="tech-tag">Single-File</span>
-          </div>
-          <a class="play-btn" href="./xadrez/" data-play>
-            <span>▶ Jogar Agora</span>
-          </a>
-        </div>
-      </article>
-    </section>
+    <section class="games-grid" id="gamesGrid"></section>
 
     <div class="empty-state" id="emptyState">
       <h3>Nenhum jogo encontrado</h3>
@@ -1644,39 +689,13 @@
       }
 
       const grid = document.getElementById('gamesGrid');
-      const cards = Array.from(document.querySelectorAll('.game-card'));
       const favCountEl = document.getElementById('favCount');
-
-      function updateFavoriteUI() {
-        favCountEl.textContent = favorites.size;
-        cards.forEach((card) => {
-          const id = card.getAttribute('data-id');
-          const btn = card.querySelector('.fav-btn');
-          const isFav = favorites.has(id);
-          card.classList.toggle('is-favorite', isFav);
-          if (btn) {
-            btn.classList.toggle('active', isFav);
-            btn.textContent = isFav ? '★' : '☆';
-            btn.title = isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
-          }
-        });
-      }
-
-      // Sempre ordenado alfabeticamente (com favoritos fixados no topo também em ordem alfabética)
-      function sortCards() {
-        const sorted = [...cards].sort((a, b) => {
-          const idA = a.getAttribute('data-id');
-          const idB = b.getAttribute('data-id');
-          const titleA = a.getAttribute('data-title') || '';
-          const titleB = b.getAttribute('data-title') || '';
-          const favA = favorites.has(idA) ? 0 : 1;
-          const favB = favorites.has(idB) ? 0 : 1;
-          if (favA !== favB) return favA - favB;
-          return titleA.localeCompare(titleB, 'pt-BR');
-        });
-
-        sorted.forEach((card) => grid.appendChild(card));
-      }
+      const totalCountEl = document.getElementById('totalCount');
+      const filterPills = document.querySelectorAll('.filter-pill');
+      const searchInput = document.getElementById('searchInput');
+      const emptyState = document.getElementById('emptyState');
+      let currentFilter = 'all';
+      let cards = [];
 
       const toastEl = document.getElementById('toastNotification');
       const toastIcon = document.getElementById('toastIcon');
@@ -1694,236 +713,134 @@
         }, 2200);
       }
 
-      cards.forEach((card) => {
-        const btn = card.querySelector('.fav-btn');
-        if (btn) {
-          btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const id = card.getAttribute('data-id');
-            const title = card.getAttribute('data-title') || 'Jogo';
-            if (favorites.has(id)) {
-              favorites.delete(id);
-              playTone(360, 0.07, 'sine');
-              showToast('☆', `${title} removido dos favoritos`);
-            } else {
-              favorites.add(id);
-              playTone(660, 0.09, 'triangle');
-              showToast('★', `${title} adicionado aos favoritos`);
-            }
-            saveFavorites();
-            updateFavoriteUI();
-            if (currentFilter === 'favorites') {
-              applyFilters();
-            }
-          });
-        }
-      });
+      function readGameRecord(recordeCfg) {
+        if (!recordeCfg) return null;
+        try {
+          const { tipo, chaves = [], prefixo = '', sufixo = '' } = recordeCfg;
 
-      // Leitura de recordes e progresso salvos no localStorage
-      try {
-        const geniusHigh = localStorage.getItem('genius_high_score');
-        if (geniusHigh && Number(geniusHigh) > 0) {
-          document.getElementById('score-genius').textContent = geniusHigh + ' pts';
-          document.getElementById('badge-genius').classList.add('visible');
-        }
-
-        let bestPegs = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.startsWith('restaum_rec_')) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestPegs === null || val < bestPegs)) {
-              bestPegs = val;
+          if (tipo === 'exato-max') {
+            let best = null;
+            for (const key of chaves) {
+              const val = Number(localStorage.getItem(key));
+              if (!Number.isNaN(val) && val > 0 && (best === null || val > best)) best = val;
             }
+            return best !== null ? { rotulo: 'Recorde', valor: `${best}${sufixo}` } : null;
           }
-        }
-        if (bestPegs !== null) {
-          document.getElementById('score-restaum').textContent =
-            bestPegs === 1 ? '1 peça' : bestPegs + ' peças';
-          document.getElementById('badge-restaum').classList.add('visible');
-        }
 
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('watersort') || key.includes('water_sort')) && key.includes('level')) {
-            const lvl = Number(localStorage.getItem(key));
-            if (!Number.isNaN(lvl) && lvl > 1) {
-              document.getElementById('score-watersort').textContent = lvl;
-              document.getElementById('badge-watersort').classList.add('visible');
-              break;
-            }
-          }
-        }
-
-        let bestMineTime = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('minesweeper') || key.includes('campo_minado') || key.includes('campominado'))) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestMineTime === null || val < bestMineTime)) {
-              bestMineTime = val;
-            }
-          }
-        }
-        if (bestMineTime !== null) {
-          document.getElementById('score-campominado').textContent = bestMineTime + 's';
-          document.getElementById('badge-campominado').classList.add('visible');
-        }
-
-        let bestSolitaireScore = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('paciencia') || key.includes('solitaire') || key.includes('klondike'))) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestSolitaireScore === null || val > bestSolitaireScore)) {
-              bestSolitaireScore = val;
-            }
-          }
-        }
-        if (bestSolitaireScore !== null) {
-          document.getElementById('score-paciencia').textContent = bestSolitaireScore + ' pts';
-          document.getElementById('badge-paciencia').classList.add('visible');
-        }
-
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('cubo') || key.includes('rubik'))) {
-            const raw = localStorage.getItem(key);
-            if (raw && raw !== 'null' && raw !== '0') {
-              const num = Number(raw);
-              if (!Number.isNaN(num) && num > 0) {
-                const totalSec = num > 1000 ? num / 1000 : num;
-                const mins = Math.floor(totalSec / 60);
-                const secs = (totalSec % 60).toFixed(2).padStart(5, '0');
-                document.getElementById('score-cubomagico').textContent =
-                  (mins > 0 ? String(mins).padStart(2, '0') + ':' : '') + secs + 's';
-                document.getElementById('badge-cubomagico').classList.add('visible');
-                break;
-              } else if (typeof raw === 'string' && raw.includes(':')) {
-                document.getElementById('score-cubomagico').textContent = raw;
-                document.getElementById('badge-cubomagico').classList.add('visible');
-                break;
+          if (tipo === 'pecas-min') {
+            let bestPegs = null;
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && key.startsWith(prefixo)) {
+                const val = Number(localStorage.getItem(key));
+                if (!Number.isNaN(val) && val > 0 && (bestPegs === null || val < bestPegs)) bestPegs = val;
               }
             }
+            return bestPegs !== null
+              ? { rotulo: 'Melhor', valor: bestPegs === 1 ? '1 peça' : `${bestPegs} peças` }
+              : null;
           }
-        }
 
-        let bestSudokuSec = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.includes('sudoku')) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestSudokuSec === null || val < bestSudokuSec)) {
-              bestSudokuSec = val;
+          if (tipo === 'nivel') {
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && chaves.some((c) => key.includes(c)) && key.includes('level')) {
+                const lvl = Number(localStorage.getItem(key));
+                if (!Number.isNaN(lvl) && lvl > 1) return { rotulo: 'Nível', valor: String(lvl) };
+              }
             }
+            return null;
           }
-        }
-        if (bestSudokuSec !== null) {
-          const m = String(Math.floor(bestSudokuSec / 60)).padStart(2, '0');
-          const s = String(bestSudokuSec % 60).padStart(2, '0');
-          document.getElementById('score-sudoku').textContent = `${m}:${s}`;
-          document.getElementById('badge-sudoku').classList.add('visible');
-        }
 
-        let bestTwoDots = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('twodots') || key.includes('two_dots') || key.includes('two-dots'))) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestTwoDots === null || val > bestTwoDots)) {
-              bestTwoDots = val;
+          if (tipo === 'tempo-ms') {
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && chaves.some((c) => key.includes(c))) {
+                const raw = localStorage.getItem(key);
+                if (raw && raw !== 'null' && raw !== '0') {
+                  const num = Number(raw);
+                  if (!Number.isNaN(num) && num > 0) {
+                    const totalSec = num > 1000 ? num / 1000 : num;
+                    const mins = Math.floor(totalSec / 60);
+                    const secs = (totalSec % 60).toFixed(2).padStart(5, '0');
+                    return {
+                      rotulo: 'Recorde',
+                      valor: (mins > 0 ? String(mins).padStart(2, '0') + ':' : '') + secs + 's'
+                    };
+                  } else if (typeof raw === 'string' && raw.includes(':')) {
+                    return { rotulo: 'Recorde', valor: raw };
+                  }
+                }
+              }
             }
+            return null;
           }
-        }
-        if (bestTwoDots !== null) {
-          document.getElementById('score-twodots').textContent = bestTwoDots + ' pts';
-          document.getElementById('badge-twodots').classList.add('visible');
-        }
 
-        let bestTetris = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.includes('tetris')) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestTetris === null || val > bestTetris)) {
-              bestTetris = val;
+          if (tipo === 'tempo-seg') {
+            let bestSec = null;
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && chaves.some((c) => key.includes(c))) {
+                const val = Number(localStorage.getItem(key));
+                if (!Number.isNaN(val) && val > 0 && (bestSec === null || val < bestSec)) bestSec = val;
+              }
             }
-          }
-        }
-        if (bestTetris !== null) {
-          document.getElementById('score-tetris').textContent = bestTetris + ' pts';
-          document.getElementById('badge-tetris').classList.add('visible');
-        }
-
-        let bestSnake = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.includes('snake')) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestSnake === null || val > bestSnake)) {
-              bestSnake = val;
+            if (bestSec !== null) {
+              const m = String(Math.floor(bestSec / 60)).padStart(2, '0');
+              const s = String(bestSec % 60).padStart(2, '0');
+              return { rotulo: 'Recorde', valor: `${m}:${s}` };
             }
+            return null;
           }
-        }
-        if (bestSnake !== null) {
-          document.getElementById('score-snake').textContent = bestSnake + ' pts';
-          document.getElementById('badge-snake').classList.add('visible');
-        }
 
-        let bestPuzzleSec = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && (key.includes('quebracabeca') || key.includes('quebra_cabeca') || key.includes('quebra-cabeca') || key.includes('jigsaw'))) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestPuzzleSec === null || val < bestPuzzleSec)) {
-              bestPuzzleSec = val;
+          if (tipo === 'min' || tipo === 'max') {
+            let best = null;
+            for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && chaves.some((c) => key.includes(c))) {
+                const val = Number(localStorage.getItem(key));
+                if (!Number.isNaN(val) && val > 0) {
+                  if (best === null || (tipo === 'min' ? val < best : val > best)) {
+                    best = val;
+                  }
+                }
+              }
             }
+            return best !== null ? { rotulo: 'Recorde', valor: `${best}${sufixo}` } : null;
           }
-        }
-        if (bestPuzzleSec !== null) {
-          const m = String(Math.floor(bestPuzzleSec / 60)).padStart(2, '0');
-          const s = String(bestPuzzleSec % 60).padStart(2, '0');
-          document.getElementById('score-quebracabeca').textContent = `${m}:${s}`;
-          document.getElementById('badge-quebracabeca').classList.add('visible');
-        }
+        } catch (e) {}
+        return null;
+      }
 
-        let bestMahjong = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.includes('mahjong')) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestMahjong === null || val > bestMahjong)) {
-              bestMahjong = val;
-            }
+      function updateFavoriteUI() {
+        favCountEl.textContent = favorites.size;
+        cards.forEach((card) => {
+          const id = card.getAttribute('data-id');
+          const btn = card.querySelector('.fav-btn');
+          const isFav = favorites.has(id);
+          card.classList.toggle('is-favorite', isFav);
+          if (btn) {
+            btn.classList.toggle('active', isFav);
+            btn.textContent = isFav ? '★' : '☆';
+            btn.title = isFav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
           }
-        }
-        if (bestMahjong !== null) {
-          document.getElementById('score-mahjong').textContent = bestMahjong + ' pts';
-          document.getElementById('badge-mahjong').classList.add('visible');
-        }
+        });
+      }
 
-        let bestForca = null;
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key && key.includes('forca')) {
-            const val = Number(localStorage.getItem(key));
-            if (!Number.isNaN(val) && val > 0 && (bestForca === null || val > bestForca)) {
-              bestForca = val;
-            }
-          }
-        }
-        if (bestForca !== null) {
-          document.getElementById('score-forca').textContent = bestForca;
-          document.getElementById('badge-forca').classList.add('visible');
-        }
-      } catch (e) {}
+      function sortCards() {
+        const sorted = [...cards].sort((a, b) => {
+          const idA = a.getAttribute('data-id');
+          const idB = b.getAttribute('data-id');
+          const titleA = a.getAttribute('data-title') || '';
+          const titleB = b.getAttribute('data-title') || '';
+          const favA = favorites.has(idA) ? 0 : 1;
+          const favB = favorites.has(idB) ? 0 : 1;
+          if (favA !== favB) return favA - favB;
+          return titleA.localeCompare(titleB, 'pt-BR');
+        });
 
-      // Filtros e Busca
-      const filterPills = document.querySelectorAll('.filter-pill');
-      const searchInput = document.getElementById('searchInput');
-      const emptyState = document.getElementById('emptyState');
-      let currentFilter = 'all';
+        sorted.forEach((card) => grid.appendChild(card));
+      }
 
       function applyFilters() {
         const term = searchInput.value.trim().toLowerCase();
@@ -1950,6 +867,95 @@
         emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
       }
 
+      function buildGameCard(game) {
+        const article = document.createElement('article');
+        article.className = 'game-card';
+        article.setAttribute('data-id', game.id);
+        article.setAttribute('data-title', game.titulo);
+        article.setAttribute('data-category', game.categoria);
+        article.setAttribute('data-keywords', game.keywords || '');
+
+        const record = readGameRecord(game.recorde);
+        const recordBadgeHtml = record
+          ? `<span class="record-badge visible">🏆 ${record.rotulo}: <strong>${record.valor}</strong></span>`
+          : '';
+
+        const tagsHtml = (game.tags || [])
+          .map((tag) => `<span class="tech-tag">${tag}</span>`)
+          .join('');
+
+        article.innerHTML = `
+          <div class="card-visual ${game.visualClass || ''}">
+            <span class="category-tag">${game.categoriaLabel}</span>
+            <button class="fav-btn" type="button" title="Favoritar jogo" aria-label="Favoritar ${game.titulo}">☆</button>
+            ${recordBadgeHtml}
+            <img class="svg-art" src="${game.thumb}" alt="Ilustração do jogo ${game.titulo}" loading="lazy" />
+          </div>
+          <div class="card-body">
+            <div class="card-title-row">
+              <h2>${game.titulo}</h2>
+            </div>
+            <p class="card-desc">${game.descricao}</p>
+            <div class="tech-tags">${tagsHtml}</div>
+            <a class="play-btn" href="${game.url}" data-play>
+              <span>▶ Jogar Agora</span>
+            </a>
+          </div>
+        `;
+
+        const favBtn = article.querySelector('.fav-btn');
+        favBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (favorites.has(game.id)) {
+            favorites.delete(game.id);
+            playTone(360, 0.07, 'sine');
+            showToast('☆', `${game.titulo} removido dos favoritos`);
+          } else {
+            favorites.add(game.id);
+            playTone(660, 0.09, 'triangle');
+            showToast('★', `${game.titulo} adicionado aos favoritos`);
+          }
+          saveFavorites();
+          updateFavoriteUI();
+          if (currentFilter === 'favorites') {
+            applyFilters();
+          }
+        });
+
+        const playBtn = article.querySelector('[data-play]');
+        playBtn.addEventListener('mouseenter', () => playTone(620, 0.04, 'sine', 0.03));
+        playBtn.addEventListener('click', () => playTone(780, 0.1, 'triangle', 0.07));
+
+        return article;
+      }
+
+      async function loadGames() {
+        try {
+          const response = await fetch('./jogos.json');
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          const list = Array.isArray(data) ? data : (data.jogos || []);
+
+          totalCountEl.textContent = list.length;
+          grid.innerHTML = '';
+          cards = list.map((game) => buildGameCard(game));
+          cards.forEach((card) => grid.appendChild(card));
+
+          updateFavoriteUI();
+          sortCards();
+          applyFilters();
+        } catch (err) {
+          grid.innerHTML = `
+            <div class="error-state" style="grid-column: 1 / -1;">
+              <h3>Não foi possível carregar o catálogo (jogos.json)</h3>
+              <p>Para executar localmente, inicie um servidor HTTP na raiz do projeto (ou acesse via GitHub Pages).</p>
+              <code>python -m http.server</code>
+            </div>
+          `;
+        }
+      }
+
       filterPills.forEach((pill) => {
         pill.addEventListener('click', () => {
           filterPills.forEach((p) => p.classList.remove('active'));
@@ -1963,13 +969,7 @@
 
       searchInput.addEventListener('input', applyFilters);
 
-      document.querySelectorAll('[data-play]').forEach((btn) => {
-        btn.addEventListener('mouseenter', () => playTone(620, 0.04, 'sine', 0.03));
-        btn.addEventListener('click', () => playTone(780, 0.1, 'triangle', 0.07));
-      });
-
-      updateFavoriteUI();
-      sortCards();
+      loadGames();
     })();
   </script>
 </body>

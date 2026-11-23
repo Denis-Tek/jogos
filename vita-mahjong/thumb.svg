@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <g transform="translate(22, 22)">
+    <rect x="6" y="14" width="44" height="58" rx="7" fill="#1e3a5f" />
+    <rect x="4" y="10" width="44" height="58" rx="7" fill="#d97706" />
+    <rect x="2" y="6" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
+    <text x="9" y="18" fill="#2563eb" font-family="Arial, sans-serif" font-weight="800" font-size="9">8</text>
+    <text x="24" y="42" text-anchor="middle" fill="#2563eb" font-size="20">⚓</text>
+    <text x="24" y="57" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Âncora</text>
+
+    <rect x="110" y="14" width="44" height="58" rx="7" fill="#1e3a5f" />
+    <rect x="108" y="10" width="44" height="58" rx="7" fill="#d97706" />
+    <rect x="106" y="6" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
+    <text x="113" y="18" fill="#059669" font-family="Arial, sans-serif" font-weight="800" font-size="9">2</text>
+    <path d="M 118 41 A 10 10 0 0 1 138 41" fill="none" stroke="#ef4444" stroke-width="2.5" />
+    <path d="M 121 41 A 7 7 0 0 1 135 41" fill="none" stroke="#f59e0b" stroke-width="2.2" />
+    <path d="M 124 41 A 4 4 0 0 1 132 41" fill="none" stroke="#3b82f6" stroke-width="2" />
+    <text x="128" y="57" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Arco-íris</text>
+
+    <rect x="6" y="92" width="44" height="58" rx="7" fill="#1e3a5f" />
+    <rect x="4" y="88" width="44" height="58" rx="7" fill="#d97706" />
+    <rect x="2" y="84" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
+    <text x="9" y="96" fill="#d97706" font-family="Arial, sans-serif" font-weight="800" font-size="9">2</text>
+    <text x="24" y="119" text-anchor="middle" fill="#eab308" font-size="19">🕎</text>
+    <text x="24" y="135" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Menorá</text>
+
+    <rect x="110" y="92" width="44" height="58" rx="7" fill="#1e3a5f" />
+    <rect x="108" y="88" width="44" height="58" rx="7" fill="#d97706" />
+    <rect x="106" y="84" width="44" height="58" rx="7" fill="#fefce8" stroke="#e2e8f0" stroke-width="1.2" />
+    <text x="113" y="96" fill="#16a34a" font-family="Arial, sans-serif" font-weight="800" font-size="9">6</text>
+    <text x="128" y="119" text-anchor="middle" fill="#16a34a" font-size="19">🌿</text>
+    <text x="128" y="135" text-anchor="middle" fill="#475569" font-family="Arial, sans-serif" font-weight="700" font-size="7.5">Oliveira</text>
+
+    <rect x="34" y="52" width="46" height="60" rx="8" fill="#0f172a" opacity="0.45" />
+    <rect x="31" y="47" width="46" height="60" rx="8" fill="#b45309" />
+    <rect x="28" y="42" width="46" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+    <text x="34" y="54" fill="#dc2626" font-family="Arial, sans-serif" font-weight="800" font-size="8.5">AM</text>
+    <circle cx="67" cy="51" r="2.2" fill="#dc2626" />
+    <text x="51" y="79" text-anchor="middle" fill="#ef4444" font-size="22">♥</text>
+    <text x="51" y="95" text-anchor="middle" fill="#334155" font-family="Arial, sans-serif" font-weight="800" font-size="8">Amor</text>
+
+    <rect x="84" y="52" width="46" height="60" rx="8" fill="#0f172a" opacity="0.45" />
+    <rect x="81" y="47" width="46" height="60" rx="8" fill="#b45309" />
+    <rect x="78" y="42" width="46" height="60" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.4" />
+    <text x="85" y="54" fill="#d97706" font-family="Arial, sans-serif" font-weight="800" font-size="9">3</text>
+    <circle cx="117" cy="51" r="2.2" fill="#d97706" />
+    <text x="101" y="79" text-anchor="middle" fill="#facc15" font-size="22">★</text>
+    <text x="101" y="95" text-anchor="middle" fill="#334155" font-family="Arial, sans-serif" font-weight="800" font-size="8">Estrela</text>
+  </g>
+</svg>

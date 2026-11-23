@@ -5,7 +5,7 @@
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)](#tecnologias-utilizadas)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES2020+-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](#tecnologias-utilizadas)
 
-Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabuleiro e puzzles casuais recriados para a web com **foco em design tátil**, **síntese sonora em tempo real** e **arquitetura autônoma em arquivo único**.
+Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabuleiro e puzzles casuais recriados para a web com **foco em design tátil**, **síntese sonora em tempo real** e **arquitetura autônoma**.
 
 🔗 **Acesse o Launcher Principal:** [https://denis-tek.github.io/jogos/](https://denis-tek.github.io/jogos/)
 
@@ -38,11 +38,11 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 
 ## 🛠️ Tecnologias Utilizadas
 
-Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Architecture** (cada aplicação encapsulada em seu próprio `index.html`), garantindo portabilidade instantânea, carregamento ultrarrápido e compatibilidade nativa com qualquer navegador moderno ou hospedagem estática:
+Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Architecture** (cada jogo encapsulado em seu próprio `index.html`, com catálogo desacoplado em `jogos.json` e miniaturas `thumb.svg` dedicadas no launcher), garantindo portabilidade instantânea, carregamento ultrarrápido e compatibilidade nativa com qualquer navegador moderno ou hospedagem estática:
 
-* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton e símbolos culturais vetoriais (*Mahjong Brasil*), recortes de quebra-cabeça por curvas de Bézier cúbicas, ilustrações embutidas para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3	imes3$).
+* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton e símbolos culturais vetoriais (*Mahjong Brasil*), recortes de quebra-cabeça por curvas de Bézier cúbicas, ilustrações vetoriais (`thumb.svg`) para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$).
 * **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, `scroll-snap`, Web Animations API e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
-* **JavaScript Nativo (ES2020+):** Lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / pinça *multi-touch* / *Long Press*) e atalhos de teclado.
+* **JavaScript Nativo (ES2020+) & JSON:** Carregamento dinâmico de catálogos e bancos de palavras (`jogos.json` e `palavras.json`), lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / pinça *multi-touch* / *Long Press*) e atalhos de teclado.
 * **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, pings de sonar, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes, jogos favoritados no launcher, fases desbloqueadas e preferências de tema/áudio em cada jogo.
 
@@ -52,94 +52,121 @@ Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Arc
 
 ```text
 jogos/
-├── index.html                 # Launcher principal com ordenação alfabética, favoritos, filtros e busca
-├── README.md                  # Documentação geral do repositório
+├── index.html                     # Launcher principal dinâmico alimentado por jogos.json
+├── jogos.json                     # Catálogo estruturado dos jogos, categorias, tags e miniaturas
+├── levantar-servidor-python.bat   # Atalho Windows para iniciar servidor HTTP local na porta 8000
+├── Abrir no navegador.url         # Atalho direto para http://localhost:8000/
+├── README.md                      # Documentação geral do repositório
 ├── batalha-naval/
-│   ├── index.html             # Aplicação completa da Batalha Naval — Comando Tático
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos da Batalha Naval
+│   ├── index.html                 # Aplicação completa da Batalha Naval — Comando Tático
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos da Batalha Naval
 ├── campo-minado/
-│   ├── index.html             # Aplicação completa do Campo Minado Pro
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Campo Minado
+│   ├── index.html                 # Aplicação completa do Campo Minado Pro
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Campo Minado
 ├── cubo-magico/
-│   ├── index.html             # Aplicação completa do Cubo Mágico 3x3 (Simulador 3D)
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, controles e algoritmos do Cubo Mágico
+│   ├── index.html                 # Aplicação completa do Cubo Mágico 3x3 (Simulador 3D)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, controles e algoritmos do Cubo Mágico
 ├── damas/
-│   ├── index.html             # Aplicação completa do Jogo de Damas — Edição de Luxo
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Jogo de Damas
+│   ├── index.html                 # Aplicação completa do Jogo de Damas — Edição de Luxo
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Jogo de Damas
 ├── dots-and-boxes/
-│   ├── index.html             # Aplicação completa do Dots & Boxes (Jogo dos Pontinhos)
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Dots & Boxes
+│   ├── index.html                 # Aplicação completa do Dots & Boxes (Jogo dos Pontinhos)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Dots & Boxes
 ├── food-hunt/
-│   ├── index.html             # Aplicação completa do Food Hunt: Formigas Pixeladas
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Food Hunt
+│   ├── index.html                 # Aplicação completa do Food Hunt: Formigas Pixeladas
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Food Hunt
 ├── genius-estrela/
-│   ├── index.html             # Aplicação completa do Genius da Estrela
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica e regras do Genius
+│   ├── index.html                 # Aplicação completa do Genius da Estrela
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica e regras do Genius
 ├── jogo-da-forca/
-│   ├── index.html             # Aplicação completa do Jogo da Forca
-│   ├── palavras.json          # Banco de dados de palavras, categorias, dicas e referências bíblicas
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, modos e estrutura do Jogo da Forca
+│   ├── index.html                 # Aplicação completa do Jogo da Forca
+│   ├── palavras.json              # Banco de dados de palavras, categorias, dicas e referências bíblicas
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, modos e estrutura do Jogo da Forca
 ├── paciencia/
-│   ├── index.html             # Aplicação completa da Paciência Clássica (Klondike)
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos da Paciência
+│   ├── index.html                 # Aplicação completa da Paciência Clássica (Klondike)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos da Paciência
 ├── quebra-cabeca/
-│   ├── index.html             # Aplicação completa do Quebra-Cabeça Studio
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Quebra-Cabeça Studio
+│   ├── index.html                 # Aplicação completa do Quebra-Cabeça Studio
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Quebra-Cabeça Studio
 ├── resta-um/
-│   ├── index.html             # Aplicação completa do Resta Um (Peg Solitaire)
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, variantes e algoritmos do Resta Um
+│   ├── index.html                 # Aplicação completa do Resta Um (Peg Solitaire)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, variantes e algoritmos do Resta Um
 ├── snake/
-│   ├── index.html             # Aplicação completa do Snake — Jogo da Cobrinha
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, controles e regras do Snake
+│   ├── index.html                 # Aplicação completa do Snake — Jogo da Cobrinha
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, controles e regras do Snake
 ├── sudoku/
-│   ├── index.html             # Aplicação completa do Sudoku Pro
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Sudoku
+│   ├── index.html                 # Aplicação completa do Sudoku Pro
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Sudoku
 ├── tetris/
-│   ├── index.html             # Aplicação completa do Tetris
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, controles e regras do Tetris
+│   ├── index.html                 # Aplicação completa do Tetris
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, controles e regras do Tetris
 ├── two-dots/
-│   ├── index.html             # Aplicação completa do Two Dots — Puzzle de Conexões
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Two Dots
+│   ├── index.html                 # Aplicação completa do Two Dots — Puzzle de Conexões
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Two Dots
 ├── vita-mahjong/
-│   ├── index.html             # Aplicação completa do Mahjong Brasil — Edição Vita
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, temas, tabuleiros e regras do Mahjong Brasil
+│   ├── index.html                 # Aplicação completa do Mahjong Brasil — Edição Vita
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, temas, tabuleiros e regras do Mahjong Brasil
 ├── water-sort/
-│   ├── index.html             # Aplicação completa do Water Sort Puzzle
-│   ├── imagem.png             # Captura de tela do jogo em execução
-│   └── README.md              # Documentação técnica, regras e algoritmos do Water Sort
+│   ├── index.html                 # Aplicação completa do Water Sort Puzzle
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, regras e algoritmos do Water Sort
 └── xadrez/
-    ├── index.html             # Aplicação completa do Xadrez Mestre — Edição de Clube
-    ├── imagem.png             # Captura de tela do jogo em execução
-    └── README.md              # Documentação técnica, regras e revisão tática do Xadrez Mestre
+    ├── index.html                 # Aplicação completa do Xadrez Mestre — Edição de Clube
+    ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+    ├── imagem.png                 # Captura de tela do jogo em execução
+    └── README.md                  # Documentação técnica, regras e revisão tática do Xadrez Mestre
 ```
 
 ---
 
 ## 🚀 Como Executar Localmente
 
-Como não há etapa de compilação (*build*) ou instalação de pacotes:
+Como o launcher carrega o catálogo dinamicamente via `fetch('./jogos.json')` (e o *Jogo da Forca* lê `palavras.json`), utilize um servidor HTTP local simples na raiz do projeto:
 
 1. Clone este repositório:
    ```bash
    git clone https://github.com/Denis-Tek/jogos.git
    ```
-2. Abra o arquivo `index.html` da raiz (ou de qualquer subpasta) diretamente no seu navegador preferido.
+2. Inicie o servidor local na pasta raiz `jogos/`:
+   * **Via script Windows:** execute `levantar-servidor-python.bat` e abra `Abrir no navegador.url`.
+   * **Via terminal (qualquer sistema):**
+     ```bash
+     python -m http.server 8000
+     ```
+3. Acesse `http://localhost:8000/` no seu navegador preferido.
 
 ---
 

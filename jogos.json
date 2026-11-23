@@ -1,0 +1,387 @@
+{
+  "jogos": [
+    {
+      "id": "batalha-naval",
+      "titulo": "Batalha Naval",
+      "categoria": "tabuleiro",
+      "categoriaLabel": "Raciocínio & Tabuleiro",
+      "visualClass": "visual-batalhanaval",
+      "url": "./batalha-naval/",
+      "thumb": "./batalha-naval/thumb.svg",
+      "keywords": "batalha naval navios frota radar oceano ia probabilistica",
+      "descricao": "Comando tático de frota em grade 10×10 com posicionamento manual ou aleatório, IA com mapa de densidade probabilística e modo 2 jogadores com cortina de privacidade.",
+      "tags": [
+        "IA Probabilística",
+        "1P & 2P",
+        "Single-File"
+      ]
+    },
+    {
+      "id": "campo-minado",
+      "titulo": "Campo Minado Pro",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-campominado",
+      "url": "./campo-minado/",
+      "thumb": "./campo-minado/thumb.svg",
+      "keywords": "campo minado pro minesweeper bombas bandeiras flood fill logica anos 90",
+      "descricao": "Versão moderna e responsiva do clássico Minesweeper com 1º clique seguro, abertura em cascata (Flood Fill), Chording, dica lógica e temas Dark Moderno ou Anos 90.",
+      "tags": [
+        "Flood Fill BFS",
+        "Duplo Tema",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "min",
+        "chaves": [
+          "minesweeper",
+          "campo_minado",
+          "campominado"
+        ],
+        "sufixo": "s"
+      }
+    },
+    {
+      "id": "cubo-magico",
+      "titulo": "Cubo Mágico 3x3",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-cubomagico",
+      "url": "./cubo-magico/",
+      "thumb": "./cubo-magico/thumb.svg",
+      "keywords": "cubo magico 3x3 rubik speedcubing 3d canvas wca rotacao",
+      "descricao": "Simulador 3D interativo com motor próprio em Canvas 2D, rotação livre em 360°, notação oficial WCA, cronômetro de speedcubing e resolução automática passo a passo.",
+      "tags": [
+        "Canvas 3D Engine",
+        "Notação WCA",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "tempo-ms",
+        "chaves": [
+          "cubo",
+          "rubik"
+        ]
+      }
+    },
+    {
+      "id": "dots-and-boxes",
+      "titulo": "Dots & Boxes",
+      "categoria": "tabuleiro",
+      "categoriaLabel": "Raciocínio & Tabuleiro",
+      "visualClass": "visual-dotsandboxes",
+      "url": "./dots-and-boxes/",
+      "thumb": "./dots-and-boxes/thumb.svg",
+      "keywords": "dots and boxes pontinhos caixas quadrados ia svg 2 jogadores",
+      "descricao": "O clássico Jogo dos Pontinhos com modo solo contra IA em 3 níveis (com análise de cadeias) ou 2 jogadores locais, grades de 3×3 a 7×7 e renderização vetorial em SVG.",
+      "tags": [
+        "SVG Dinâmico",
+        "IA Heurística",
+        "Single-File"
+      ]
+    },
+    {
+      "id": "food-hunt",
+      "titulo": "Food Hunt: Formigas Pixeladas",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-foodhunt",
+      "url": "./food-hunt/",
+      "thumb": "./food-hunt/thumb.svg",
+      "keywords": "food hunt formigas pixeladas puzzle estrategia bfs kmeans conversor",
+      "descricao": "Gerencie 5 slots de cores para comandar formigas que escavam desenhos pixelizados pelas bordas e túneis abertos. Inclui conversor de fotos próprias via K-Means.",
+      "tags": [
+        "Canvas 2D & BFS",
+        "K-Means Fotos",
+        "Single-File"
+      ]
+    },
+    {
+      "id": "genius-estrela",
+      "titulo": "Genius Estrela",
+      "categoria": "memoria",
+      "categoriaLabel": "Memória & Som",
+      "visualClass": "visual-genius",
+      "url": "./genius-estrela/",
+      "thumb": "./genius-estrela/thumb.svg",
+      "keywords": "genius estrela memoria som sequencia retro anos 80",
+      "descricao": "Recriação fiel do clássico eletrônico dos anos 80. Repita sequências luminosas e sonoras cada vez mais rápidas em 3 modos de jogo e 4 níveis de dificuldade.",
+      "tags": [
+        "Web Audio API",
+        "3 Modos",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "exato-max",
+        "chaves": [
+          "genius_high_score"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
+      "id": "jogo-da-forca",
+      "titulo": "Jogo da Forca",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-forca",
+      "url": "./jogo-da-forca/",
+      "thumb": "./jogo-da-forca/thumb.svg",
+      "keywords": "jogo da forca hangman palavras biblia categorias dicas 2 jogadores json",
+      "descricao": "Adivinhe palavras e expressões bíblicas por categoria antes de completar o boneco. Inclui banco de dados em JSON, dicas, referências bíblicas e modo 2 jogadores.",
+      "tags": [
+        "Banco JSON",
+        "1P & 2P",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "forca"
+        ],
+        "sufixo": ""
+      }
+    },
+    {
+      "id": "damas",
+      "titulo": "Jogo de Damas",
+      "categoria": "tabuleiro",
+      "categoriaLabel": "Raciocínio & Tabuleiro",
+      "visualClass": "visual-damas",
+      "url": "./damas/",
+      "thumb": "./damas/thumb.svg",
+      "keywords": "jogo de damas checkers tabuleiro 8x8 dama voadora minimax alfa beta",
+      "descricao": "Tabuleiro 8×8 com Dama Voadora, Lei da Maioria, capturas em cadeia, modo casual opcional e Inteligência Artificial em 3 níveis via Minimax com poda Alfa-Beta.",
+      "tags": [
+        "Minimax Alfa-Beta",
+        "Dama Voadora",
+        "Single-File"
+      ]
+    },
+    {
+      "id": "vita-mahjong",
+      "titulo": "Mahjong Brasil",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-mahjong",
+      "url": "./vita-mahjong/",
+      "thumb": "./vita-mahjong/thumb.svg",
+      "keywords": "mahjong brasil vita solitaire pecas pares biblia classico tabuleiro",
+      "descricao": "Edição Vita com peças grandes em relevo 3D, troca instantânea entre os temas Bíblia, Brasil e Clássico, 5 formatos verticais e gerador reverso 100% solucionável.",
+      "tags": [
+        "3 Temas SVG",
+        "5 Tabuleiros",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "mahjong"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
+      "id": "paciencia",
+      "titulo": "Paciência Clássica",
+      "categoria": "tabuleiro",
+      "categoriaLabel": "Raciocínio & Tabuleiro",
+      "visualClass": "visual-paciencia",
+      "url": "./paciencia/",
+      "thumb": "./paciencia/thumb.svg",
+      "keywords": "paciencia classica klondike solitaire cartas baralho naipes bfs deadlock",
+      "descricao": "Klondike Solitaire completo em layout zero-scroll com clique automático, Drag-and-Drop, compra de 1 ou 3 cartas, detector BFS de impasses e dicas inteligentes.",
+      "tags": [
+        "Deadlock Solver BFS",
+        "Zero-Scroll",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "paciencia",
+          "solitaire",
+          "klondike"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
+      "id": "quebra-cabeca",
+      "titulo": "Quebra-Cabeça Studio",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-quebracabeca",
+      "url": "./quebra-cabeca/",
+      "thumb": "./quebra-cabeca/thumb.svg",
+      "keywords": "quebra cabeca studio jigsaw puzzle pecas bezier fotos",
+      "descricao": "Jigsaw Puzzle com recorte realista em curvas de Bézier, agrupamento magnético, modo de rotação em 90°, 8 cenários procedurais e upload de fotos próprias.",
+      "tags": [
+        "Curvas de Bézier",
+        "Upload de Fotos",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "tempo-seg",
+        "chaves": [
+          "quebracabeca",
+          "quebra_cabeca",
+          "quebra-cabeca",
+          "jigsaw"
+        ]
+      }
+    },
+    {
+      "id": "resta-um",
+      "titulo": "Resta Um",
+      "categoria": "tabuleiro",
+      "categoriaLabel": "Raciocínio & Tabuleiro",
+      "visualClass": "visual-restaum",
+      "url": "./resta-um/",
+      "thumb": "./resta-um/thumb.svg",
+      "keywords": "resta um peg solitaire tabuleiro logica madeira dfs dicas",
+      "descricao": "O tradicional Peg Solitaire em tabuleiro de madeira nobre. Conta com 5 formatos de tabuleiro, modos de desafio e solucionador inteligente com dicas passo a passo.",
+      "tags": [
+        "Bitboard & DFS",
+        "5 Tabuleiros",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "pecas-min",
+        "prefixo": "restaum_rec_"
+      }
+    },
+    {
+      "id": "snake",
+      "titulo": "Snake",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-snake",
+      "url": "./snake/",
+      "thumb": "./snake/thumb.svg",
+      "keywords": "snake cobrinha neon nokia 3310 arcade fruta",
+      "descricao": "Clássico Jogo da Cobrinha em Canvas 2D com temas Neon Moderno e Nokia 3310 LCD, arenas com ou sem paredes, fruta bônus dourada e controles por swipe ou D-Pad.",
+      "tags": [
+        "Neon & Nokia 3310",
+        "Input Buffering",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "snake"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
+      "id": "sudoku",
+      "titulo": "Sudoku Pro",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-sudoku",
+      "url": "./sudoku/",
+      "thumb": "./sudoku/thumb.svg",
+      "keywords": "sudoku pro numeros grade 9x9 logica backtracking lapis dicas",
+      "descricao": "Tabuleiros gerados com solução única garantida por Backtracking, 4 níveis de dificuldade, modo lápis inteligente com limpeza automática e dicas pedagógicas.",
+      "tags": [
+        "Backtracking",
+        "Dicas Lógicas",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "tempo-seg",
+        "chaves": [
+          "sudoku"
+        ]
+      }
+    },
+    {
+      "id": "tetris",
+      "titulo": "Tetris",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-tetris",
+      "url": "./tetris/",
+      "thumb": "./tetris/thumb.svg",
+      "keywords": "tetris blocos tetrominos arcade linhas 7-bag ghost piece hold",
+      "descricao": "O clássico quebra-cabeça de blocos empilháveis em matriz 10×20 com gerador 7-Bag, rotação com wall kicks, peça fantasma (Ghost Piece), reserva (Hold) e velocidade progressiva.",
+      "tags": [
+        "7-Bag & Wall Kicks",
+        "Web Audio API",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "tetris"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
+      "id": "two-dots",
+      "titulo": "Two Dots",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-twodots",
+      "url": "./two-dots/",
+      "thumb": "./two-dots/thumb.svg",
+      "keywords": "two dots puzzle conexoes pontos cores loop quadrado gravidade",
+      "descricao": "Conecte pontos adjacentes da mesma cor ou feche quadrados (loops) para eliminar toda a cor do tabuleiro. Inclui modos de 30 movimentos, 60 segundos e Zen.",
+      "tags": [
+        "Grafos & Loops",
+        "3 Modos",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "twodots",
+          "two_dots",
+          "two-dots"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
+      "id": "water-sort",
+      "titulo": "Water Sort Puzzle",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-watersort",
+      "url": "./water-sort/",
+      "thumb": "./water-sort/thumb.svg",
+      "keywords": "water sort puzzle tubos liquidos cores logica frascos dfs",
+      "descricao": "Organize líquidos coloridos misturados em tubos de ensaio até separar todas as cores. Geração garantidamente solucionável via Solver DFS, temas claro/escuro e áudio procedural.",
+      "tags": [
+        "Solver DFS",
+        "Web Audio API",
+        "Single-File"
+      ],
+      "recorde": {
+        "tipo": "nivel",
+        "chaves": [
+          "watersort",
+          "water_sort"
+        ]
+      }
+    },
+    {
+      "id": "xadrez",
+      "titulo": "Xadrez Mestre",
+      "categoria": "tabuleiro",
+      "categoriaLabel": "Raciocínio & Tabuleiro",
+      "visualClass": "visual-xadrez",
+      "url": "./xadrez/",
+      "thumb": "./xadrez/thumb.svg",
+      "keywords": "xadrez mestre chess clube staunton minimax alfa-beta pgn revisao tabuleiro",
+      "descricao": "Edição de clube com peças Staunton vetoriais, regras oficiais completas, IA Minimax Alfa-Beta em 3 níveis, relógio digital, revisão tática pós-partida e exportação PGN.",
+      "tags": [
+        "Minimax Alfa-Beta",
+        "Revisão & PGN",
+        "Single-File"
+      ]
+    }
+  ]
+}
