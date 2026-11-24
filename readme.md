@@ -25,6 +25,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | **[Jogo de Damas](./damas/)** | Raciocínio & Tabuleiro | Edição de luxo em tabuleiro `8×8` com regras brasileiras (*Dama Voadora* e *Lei da Maioria*), modo casual, 2 jogadores e IA com algoritmo Minimax Alfa-Beta. | [Jogar Damas](https://denis-tek.github.io/jogos/damas/) |
 | **[Mahjong Brasil](./vita-mahjong/)** | Raciocínio & Tabuleiro | Edição Vita acessível em modo retrato com 34 peças vetoriais, 3 temas (*Bíblia*, *Brasil* e *Clássico*), 5 formatos verticais e gerador 100% solucionável. | [Jogar Mahjong Brasil](https://denis-tek.github.io/jogos/vita-mahjong/) |
 | **[Paciência Clássica](./paciencia/)** | Cartas & Estratégia | Versão completa do *Klondike Solitaire* com compra de 1 ou 3 cartas, detector de impasses via BFS, dicas inteligentes e temas Esmeralda e Meia-Noite. | [Jogar Paciência](https://denis-tek.github.io/jogos/paciencia/) |
+| **[Palavras Cruzadas Bíblicas](./palavras-cruzadas/)** | Palavras & Dedução | Gerador procedural de grades cruzadas inéditas com 73 palavras bíblicas em 6 temas, 3 tamanhos de tabuleiro, teclado virtual integrado e referências bíblicas. | [Jogar Palavras Cruzadas](https://denis-tek.github.io/jogos/palavras-cruzadas/) |
 | **[Quebra-Cabeça Studio](./quebra-cabeca/)** | Puzzle & Montagem | Jigsaw Puzzle com recorte realista por curvas de Bézier, 8 cenários procedurais, upload de fotos próprias, agrupamento magnético e modo rotação `90°`. | [Jogar Quebra-Cabeça](https://denis-tek.github.io/jogos/quebra-cabeca/) |
 | **[Resta Um](./resta-um/)** | Raciocínio & Tabuleiro | O clássico *Peg Solitaire* em tabuleiro circular de madeira nobre com 5 variantes, 4 acabamentos de peças e solucionador inteligente integrado. | [Jogar Resta Um](https://denis-tek.github.io/jogos/resta-um/) |
 | **[Snake](./snake/)** | Arcade & Reflexos | Clássico Jogo da Cobrinha em Canvas 2D com temas **Neon Moderno** e **Nokia 3310**, arenas com ou sem paredes, fruta bônus temporária e D-Pad tátil. | [Jogar Snake](https://denis-tek.github.io/jogos/snake/) |
@@ -42,7 +43,7 @@ Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Arc
 
 * **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton e símbolos culturais vetoriais (*Mahjong Brasil*), recortes de quebra-cabeça por curvas de Bézier cúbicas, ilustrações vetoriais (`thumb.svg`) para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$).
 * **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, `scroll-snap`, Web Animations API e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
-* **JavaScript Nativo (ES2020+) & JSON:** Carregamento dinâmico de catálogos e bancos de palavras (`jogos.json` e `palavras.json`), lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / pinça *multi-touch* / *Long Press*) e atalhos de teclado.
+* **JavaScript Nativo (ES2020+) & JSON:** Carregamento dinâmico de catálogos e bancos de palavras (`jogos.json` e `palavras.json`), lógica de estados, algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, geração procedural de palavras cruzadas por interseção com validação de adjacências, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / pinça *multi-touch* / *Long Press*) e atalhos de teclado.
 * **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, pings de sonar, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes, jogos favoritados no launcher, fases desbloqueadas e preferências de tema/áudio em cada jogo.
 
@@ -103,6 +104,12 @@ jogos/
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
 │   ├── imagem.png                 # Captura de tela do jogo em execução
 │   └── README.md                  # Documentação técnica, regras e algoritmos da Paciência
+├── palavras-cruzadas/
+│   ├── index.html                 # Aplicação completa do Palavras Cruzadas Bíblicas
+│   ├── palavras.json              # Banco de dados externo com 73 palavras, dicas e referências bíblicas
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, gerador dinâmico e regras do Palavras Cruzadas
 ├── quebra-cabeca/
 │   ├── index.html                 # Aplicação completa do Quebra-Cabeça Studio
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
@@ -154,7 +161,7 @@ jogos/
 
 ## 🚀 Como Executar Localmente
 
-Como o launcher carrega o catálogo dinamicamente via `fetch('./jogos.json')` (e o *Jogo da Forca* lê `palavras.json`), utilize um servidor HTTP local simples na raiz do projeto:
+Como o launcher carrega o catálogo dinamicamente via `fetch('./jogos.json')` (e os jogos de palavras leem seus respectivos `palavras.json`), utilize um servidor HTTP local simples na raiz do projeto:
 
 1. Clone este repositório:
    ```bash

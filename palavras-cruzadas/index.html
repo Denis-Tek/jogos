@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Palavras Cruzadas Bíblicas</title>
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-panel: #1e293b;
+      --bg-card: #263349;
+      --bg-cell: #f8fafc;
+      --bg-cell-active: #bae6fd;
+      --bg-cell-cursor: #38bdf8;
+      --bg-cell-correct: #dcfce7;
+      --bg-cell-wrong: #fee2e2;
+      --bg-cell-void: transparent;
+      --text-cell: #0f172a;
+      --text-num: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: rgba(148, 163, 184, 0.22);
+      --accent: #38bdf8;
+      --accent-gold: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg-key: #334155;
+      --bg-key-hover: #475569;
+      --shadow: 0 10px 26px rgba(0, 0, 0, 0.38);
+      --cell-size: 28px;
+    }
+
+    [data-theme="light"] {
+      --bg-body: #e2e8f0;
+      --bg-panel: #ffffff;
+      --bg-card: #f1f5f9;
+      --bg-cell: #ffffff;
+      --bg-cell-active: #e0f2fe;
+      --bg-cell-cursor: #38bdf8;
+      --bg-cell-correct: #bbf7d0;
+      --bg-cell-wrong: #fecaca;
+      --text-cell: #0f172a;
+      --text-num: #475569;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: rgba(15, 23, 42, 0.14);
+      --accent: #0284c7;
+      --accent-gold: #d97706;
+      --success: #059669;
+      --danger: #dc2626;
+      --bg-key: #e2e8f0;
+      --bg-key-hover: #cbd5e1;
+      --shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100dvh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Cabeçalho otimizado: 1 linha no desktop, 2 linhas compactas no mobile */
+    header {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .header-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+    }
+
+    .logo-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
+    }
+
+    .title-text {
+      min-width: 0;
+    }
+
+    .title-group h1 {
+      font-size: 0.96rem;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .title-group span {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .quick-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .select-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.45rem 0.65rem;
+        gap: 0.4rem;
+      }
+
+      .header-top-row {
+        padding-left: 0;
+      }
+
+      .title-group h1 {
+        font-size: 0.9rem;
+      }
+
+      .title-group span {
+        display: none;
+      }
+
+      .select-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem;
+        width: 100%;
+      }
+
+      .select-group select {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
+    .btn-chip, select {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.38rem 0.58rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      transition: border-color 0.16s ease, background-color 0.16s ease, transform 0.08s ease;
+    }
+
+    select {
+      justify-content: flex-start;
+      text-overflow: ellipsis;
+    }
+
+    .btn-chip:hover, select:hover {
+      border-color: var(--accent);
+    }
+
+    .btn-chip:active {
+      transform: scale(0.96);
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.38rem 0.68rem;
+      height: 32px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      white-space: nowrap;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28);
+      transition: filter 0.15s ease, transform 0.08s ease;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.96);
+    }
+
+    main {
+      flex: 1;
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0.45rem 0.55rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    /* Barra fixa de dica ativa */
+    .active-clue-bar {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-gold);
+      border-radius: 11px;
+      padding: 0.45rem 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.55rem;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+
+    .clue-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .clue-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 0.1rem;
+    }
+
+    .clue-text {
+      font-size: 0.85rem;
+      line-height: 1.28;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .clue-nav {
+      display: flex;
+      gap: 0.28rem;
+      flex-shrink: 0;
+    }
+
+    .clue-nav .btn-chip {
+      padding: 0.34rem 0.5rem;
+      font-size: 0.76rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 325px;
+      gap: 0.7rem;
+      align-items: start;
+      width: 100%;
+    }
+
+    @media (max-width: 860px) {
+      .workspace {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* Área do Tabuleiro + Apoio + Teclado */
+    .board-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow);
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .crossword-grid {
+      display: grid;
+      gap: 2px;
+      background: rgba(15, 23, 42, 0.38);
+      padding: 4px;
+      border-radius: 9px;
+      user-select: none;
+      margin: 0 auto;
+      max-width: 100%;
+    }
+
+    .cw-cell {
+      width: var(--cell-size);
+      height: var(--cell-size);
+      min-width: 12px;
+      min-height: 12px;
+      position: relative;
+      border-radius: 3px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: max(9px, calc(var(--cell-size) * 0.6));
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .cw-cell.void {
+      background: var(--bg-cell-void);
+      pointer-events: none;
+    }
+
+    .cw-cell.letter {
+      background: var(--bg-cell);
+      color: var(--text-cell);
+      cursor: pointer;
+      box-shadow: inset 0 -1.5px 0 rgba(15, 23, 42, 0.14);
+      transition: background-color 0.12s ease;
+    }
+
+    .cw-cell.letter.in-word {
+      background: var(--bg-cell-active);
+    }
+
+    .cw-cell.letter.cursor {
+      background: var(--bg-cell-cursor);
+      color: #ffffff;
+      z-index: 2;
+      box-shadow: 0 0 0 1.5px #fff, 0 3px 8px rgba(2, 132, 199, 0.45);
+    }
+
+    .cw-cell.letter.checked-ok {
+      background: var(--bg-cell-correct);
+      color: #065f46;
+    }
+
+    .cw-cell.letter.checked-err {
+      background: var(--bg-cell-wrong);
+      color: #991b1b;
+    }
+
+    .cw-cell.letter.word-solved {
+      background: #bbf7d0;
+      color: #065f46;
+    }
+
+    .cw-cell.letter.cursor.word-solved {
+      background: #10b981;
+      color: #ffffff;
+    }
+
+    .cell-num {
+      position: absolute;
+      top: 1px;
+      left: 2px;
+      font-size: max(7px, calc(var(--cell-size) * 0.28));
+      font-weight: 800;
+      line-height: 1;
+      color: var(--text-num);
+      pointer-events: none;
+    }
+
+    .cw-cell.cursor .cell-num {
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    /* Barra de ferramentas em uma única linha compacta */
+    .board-tools {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.35rem;
+      margin-top: 0.48rem;
+      width: 100%;
+    }
+
+    .board-tools .btn-chip {
+      width: 100%;
+      min-width: 0;
+      padding: 0.36rem 0.25rem;
+      font-size: clamp(0.68rem, 2.8vw, 0.78rem);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Teclado Virtual integrado próximo ao tabuleiro */
+    .keyboard {
+      width: 100%;
+      margin-top: 0.48rem;
+      padding-top: 0.48rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 0.26rem;
+    }
+
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.24rem;
+      width: 100%;
+    }
+
+    .key-btn {
+      flex: 1;
+      max-width: 44px;
+      min-width: 24px;
+      height: 36px;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      background: var(--bg-key);
+      color: var(--text-main);
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: transform 0.08s ease, background-color 0.12s ease;
+    }
+
+    .key-btn:hover {
+      background: var(--bg-key-hover);
+    }
+
+    .key-btn:active {
+      transform: scale(0.94);
+    }
+
+    .key-btn.wide {
+      max-width: 68px;
+      font-size: 0.82rem;
+    }
+
+    /* Painel Lateral de Dicas */
+    .clues-panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 0.75rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      max-height: 580px;
+      overflow-y: auto;
+    }
+
+    .clues-section h3 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: 0.35rem;
+      padding-bottom: 0.22rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .clue-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.28rem;
+    }
+
+    .clue-item {
+      padding: 0.4rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      line-height: 1.32;
+      cursor: pointer;
+      background: var(--bg-card);
+      border: 1px solid transparent;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .clue-item:hover {
+      border-color: var(--accent);
+    }
+
+    .clue-item.active {
+      border-color: var(--accent-gold);
+      background: rgba(245, 158, 11, 0.14);
+    }
+
+    .clue-item.done {
+      opacity: 0.55;
+      text-decoration: line-through;
+    }
+
+    .clue-item strong {
+      color: var(--accent-gold);
+      margin-right: 0.25rem;
+    }
+
+    /* Modal de Vitória */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 999999;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 85dvh;
+      overflow-y: auto;
+      padding: 1.25rem;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal-card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .modal-card p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .ref-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+
+    .ref-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.5rem 0.7rem;
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .ref-item strong {
+      color: var(--accent-gold);
+    }
+
+    .ref-item span {
+      display: block;
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 600;
+      margin-top: 0.12rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header id="appHeader">
+    <div class="header-top-row">
+      <div class="title-group">
+        <div class="logo-badge">✝</div>
+        <div class="title-text">
+          <h1>Palavras Cruzadas Bíblicas</h1>
+          <span>Grades Dinâmicas • Estudo &amp; Lazer</span>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <button id="soundBtn" class="btn-chip btn-icon" type="button" title="Alternar Som">🔊</button>
+        <button id="themeBtn" class="btn-chip btn-icon" type="button" title="Alternar Tema">🌓</button>
+        <button id="newGridBtn" class="btn-primary" type="button">↻ Nova</button>
+      </div>
+    </div>
+
+    <div class="select-group">
+      <select id="categorySelect" aria-label="Selecionar Tema Bíblico">
+        <option value="TODAS">📖 Todos os Temas</option>
+      </select>
+
+      <select id="sizeSelect" aria-label="Tamanho da Grade">
+        <option value="7">Compacta (7 palavras)</option>
+        <option value="10" selected>Clássica (10 palavras)</option>
+        <option value="13">Desafio (13 palavras)</option>
+      </select>
+    </div>
+  </header>
+
+  <main>
+    <div class="active-clue-bar" id="activeClueBar">
+      <div class="clue-info">
+        <div class="clue-badge" id="activeClueBadge">1 • HORIZONTAL</div>
+        <div class="clue-text" id="activeClueText">Carregando palavras cruzadas...</div>
+      </div>
+      <div class="clue-nav">
+        <button id="prevClueBtn" class="btn-chip" type="button" title="Dica Anterior">◀</button>
+        <button id="dirToggleBtn" class="btn-chip" type="button" title="Alternar Horizontal/Vertical">⇄</button>
+        <button id="nextClueBtn" class="btn-chip" type="button" title="Próxima Dica">▶</button>
+      </div>
+    </div>
+
+    <div class="workspace">
+      <section class="board-panel" id="boardPanel">
+        <div id="crosswordGrid" class="crossword-grid" role="grid" aria-label="Tabuleiro de Palavras Cruzadas"></div>
+
+        <div class="board-tools" id="boardTools">
+          <button id="checkBtn" class="btn-chip" type="button" title="Verificar Erros">✔ Verificar</button>
+          <button id="revealLetterBtn" class="btn-chip" type="button" title="Revelar Letra">💡 Letra</button>
+          <button id="revealWordBtn" class="btn-chip" type="button" title="Revelar Palavra">📖 Palavra</button>
+        </div>
+
+        <div class="keyboard" id="keyboard" aria-label="Teclado Virtual"></div>
+      </section>
+
+      <aside class="clues-panel">
+        <div class="clues-section">
+          <h3>➡ Horizontais</h3>
+          <ul id="acrossList" class="clue-list"></ul>
+        </div>
+        <div class="clues-section">
+          <h3>⬇ Verticais</h3>
+          <ul id="downList" class="clue-list"></ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <div id="winModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="modal-card">
+      <h2 id="winTitle">🎉 Grade Concluída!</h2>
+      <p>Você completou todas as palavras cruzadas! Confira as referências bíblicas desta rodada:</p>
+      <div id="winRefsList" class="ref-list"></div>
+      <div class="modal-actions">
+        <button id="closeWinBtn" class="btn-chip" type="button">Fechar</button>
+        <button id="nextWinGridBtn" class="btn-primary" type="button">↻ Nova Grade</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const KEYBOARD_ROWS = [
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+        ["Z", "X", "C", "V", "B", "N", "M", "⌫"]
+      ];
+
+      let database = { categorias: [], palavras: [] };
+      let puzzle = null;
+      let userGrid = [];
+      let checkGrid = [];
+      let cursor = { r: 0, c: 0, dir: "H" };
+      let solvedCelebrated = false;
+      let soundEnabled = true;
+      let audioCtx = null;
+      let lastLayoutSignature = "";
+
+      const appHeader = document.getElementById("appHeader");
+      const activeClueBar = document.getElementById("activeClueBar");
+      const categorySelect = document.getElementById("categorySelect");
+      const sizeSelect = document.getElementById("sizeSelect");
+      const boardPanel = document.getElementById("boardPanel");
+      const boardTools = document.getElementById("boardTools");
+      const gridEl = document.getElementById("crosswordGrid");
+      const acrossListEl = document.getElementById("acrossList");
+      const downListEl = document.getElementById("downList");
+      const activeClueBadge = document.getElementById("activeClueBadge");
+      const activeClueText = document.getElementById("activeClueText");
+      const keyboardEl = document.getElementById("keyboard");
+      const winModal = document.getElementById("winModal");
+
+      function normalizeWord(str) {
+        return String(str || "")
+          .toUpperCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^A-Z]/g, "");
+      }
+
+      function shuffleArray(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function playTone(freq, duration = 0.07, type = "sine", vol = 0.06) {
+        if (!soundEnabled) return;
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === "suspended") audioCtx.resume();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch (e) {}
+      }
+
+      function populateCategories() {
+        const previousVal = categorySelect.value;
+        const cats = new Set(database.categorias || []);
+        database.palavras.forEach((p) => {
+          if (p.categoria) cats.add(p.categoria);
+        });
+        categorySelect.innerHTML = `<option value="TODAS">📖 Todos os Temas (${database.palavras.length})</option>`;
+        cats.forEach((cat) => {
+          const count = database.palavras.filter((p) => p.categoria === cat).length;
+          const opt = document.createElement("option");
+          opt.value = cat;
+          opt.textContent = `${cat} (${count})`;
+          categorySelect.appendChild(opt);
+        });
+        if (previousVal && [...categorySelect.options].some((o) => o.value === previousVal)) {
+          categorySelect.value = previousVal;
+        }
+      }
+
+      // Carrega o banco de palavras diretamente do arquivo externo ./palavras.json
+      async function loadDatabase() {
+        try {
+          const response = await fetch("./palavras.json");
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const data = await response.json();
+          if (!data || !Array.isArray(data.palavras) || data.palavras.length === 0) {
+            throw new Error("Formato inválido em palavras.json");
+          }
+          database = data;
+          populateCategories();
+          generateNewPuzzle();
+        } catch (err) {
+          console.error("Erro ao carregar palavras.json:", err);
+          activeClueBadge.textContent = "ERRO AO CARREGAR";
+          activeClueText.textContent = `Não foi possível ler palavras.json (${err.message}).`;
+        }
+      }
+
+      function computeLayoutSignature(words) {
+        return words
+          .map((w) => `${w.clean}@${w.r},${w.c}:${w.dir}`)
+          .sort()
+          .join("|");
+      }
+
+      // Gerador Procedural de Grades com alta variedade e desempate aleatório
+      function buildCrosswordLayout(entries, targetCount) {
+        const DIM = 33;
+        let bestAttempt = null;
+        let bestOverallScore = -Infinity;
+
+        for (let attempt = 0; attempt < 60; attempt++) {
+          const shuffled = shuffleArray(entries);
+          const pool = shuffled.slice(0, Math.min(shuffled.length, targetCount + 8));
+
+          const sortedByLen = [...pool].sort((a, b) => b.clean.length - a.clean.length);
+          const rootChoices = sortedByLen.slice(0, Math.min(5, sortedByLen.length));
+          const rootWord = rootChoices[Math.floor(Math.random() * rootChoices.length)];
+          const remaining = shuffleArray(pool.filter((item) => item.clean !== rootWord.clean));
+          const orderedCandidates = [rootWord, ...remaining];
+
+          const board = Array.from({ length: DIM }, () => Array(DIM).fill(null));
+          const placed = [];
+
+          const initialDir = Math.random() < 0.5 ? "H" : "V";
+          const startR = initialDir === "H"
+            ? Math.floor(DIM / 2)
+            : Math.floor((DIM - rootWord.clean.length) / 2);
+          const startC = initialDir === "H"
+            ? Math.floor((DIM - rootWord.clean.length) / 2)
+            : Math.floor(DIM / 2);
+
+          for (let i = 0; i < rootWord.clean.length; i++) {
+            const rr = initialDir === "H" ? startR : startR + i;
+            const cc = initialDir === "H" ? startC + i : startC;
+            board[rr][cc] = rootWord.clean[i];
+          }
+          placed.push({ ...rootWord, r: startR, c: startC, dir: initialDir });
+
+          let unplaced = [...orderedCandidates.slice(1)];
+          for (let pass = 0; pass < 2 && placed.length < targetCount; pass++) {
+            const stillUnplaced = [];
+            for (const cand of unplaced) {
+              if (placed.length >= targetCount) break;
+              let bestPlacement = null;
+              let bestScore = -Infinity;
+
+              const existingOrder = shuffleArray(placed);
+              for (const existing of existingOrder) {
+                const newDir = existing.dir === "H" ? "V" : "H";
+                for (let i = 0; i < existing.clean.length; i++) {
+                  for (let j = 0; j < cand.clean.length; j++) {
+                    if (existing.clean[i] !== cand.clean[j]) continue;
+
+                    const interR = existing.dir === "H" ? existing.r : existing.r + i;
+                    const interC = existing.dir === "H" ? existing.c + i : existing.c;
+                    const r0 = newDir === "H" ? interR : interR - j;
+                    const c0 = newDir === "H" ? interC - j : interC;
+
+                    const evalRes = evaluatePlacement(board, cand.clean, r0, c0, newDir, DIM);
+                    if (evalRes.valid && evalRes.score > bestScore) {
+                      bestScore = evalRes.score;
+                      bestPlacement = { ...cand, r: r0, c: c0, dir: newDir };
+                    }
+                  }
+                }
+              }
+
+              if (bestPlacement) {
+                for (let k = 0; k < bestPlacement.clean.length; k++) {
+                  const rr = bestPlacement.dir === "H" ? bestPlacement.r : bestPlacement.r + k;
+                  const cc = bestPlacement.dir === "H" ? bestPlacement.c + k : bestPlacement.c;
+                  board[rr][cc] = bestPlacement.clean[k];
+                }
+                placed.push(bestPlacement);
+              } else {
+                stillUnplaced.push(cand);
+              }
+            }
+            unplaced = shuffleArray(stillUnplaced);
+          }
+
+          let minR = DIM, maxR = 0, minC = DIM, maxC = 0;
+          for (const w of placed) {
+            const endR = w.dir === "H" ? w.r : w.r + w.clean.length - 1;
+            const endC = w.dir === "H" ? w.c + w.clean.length - 1 : w.c;
+            minR = Math.min(minR, w.r);
+            maxR = Math.max(maxR, endR);
+            minC = Math.min(minC, w.c);
+            maxC = Math.max(maxC, endC);
+          }
+
+          const rows = maxR - minR + 1;
+          const cols = maxC - minC + 1;
+          const trimmedWords = placed.map((w) => ({
+            ...w,
+            r: w.r - minR,
+            c: w.c - minC
+          }));
+
+          const sig = computeLayoutSignature(trimmedWords);
+          const isSameAsLast = sig === lastLayoutSignature;
+          const aspectDiff = Math.abs(rows - cols);
+          const attemptScore =
+            placed.length * 140 -
+            Math.max(rows, cols) * 4 -
+            aspectDiff * 2 -
+            (isSameAsLast ? 1000 : 0) +
+            Math.random() * 12;
+
+          if (!bestAttempt || attemptScore > bestOverallScore) {
+            bestOverallScore = attemptScore;
+            bestAttempt = { board, minR, minC, rows, cols, words: trimmedWords, sig };
+          }
+        }
+
+        lastLayoutSignature = bestAttempt.sig;
+
+        const { board, minR, minC, rows, cols, words } = bestAttempt;
+        const trimmedGrid = Array.from({ length: rows }, (_, r) =>
+          Array.from({ length: cols }, (_, c) => board[minR + r][minC + c])
+        );
+
+        words.sort((a, b) => (a.r !== b.r ? a.r - b.r : a.c - b.c));
+        let numCounter = 1;
+        const coordToNum = new Map();
+        words.forEach((w) => {
+          const key = `${w.r},${w.c}`;
+          if (!coordToNum.has(key)) {
+            coordToNum.set(key, numCounter++);
+          }
+          w.number = coordToNum.get(key);
+        });
+
+        return { rows, cols, grid: trimmedGrid, placedWords: words, coordToNum };
+      }
+
+      function evaluatePlacement(board, word, r0, c0, dir, DIM) {
+        const len = word.length;
+        const endR = dir === "H" ? r0 : r0 + len - 1;
+        const endC = dir === "H" ? c0 + len - 1 : c0;
+
+        if (r0 < 1 || c0 < 1 || endR >= DIM - 1 || endC >= DIM - 1) {
+          return { valid: false };
+        }
+
+        const beforeR = dir === "H" ? r0 : r0 - 1;
+        const beforeC = dir === "H" ? c0 - 1 : c0;
+        const afterR = dir === "H" ? r0 : endR + 1;
+        const afterC = dir === "H" ? endC + 1 : c0;
+        if (board[beforeR][beforeC] !== null || board[afterR][afterC] !== null) {
+          return { valid: false };
+        }
+
+        let intersections = 0;
+        for (let k = 0; k < len; k++) {
+          const r = dir === "H" ? r0 : r0 + k;
+          const c = dir === "H" ? c0 + k : c0;
+          const existing = board[r][c];
+
+          if (existing !== null) {
+            if (existing !== word[k]) return { valid: false };
+            intersections++;
+          } else {
+            if (dir === "H") {
+              if (board[r - 1][c] !== null || board[r + 1][c] !== null) return { valid: false };
+            } else {
+              if (board[r][c - 1] !== null || board[r][c + 1] !== null) return { valid: false };
+            }
+          }
+        }
+
+        if (intersections === 0) return { valid: false };
+        const centerDist = Math.abs(r0 - DIM / 2) + Math.abs(c0 - DIM / 2);
+        const jitter = Math.random() * 18;
+        return { valid: true, score: intersections * 28 - centerDist * 1.4 + jitter };
+      }
+
+      function generateNewPuzzle() {
+        const selectedCat = categorySelect.value;
+        const targetCount = Number(sizeSelect.value) || 10;
+
+        let pool = database.palavras
+          .filter((item) => selectedCat === "TODAS" || item.categoria === selectedCat)
+          .map((item) => ({
+            ...item,
+            clean: normalizeWord(item.palavra || item.exibicao || "")
+          }))
+          .filter((item) => item.clean.length >= 3 && item.clean.length <= 15);
+
+        if (pool.length < 4) {
+          pool = database.palavras
+            .map((item) => ({ ...item, clean: normalizeWord(item.palavra || item.exibicao || "") }))
+            .filter((item) => item.clean.length >= 3 && item.clean.length <= 15);
+        }
+
+        puzzle = buildCrosswordLayout(pool, targetCount);
+        userGrid = Array.from({ length: puzzle.rows }, () => Array(puzzle.cols).fill(""));
+        checkGrid = Array.from({ length: puzzle.rows }, () => Array(puzzle.cols).fill(null));
+        solvedCelebrated = false;
+
+        const firstWord = puzzle.placedWords[0];
+        cursor = { r: firstWord.r, c: firstWord.c, dir: firstWord.dir };
+
+        renderBoard();
+        renderClueLists();
+        updateSelectionUI();
+        requestAnimationFrame(applyBoardScale);
+      }
+
+      // Enquadramento estrito garantindo 100% da grade visível sem cortes (12px a 44px)
+      function computeCellSize() {
+        if (!puzzle) return 28;
+        const isMobile = window.innerWidth <= 860;
+
+        const panelRect = boardPanel.getBoundingClientRect();
+        const panelStyle = getComputedStyle(boardPanel);
+        const padX = (parseFloat(panelStyle.paddingLeft) || 8) + (parseFloat(panelStyle.paddingRight) || 8);
+        const padY = (parseFloat(panelStyle.paddingTop) || 8) + (parseFloat(panelStyle.paddingBottom) || 8);
+
+        const fallbackW = isMobile
+          ? window.innerWidth - 18
+          : Math.min(window.innerWidth - 375, 730);
+        const rawPanelW = panelRect.width > 120 ? panelRect.width : fallbackW;
+        const availGridW = Math.max(180, rawPanelW - padX - 4);
+
+        const headerH = appHeader && appHeader.offsetHeight > 0 ? appHeader.offsetHeight : (isMobile ? 80 : 52);
+        const clueH = activeClueBar && activeClueBar.offsetHeight > 0 ? activeClueBar.offsetHeight : 60;
+        const toolsH = boardTools && boardTools.offsetHeight > 0 ? boardTools.offsetHeight : 34;
+        const kbH = keyboardEl && keyboardEl.offsetHeight > 0 ? keyboardEl.offsetHeight : 130;
+        const chromeOverhead = headerH + clueH + toolsH + kbH + padY + 38;
+
+        const availGridH = Math.max(150, window.innerHeight - chromeOverhead);
+
+        const gridPad = 8;
+        const gap = 2;
+        const maxByCols = Math.floor((availGridW - gridPad - (puzzle.cols - 1) * gap) / puzzle.cols);
+        const maxByRows = Math.floor((availGridH - gridPad - (puzzle.rows - 1) * gap) / puzzle.rows);
+
+        const upperCap = isMobile ? 42 : 44;
+        const rawSize = Math.min(upperCap, maxByCols, maxByRows);
+        return Math.max(12, rawSize);
+      }
+
+      function applyBoardScale() {
+        if (!puzzle) return;
+        const cellSize = computeCellSize();
+        gridEl.style.setProperty("--cell-size", `${cellSize}px`);
+        gridEl.style.gridTemplateColumns = `repeat(${puzzle.cols}, ${cellSize}px)`;
+      }
+
+      function renderBoard() {
+        applyBoardScale();
+        gridEl.innerHTML = "";
+
+        for (let r = 0; r < puzzle.rows; r++) {
+          for (let c = 0; c < puzzle.cols; c++) {
+            const cell = document.createElement("div");
+            cell.dataset.r = String(r);
+            cell.dataset.c = String(c);
+
+            if (puzzle.grid[r][c] === null) {
+              cell.className = "cw-cell void";
+            } else {
+              cell.className = "cw-cell letter";
+              const num = puzzle.coordToNum.get(`${r},${c}`);
+              if (num) {
+                const numSpan = document.createElement("span");
+                numSpan.className = "cell-num";
+                numSpan.textContent = String(num);
+                cell.appendChild(numSpan);
+              }
+              const letterSpan = document.createElement("span");
+              letterSpan.className = "cell-val";
+              letterSpan.textContent = userGrid[r][c];
+              cell.appendChild(letterSpan);
+
+              cell.addEventListener("click", () => handleCellClick(r, c));
+            }
+            gridEl.appendChild(cell);
+          }
+        }
+      }
+
+      function getWordsAt(r, c) {
+        return puzzle.placedWords.filter((w) => {
+          if (w.dir === "H") return w.r === r && c >= w.c && c < w.c + w.clean.length;
+          return w.c === c && r >= w.r && r < w.r + w.clean.length;
+        });
+      }
+
+      function getActiveWord() {
+        const wordsHere = getWordsAt(cursor.r, cursor.c);
+        if (wordsHere.length === 0) return puzzle.placedWords[0];
+        const matchDir = wordsHere.find((w) => w.dir === cursor.dir);
+        if (matchDir) return matchDir;
+        cursor.dir = wordsHere[0].dir;
+        return wordsHere[0];
+      }
+
+      function isWordSolved(w) {
+        for (let k = 0; k < w.clean.length; k++) {
+          const r = w.dir === "H" ? w.r : w.r + k;
+          const c = w.dir === "H" ? w.c + k : w.c;
+          if (userGrid[r][c] !== w.clean[k]) return false;
+        }
+        return true;
+      }
+
+      function handleCellClick(r, c) {
+        const wordsHere = getWordsAt(r, c);
+        if (wordsHere.length === 0) return;
+
+        if (cursor.r === r && cursor.c === c && wordsHere.length > 1) {
+          cursor.dir = cursor.dir === "H" ? "V" : "H";
+        } else {
+          cursor.r = r;
+          cursor.c = c;
+          if (!wordsHere.some((w) => w.dir === cursor.dir)) {
+            cursor.dir = wordsHere[0].dir;
+          }
+        }
+        playTone(520, 0.04, "sine", 0.04);
+        updateSelectionUI();
+      }
+
+      function updateSelectionUI() {
+        const activeWord = getActiveWord();
+        const activeCoords = new Set();
+        for (let k = 0; k < activeWord.clean.length; k++) {
+          const rr = activeWord.dir === "H" ? activeWord.r : activeWord.r + k;
+          const cc = activeWord.dir === "H" ? activeWord.c + k : activeWord.c;
+          activeCoords.add(`${rr},${cc}`);
+        }
+
+        const solvedCoords = new Set();
+        puzzle.placedWords.forEach((w) => {
+          if (isWordSolved(w)) {
+            for (let k = 0; k < w.clean.length; k++) {
+              const rr = w.dir === "H" ? w.r : w.r + k;
+              const cc = w.dir === "H" ? w.c + k : w.c;
+              solvedCoords.add(`${rr},${cc}`);
+            }
+          }
+        });
+
+        gridEl.querySelectorAll(".cw-cell.letter").forEach((cell) => {
+          const r = Number(cell.dataset.r);
+          const c = Number(cell.dataset.c);
+          const key = `${r},${c}`;
+
+          const valEl = cell.querySelector(".cell-val");
+          if (valEl) valEl.textContent = userGrid[r][c];
+          cell.classList.remove("in-word", "cursor", "checked-ok", "checked-err", "word-solved");
+
+          if (solvedCoords.has(key)) cell.classList.add("word-solved");
+          if (checkGrid[r][c] === "ok") cell.classList.add("checked-ok");
+          if (checkGrid[r][c] === "err") cell.classList.add("checked-err");
+          if (activeCoords.has(key)) cell.classList.add("in-word");
+          if (r === cursor.r && c === cursor.c) cell.classList.add("cursor");
+        });
+
+        const dirName = activeWord.dir === "H" ? "Horizontal" : "Vertical";
+        activeClueBadge.textContent = `${activeWord.number} • ${dirName} (${activeWord.clean.length} letras)`;
+        activeClueText.textContent = activeWord.dica;
+
+        // Destaca o item ativo nas listas laterais sem rolar a página
+        document.querySelectorAll(".clue-item").forEach((li) => {
+          const isMatch =
+            Number(li.dataset.num) === activeWord.number && li.dataset.dir === activeWord.dir;
+          li.classList.toggle("active", isMatch);
+        });
+
+        refreshClueDoneStates();
+        requestAnimationFrame(applyBoardScale);
+      }
+
+      function renderClueLists() {
+        acrossListEl.innerHTML = "";
+        downListEl.innerHTML = "";
+
+        puzzle.placedWords.forEach((w) => {
+          const li = document.createElement("li");
+          li.className = "clue-item";
+          li.dataset.num = String(w.number);
+          li.dataset.dir = w.dir;
+          li.innerHTML = `<strong>${w.number}.</strong> ${w.dica}`;
+          li.addEventListener("click", () => {
+            cursor = { r: w.r, c: w.c, dir: w.dir };
+            playTone(500, 0.04);
+            updateSelectionUI();
+          });
+
+          if (w.dir === "H") acrossListEl.appendChild(li);
+          else downListEl.appendChild(li);
+        });
+      }
+
+      function refreshClueDoneStates() {
+        puzzle.placedWords.forEach((w) => {
+          const done = isWordSolved(w);
+          const li = document.querySelector(`.clue-item[data-num="${w.number}"][data-dir="${w.dir}"]`);
+          if (li) li.classList.toggle("done", done);
+        });
+      }
+
+      function moveCursorStep(step) {
+        const activeWord = getActiveWord();
+        const idx =
+          activeWord.dir === "H" ? cursor.c - activeWord.c : cursor.r - activeWord.r;
+        const nextIdx = idx + step;
+        if (nextIdx >= 0 && nextIdx < activeWord.clean.length) {
+          cursor.r = activeWord.dir === "H" ? activeWord.r : activeWord.r + nextIdx;
+          cursor.c = activeWord.dir === "H" ? activeWord.c + nextIdx : activeWord.c;
+        }
+      }
+
+      function inputLetter(rawChar) {
+        if (!puzzle) return;
+        const char = normalizeWord(rawChar);
+        if (!char) return;
+
+        const letter = char[0];
+        userGrid[cursor.r][cursor.c] = letter;
+        checkGrid[cursor.r][cursor.c] = null;
+
+        const isCorrectChar = puzzle.grid[cursor.r][cursor.c] === letter;
+        playTone(isCorrectChar ? 620 : 440, 0.06, "triangle");
+
+        const activeWord = getActiveWord();
+        const currIdx =
+          activeWord.dir === "H" ? cursor.c - activeWord.c : cursor.r - activeWord.r;
+
+        let moved = false;
+        for (let k = currIdx + 1; k < activeWord.clean.length; k++) {
+          const rr = activeWord.dir === "H" ? activeWord.r : activeWord.r + k;
+          const cc = activeWord.dir === "H" ? activeWord.c + k : activeWord.c;
+          if (userGrid[rr][cc] === "") {
+            cursor.r = rr;
+            cursor.c = cc;
+            moved = true;
+            break;
+          }
+        }
+        if (!moved && currIdx + 1 < activeWord.clean.length) {
+          moveCursorStep(1);
+        }
+
+        updateSelectionUI();
+        checkFullCompletion();
+      }
+
+      function handleBackspace() {
+        if (!puzzle) return;
+        if (userGrid[cursor.r][cursor.c] !== "") {
+          userGrid[cursor.r][cursor.c] = "";
+          checkGrid[cursor.r][cursor.c] = null;
+        } else {
+          moveCursorStep(-1);
+          userGrid[cursor.r][cursor.c] = "";
+          checkGrid[cursor.r][cursor.c] = null;
+        }
+        playTone(300, 0.05);
+        updateSelectionUI();
+      }
+
+      function checkFullCompletion() {
+        if (solvedCelebrated || !puzzle) return;
+        for (let r = 0; r < puzzle.rows; r++) {
+          for (let c = 0; c < puzzle.cols; c++) {
+            if (puzzle.grid[r][c] !== null && userGrid[r][c] !== puzzle.grid[r][c]) {
+              return;
+            }
+          }
+        }
+        solvedCelebrated = true;
+        playTone(523.25, 0.1, "triangle");
+        setTimeout(() => playTone(659.25, 0.1, "triangle"), 100);
+        setTimeout(() => playTone(783.99, 0.22, "triangle"), 200);
+
+        const refsList = document.getElementById("winRefsList");
+        refsList.innerHTML = "";
+        puzzle.placedWords.forEach((w) => {
+          const div = document.createElement("div");
+          div.className = "ref-item";
+          div.innerHTML = `<strong>${w.number}. ${w.exibicao || w.clean}</strong> — ${w.dica}<span>📖 ${w.referencia || w.categoria}</span>`;
+          refsList.appendChild(div);
+        });
+
+        setTimeout(() => winModal.classList.add("open"), 400);
+      }
+
+      function cycleWord(delta) {
+        if (!puzzle) return;
+        const activeWord = getActiveWord();
+        const ordered = [
+          ...puzzle.placedWords.filter((w) => w.dir === "H"),
+          ...puzzle.placedWords.filter((w) => w.dir === "V")
+        ];
+        const idx = ordered.findIndex(
+          (w) => w.number === activeWord.number && w.dir === activeWord.dir
+        );
+        const next = ordered[(idx + delta + ordered.length) % ordered.length];
+        cursor = { r: next.r, c: next.c, dir: next.dir };
+        playTone(500, 0.05);
+        updateSelectionUI();
+      }
+
+      function buildKeyboard() {
+        keyboardEl.innerHTML = "";
+        KEYBOARD_ROWS.forEach((row) => {
+          const rowDiv = document.createElement("div");
+          rowDiv.className = "kb-row";
+          row.forEach((key) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "key-btn" + (key === "⌫" ? " wide" : "");
+            btn.textContent = key;
+            btn.setAttribute("aria-label", key === "⌫" ? "Apagar" : `Letra ${key}`);
+            btn.addEventListener("click", () => {
+              if (key === "⌫") handleBackspace();
+              else inputLetter(key);
+            });
+            rowDiv.appendChild(btn);
+          });
+          keyboardEl.appendChild(rowDiv);
+        });
+      }
+
+      document.getElementById("checkBtn").addEventListener("click", () => {
+        if (!puzzle) return;
+        let errors = 0;
+        for (let r = 0; r < puzzle.rows; r++) {
+          for (let c = 0; c < puzzle.cols; c++) {
+            if (puzzle.grid[r][c] !== null && userGrid[r][c] !== "") {
+              if (userGrid[r][c] === puzzle.grid[r][c]) {
+                checkGrid[r][c] = "ok";
+              } else {
+                checkGrid[r][c] = "err";
+                errors++;
+              }
+            }
+          }
+        }
+        playTone(errors === 0 ? 660 : 220, 0.14, "triangle");
+        updateSelectionUI();
+      });
+
+      document.getElementById("revealLetterBtn").addEventListener("click", () => {
+        if (!puzzle) return;
+        const correct = puzzle.grid[cursor.r][cursor.c];
+        if (!correct) return;
+        userGrid[cursor.r][cursor.c] = correct;
+        checkGrid[cursor.r][cursor.c] = "ok";
+        playTone(680, 0.09, "triangle");
+        moveCursorStep(1);
+        updateSelectionUI();
+        checkFullCompletion();
+      });
+
+      document.getElementById("revealWordBtn").addEventListener("click", () => {
+        if (!puzzle) return;
+        const w = getActiveWord();
+        for (let k = 0; k < w.clean.length; k++) {
+          const rr = w.dir === "H" ? w.r : w.r + k;
+          const cc = w.dir === "H" ? w.c + k : w.c;
+          userGrid[rr][cc] = w.clean[k];
+          checkGrid[rr][cc] = "ok";
+        }
+        playTone(720, 0.12, "triangle");
+        updateSelectionUI();
+        checkFullCompletion();
+      });
+
+      document.getElementById("prevClueBtn").addEventListener("click", () => cycleWord(-1));
+      document.getElementById("nextClueBtn").addEventListener("click", () => cycleWord(1));
+      document.getElementById("dirToggleBtn").addEventListener("click", () => {
+        if (!puzzle) return;
+        const wordsHere = getWordsAt(cursor.r, cursor.c);
+        if (wordsHere.length > 1) {
+          cursor.dir = cursor.dir === "H" ? "V" : "H";
+          playTone(540, 0.05);
+          updateSelectionUI();
+        }
+      });
+
+      document.getElementById("newGridBtn").addEventListener("click", () => {
+        playTone(500, 0.07);
+        generateNewPuzzle();
+      });
+      categorySelect.addEventListener("change", generateNewPuzzle);
+      sizeSelect.addEventListener("change", generateNewPuzzle);
+
+      document.getElementById("closeWinBtn").addEventListener("click", () => winModal.classList.remove("open"));
+      document.getElementById("nextWinGridBtn").addEventListener("click", () => {
+        winModal.classList.remove("open");
+        generateNewPuzzle();
+      });
+
+      document.getElementById("soundBtn").addEventListener("click", (e) => {
+        soundEnabled = !soundEnabled;
+        e.currentTarget.textContent = soundEnabled ? "🔊" : "🔇";
+        if (soundEnabled) playTone(560, 0.08);
+      });
+
+      document.getElementById("themeBtn").addEventListener("click", () => {
+        const html = document.documentElement;
+        html.setAttribute("data-theme", html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+        playTone(440, 0.06);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (!puzzle || winModal.classList.contains("open")) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        if (e.key === "Backspace" || e.key === "Delete") {
+          e.preventDefault();
+          handleBackspace();
+          return;
+        }
+        if (e.key === "Tab") {
+          e.preventDefault();
+          cycleWord(e.shiftKey ? -1 : 1);
+          return;
+        }
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+          e.preventDefault();
+          const dr = e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0;
+          const dc = e.key === "ArrowLeft" ? -1 : e.key === "ArrowRight" ? 1 : 0;
+          const nr = cursor.r + dr;
+          const nc = cursor.c + dc;
+          if (nr >= 0 && nr < puzzle.rows && nc >= 0 && nc < puzzle.cols && puzzle.grid[nr][nc] !== null) {
+            cursor.r = nr;
+            cursor.c = nc;
+            if (dr !== 0 && getWordsAt(nr, nc).some((w) => w.dir === "V")) cursor.dir = "V";
+            if (dc !== 0 && getWordsAt(nr, nc).some((w) => w.dir === "H")) cursor.dir = "H";
+            updateSelectionUI();
+          }
+          return;
+        }
+        if (/^[a-zA-ZÀ-ÿ]$/.test(e.key)) {
+          e.preventDefault();
+          inputLetter(e.key);
+        }
+      });
+
+      window.addEventListener("resize", applyBoardScale);
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver(applyBoardScale);
+        ro.observe(boardPanel);
+      }
+
+      buildKeyboard();
+      loadDatabase();
+    })();
+  </script>
+</body>
+</html>

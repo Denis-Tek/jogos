@@ -1,0 +1,528 @@
+{
+  "meta": {
+    "titulo": "Palavras Cruzadas Bíblicas",
+    "versao": "1.0",
+    "descricao": "Banco de dados editável com palavras, categorias, dicas e referências bíblicas para geração dinâmica de grades."
+  },
+  "categorias": [
+    "Personagens",
+    "Livros da Bíblia",
+    "Lugares e Cidades",
+    "Objetos e Símbolos",
+    "Eventos e Milagres",
+    "Doutrinas e Ensinamentos"
+  ],
+  "palavras": [
+    {
+      "palavra": "ABRAAO",
+      "exibicao": "ABRAÃO",
+      "categoria": "Personagens",
+      "dica": "Chamado de Pai da Fé, saiu de Ur dos Caldeus rumo à terra prometida.",
+      "referencia": "Gênesis 12:1-4"
+    },
+    {
+      "palavra": "MOISES",
+      "exibicao": "MOISÉS",
+      "categoria": "Personagens",
+      "dica": "Líder escolhido por Deus para libertar Israel do Egito e receber as Tábuas da Lei.",
+      "referencia": "Êxodo 3:10"
+    },
+    {
+      "palavra": "DAVI",
+      "exibicao": "DAVI",
+      "categoria": "Personagens",
+      "dica": "Pastor de ovelhas que derrotou Golias e se tornou rei de Israel.",
+      "referencia": "1 Samuel 17:45-50"
+    },
+    {
+      "palavra": "ESTER",
+      "exibicao": "ESTER",
+      "categoria": "Personagens",
+      "dica": "Rainha judia na Pérsia que arriscou sua vida para salvar seu povo.",
+      "referencia": "Ester 4:14-16"
+    },
+    {
+      "palavra": "DANIEL",
+      "exibicao": "DANIEL",
+      "categoria": "Personagens",
+      "dica": "Profeta fiel em Babilônia que sobreviveu à cova dos leões.",
+      "referencia": "Daniel 6:16-22"
+    },
+    {
+      "palavra": "RUTE",
+      "exibicao": "RUTE",
+      "categoria": "Personagens",
+      "dica": "Moabita leal à sua sogra Noemi que se tornou bisavó do rei Davi.",
+      "referencia": "Rute 1:16"
+    },
+    {
+      "palavra": "SALOMAO",
+      "exibicao": "SALOMÃO",
+      "categoria": "Personagens",
+      "dica": "Rei que pediu sabedoria a Deus e construiu o primeiro Templo em Jerusalém.",
+      "referencia": "1 Reis 3:9"
+    },
+    {
+      "palavra": "DEBORA",
+      "exibicao": "DÉBORA",
+      "categoria": "Personagens",
+      "dica": "Profetisa e juíza de Israel que liderou o povo à vitória com Baraque.",
+      "referencia": "Juízes 4:4-9"
+    },
+    {
+      "palavra": "GIDEAO",
+      "exibicao": "GIDEÃO",
+      "categoria": "Personagens",
+      "dica": "Juiz de Israel que venceu os midianitas com um exército de trezentos homens.",
+      "referencia": "Juízes 7:7"
+    },
+    {
+      "palavra": "PAULO",
+      "exibicao": "PAULO",
+      "categoria": "Personagens",
+      "dica": "Apóstolo dos gentios que realizou grandes viagens missionárias e escreveu diversas epístolas.",
+      "referencia": "Atos 9:15"
+    },
+    {
+      "palavra": "ELIAS",
+      "exibicao": "ELIAS",
+      "categoria": "Personagens",
+      "dica": "Profeta que desafiou os profetas de Baal no Monte Carmelo e foi levado ao céu num redemoinho.",
+      "referencia": "2 Reis 2:11"
+    },
+    {
+      "palavra": "JOSUE",
+      "exibicao": "JOSUÉ",
+      "categoria": "Personagens",
+      "dica": "Sucessor de Moisés que liderou o povo na travessia do Jordão e na conquista de Jericó.",
+      "referencia": "Josué 1:1-9"
+    },
+    {
+      "palavra": "NOE",
+      "exibicao": "NOÉ",
+      "categoria": "Personagens",
+      "dica": "Patriarca justo que construiu uma grande arca conforme a ordem de Deus antes do dilúvio.",
+      "referencia": "Gênesis 6:13-14"
+    },
+    {
+      "palavra": "SAMUEL",
+      "exibicao": "SAMUEL",
+      "categoria": "Personagens",
+      "dica": "Último juiz e grande profeta de Israel que ungiu Saul e Davi como reis.",
+      "referencia": "1 Samuel 3:19-20"
+    },
+    {
+      "palavra": "PEDRO",
+      "exibicao": "PEDRO",
+      "categoria": "Personagens",
+      "dica": "Pescador da Galileia chamado por Jesus para ser pescador de homens e pregador no Pentecostes.",
+      "referencia": "Mateus 4:18-19"
+    },
+    {
+      "palavra": "JONAS",
+      "exibicao": "JONAS",
+      "categoria": "Personagens",
+      "dica": "Profeta enviado a Nínive que passou três dias e três noites no ventre de um grande peixe.",
+      "referencia": "Jonas 1:17"
+    },
+    {
+      "palavra": "GENESIS",
+      "exibicao": "GÊNESIS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Primeiro livro da Bíblia; narra a Criação, o Dilúvio e a história dos patriarcas.",
+      "referencia": "Gênesis 1:1"
+    },
+    {
+      "palavra": "EXODO",
+      "exibicao": "ÊXODO",
+      "categoria": "Livros da Bíblia",
+      "dica": "Narra a saída do povo de Israel da escravidão no Egito e a entrega dos Dez Mandamentos.",
+      "referencia": "Êxodo 20:1-17"
+    },
+    {
+      "palavra": "SALMOS",
+      "exibicao": "SALMOS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Coletânea de cânticos, orações e louvores, muitos escritos pelo rei Davi.",
+      "referencia": "Salmos 23:1"
+    },
+    {
+      "palavra": "PROVERBIOS",
+      "exibicao": "PROVÉRBIOS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Livro poético repleto de conselhos práticos sobre sabedoria, justiça e temor do Senhor.",
+      "referencia": "Provérbios 1:7"
+    },
+    {
+      "palavra": "ISAIAS",
+      "exibicao": "ISAÍAS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Grande livro profético com muitas profecias messiânicas sobre o Servo Sofredor.",
+      "referencia": "Isaías 53:5"
+    },
+    {
+      "palavra": "APOCALIPSE",
+      "exibicao": "APOCALIPSE",
+      "categoria": "Livros da Bíblia",
+      "dica": "Último livro do Novo Testamento, escrito por João na ilha de Patmos.",
+      "referencia": "Apocalipse 1:1-9"
+    },
+    {
+      "palavra": "FILIPENSES",
+      "exibicao": "FILIPENSES",
+      "categoria": "Livros da Bíblia",
+      "dica": "Carta da alegria escrita por Paulo enquanto estava preso.",
+      "referencia": "Filipenses 4:4"
+    },
+    {
+      "palavra": "HEBREUS",
+      "exibicao": "HEBREUS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Epístola que apresenta a galeria dos heróis da fé no capítulo 11.",
+      "referencia": "Hebreus 11:1"
+    },
+    {
+      "palavra": "MATEUS",
+      "exibicao": "MATEUS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Primeiro Evangelho do Novo Testamento, contém o Sermão do Monte.",
+      "referencia": "Mateus 5:1-12"
+    },
+    {
+      "palavra": "ROMANOS",
+      "exibicao": "ROMANOS",
+      "categoria": "Livros da Bíblia",
+      "dica": "Epístola de Paulo que expõe profundamente a justificação pela fé.",
+      "referencia": "Romanos 1:16-17"
+    },
+    {
+      "palavra": "JERUSALEM",
+      "exibicao": "JERUSALÉM",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade de Davi e capital espiritual onde ficava o Templo do Senhor.",
+      "referencia": "Salmos 122:6"
+    },
+    {
+      "palavra": "BELEM",
+      "exibicao": "BELÉM",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade da Judeia onde nasceram o rei Davi e Jesus Cristo.",
+      "referencia": "Miqueias 5:2 / Mateus 2:1"
+    },
+    {
+      "palavra": "NAZARE",
+      "exibicao": "NAZARÉ",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade da Galileia onde Jesus cresceu e viveu sua juventude.",
+      "referencia": "Lucas 2:39-40"
+    },
+    {
+      "palavra": "SINAI",
+      "exibicao": "SINAI",
+      "categoria": "Lugares e Cidades",
+      "dica": "Monte no deserto onde Deus falou com Moisés e entregou as Tábuas da Lei.",
+      "referencia": "Êxodo 19:20"
+    },
+    {
+      "palavra": "JERICO",
+      "exibicao": "JERICÓ",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade fortificada cujas muralhas ruíram após sete dias de marcha e toque de trombetas.",
+      "referencia": "Josué 6:20"
+    },
+    {
+      "palavra": "CAFARNAUM",
+      "exibicao": "CAFARNAUM",
+      "categoria": "Lugares e Cidades",
+      "dica": "Cidade às margens do Mar da Galileia que serviu de base para o ministério de Jesus.",
+      "referencia": "Mateus 4:13"
+    },
+    {
+      "palavra": "JORDAO",
+      "exibicao": "JORDÃO",
+      "categoria": "Lugares e Cidades",
+      "dica": "Rio onde Naamã mergulhou sete vezes e onde Jesus foi batizado por João.",
+      "referencia": "Mateus 3:13"
+    },
+    {
+      "palavra": "GALILEIA",
+      "exibicao": "GALILEIA",
+      "categoria": "Lugares e Cidades",
+      "dica": "Região norte de Israel onde Jesus realizou grande parte de seus milagres e ensinamentos.",
+      "referencia": "Mateus 4:23"
+    },
+    {
+      "palavra": "BETANIA",
+      "exibicao": "BETÂNIA",
+      "categoria": "Lugares e Cidades",
+      "dica": "Aldeia próxima a Jerusalém onde moravam Marta, Maria e Lázaro.",
+      "referencia": "João 11:1"
+    },
+    {
+      "palavra": "ARCA",
+      "exibicao": "ARCA",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Cofre de madeira revestido de ouro que guardava as Tábuas da Lei, o maná e a vara de Arão.",
+      "referencia": "Hebreus 9:4"
+    },
+    {
+      "palavra": "MENORA",
+      "exibicao": "MENORÁ",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Candelabro de ouro puro com sete braços usado no Tabernáculo e no Templo.",
+      "referencia": "Êxodo 25:31-32"
+    },
+    {
+      "palavra": "SHOFAR",
+      "exibicao": "SHOFAR",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Instrumento de sopro feito de chifre de carneiro usado em festas e batalhas bíblicas.",
+      "referencia": "Josué 6:4"
+    },
+    {
+      "palavra": "MANA",
+      "exibicao": "MANÁ",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Alimento celestial enviado diariamente por Deus para sustentar Israel no deserto.",
+      "referencia": "Êxodo 16:14-15"
+    },
+    {
+      "palavra": "SARCA",
+      "exibicao": "SARÇA",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Arbusto ardente no deserto que queimava sem se consumir quando Deus chamou Moisés.",
+      "referencia": "Êxodo 3:2"
+    },
+    {
+      "palavra": "FUNDA",
+      "exibicao": "FUNDA",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Arma simples de pastor usada por Davi com uma pedra lisa para vencer o gigante.",
+      "referencia": "1 Samuel 17:49"
+    },
+    {
+      "palavra": "PERGAMINHO",
+      "exibicao": "PERGAMINHO",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Rolo preparado com pele de animal onde as Escrituras Sagradas eram copiadas.",
+      "referencia": "2 Timóteo 4:13"
+    },
+    {
+      "palavra": "HARPA",
+      "exibicao": "HARPA",
+      "categoria": "Objetos e Símbolos",
+      "dica": "Instrumento de cordas tocado por Davi para acalmar o rei Saul e louvar a Deus.",
+      "referencia": "1 Samuel 16:23"
+    },
+    {
+      "palavra": "PENTECOSTES",
+      "exibicao": "PENTECOSTES",
+      "categoria": "Eventos e Milagres",
+      "dica": "Dia em que o Espírito Santo desceu sobre os discípulos reunidos em Jerusalém.",
+      "referencia": "Atos 2:1-4"
+    },
+    {
+      "palavra": "DILUVIO",
+      "exibicao": "DILÚVIO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Grande inundação que cobriu a terra nos dias de Noé.",
+      "referencia": "Gênesis 7:17"
+    },
+    {
+      "palavra": "PASCOA",
+      "exibicao": "PÁSCOA",
+      "categoria": "Eventos e Milagres",
+      "dica": "Festa instituída na saída do Egito que celebra a libertação do povo de Deus.",
+      "referencia": "Êxodo 12:14"
+    },
+    {
+      "palavra": "ALIANCA",
+      "exibicao": "ALIANÇA",
+      "categoria": "Eventos e Milagres",
+      "dica": "Pacto solene estabelecido por Deus com Noé, Abraão e seu povo.",
+      "referencia": "Gênesis 9:13"
+    },
+    {
+      "palavra": "BATISMO",
+      "exibicao": "BATISMO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Ato realizado por João no rio Jordão e ordenado por Jesus aos discípulos.",
+      "referencia": "Mateus 28:19"
+    },
+    {
+      "palavra": "CRIACAO",
+      "exibicao": "CRIAÇÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Obra realizada por Deus em seis dias no princípio, formando os céus, a terra e toda forma de vida.",
+      "referencia": "Gênesis 1:1-31"
+    },
+    {
+      "palavra": "MARVERMELHO",
+      "exibicao": "MAR VERMELHO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Águas que Deus abriu em duas muralhas para que Israel passasse a pé enxuto.",
+      "referencia": "Êxodo 14:21-22"
+    },
+    {
+      "palavra": "SARCAARDENTE",
+      "exibicao": "SARÇA ARDENTE",
+      "categoria": "Eventos e Milagres",
+      "dica": "Fenômeno no monte Horebe em que um arbusto queimava sem se consumir quando Deus chamou Moisés.",
+      "referencia": "Êxodo 3:2-4"
+    },
+    {
+      "palavra": "QUEDADEJERICO",
+      "exibicao": "QUEDA DE JERICÓ",
+      "categoria": "Eventos e Milagres",
+      "dica": "Muralhas que ruíram após sete dias de marcha e o toque das trombetas dos sacerdotes.",
+      "referencia": "Josué 6:20"
+    },
+    {
+      "palavra": "TRANSFIGURACAO",
+      "exibicao": "TRANSFIGURAÇÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Momento no monte em que o rosto de Jesus resplandeceu como o sol e Moisés e Elias apareceram.",
+      "referencia": "Mateus 17:1-3"
+    },
+    {
+      "palavra": "MULTIPLICACAO",
+      "exibicao": "MULTIPLICAÇÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Milagre em que Jesus alimentou cinco mil homens com apenas cinco pães e dois peixinhos.",
+      "referencia": "João 6:9-11"
+    },
+    {
+      "palavra": "RESSURREICAO",
+      "exibicao": "RESSURREIÇÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Vitória de Jesus sobre a morte ao terceiro dia, deixando o sepulcro vazio.",
+      "referencia": "Lucas 24:1-7"
+    },
+    {
+      "palavra": "ASCENSAO",
+      "exibicao": "ASCENSÃO",
+      "categoria": "Eventos e Milagres",
+      "dica": "Momento no Monte das Oliveiras em que Jesus foi elevado aos céus diante dos discípulos.",
+      "referencia": "Atos 1:9-11"
+    },
+    {
+      "palavra": "BODASDECANA",
+      "exibicao": "BODAS DE CANÁ",
+      "categoria": "Eventos e Milagres",
+      "dica": "Primeiro sinal público de Jesus, quando transformou água em vinho durante um casamento.",
+      "referencia": "João 2:1-11"
+    },
+    {
+      "palavra": "TEMPESTADE",
+      "exibicao": "TEMPESTADE",
+      "categoria": "Eventos e Milagres",
+      "dica": "Ventania no Mar da Galileia que Jesus acalmou apenas com sua voz, ordenando paz ao mar.",
+      "referencia": "Marcos 4:39"
+    },
+    {
+      "palavra": "FORNALHA",
+      "exibicao": "FORNALHA",
+      "categoria": "Eventos e Milagres",
+      "dica": "Lugar de fogo ardente onde Sadraque, Mesaque e Abednego foram lançados e saíram ilesos.",
+      "referencia": "Daniel 3:24-27"
+    },
+    {
+      "palavra": "GRACA",
+      "exibicao": "GRAÇA",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Favor imerecido de Deus concedido ao ser humano por meio de Jesus Cristo.",
+      "referencia": "Efésios 2:8-9"
+    },
+    {
+      "palavra": "SALVACAO",
+      "exibicao": "SALVAÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Libertação do pecado e da condenação eterna mediante a fé em Cristo.",
+      "referencia": "Atos 4:12"
+    },
+    {
+      "palavra": "JUSTIFICACAO",
+      "exibicao": "JUSTIFICAÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Ato gracioso pelo qual Deus declara justo o pecador que crê em Jesus.",
+      "referencia": "Romanos 5:1"
+    },
+    {
+      "palavra": "SANTIFICACAO",
+      "exibicao": "SANTIFICAÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Processo contínuo de separação do pecado e consagração a Deus pelo Espírito.",
+      "referencia": "1 Tessalonicenses 4:3"
+    },
+    {
+      "palavra": "ARREPENDIMENTO",
+      "exibicao": "ARREPENDIMENTO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Mudança sincera de mente e atitude em relação ao pecado, voltando-se para Deus.",
+      "referencia": "Atos 3:19"
+    },
+    {
+      "palavra": "REDENCAO",
+      "exibicao": "REDENÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Resgate pago pelo sangue de Cristo para libertar o crente da escravidão do pecado.",
+      "referencia": "Efésios 1:7"
+    },
+    {
+      "palavra": "TRINDADE",
+      "exibicao": "TRINDADE",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "União eterna de Pai, Filho e Espírito Santo em um único Deus verdadeiro.",
+      "referencia": "Mateus 28:19"
+    },
+    {
+      "palavra": "ENCARNACAO",
+      "exibicao": "ENCARNAÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Mistério do Verbo eterno que se fez carne e habitou entre os homens.",
+      "referencia": "João 1:14"
+    },
+    {
+      "palavra": "EXPIACAO",
+      "exibicao": "EXPIAÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Sacrifício substitutivo de Cristo na cruz para apagar a culpa dos pecados.",
+      "referencia": "Romanos 3:25"
+    },
+    {
+      "palavra": "REGENERACAO",
+      "exibicao": "REGENERAÇÃO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Novo nascimento espiritual operado pelo Espírito Santo na vida do que crê.",
+      "referencia": "João 3:3-5"
+    },
+    {
+      "palavra": "PROVIDENCIA",
+      "exibicao": "PROVIDÊNCIA",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Cuidado soberano e contínuo de Deus sustentando e governando toda a sua criação.",
+      "referencia": "Mateus 6:26"
+    },
+    {
+      "palavra": "ESCATOLOGIA",
+      "exibicao": "ESCATOLOGIA",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Estudo bíblico sobre os últimos tempos, a volta de Cristo e a eternidade.",
+      "referencia": "Apocalipse 22:12"
+    },
+    {
+      "palavra": "EVANGELHO",
+      "exibicao": "EVANGELHO",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "As boas-novas de salvação em Jesus Cristo, poder de Deus para todo aquele que crê.",
+      "referencia": "Romanos 1:16"
+    },
+    {
+      "palavra": "ONIPRESENCA",
+      "exibicao": "ONIPRESENÇA",
+      "categoria": "Doutrinas e Ensinamentos",
+      "dica": "Atributo divino pelo qual Deus está presente em todos os lugares ao mesmo tempo.",
+      "referencia": "Salmos 139:7-10"
+    }
+  ]
+}
