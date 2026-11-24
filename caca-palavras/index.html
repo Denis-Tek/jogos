@@ -9,35 +9,33 @@
       --bg-body: #0f172a;
       --bg-panel: #1e293b;
       --bg-card: #263349;
-      --bg-cell: #162033;
-      --bg-cell-hover: #293854;
-      --text-cell: #f8fafc;
+      --bg-cell: #334155;
+      --bg-cell-hover: #475569;
       --text-main: #f8fafc;
       --text-muted: #94a3b8;
-      --border-color: rgba(148, 163, 184, 0.24);
+      --border-color: rgba(148, 163, 184, 0.22);
       --accent: #38bdf8;
       --accent-gold: #f59e0b;
       --success: #10b981;
       --danger: #ef4444;
-      --shadow: 0 10px 26px rgba(0, 0, 0, 0.38);
-      --cell-size: 34px;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      --cell-size: 36px;
     }
 
     [data-theme="light"] {
-      --bg-body: #e2e8f0;
+      --bg-body: #f1f5f9;
       --bg-panel: #ffffff;
-      --bg-card: #f1f5f9;
-      --bg-cell: #ffffff;
-      --bg-cell-hover: #e2e8f0;
-      --text-cell: #0f172a;
+      --bg-card: #f8fafc;
+      --bg-cell: #e2e8f0;
+      --bg-cell-hover: #cbd5e1;
       --text-main: #0f172a;
       --text-muted: #475569;
-      --border-color: rgba(15, 23, 42, 0.16);
+      --border-color: rgba(15, 23, 42, 0.14);
       --accent: #0284c7;
       --accent-gold: #d97706;
       --success: #059669;
       --danger: #dc2626;
-      --shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+      --shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
     }
 
     * {
@@ -54,56 +52,54 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      transition: background-color 0.22s ease, color 0.22s ease;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Cabeçalho Ultracompacto: 1 linha no desktop, 2 linhas enxutas no mobile */
+    /* Cabeçalho Ultracompacto */
     header {
       background: var(--bg-panel);
       border-bottom: 1px solid var(--border-color);
-      padding: 0.45rem 0.7rem;
+      padding: 0.45rem 0.9rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .header-top-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.45rem;
-      padding-left: 0;
+      gap: 0.5rem;
+      flex: 1;
       min-width: 0;
     }
 
     .title-group {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.5rem;
+      padding-left: 0;
       min-width: 0;
     }
 
     .logo-badge {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       border-radius: 8px;
       background: linear-gradient(135deg, #f59e0b, #d97706);
       color: #fff;
       display: grid;
       place-items: center;
-      font-size: 0.96rem;
+      font-size: 1rem;
       font-weight: 800;
       flex-shrink: 0;
-      box-shadow: 0 3px 10px rgba(245, 158, 11, 0.35);
-    }
-
-    .title-text {
-      min-width: 0;
+      box-shadow: 0 3px 8px rgba(245, 158, 11, 0.35);
     }
 
     .title-group h1 {
-      font-size: 0.96rem;
+      font-size: 1.02rem;
       font-weight: 800;
       letter-spacing: -0.01em;
       white-space: nowrap;
@@ -113,55 +109,21 @@
 
     .title-group span {
       display: block;
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
-      white-space: nowrap;
     }
 
-    .quick-actions {
+    .icon-actions {
       display: flex;
       align-items: center;
-      gap: 0.32rem;
+      gap: 0.35rem;
       flex-shrink: 0;
     }
 
     .select-group {
       display: flex;
       align-items: center;
-      gap: 0.38rem;
-    }
-
-    @media (max-width: 880px) {
-      header {
-        flex-direction: column;
-        align-items: stretch;
-        padding: 0.4rem 0.55rem;
-        gap: 0.36rem;
-      }
-
-      .header-top-row {
-        padding-left: 0;
-      }
-
-      .title-group h1 {
-        font-size: 0.92rem;
-      }
-
-      .title-group span {
-        display: none;
-      }
-
-      .select-group {
-        display: grid;
-        grid-template-columns: 1.25fr 0.9fr auto;
-        gap: 0.35rem;
-        width: 100%;
-      }
-
-      .select-group select {
-        width: 100%;
-        min-width: 0;
-      }
+      gap: 0.4rem;
     }
 
     .btn-chip, select {
@@ -169,22 +131,16 @@
       color: var(--text-main);
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 0.36rem 0.52rem;
-      height: 32px;
-      font-size: 0.77rem;
+      padding: 0.36rem 0.6rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.28rem;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-    }
-
-    select {
-      justify-content: flex-start;
-      text-overflow: ellipsis;
+      gap: 0.3rem;
+      transition: all 0.18s ease;
+      min-height: 32px;
     }
 
     .btn-chip:hover, select:hover {
@@ -192,16 +148,9 @@
     }
 
     .btn-chip.active {
-      background: rgba(245, 158, 11, 0.18);
-      border-color: var(--accent-gold);
-      color: var(--accent-gold);
-    }
-
-    .btn-icon {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      font-size: 0.9rem;
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
     }
 
     .btn-primary {
@@ -209,329 +158,272 @@
       color: #fff;
       border: none;
       border-radius: 8px;
-      padding: 0.36rem 0.65rem;
-      height: 32px;
-      font-size: 0.77rem;
+      padding: 0.38rem 0.72rem;
+      font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.25rem;
-      white-space: nowrap;
+      gap: 0.3rem;
+      min-height: 32px;
       box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28);
-      transition: filter 0.15s ease, transform 0.1s ease;
+      transition: transform 0.15s ease, filter 0.15s ease;
     }
 
     .btn-primary:hover {
       filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
-    .btn-primary:active {
-      transform: scale(0.97);
+    @media (max-width: 760px) {
+      header {
+        padding: 0.35rem 0.65rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.35rem;
+      }
+      .title-group span {
+        display: none;
+      }
+      .select-group {
+        display: grid;
+        grid-template-columns: 1.25fr 0.9fr auto;
+        width: 100%;
+        gap: 0.35rem;
+      }
+      .select-group select,
+      .select-group .btn-chip {
+        width: 100%;
+        padding: 0.32rem 0.45rem;
+        font-size: 0.76rem;
+      }
     }
 
     main {
       flex: 1;
-      max-width: 1140px;
+      max-width: 1040px;
       width: 100%;
       margin: 0 auto;
-      padding: 0.42rem 0.55rem;
+      padding: 0.55rem 0.75rem 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 0.42rem;
+      gap: 0.55rem;
     }
 
-    /* Barra de Status Compacta */
     .status-strip {
-      background: var(--bg-panel);
-      border: 1px solid var(--border-color);
-      border-left: 4px solid var(--accent-gold);
-      border-radius: 10px;
-      padding: 0.36rem 0.68rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.42rem 0.8rem;
       gap: 0.5rem;
+      flex-wrap: wrap;
       box-shadow: var(--shadow);
-    }
-
-    .status-left {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      min-width: 0;
     }
 
     .category-pill {
       background: rgba(245, 158, 11, 0.15);
       color: var(--accent-gold);
       border: 1px solid rgba(245, 158, 11, 0.35);
-      padding: 0.16rem 0.52rem;
+      padding: 0.18rem 0.65rem;
       border-radius: 999px;
-      font-size: 0.7rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      white-space: nowrap;
+      font-size: 0.76rem;
+      font-weight: 700;
     }
 
-    .selection-preview {
-      font-size: 0.84rem;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: 0.08em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .status-stats {
+    .stats-group {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      font-size: 0.78rem;
+      gap: 0.8rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
       font-weight: 600;
-      flex-shrink: 0;
     }
 
-    .status-stats strong {
+    .stats-group strong {
       color: var(--text-main);
     }
 
-    /* Área Principal: Tabuleiro Priorizado + Painel de Palavras */
-    .workspace {
+    .game-layout {
       display: grid;
-      grid-template-columns: 1fr 335px;
-      gap: 0.55rem;
+      grid-template-columns: 1fr 310px;
+      gap: 0.75rem;
       align-items: start;
       flex: 1;
     }
 
-    @media (max-width: 880px) {
-      .workspace {
+    @media (max-width: 840px) {
+      .game-layout {
         grid-template-columns: 1fr;
-        gap: 0.45rem;
       }
     }
 
     .board-panel {
       background: var(--bg-panel);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 0.48rem;
+      border-radius: 16px;
+      padding: 0.65rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       box-shadow: var(--shadow);
-      width: 100%;
+      min-height: 320px;
       overflow: hidden;
     }
 
     .grid-wrapper {
       position: relative;
       display: inline-block;
-      padding: 5px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 11px;
-      touch-action: none;
       user-select: none;
-      margin: 0 auto;
+      touch-action: none;
     }
 
-    .wordsearch-grid {
+    .word-grid {
       display: grid;
-      gap: 2px;
+      gap: 3px;
       position: relative;
       z-index: 2;
     }
 
-    .ws-cell {
+    .grid-cell {
       width: var(--cell-size);
       height: var(--cell-size);
-      min-width: 18px;
-      min-height: 18px;
-      border-radius: 6px;
       background: var(--bg-cell);
-      color: var(--text-cell);
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
       display: grid;
       place-items: center;
-      font-weight: 800;
       font-size: clamp(12px, calc(var(--cell-size) * 0.62), 26px);
-      line-height: 1;
+      font-weight: 800;
+      color: var(--text-main);
       cursor: pointer;
-      position: relative;
-      transition: transform 0.08s ease, background-color 0.14s ease, color 0.14s ease;
-      box-shadow: inset 0 -1px 0 rgba(148, 163, 184, 0.16);
+      transition: background-color 0.12s ease, transform 0.1s ease, color 0.12s ease;
     }
 
-    .ws-cell:hover {
+    .grid-cell:hover {
       background: var(--bg-cell-hover);
     }
 
-    .ws-cell.selecting {
-      background: var(--accent) !important;
-      color: #ffffff !important;
-      transform: scale(1.06);
-      z-index: 4;
-      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85), 0 4px 10px rgba(56, 189, 248, 0.45);
+    .grid-cell.selected {
+      background: rgba(56, 189, 248, 0.35);
+      border-color: var(--accent);
+      transform: scale(0.95);
     }
 
-    .ws-cell.anchor-start {
-      outline: 2.5px dashed var(--accent-gold);
+    .grid-cell.anchor {
+      outline: 2px solid var(--accent-gold);
       outline-offset: -2px;
-      background: rgba(245, 158, 11, 0.25);
     }
 
-    .ws-cell.hint-pulse {
-      animation: hintPulse 0.65s ease-in-out 4;
-      z-index: 5;
+    .grid-cell.found {
+      color: #ffffff;
+      border-color: transparent;
     }
 
-    @keyframes hintPulse {
-      0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.85);
-      }
-      50% {
-        transform: scale(1.16);
-        background: var(--accent-gold);
-        color: #ffffff;
-        box-shadow: 0 0 0 6px rgba(245, 158, 11, 0);
-      }
-    }
-
-    .grid-overlay {
+    .highlight-svg {
       position: absolute;
-      inset: 5px;
-      pointer-events: none;
-      z-index: 3;
-    }
-
-    .board-tools {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.45rem;
-      margin-top: 0.42rem;
+      inset: 0;
       width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    .helper-tip {
-      font-size: 0.72rem;
+    .board-footer-tip {
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
       color: var(--text-muted);
-      line-height: 1.25;
-      flex: 1;
+      text-align: center;
     }
 
-    /* Painel de Palavras / Modo Estudo */
+    /* Painel Lateral de Palavras / Dicas */
     .words-panel {
       background: var(--bg-panel);
       border: 1px solid var(--border-color);
-      border-radius: 14px;
-      padding: 0.6rem 0.7rem;
-      box-shadow: var(--shadow);
+      border-radius: 16px;
+      padding: 0.75rem;
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
-      max-height: 540px;
-      overflow-y: auto;
+      gap: 0.6rem;
+      box-shadow: var(--shadow);
     }
 
-    .words-panel-header {
+    .words-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-bottom: 0.3rem;
-      border-bottom: 1px solid var(--border-color);
+      gap: 0.4rem;
     }
 
-    .words-panel-header h2 {
-      font-size: 0.76rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--accent);
+    .words-header h2 {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
     }
 
-    .word-list {
-      list-style: none;
+    .words-list {
       display: flex;
       flex-direction: column;
-      gap: 0.36rem;
+      gap: 0.42rem;
     }
 
-    .word-list.compact-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
-      gap: 0.32rem;
+    @media (max-width: 840px) {
+      .words-list.list-mode {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
     }
 
     .word-item {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 0.38rem 0.52rem;
-      font-size: 0.78rem;
+      border-radius: 9px;
+      padding: 0.45rem 0.65rem;
+      font-size: 0.82rem;
       transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 0.16rem;
-    }
-
-    .word-item-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 0.35rem;
-    }
-
-    .word-badge-dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      background: var(--text-muted);
-      opacity: 0.35;
-    }
-
-    .word-item.found .word-badge-dot {
-      opacity: 1;
-    }
-
-    .word-title {
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      color: var(--text-main);
+      gap: 0.5rem;
     }
 
     .word-item.found {
-      opacity: 0.76;
-      border-color: rgba(16, 185, 129, 0.42);
+      opacity: 0.62;
+      border-color: var(--success);
     }
 
-    .word-item.found .word-title {
+    .word-item.found .word-label {
       text-decoration: line-through;
       color: var(--success);
     }
 
-    .word-clue {
-      font-size: 0.77rem;
-      line-height: 1.32;
-      color: var(--text-muted);
-    }
-
-    .word-ref-tag {
-      font-size: 0.7rem;
+    .word-label {
       font-weight: 700;
-      color: var(--accent-gold);
+      letter-spacing: 0.03em;
     }
 
-    /* Modal de Vitória */
+    .word-clue {
+      font-size: 0.78rem;
+      line-height: 1.38;
+      color: var(--text-main);
+    }
+
+    .word-badge-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+      background: var(--border-color);
+    }
+
+    /* Modais */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.82);
+      background: rgba(2, 6, 23, 0.78);
       backdrop-filter: blur(6px);
       display: none;
       align-items: center;
@@ -548,63 +440,65 @@
       background: var(--bg-panel);
       border: 1px solid var(--border-color);
       border-radius: 18px;
-      max-width: 520px;
+      max-width: 480px;
       width: 100%;
-      max-height: 86dvh;
+      max-height: 85dvh;
       overflow-y: auto;
-      padding: 1.25rem;
+      padding: 1.35rem;
       box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55);
-      animation: popIn 0.2s ease;
+      animation: popIn 0.22s ease;
     }
 
     @keyframes popIn {
-      from { opacity: 0; transform: scale(0.95); }
+      from { opacity: 0; transform: scale(0.93); }
       to { opacity: 1; transform: scale(1); }
     }
 
     .modal-card h2 {
       font-size: 1.25rem;
-      margin-bottom: 0.28rem;
+      margin-bottom: 0.35rem;
     }
 
-    .modal-subtitle {
+    .modal-card p {
       color: var(--text-muted);
-      font-size: 0.86rem;
-      margin-bottom: 0.85rem;
+      font-size: 0.9rem;
+      margin-bottom: 0.9rem;
+      line-height: 1.45;
     }
 
-    .ref-list {
+    .summary-list {
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
-      margin-bottom: 1rem;
+      gap: 0.5rem;
+      margin: 0.75rem 0;
     }
 
-    .ref-item {
+    .summary-entry {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      padding: 0.55rem 0.7rem;
-      font-size: 0.82rem;
-      line-height: 1.38;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.83rem;
     }
 
-    .ref-item strong {
-      color: var(--accent-gold);
-    }
-
-    .ref-item span {
-      display: block;
+    .summary-entry strong {
       color: var(--accent);
-      font-size: 0.75rem;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    .summary-entry small {
+      display: block;
+      color: var(--accent-gold);
       font-weight: 700;
-      margin-top: 0.16rem;
+      margin-top: 0.2rem;
     }
 
     .modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: 0.5rem;
+      gap: 0.6rem;
+      margin-top: 1.1rem;
     }
   </style>
 </head>
@@ -612,17 +506,17 @@
   <header id="appHeader">
     <div class="header-top-row">
       <div class="title-group">
-        <div class="logo-badge">✝</div>
-        <div class="title-text">
+        <div class="logo-badge">🔎</div>
+        <div>
           <h1>Caça-Palavras Bíblico</h1>
-          <span>Passatempo &amp; Estudo das Escrituras</span>
+          <span>Edição Temática • Grade Dinâmica & Estudo</span>
         </div>
       </div>
 
-      <div class="quick-actions">
-        <button id="soundBtn" class="btn-chip btn-icon" type="button" title="Alternar Som">🔊</button>
-        <button id="themeBtn" class="btn-chip btn-icon" type="button" title="Alternar Tema Claro/Escuro">🌓</button>
-        <button id="newGridBtn" class="btn-primary" type="button">↻ Nova</button>
+      <div class="icon-actions">
+        <button id="soundBtn" class="btn-chip" type="button" title="Alternar Som" aria-label="Alternar Som">🔊</button>
+        <button id="themeBtn" class="btn-chip" type="button" title="Alternar Tema Claro/Escuro" aria-label="Alternar Tema">🌓</button>
+        <button id="newGameBtn" class="btn-primary" type="button">↻ Nova</button>
       </div>
     </div>
 
@@ -637,43 +531,38 @@
         <option value="dificil">Difícil (14×14)</option>
       </select>
 
-      <button id="studyModeBtn" class="btn-chip" type="button" title="Alternar entre Lista Visível e Modo Estudo">
-        👁 Lista
-      </button>
+      <button id="studyModeBtn" class="btn-chip" type="button" title="Alternar entre Lista de Palavras e Dicas Bíblicas">👁 Lista</button>
     </div>
   </header>
 
   <main>
     <div class="status-strip" id="statusStrip">
-      <div class="status-left">
-        <span class="category-pill" id="activeCategoryBadge">Todos os Temas</span>
-        <span class="selection-preview" id="selectionPreview" aria-live="polite"></span>
+      <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
+        <span class="category-pill" id="activeCategoryBadge">Carregando...</span>
+        <span id="difficultyLabel" style="font-size:0.78rem;color:var(--text-muted);font-weight:600;">Médio • 12×12</span>
       </div>
-      <div class="status-stats">
-        <span>Encontradas: <strong id="foundCounter">0 / 0</strong></span>
+      <div class="stats-group">
+        <span>Encontradas: <strong id="foundCount">0</strong> / <strong id="totalCount">0</strong></span>
         <span>Tempo: <strong id="timerDisplay">00:00</strong></span>
+        <span>Vitórias: <strong id="winsCount">0</strong></span>
       </div>
     </div>
 
-    <div class="workspace">
+    <div class="game-layout">
       <section class="board-panel" id="boardPanel">
         <div class="grid-wrapper" id="gridWrapper">
-          <div id="wordGrid" class="wordsearch-grid" role="grid" aria-label="Grade do Caça-Palavras"></div>
-          <svg id="gridOverlay" class="grid-overlay" aria-hidden="true"></svg>
+          <svg class="highlight-svg" id="highlightSvg"></svg>
+          <div class="word-grid" id="wordGrid" role="grid" aria-label="Grade do Caça-Palavras"></div>
         </div>
-
-        <div class="board-tools" id="boardTools">
-          <span class="helper-tip">Arraste da 1ª à última letra ou toque no início e no fim.</span>
-          <button id="locateWordBtn" class="btn-chip" type="button">💡 Localizar</button>
-        </div>
+        <div class="board-footer-tip">Arraste sobre as letras ou toque na primeira e na última letra da palavra.</div>
       </section>
 
-      <aside class="words-panel" id="wordsPanel">
-        <div class="words-panel-header">
-          <h2 id="listPanelTitle">Palavras para Encontrar</h2>
-          <span id="modeTag" style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Lista Visível</span>
+      <aside class="words-panel">
+        <div class="words-header">
+          <h2 id="wordsPanelTitle">📜 Palavras para Encontrar</h2>
+          <button id="hintLocateBtn" class="btn-chip" type="button" title="Destacar a primeira letra de uma palavra">💡 Dica</button>
         </div>
-        <ul id="wordList" class="word-list compact-grid"></ul>
+        <div class="words-list list-mode" id="wordsList"></div>
       </aside>
     </div>
   </main>
@@ -681,215 +570,99 @@
   <!-- Modal de Vitória -->
   <div id="winModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="winTitle">
     <div class="modal-card">
-      <h2 id="winTitle">🎉 Todas as Palavras Encontradas!</h2>
-      <p class="modal-subtitle" id="winSummary">Você concluiu a grade em 00:00! Confira as referências bíblicas para leitura:</p>
-      <div id="winRefsList" class="ref-list"></div>
+      <h2 id="winTitle">🎉 Grade Concluída!</h2>
+      <p id="winSubtitle">Você encontrou todas as palavras bíblicas!</p>
+      <div class="summary-list" id="winSummaryList"></div>
       <div class="modal-actions">
         <button id="closeWinBtn" class="btn-chip" type="button">Fechar</button>
-        <button id="nextWinGridBtn" class="btn-primary" type="button">↻ Nova Grade</button>
+        <button id="nextGridBtn" class="btn-primary" type="button">↻ Nova Grade</button>
       </div>
     </div>
   </div>
 
   <script>
     (function () {
-      // Banco de dados completo embutido com 73 palavras bíblicas em 6 categorias
-      const EMBEDDED_DB = {
-        meta: {
-          titulo: "Caça-Palavras Bíblico",
-          versao: "1.1"
-        },
-        categorias: [
-          "Personagens",
-          "Eventos e Milagres",
-          "Doutrinas e Ensinamentos",
-          "Livros da Bíblia",
-          "Lugares e Cidades",
-          "Objetos e Símbolos"
-        ],
-        palavras: [
-          // 1. Personagens (16)
-          { palavra: "ABRAAO", exibicao: "ABRAÃO", categoria: "Personagens", dica: "Chamado de Pai da Fé, saiu de Ur dos Caldeus rumo à terra prometida.", referencia: "Gênesis 12:1-4" },
-          { palavra: "MOISES", exibicao: "MOISÉS", categoria: "Personagens", dica: "Líder escolhido por Deus para libertar Israel do Egito e receber as Tábuas da Lei.", referencia: "Êxodo 3:10" },
-          { palavra: "DAVI", exibicao: "DAVI", categoria: "Personagens", dica: "Pastor de ovelhas que derrotou Golias e se tornou rei de Israel.", referencia: "1 Samuel 17:45-50" },
-          { palavra: "ESTER", exibicao: "ESTER", categoria: "Personagens", dica: "Rainha judia na Pérsia que arriscou sua vida para salvar seu povo.", referencia: "Ester 4:14-16" },
-          { palavra: "DANIEL", exibicao: "DANIEL", categoria: "Personagens", dica: "Profeta fiel em Babilônia que sobreviveu à cova dos leões.", referencia: "Daniel 6:16-22" },
-          { palavra: "RUTE", exibicao: "RUTE", categoria: "Personagens", dica: "Moabita leal à sua sogra Noemi que se tornou bisavó do rei Davi.", referencia: "Rute 1:16" },
-          { palavra: "SALOMAO", exibicao: "SALOMÃO", categoria: "Personagens", dica: "Rei que pediu sabedoria a Deus e construiu o primeiro Templo em Jerusalém.", referencia: "1 Reis 3:9" },
-          { palavra: "DEBORA", exibicao: "DÉBORA", categoria: "Personagens", dica: "Profetisa e juíza de Israel que liderou o povo à vitória com Baraque.", referencia: "Juízes 4:4-9" },
-          { palavra: "GIDEAO", exibicao: "GIDEÃO", categoria: "Personagens", dica: "Juiz de Israel que venceu os midianitas com um exército de trezentos homens.", referencia: "Juízes 7:7" },
-          { palavra: "PAULO", exibicao: "PAULO", categoria: "Personagens", dica: "Apóstolo dos gentios que realizou grandes viagens missionárias e escreveu diversas epístolas.", referencia: "Atos 9:15" },
-          { palavra: "ELIAS", exibicao: "ELIAS", categoria: "Personagens", dica: "Profeta que desafiou os profetas de Baal no Monte Carmelo e foi levado ao céu num redemoinho.", referencia: "2 Reis 2:11" },
-          { palavra: "JOSUE", exibicao: "JOSUÉ", categoria: "Personagens", dica: "Sucessor de Moisés que liderou o povo na travessia do Jordão e na conquista de Jericó.", referencia: "Josué 1:1-9" },
-          { palavra: "NOE", exibicao: "NOÉ", categoria: "Personagens", dica: "Patriarca justo que construiu uma grande arca conforme a ordem de Deus antes do dilúvio.", referencia: "Gênesis 6:13-14" },
-          { palavra: "SAMUEL", exibicao: "SAMUEL", categoria: "Personagens", dica: "Último juiz e grande profeta de Israel que ungiu Saul e Davi como reis.", referencia: "1 Samuel 3:19-20" },
-          { palavra: "PEDRO", exibicao: "PEDRO", categoria: "Personagens", dica: "Pescador da Galileia chamado por Jesus para ser pescador de homens e pregador no Pentecostes.", referencia: "Mateus 4:18-19" },
-          { palavra: "JONAS", exibicao: "JONAS", categoria: "Personagens", dica: "Profeta enviado a Nínive que passou três dias e três noites no ventre de um grande peixe.", referencia: "Jonas 1:17" },
-
-          // 2. Eventos e Milagres (16)
-          { palavra: "CRIACAO", exibicao: "CRIAÇÃO", categoria: "Eventos e Milagres", dica: "Obra realizada por Deus em seis dias no princípio, formando os céus, a terra e toda forma de vida.", referencia: "Gênesis 1:1-31" },
-          { palavra: "DILUVIO", exibicao: "DILÚVIO", categoria: "Eventos e Milagres", dica: "Grande inundação que cobriu a terra nos dias de Noé.", referencia: "Gênesis 7:17" },
-          { palavra: "EXODO", exibicao: "ÊXODO", categoria: "Eventos e Milagres", dica: "Grande libertação do povo de Israel da escravidão no Egito sob a liderança de Moisés.", referencia: "Êxodo 12:31-42" },
-          { palavra: "MARVERMELHO", exibicao: "MAR VERMELHO", categoria: "Eventos e Milagres", dica: "Águas que Deus abriu em duas muralhas para que Israel passasse a pé enxuto.", referencia: "Êxodo 14:21-22" },
-          { palavra: "SARCAARDENTE", exibicao: "SARÇA ARDENTE", categoria: "Eventos e Milagres", dica: "Fenômeno no monte Horebe em que um arbusto queimava sem se consumir quando Deus chamou Moisés.", referencia: "Êxodo 3:2-4" },
-          { palavra: "PASCOA", exibicao: "PÁSCOA", categoria: "Eventos e Milagres", dica: "Festa instituída na saída do Egito que celebra a libertação do povo de Deus.", referencia: "Êxodo 12:14" },
-          { palavra: "ALIANCA", exibicao: "ALIANÇA", categoria: "Eventos e Milagres", dica: "Pacto solene estabelecido por Deus com Noé, Abraão e seu povo.", referencia: "Gênesis 9:13" },
-          { palavra: "QUEDADEJERICO", exibicao: "QUEDA DE JERICÓ", categoria: "Eventos e Milagres", dica: "Muralhas que ruíram após sete dias de marcha e o toque das trombetas dos sacerdotes.", referencia: "Josué 6:20" },
-          { palavra: "FORNALHA", exibicao: "FORNALHA", categoria: "Eventos e Milagres", dica: "Lugar de fogo ardente onde Sadraque, Mesaque e Abednego foram lançados e saíram ilesos.", referencia: "Daniel 3:24-27" },
-          { palavra: "BATISMO", exibicao: "BATISMO", categoria: "Eventos e Milagres", dica: "Ato realizado por João no rio Jordão e ordenado por Jesus aos discípulos.", referencia: "Mateus 28:19" },
-          { palavra: "BODASDECANA", exibicao: "BODAS DE CANÁ", categoria: "Eventos e Milagres", dica: "Primeiro sinal público de Jesus, quando transformou água em vinho durante um casamento.", referencia: "João 2:1-11" },
-          { palavra: "TEMPESTADE", exibicao: "TEMPESTADE", categoria: "Eventos e Milagres", dica: "Ventania no Mar da Galileia que Jesus acalmou apenas com sua voz, ordenando paz ao mar.", referencia: "Marcos 4:39" },
-          { palavra: "MULTIPLICACAO", exibicao: "MULTIPLICAÇÃO", categoria: "Eventos e Milagres", dica: "Milagre em que Jesus alimentou cinco mil homens com apenas cinco pães e dois peixinhos.", referencia: "João 6:9-11" },
-          { palavra: "TRANSFIGURACAO", exibicao: "TRANSFIGURAÇÃO", categoria: "Eventos e Milagres", dica: "Momento no monte em que o rosto de Jesus resplandeceu como o sol e Moisés e Elias apareceram.", referencia: "Mateus 17:1-3" },
-          { palavra: "RESSURREICAO", exibicao: "RESSURREIÇÃO", categoria: "Eventos e Milagres", dica: "Vitória de Jesus sobre a morte ao terceiro dia, deixando o sepulcro vazio.", referencia: "Lucas 24:1-7" },
-          { palavra: "PENTECOSTES", exibicao: "PENTECOSTES", categoria: "Eventos e Milagres", dica: "Dia em que o Espírito Santo desceu sobre os discípulos reunidos em Jerusalém.", referencia: "Atos 2:1-4" },
-
-          // 3. Doutrinas e Ensinamentos (14)
-          { palavra: "GRACA", exibicao: "GRAÇA", categoria: "Doutrinas e Ensinamentos", dica: "Favor imerecido de Deus concedido ao ser humano por meio de Jesus Cristo.", referencia: "Efésios 2:8-9" },
-          { palavra: "SALVACAO", exibicao: "SALVAÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Libertação do pecado e da condenação eterna mediante a fé em Cristo.", referencia: "Atos 4:12" },
-          { palavra: "JUSTIFICACAO", exibicao: "JUSTIFICAÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Ato gracioso pelo qual Deus declara justo o pecador que crê em Jesus.", referencia: "Romanos 5:1" },
-          { palavra: "SANTIFICACAO", exibicao: "SANTIFICAÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Processo contínuo de separação do pecado e consagração a Deus pelo Espírito.", referencia: "1 Tessalonicenses 4:3" },
-          { palavra: "ARREPENDIMENTO", exibicao: "ARREPENDIMENTO", categoria: "Doutrinas e Ensinamentos", dica: "Mudança sincera de mente e atitude em relação ao pecado, voltando-se para Deus.", referencia: "Atos 3:19" },
-          { palavra: "REDENCAO", exibicao: "REDENÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Resgate pago pelo sangue de Cristo para libertar o crente da escravidão do pecado.", referencia: "Efésios 1:7" },
-          { palavra: "TRINDADE", exibicao: "TRINDADE", categoria: "Doutrinas e Ensinamentos", dica: "União eterna de Pai, Filho e Espírito Santo em um único Deus verdadeiro.", referencia: "Mateus 28:19" },
-          { palavra: "ENCARNACAO", exibicao: "ENCARNAÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Mistério do Verbo eterno que se fez carne e habitou entre os homens.", referencia: "João 1:14" },
-          { palavra: "EXPIACAO", exibicao: "EXPIAÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Sacrifício substitutivo de Cristo na cruz para apagar a culpa dos pecados.", referencia: "Romanos 3:25" },
-          { palavra: "REGENERACAO", exibicao: "REGENERAÇÃO", categoria: "Doutrinas e Ensinamentos", dica: "Novo nascimento espiritual operado pelo Espírito Santo na vida do que crê.", referencia: "João 3:3-5" },
-          { palavra: "PROVIDENCIA", exibicao: "PROVIDÊNCIA", categoria: "Doutrinas e Ensinamentos", dica: "Cuidado soberano e contínuo de Deus sustentando e governando toda a sua criação.", referencia: "Mateus 6:26" },
-          { palavra: "ESCATOLOGIA", exibicao: "ESCATOLOGIA", categoria: "Doutrinas e Ensinamentos", dica: "Estudo bíblico sobre os últimos tempos, a volta de Cristo e a eternidade.", referencia: "Apocalipse 22:12" },
-          { palavra: "EVANGELHO", exibicao: "EVANGELHO", categoria: "Doutrinas e Ensinamentos", dica: "As boas-novas de salvação em Jesus Cristo, poder de Deus para todo aquele que crê.", referencia: "Romanos 1:16" },
-          { palavra: "ONIPRESENCA", exibicao: "ONIPRESENÇA", categoria: "Doutrinas e Ensinamentos", dica: "Atributo divino pelo qual Deus está presente em todos os lugares ao mesmo tempo.", referencia: "Salmos 139:7-10" },
-
-          // 4. Livros da Bíblia (10)
-          { palavra: "GENESIS", exibicao: "GÊNESIS", categoria: "Livros da Bíblia", dica: "Primeiro livro da Bíblia; narra a Criação, o Dilúvio e a história dos patriarcas.", referencia: "Gênesis 1:1" },
-          { palavra: "EXODO", exibicao: "ÊXODO", categoria: "Livros da Bíblia", dica: "Narra a saída do povo de Israel da escravidão no Egito e a entrega dos Dez Mandamentos.", referencia: "Êxodo 20:1-17" },
-          { palavra: "SALMOS", exibicao: "SALMOS", categoria: "Livros da Bíblia", dica: "Coletânea de cânticos, orações e louvores, muitos escritos pelo rei Davi.", referencia: "Salmos 23:1" },
-          { palavra: "PROVERBIOS", exibicao: "PROVÉRBIOS", categoria: "Livros da Bíblia", dica: "Livro poético repleto de conselhos práticos sobre sabedoria, justiça e temor do Senhor.", referencia: "Provérbios 1:7" },
-          { palavra: "ISAIAS", exibicao: "ISAÍAS", categoria: "Livros da Bíblia", dica: "Grande livro profético com muitas profecias messiânicas sobre o Servo Sofredor.", referencia: "Isaías 53:5" },
-          { palavra: "MATEUS", exibicao: "MATEUS", categoria: "Livros da Bíblia", dica: "Primeiro Evangelho do Novo Testamento, contém o Sermão do Monte.", referencia: "Mateus 5:1-12" },
-          { palavra: "ROMANOS", exibicao: "ROMANOS", categoria: "Livros da Bíblia", dica: "Epístola de Paulo que expõe profundamente a justificação pela fé.", referencia: "Romanos 1:16-17" },
-          { palavra: "FILIPENSES", exibicao: "FILIPENSES", categoria: "Livros da Bíblia", dica: "Carta da alegria escrita por Paulo enquanto estava preso.", referencia: "Filipenses 4:4" },
-          { palavra: "HEBREUS", exibicao: "HEBREUS", categoria: "Livros da Bíblia", dica: "Epístola que apresenta a galeria dos heróis da fé no capítulo 11.", referencia: "Hebreus 11:1" },
-          { palavra: "APOCALIPSE", exibicao: "APOCALIPSE", categoria: "Livros da Bíblia", dica: "Último livro do Novo Testamento, escrito por João na ilha de Patmos.", referencia: "Apocalipse 1:1-9" },
-
-          // 5. Lugares e Cidades (9)
-          { palavra: "JERUSALEM", exibicao: "JERUSALÉM", categoria: "Lugares e Cidades", dica: "Cidade de Davi e capital espiritual onde ficava o Templo do Senhor.", referencia: "Salmos 122:6" },
-          { palavra: "BELEM", exibicao: "BELÉM", categoria: "Lugares e Cidades", dica: "Cidade da Judeia onde nasceram o rei Davi e Jesus Cristo.", referencia: "Miqueias 5:2 / Mateus 2:1" },
-          { palavra: "NAZARE", exibicao: "NAZARÉ", categoria: "Lugares e Cidades", dica: "Cidade da Galileia onde Jesus cresceu e viveu sua juventude.", referencia: "Lucas 2:39-40" },
-          { palavra: "SINAI", exibicao: "SINAI", categoria: "Lugares e Cidades", dica: "Monte no deserto onde Deus falou com Moisés e entregou as Tábuas da Lei.", referencia: "Êxodo 19:20" },
-          { palavra: "JERICO", exibicao: "JERICÓ", categoria: "Lugares e Cidades", dica: "Cidade fortificada cujas muralhas ruíram após sete dias de marcha e toque de trombetas.", referencia: "Josué 6:20" },
-          { palavra: "CAFARNAUM", exibicao: "CAFARNAUM", categoria: "Lugares e Cidades", dica: "Cidade às margens do Mar da Galileia que serviu de base para o ministério de Jesus.", referencia: "Mateus 4:13" },
-          { palavra: "JORDAO", exibicao: "JORDÃO", categoria: "Lugares e Cidades", dica: "Rio onde Naamã mergulhou sete vezes e onde Jesus foi batizado por João.", referencia: "Mateus 3:13" },
-          { palavra: "GALILEIA", exibicao: "GALILEIA", categoria: "Lugares e Cidades", dica: "Região norte de Israel onde Jesus realizou grande parte de seus milagres e ensinamentos.", referencia: "Mateus 4:23" },
-          { palavra: "BETANIA", exibicao: "BETÂNIA", categoria: "Lugares e Cidades", dica: "Aldeia próxima a Jerusalém onde moravam Marta, Maria e Lázaro.", referencia: "João 11:1" },
-
-          // 6. Objetos e Símbolos (8)
-          { palavra: "ARCA", exibicao: "ARCA", categoria: "Objetos e Símbolos", dica: "Cofre de madeira revestido de ouro que guardava as Tábuas da Lei, o maná e a vara de Arão.", referencia: "Hebreus 9:4" },
-          { palavra: "MENORA", exibicao: "MENORÁ", categoria: "Objetos e Símbolos", dica: "Candelabro de ouro puro com sete braços usado no Tabernáculo e no Templo.", referencia: "Êxodo 25:31-32" },
-          { palavra: "SHOFAR", exibicao: "SHOFAR", categoria: "Objetos e Símbolos", dica: "Instrumento de sopro feito de chifre de carneiro usado em festas e batalhas bíblicas.", referencia: "Josué 6:4" },
-          { palavra: "MANA", exibicao: "MANÁ", categoria: "Objetos e Símbolos", dica: "Alimento celestial enviado diariamente por Deus para sustentar Israel no deserto.", referencia: "Êxodo 16:14-15" },
-          { palavra: "SARCA", exibicao: "SARÇA", categoria: "Objetos e Símbolos", dica: "Arbusto ardente no deserto que queimava sem se consumir quando Deus chamou Moisés.", referencia: "Êxodo 3:2" },
-          { palavra: "FUNDA", exibicao: "FUNDA", categoria: "Objetos e Símbolos", dica: "Arma simples de pastor usada por Davi com uma pedra lisa para vencer o gigante.", referencia: "1 Samuel 17:49" },
-          { palavra: "PERGAMINHO", exibicao: "PERGAMINHO", categoria: "Objetos e Símbolos", dica: "Rolo preparado com pele de animal onde as Escrituras Sagradas eram copiadas.", referencia: "2 Timóteo 4:13" },
-          { palavra: "HARPA", exibicao: "HARPA", categoria: "Objetos e Símbolos", dica: "Instrumento de cordas tocado por Davi para acalmar o rei Saul e louvar a Deus.", referencia: "1 Samuel 16:23" }
-        ]
-      };
-
-      const DIFFICULTY_CONFIG = {
+      const DIFFICULTIES = {
         facil: {
           size: 10,
           wordCount: 7,
-          directions: [
-            [0, 1],
-            [1, 0]
+          label: "Fácil • 10×10",
+          dirs: [
+            [0, 1],  // Horizontal ->
+            [1, 0]   // Vertical v
           ]
         },
         medio: {
           size: 12,
           wordCount: 9,
-          directions: [
-            [0, 1],
-            [1, 0],
-            [1, 1],
-            [-1, 1]
+          label: "Médio • 12×12",
+          dirs: [
+            [0, 1],   // Horizontal ->
+            [1, 0],   // Vertical v
+            [1, 1],   // Diagonal SE
+            [-1, 1]   // Diagonal NE
           ]
         },
         dificil: {
           size: 14,
           wordCount: 11,
-          directions: [
-            [0, 1],
-            [0, -1],
-            [1, 0],
-            [-1, 0],
-            [1, 1],
-            [-1, -1],
-            [-1, 1],
-            [1, -1]
+          label: "Difícil • 14×14",
+          dirs: [
+            [0, 1], [0, -1],
+            [1, 0], [-1, 0],
+            [1, 1], [-1, -1],
+            [1, -1], [-1, 1]
           ]
         }
       };
 
-      const FOUND_PALETTE = [
-        { stroke: "rgba(56, 189, 248, 0.36)", solid: "#38bdf8" },
-        { stroke: "rgba(16, 185, 129, 0.36)", solid: "#10b981" },
-        { stroke: "rgba(245, 158, 11, 0.36)", solid: "#f59e0b" },
-        { stroke: "rgba(168, 85, 247, 0.36)", solid: "#a855f7" },
-        { stroke: "rgba(244, 63, 94, 0.36)",  solid: "#f43f5e" },
-        { stroke: "rgba(20, 184, 166, 0.36)", solid: "#14b8a6" },
-        { stroke: "rgba(234, 179, 8, 0.36)",  solid: "#eab308" },
-        { stroke: "rgba(99, 102, 241, 0.36)", solid: "#6366f1" },
-        { stroke: "rgba(236, 72, 153, 0.36)", solid: "#ec4899" },
-        { stroke: "rgba(132, 204, 22, 0.36)", solid: "#84cc16" },
-        { stroke: "rgba(249, 115, 22, 0.36)", solid: "#f97316" }
+      const FOUND_COLORS = [
+        "#10b981", "#3b82f6", "#f59e0b", "#8b5cf6",
+        "#ec4899", "#06b6d4", "#eab308", "#f97316",
+        "#14b8a6", "#6366f1", "#ef4444", "#84cc16"
       ];
 
-      const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      const ALPHABET = "ABCDEFGHIJLMNOPQRSTUVXZ";
 
-      let database = EMBEDDED_DB;
-      let puzzle = null;
+      let database = { categorias: [], palavras: [] };
+      let gridSize = 12;
+      let grid = [];
+      let placedWords = [];
+      let foundWords = new Set();
       let studyMode = false;
       let soundEnabled = true;
       let audioCtx = null;
 
+      // Seleção por arraste ou dois toques
       let isDragging = false;
-      let dragStart = null;
-      let dragCurrent = null;
-      let tapAnchor = null;
-      let activeSelectionCells = [];
+      let startCell = null;
+      let currentSelection = [];
+      let anchorCell = null;
 
+      // Cronômetro e estatísticas
+      let timerSeconds = 0;
       let timerInterval = null;
-      let elapsedSeconds = 0;
+      let wins = Number(localStorage.getItem("caca_palavras_biblico_wins") || 0);
 
-      const appHeader = document.getElementById("appHeader");
-      const statusStrip = document.getElementById("statusStrip");
-      const boardPanel = document.getElementById("boardPanel");
-      const boardTools = document.getElementById("boardTools");
-      const wordsPanel = document.getElementById("wordsPanel");
+      // Elementos DOM
       const categorySelect = document.getElementById("categorySelect");
       const difficultySelect = document.getElementById("difficultySelect");
       const studyModeBtn = document.getElementById("studyModeBtn");
       const activeCategoryBadge = document.getElementById("activeCategoryBadge");
-      const selectionPreview = document.getElementById("selectionPreview");
-      const foundCounter = document.getElementById("foundCounter");
-      const timerDisplay = document.getElementById("timerDisplay");
-      const gridWrapper = document.getElementById("gridWrapper");
-      const gridEl = document.getElementById("wordGrid");
-      const overlaySvg = document.getElementById("gridOverlay");
-      const wordListEl = document.getElementById("wordList");
-      const listPanelTitle = document.getElementById("listPanelTitle");
-      const modeTag = document.getElementById("modeTag");
+      const difficultyLabel = document.getElementById("difficultyLabel");
+      const foundCountEl = document.getElementById("foundCount");
+      const totalCountEl = document.getElementById("totalCount");
+      const timerDisplayEl = document.getElementById("timerDisplay");
+      const winsCountEl = document.getElementById("winsCount");
+      const wordGridEl = document.getElementById("wordGrid");
+      const highlightSvgEl = document.getElementById("highlightSvg");
+      const wordsListEl = document.getElementById("wordsList");
+      const wordsPanelTitleEl = document.getElementById("wordsPanelTitle");
       const winModal = document.getElementById("winModal");
 
-      function normalizeWord(str) {
-        return String(str || "")
-          .toUpperCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^A-Z]/g, "");
-      }
+      winsCountEl.textContent = wins;
 
-      function playTone(freq, duration = 0.08, type = "sine", vol = 0.06) {
+      function playTone(freq, duration = 0.09, type = "sine", vol = 0.07) {
         if (!soundEnabled) return;
         try {
           if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -907,28 +680,29 @@
         } catch (e) {}
       }
 
-      function formatTime(sec) {
-        const m = String(Math.floor(sec / 60)).padStart(2, "0");
-        const s = String(sec % 60).padStart(2, "0");
-        return `${m}:${s}`;
-      }
-
-      function startTimer() {
-        clearInterval(timerInterval);
-        elapsedSeconds = 0;
-        timerDisplay.textContent = "00:00";
-        timerInterval = setInterval(() => {
-          elapsedSeconds++;
-          timerDisplay.textContent = formatTime(elapsedSeconds);
-        }, 1000);
+      async function loadDatabase() {
+        try {
+          const response = await fetch("./palavras.json", { cache: "no-store" });
+          if (!response.ok) throw new Error("Não foi possível carregar palavras.json");
+          const data = await response.json();
+          if (data && Array.isArray(data.palavras) && data.palavras.length > 0) {
+            database = data;
+            populateCategories();
+            startNewGame();
+          } else {
+            throw new Error("Formato inválido em palavras.json");
+          }
+        } catch (err) {
+          activeCategoryBadge.textContent = "Erro ao carregar palavras.json";
+          wordsListEl.innerHTML = `<div class="word-item"><span class="word-clue">⚠️ Não foi possível ler <code>./palavras.json</code>. Certifique-se de que o arquivo está na mesma pasta e executado via servidor HTTP ou GitHub Pages.</span></div>`;
+        }
       }
 
       function populateCategories() {
         const cats = new Set(database.categorias || []);
-        database.palavras.forEach((p) => {
-          if (p.categoria) cats.add(p.categoria);
+        database.palavras.forEach((item) => {
+          if (item.categoria) cats.add(item.categoria);
         });
-        const prevValue = categorySelect.value || "TODAS";
         categorySelect.innerHTML = `<option value="TODAS">📖 Todos os Temas (${database.palavras.length})</option>`;
         cats.forEach((cat) => {
           const count = database.palavras.filter((p) => p.categoria === cat).length;
@@ -937,575 +711,454 @@
           opt.textContent = `${cat} (${count})`;
           categorySelect.appendChild(opt);
         });
-        if ([...categorySelect.options].some((o) => o.value === prevValue)) {
-          categorySelect.value = prevValue;
+      }
+
+      function shuffle(arr) {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
         }
+        return copy;
       }
 
-      async function syncExternalDatabase() {
-        try {
-          const res = await fetch("./palavras.json", { cache: "no-store" });
-          if (!res.ok) return;
-          const data = await res.json();
-          if (data && Array.isArray(data.palavras) && data.palavras.length > 0) {
-            database = data;
-            populateCategories();
-          }
-        } catch (e) {}
+      function startTimer() {
+        clearInterval(timerInterval);
+        timerSeconds = 0;
+        updateTimerUI();
+        timerInterval = setInterval(() => {
+          timerSeconds++;
+          updateTimerUI();
+        }, 1000);
       }
 
-      function buildWordSearch(entries, config) {
-        const { size, wordCount, directions } = config;
-        let bestResult = null;
-
-        for (let attempt = 0; attempt < 25; attempt++) {
-          const board = Array.from({ length: size }, () => Array(size).fill(null));
-          const shuffled = [...entries].sort(() => Math.random() - 0.5);
-          const candidates = shuffled
-            .slice(0, Math.min(shuffled.length, wordCount + 8))
-            .sort((a, b) => b.clean.length - a.clean.length);
-
-          const placed = [];
-
-          for (const item of candidates) {
-            if (placed.length >= wordCount) break;
-            const word = item.clean;
-            const len = word.length;
-            if (len > size) continue;
-
-            const validSpots = [];
-            for (const [dr, dc] of directions) {
-              for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                  const endR = r + dr * (len - 1);
-                  const endC = c + dc * (len - 1);
-                  if (endR < 0 || endR >= size || endC < 0 || endC >= size) continue;
-
-                  let ok = true;
-                  let overlaps = 0;
-                  for (let k = 0; k < len; k++) {
-                    const rr = r + dr * k;
-                    const cc = c + dc * k;
-                    const existing = board[rr][cc];
-                    if (existing !== null) {
-                      if (existing !== word[k]) {
-                        ok = false;
-                        break;
-                      }
-                      overlaps++;
-                    }
-                  }
-                  if (ok) {
-                    validSpots.push({ r, c, dr, dc, overlaps });
-                  }
-                }
-              }
-            }
-
-            if (validSpots.length > 0) {
-              validSpots.sort(() => Math.random() - 0.5);
-              validSpots.sort((a, b) => b.overlaps - a.overlaps);
-              const topSlice = validSpots.slice(0, Math.min(8, validSpots.length));
-              const chosen = topSlice[Math.floor(Math.random() * topSlice.length)];
-
-              const coords = [];
-              for (let k = 0; k < len; k++) {
-                const rr = chosen.r + chosen.dr * k;
-                const cc = chosen.c + chosen.dc * k;
-                board[rr][cc] = word[k];
-                coords.push({ r: rr, c: cc });
-              }
-
-              const palette = FOUND_PALETTE[placed.length % FOUND_PALETTE.length];
-              placed.push({
-                ...item,
-                start: { r: chosen.r, c: chosen.c },
-                end: coords[coords.length - 1],
-                coords,
-                found: false,
-                color: palette
-              });
-            }
-          }
-
-          if (!bestResult || placed.length > bestResult.placed.length) {
-            bestResult = { board, placed };
-          }
-          if (placed.length >= wordCount) break;
-        }
-
-        const finalGrid = bestResult.board.map((row) =>
-          row.map((cell) => cell || ALPHABET[Math.floor(Math.random() * ALPHABET.length)])
-        );
-
-        bestResult.placed.sort((a, b) => a.exibicao.localeCompare(b.exibicao, "pt-BR"));
-
-        return {
-          size,
-          grid: finalGrid,
-          placedWords: bestResult.placed
-        };
+      function updateTimerUI() {
+        const mins = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+        const secs = String(timerSeconds % 60).padStart(2, "0");
+        timerDisplayEl.textContent = `${mins}:${secs}`;
       }
 
-      function generateNewPuzzle() {
-        const selectedCat = categorySelect.value;
+      function startNewGame() {
+        if (!database.palavras || database.palavras.length === 0) return;
+
         const diffKey = difficultySelect.value;
-        const config = DIFFICULTY_CONFIG[diffKey] || DIFFICULTY_CONFIG.medio;
+        const diff = DIFFICULTIES[diffKey] || DIFFICULTIES.medio;
+        gridSize = diff.size;
 
-        activeCategoryBadge.textContent =
-          selectedCat === "TODAS" ? "Todos os Temas" : selectedCat;
+        const selectedCat = categorySelect.value;
+        activeCategoryBadge.textContent = selectedCat === "TODAS" ? "Todos os Temas" : selectedCat;
+        difficultyLabel.textContent = diff.label;
 
-        let pool = database.palavras
-          .filter((item) => selectedCat === "TODAS" || item.categoria === selectedCat)
-          .map((item) => ({
-            ...item,
-            clean: normalizeWord(item.palavra || item.exibicao)
-          }))
-          .filter((item) => item.clean.length >= 3 && item.clean.length <= config.size);
+        const eligible = database.palavras.filter((item) => {
+          const catMatch = selectedCat === "TODAS" || item.categoria === selectedCat;
+          const cleanWord = (item.palavra || "").replace(/[^A-Z]/gi, "").toUpperCase();
+          return catMatch && cleanWord.length >= 3 && cleanWord.length <= gridSize;
+        });
 
-        if (pool.length < config.wordCount) {
-          const extra = database.palavras
-            .map((item) => ({
+        const candidates = shuffle(eligible);
+        grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(""));
+        placedWords = [];
+        foundWords.clear();
+        anchorCell = null;
+        currentSelection = [];
+
+        for (const item of candidates) {
+          if (placedWords.length >= diff.wordCount) break;
+          const clean = item.palavra.replace(/[^A-Z]/gi, "").toUpperCase();
+          // Evita substrings exatas já inseridas
+          if (placedWords.some((p) => p.clean.includes(clean) || clean.includes(p.clean))) continue;
+
+          const placement = tryPlaceWord(clean, diff.dirs);
+          if (placement) {
+            placedWords.push({
               ...item,
-              clean: normalizeWord(item.palavra || item.exibicao)
-            }))
-            .filter(
-              (item) =>
-                item.clean.length >= 3 &&
-                item.clean.length <= config.size &&
-                !pool.some((p) => p.clean === item.clean)
-            );
-          pool = pool.concat(extra);
-        }
-
-        puzzle = buildWordSearch(pool, config);
-        isDragging = false;
-        dragStart = null;
-        dragCurrent = null;
-        tapAnchor = null;
-        activeSelectionCells = [];
-        selectionPreview.textContent = "";
-
-        renderBoard();
-        renderWordList();
-        updateProgressUI();
-        startTimer();
-        requestAnimationFrame(applyBoardScale);
-      }
-
-      // Dimensionamento dinâmico que maximiza a grade descontando cabeçalho e rodapé/lista
-      function computeCellSize() {
-        if (!puzzle) return 34;
-        const isMobile = window.innerWidth <= 880;
-
-        const panelRect = boardPanel.getBoundingClientRect();
-        const panelStyle = getComputedStyle(boardPanel);
-        const padX = (parseFloat(panelStyle.paddingLeft) || 8) + (parseFloat(panelStyle.paddingRight) || 8);
-        const padY = (parseFloat(panelStyle.paddingTop) || 8) + (parseFloat(panelStyle.paddingBottom) || 8);
-
-        const fallbackW = isMobile
-          ? window.innerWidth - 18
-          : Math.min(window.innerWidth - 380, 720);
-        const rawPanelW = panelRect.width > 120 ? panelRect.width : fallbackW;
-        const availGridW = Math.max(200, rawPanelW - padX - 10);
-
-        const headerH = appHeader ? appHeader.offsetHeight : (isMobile ? 76 : 48);
-        const stripH = statusStrip ? statusStrip.offsetHeight : 34;
-        const toolsH = boardTools ? boardTools.offsetHeight : 34;
-        const reservedListH = isMobile ? Math.min(130, Math.max(92, window.innerHeight * 0.16)) : 0;
-        const chromeOverhead = headerH + stripH + toolsH + padY + reservedListH + 34;
-
-        const availGridH = Math.max(210, window.innerHeight - chromeOverhead);
-
-        const wrapperPad = 10;
-        const gap = 2;
-        const maxByCols = Math.floor((availGridW - wrapperPad - (puzzle.size - 1) * gap) / puzzle.size);
-        const maxByRows = Math.floor((availGridH - wrapperPad - (puzzle.size - 1) * gap) / puzzle.size);
-
-        const upperCap = isMobile ? 46 : 48;
-        return Math.max(20, Math.min(upperCap, maxByCols, maxByRows));
-      }
-
-      function applyBoardScale() {
-        if (!puzzle) return;
-        const cellSize = computeCellSize();
-        gridEl.style.setProperty("--cell-size", `${cellSize}px`);
-        gridEl.style.gridTemplateColumns = `repeat(${puzzle.size}, ${cellSize}px)`;
-        requestAnimationFrame(() => drawOverlayLines(activeSelectionCells));
-      }
-
-      function renderBoard() {
-        applyBoardScale();
-        gridEl.innerHTML = "";
-
-        for (let r = 0; r < puzzle.size; r++) {
-          for (let c = 0; c < puzzle.size; c++) {
-            const cell = document.createElement("div");
-            cell.className = "ws-cell";
-            cell.dataset.r = r;
-            cell.dataset.c = c;
-            cell.textContent = puzzle.grid[r][c];
-            gridEl.appendChild(cell);
+              clean,
+              exibicao: item.exibicao || item.palavra,
+              cells: placement,
+              color: FOUND_COLORS[placedWords.length % FOUND_COLORS.length]
+            });
           }
         }
 
-        requestAnimationFrame(() => drawOverlayLines(activeSelectionCells));
+        // Preenche células vazias com letras aleatórias
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            if (!grid[r][c]) {
+              grid[r][c] = ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
+            }
+          }
+        }
+
+        foundCountEl.textContent = "0";
+        totalCountEl.textContent = String(placedWords.length);
+
+        renderGrid();
+        renderWordList();
+        updateCellSize();
+        startTimer();
       }
 
-      function getSnappedLine(start, end) {
-        if (!start || !end) return [];
-        const dr = end.r - start.r;
-        const dc = end.c - start.c;
-
-        if (dr === 0 && dc === 0) {
-          return [{ r: start.r, c: start.c }];
+      function tryPlaceWord(word, dirs) {
+        const positions = [];
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            for (const [dr, dc] of dirs) {
+              positions.push({ r, c, dr, dc });
+            }
+          }
         }
 
-        const absR = Math.abs(dr);
-        const absC = Math.abs(dc);
+        const shuffledPos = shuffle(positions);
+        // Prioriza cruzamentos válidos
+        shuffledPos.sort((a, b) => countIntersections(word, b) - countIntersections(word, a));
 
-        if (dr !== 0 && dc !== 0 && absR !== absC) {
-          return [];
+        for (const pos of shuffledPos) {
+          const cells = canPlace(word, pos.r, pos.c, pos.dr, pos.dc);
+          if (cells) {
+            cells.forEach(({ r, c }, i) => {
+              grid[r][c] = word[i];
+            });
+            return cells;
+          }
         }
+        return null;
+      }
 
-        const stepR = Math.sign(dr);
-        const stepC = Math.sign(dc);
-        const steps = Math.max(absR, absC);
+      function countIntersections(word, { r, c, dr, dc }) {
+        let count = 0;
+        for (let i = 0; i < word.length; i++) {
+          const nr = r + dr * i;
+          const nc = c + dc * i;
+          if (nr < 0 || nr >= gridSize || nc < 0 || nc >= gridSize) return -1;
+          if (grid[nr][nc] === word[i]) count++;
+          else if (grid[nr][nc] !== "") return -1;
+        }
+        return count;
+      }
+
+      function canPlace(word, r, c, dr, dc) {
         const cells = [];
-
-        for (let k = 0; k <= steps; k++) {
-          cells.push({
-            r: start.r + stepR * k,
-            c: start.c + stepC * k
-          });
+        for (let i = 0; i < word.length; i++) {
+          const nr = r + dr * i;
+          const nc = c + dc * i;
+          if (nr < 0 || nr >= gridSize || nc < 0 || nc >= gridSize) return null;
+          if (grid[nr][nc] !== "" && grid[nr][nc] !== word[i]) return null;
+          cells.push({ r: nr, c: nc });
         }
         return cells;
       }
 
-      function updateActiveSelectionVisuals(cells) {
-        activeSelectionCells = cells;
-        gridEl.querySelectorAll(".ws-cell").forEach((el) => {
-          el.classList.remove("selecting", "anchor-start");
-        });
+      function renderGrid() {
+        wordGridEl.innerHTML = "";
+        wordGridEl.style.gridTemplateColumns = `repeat(${gridSize}, var(--cell-size))`;
 
-        if (tapAnchor && cells.length === 0) {
-          const anchorEl = gridEl.querySelector(
-            `.ws-cell[data-r="${tapAnchor.r}"][data-c="${tapAnchor.c}"]`
-          );
-          if (anchorEl) anchorEl.classList.add("anchor-start");
-        }
-
-        if (cells.length > 0) {
-          let wordStr = "";
-          cells.forEach(({ r, c }) => {
-            const el = gridEl.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
-            if (el) el.classList.add("selecting");
-            wordStr += puzzle.grid[r][c];
-          });
-          selectionPreview.textContent = wordStr;
-        } else if (!tapAnchor) {
-          selectionPreview.textContent = "";
-        }
-
-        drawOverlayLines(cells);
-      }
-
-      function drawOverlayLines(activeCells = []) {
-        if (!puzzle) return;
-        const gridRect = gridEl.getBoundingClientRect();
-        if (gridRect.width === 0 || gridRect.height === 0) return;
-
-        overlaySvg.setAttribute("width", gridRect.width);
-        overlaySvg.setAttribute("height", gridRect.height);
-        overlaySvg.setAttribute("viewBox", `0 0 ${gridRect.width} ${gridRect.height}`);
-        overlaySvg.innerHTML = "";
-
-        const firstCell = gridEl.querySelector(".ws-cell");
-        const cellW = firstCell ? firstCell.getBoundingClientRect().width : 32;
-        const strokeWidth = Math.max(14, cellW * 0.74);
-
-        const getCenter = ({ r, c }) => {
-          const el = gridEl.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
-          if (!el) return null;
-          const rect = el.getBoundingClientRect();
-          return {
-            x: rect.left - gridRect.left + rect.width / 2,
-            y: rect.top - gridRect.top + rect.height / 2
-          };
-        };
-
-        puzzle.placedWords.forEach((w) => {
-          if (!w.found) return;
-          const p1 = getCenter(w.start);
-          const p2 = getCenter(w.end);
-          if (!p1 || !p2) return;
-
-          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-          line.setAttribute("x1", p1.x);
-          line.setAttribute("y1", p1.y);
-          line.setAttribute("x2", p2.x);
-          line.setAttribute("y2", p2.y);
-          line.setAttribute("stroke", w.color.stroke);
-          line.setAttribute("stroke-width", strokeWidth);
-          line.setAttribute("stroke-linecap", "round");
-          overlaySvg.appendChild(line);
-        });
-
-        if (activeCells.length >= 2) {
-          const p1 = getCenter(activeCells[0]);
-          const p2 = getCenter(activeCells[activeCells.length - 1]);
-          if (p1 && p2) {
-            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-            line.setAttribute("x1", p1.x);
-            line.setAttribute("y1", p1.y);
-            line.setAttribute("x2", p2.x);
-            line.setAttribute("y2", p2.y);
-            line.setAttribute("stroke", "rgba(56, 189, 248, 0.35)");
-            line.setAttribute("stroke-width", strokeWidth);
-            line.setAttribute("stroke-linecap", "round");
-            overlaySvg.appendChild(line);
+        for (let r = 0; r < gridSize; r++) {
+          for (let c = 0; c < gridSize; c++) {
+            const cell = document.createElement("div");
+            cell.className = "grid-cell";
+            cell.textContent = grid[r][c];
+            cell.dataset.r = r;
+            cell.dataset.c = c;
+            cell.setAttribute("role", "gridcell");
+            wordGridEl.appendChild(cell);
           }
         }
+        drawFoundLines();
       }
 
-      function evaluateSelectedCells(cells) {
+      function updateCellSize() {
+        const boardPanel = document.getElementById("boardPanel");
+        const headerEl = document.getElementById("appHeader");
+        const statusEl = document.getElementById("statusStrip");
+        if (!boardPanel) return;
+
+        const availWidth = boardPanel.clientWidth - 20;
+        const headerH = headerEl ? headerEl.offsetHeight : 56;
+        const statusH = statusEl ? statusEl.offsetHeight : 44;
+        const isMobile = window.innerWidth <= 840;
+        const availHeight = isMobile
+          ? Math.max(270, window.innerHeight - headerH - statusH - 195)
+          : Math.max(320, window.innerHeight - headerH - statusH - 95);
+
+        const maxDim = Math.min(availWidth, availHeight);
+        const gapTotal = (gridSize - 1) * 3;
+        const computed = Math.floor((maxDim - gapTotal) / gridSize);
+        const clamped = Math.max(22, Math.min(48, computed));
+        document.documentElement.style.setProperty("--cell-size", `${clamped}px`);
+
+        requestAnimationFrame(drawFoundLines);
+      }
+
+      function getCellElement(r, c) {
+        return wordGridEl.querySelector(`.grid-cell[data-r="${r}"][data-c="${c}"]`);
+      }
+
+      function getLineCells(r1, c1, r2, c2) {
+        const dr = r2 - r1;
+        const dc = c2 - c1;
+        const absR = Math.abs(dr);
+        const absC = Math.abs(dc);
+
+        if (dr === 0 && dc === 0) return [{ r: r1, c: c1 }];
+        if (dr !== 0 && dc !== 0 && absR !== absC) return null;
+
+        const steps = Math.max(absR, absC);
+        const stepR = dr === 0 ? 0 : dr / absR;
+        const stepC = dc === 0 ? 0 : dc / absC;
+
+        const path = [];
+        for (let i = 0; i <= steps; i++) {
+          path.push({ r: r1 + stepR * i, c: c1 + stepC * i });
+        }
+        return path;
+      }
+
+      function highlightSelection(cells) {
+        wordGridEl.querySelectorAll(".grid-cell.selected").forEach((el) => el.classList.remove("selected"));
+        if (!cells) return;
+        cells.forEach(({ r, c }) => {
+          const el = getCellElement(r, c);
+          if (el) el.classList.add("selected");
+        });
+      }
+
+      function clearAnchor() {
+        wordGridEl.querySelectorAll(".grid-cell.anchor").forEach((el) => el.classList.remove("anchor"));
+        anchorCell = null;
+      }
+
+      function validateSelection(cells) {
         if (!cells || cells.length < 2) return false;
-        const selectedStr = cells.map(({ r, c }) => puzzle.grid[r][c]).join("");
+        const selectedStr = cells.map(({ r, c }) => grid[r][c]).join("");
         const reversedStr = [...selectedStr].reverse().join("");
 
-        const match = puzzle.placedWords.find(
-          (w) => !w.found && (w.clean === selectedStr || w.clean === reversedStr)
+        const match = placedWords.find(
+          (w) => !foundWords.has(w.clean) && (w.clean === selectedStr || w.clean === reversedStr)
         );
 
         if (match) {
-          match.found = true;
-          tapAnchor = null;
+          foundWords.add(match.clean);
+          match.cells.forEach(({ r, c }) => {
+            const el = getCellElement(r, c);
+            if (el) {
+              el.classList.add("found");
+              el.style.backgroundColor = match.color;
+            }
+          });
+
+          foundCountEl.textContent = String(foundWords.size);
           playTone(587.33, 0.08, "triangle");
-          setTimeout(() => playTone(880, 0.14, "triangle"), 75);
+          setTimeout(() => playTone(783.99, 0.14, "triangle"), 75);
 
           renderWordList();
-          updateProgressUI();
-          drawOverlayLines();
-          checkVictory();
+          drawFoundLines();
+
+          if (foundWords.size === placedWords.length) {
+            handleVictory();
+          }
           return true;
         }
         return false;
       }
 
-      function getCellFromPoint(clientX, clientY) {
-        const target = document.elementFromPoint(clientX, clientY);
-        if (!target) return null;
-        const cell = target.closest(".ws-cell");
-        if (!cell || !gridEl.contains(cell)) return null;
-        return {
-          r: Number(cell.dataset.r),
-          c: Number(cell.dataset.c)
-        };
+      function drawFoundLines() {
+        highlightSvgEl.innerHTML = "";
+        const gridRect = wordGridEl.getBoundingClientRect();
+        if (!gridRect.width || !gridRect.height) return;
+
+        placedWords.forEach((w) => {
+          if (!foundWords.has(w.clean)) return;
+          const first = getCellElement(w.cells[0].r, w.cells[0].c);
+          const last = getCellElement(w.cells[w.cells.length - 1].r, w.cells[w.cells.length - 1].c);
+          if (!first || !last) return;
+
+          const r1 = first.getBoundingClientRect();
+          const r2 = last.getBoundingClientRect();
+
+          const x1 = r1.left - gridRect.left + r1.width / 2;
+          const y1 = r1.top - gridRect.top + r1.height / 2;
+          const x2 = r2.left - gridRect.left + r2.width / 2;
+          const y2 = r2.top - gridRect.top + r2.height / 2;
+
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("x1", x1);
+          line.setAttribute("y1", y1);
+          line.setAttribute("x2", x2);
+          line.setAttribute("y2", y2);
+          line.setAttribute("stroke", w.color);
+          line.setAttribute("stroke-width", Math.max(14, r1.width * 0.72));
+          line.setAttribute("stroke-linecap", "round");
+          line.setAttribute("opacity", "0.35");
+          highlightSvgEl.appendChild(line);
+        });
       }
 
-      gridWrapper.addEventListener("pointerdown", (e) => {
-        const cellPos = getCellFromPoint(e.clientX, e.clientY);
-        if (!cellPos) return;
+      // Pointer Events (Arraste fluido + Dois toques nos extremos)
+      wordGridEl.addEventListener("pointerdown", (e) => {
+        const cellEl = e.target.closest(".grid-cell");
+        if (!cellEl) return;
+        e.preventDefault();
+        const r = Number(cellEl.dataset.r);
+        const c = Number(cellEl.dataset.c);
 
         isDragging = true;
-        dragStart = cellPos;
-        dragCurrent = cellPos;
-        gridWrapper.setPointerCapture(e.pointerId);
-        playTone(460, 0.03, "sine", 0.04);
-        updateActiveSelectionVisuals([cellPos]);
+        startCell = { r, c };
+        currentSelection = [{ r, c }];
+        highlightSelection(currentSelection);
       });
 
-      gridWrapper.addEventListener("pointermove", (e) => {
-        if (!isDragging || !dragStart) return;
-        const cellPos = getCellFromPoint(e.clientX, e.clientY);
-        if (!cellPos) return;
-        if (dragCurrent && dragCurrent.r === cellPos.r && dragCurrent.c === cellPos.c) return;
+      window.addEventListener("pointermove", (e) => {
+        if (!isDragging || !startCell) return;
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const cellEl = target && target.closest(".grid-cell");
+        if (!cellEl) return;
 
-        dragCurrent = cellPos;
-        const lineCells = getSnappedLine(dragStart, dragCurrent);
-        if (lineCells.length > 0) {
-          playTone(480 + lineCells.length * 18, 0.025, "sine", 0.03);
-          updateActiveSelectionVisuals(lineCells);
+        const r = Number(cellEl.dataset.r);
+        const c = Number(cellEl.dataset.c);
+        const line = getLineCells(startCell.r, startCell.c, r, c);
+        if (line) {
+          currentSelection = line;
+          highlightSelection(line);
         }
       });
 
-      gridWrapper.addEventListener("pointerup", (e) => {
-        if (!isDragging || !dragStart) return;
+      window.addEventListener("pointerup", () => {
+        if (!isDragging) return;
         isDragging = false;
 
-        const endPos = getCellFromPoint(e.clientX, e.clientY) || dragCurrent || dragStart;
-        const isSingleCellTap = endPos.r === dragStart.r && endPos.c === dragStart.c;
-
-        if (isSingleCellTap) {
-          if (!tapAnchor) {
-            tapAnchor = dragStart;
-            selectionPreview.textContent = puzzle.grid[tapAnchor.r][tapAnchor.c] + "...";
-            updateActiveSelectionVisuals([]);
-          } else if (tapAnchor.r === dragStart.r && tapAnchor.c === dragStart.c) {
-            tapAnchor = null;
-            updateActiveSelectionVisuals([]);
+        if (currentSelection.length > 1) {
+          validateSelection(currentSelection);
+          clearAnchor();
+        } else if (startCell) {
+          // Modo dois toques (início e fim)
+          if (!anchorCell) {
+            anchorCell = startCell;
+            const el = getCellElement(anchorCell.r, anchorCell.c);
+            if (el) el.classList.add("anchor");
+            playTone(440, 0.05);
+          } else if (anchorCell.r === startCell.r && anchorCell.c === startCell.c) {
+            clearAnchor();
           } else {
-            const twoTapLine = getSnappedLine(tapAnchor, dragStart);
-            const found = evaluateSelectedCells(twoTapLine);
-            if (!found) {
-              playTone(240, 0.09, "sine", 0.04);
-              tapAnchor = dragStart;
-              selectionPreview.textContent = puzzle.grid[tapAnchor.r][tapAnchor.c] + "...";
-              updateActiveSelectionVisuals([]);
-            } else {
-              updateActiveSelectionVisuals([]);
+            const line = getLineCells(anchorCell.r, anchorCell.c, startCell.r, startCell.c);
+            if (line) {
+              validateSelection(line);
             }
+            clearAnchor();
           }
-        } else {
-          tapAnchor = null;
-          const lineCells = getSnappedLine(dragStart, endPos);
-          const found = evaluateSelectedCells(lineCells);
-          if (!found && lineCells.length > 1) {
-            playTone(230, 0.09, "sine", 0.04);
-          }
-          updateActiveSelectionVisuals([]);
         }
 
-        dragStart = null;
-        dragCurrent = null;
-      });
-
-      gridWrapper.addEventListener("pointercancel", () => {
-        isDragging = false;
-        dragStart = null;
-        dragCurrent = null;
-        updateActiveSelectionVisuals([]);
+        highlightSelection(null);
+        startCell = null;
+        currentSelection = [];
       });
 
       function renderWordList() {
-        wordListEl.innerHTML = "";
-        wordListEl.classList.toggle("compact-grid", !studyMode);
-        listPanelTitle.textContent = studyMode
-          ? "Dicas Bíblicas (Modo Estudo)"
-          : "Palavras para Encontrar";
-        modeTag.textContent = studyMode ? "Modo Estudo" : "Lista Visível";
+        wordsListEl.innerHTML = "";
+        wordsListEl.className = studyMode ? "words-list" : "words-list list-mode";
+        wordsPanelTitleEl.textContent = studyMode ? "📖 Dicas Bíblicas (Modo Estudo)" : "📜 Palavras para Encontrar";
 
-        puzzle.placedWords.forEach((w) => {
-          const li = document.createElement("li");
-          li.className = "word-item" + (w.found ? " found" : "");
+        placedWords.forEach((w) => {
+          const isFound = foundWords.has(w.clean);
+          const item = document.createElement("div");
+          item.className = "word-item" + (isFound ? " found" : "");
 
-          const topDiv = document.createElement("div");
-          topDiv.className = "word-item-top";
-
-          const titleSpan = document.createElement("span");
-          titleSpan.className = "word-title";
-          if (studyMode && !w.found) {
-            titleSpan.textContent = `❓ ${w.clean.length} letras`;
+          if (studyMode) {
+            const content = document.createElement("div");
+            content.className = "word-clue";
+            content.innerHTML = isFound
+              ? `<strong>${w.exibicao}</strong> — ${w.dica}`
+              : `${w.dica} <span style="color:var(--accent-gold);font-weight:700;">(${w.clean.length} letras)</span>`;
+            item.appendChild(content);
           } else {
-            titleSpan.textContent = w.exibicao;
+            const label = document.createElement("span");
+            label.className = "word-label";
+            label.textContent = w.exibicao;
+            item.appendChild(label);
           }
 
           const dot = document.createElement("span");
           dot.className = "word-badge-dot";
-          if (w.found) {
-            dot.style.background = w.color.solid;
-          }
+          if (isFound) dot.style.backgroundColor = w.color;
+          item.appendChild(dot);
 
-          topDiv.appendChild(titleSpan);
-          topDiv.appendChild(dot);
-          li.appendChild(topDiv);
-
-          if (studyMode) {
-            const clueDiv = document.createElement("div");
-            clueDiv.className = "word-clue";
-            clueDiv.textContent = w.dica;
-            li.appendChild(clueDiv);
-
-            if (w.found && w.referencia) {
-              const refSpan = document.createElement("span");
-              refSpan.className = "word-ref-tag";
-              refSpan.textContent = `📖 ${w.referencia}`;
-              li.appendChild(refSpan);
-            }
-          }
-
-          wordListEl.appendChild(li);
+          wordsListEl.appendChild(item);
         });
       }
 
-      function updateProgressUI() {
-        const total = puzzle.placedWords.length;
-        const found = puzzle.placedWords.filter((w) => w.found).length;
-        foundCounter.textContent = `${found} / ${total}`;
-      }
-
-      function checkVictory() {
-        const allFound = puzzle.placedWords.every((w) => w.found);
-        if (!allFound) return;
-
+      function handleVictory() {
         clearInterval(timerInterval);
+        wins++;
+        winsCountEl.textContent = wins;
+        localStorage.setItem("caca_palavras_biblico_wins", String(wins));
+
         playTone(523.25, 0.1, "triangle");
-        setTimeout(() => playTone(659.25, 0.1, "triangle"), 110);
-        setTimeout(() => playTone(783.99, 0.12, "triangle"), 220);
-        setTimeout(() => playTone(1046.5, 0.24, "triangle"), 330);
+        setTimeout(() => playTone(659.25, 0.1, "triangle"), 100);
+        setTimeout(() => playTone(783.99, 0.22, "triangle"), 200);
 
-        document.getElementById("winSummary").textContent =
-          `Você encontrou todas as ${puzzle.placedWords.length} palavras em ${formatTime(elapsedSeconds)}! Confira as referências bíblicas para leitura:`;
+        document.getElementById("winSubtitle").textContent =
+          `Você completou a grade (${DIFFICULTIES[difficultySelect.value].label}) em ${timerDisplayEl.textContent}!`;
 
-        const refsList = document.getElementById("winRefsList");
-        refsList.innerHTML = "";
-        puzzle.placedWords.forEach((w) => {
-          const item = document.createElement("div");
-          item.className = "ref-item";
-          item.innerHTML = `<strong>${w.exibicao}</strong> — ${w.dica}<span>📖 ${w.referencia} (${w.categoria})</span>`;
-          refsList.appendChild(item);
+        const summaryList = document.getElementById("winSummaryList");
+        summaryList.innerHTML = "";
+        placedWords.forEach((w) => {
+          const entry = document.createElement("div");
+          entry.className = "summary-entry";
+          entry.innerHTML = `
+            <strong>${w.exibicao} (${w.categoria})</strong>
+            <span>${w.dica}</span>
+            ${w.referencia ? `<small>📖 ${w.referencia}</small>` : ""}
+          `;
+          summaryList.appendChild(entry);
         });
 
         setTimeout(() => winModal.classList.add("open"), 450);
       }
 
-      document.getElementById("locateWordBtn").addEventListener("click", () => {
-        if (!puzzle) return;
-        const remaining = puzzle.placedWords.filter((w) => !w.found);
-        if (remaining.length === 0) return;
+      // Controles e Eventos
+      categorySelect.addEventListener("change", () => {
+        playTone(460, 0.06);
+        startNewGame();
+      });
 
-        const targetWord = remaining[Math.floor(Math.random() * remaining.length)];
-        const { r, c } = targetWord.start;
-        const cellEl = gridEl.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);
-        if (cellEl) {
-          cellEl.classList.remove("hint-pulse");
-          void cellEl.offsetWidth;
-          cellEl.classList.add("hint-pulse");
-          playTone(660, 0.1, "triangle");
-        }
+      difficultySelect.addEventListener("change", () => {
+        playTone(460, 0.06);
+        startNewGame();
       });
 
       studyModeBtn.addEventListener("click", () => {
         studyMode = !studyMode;
         studyModeBtn.classList.toggle("active", studyMode);
         studyModeBtn.textContent = studyMode ? "📖 Estudo" : "👁 Lista";
-        playTone(520, 0.06);
+        playTone(500, 0.06);
         renderWordList();
-        requestAnimationFrame(applyBoardScale);
+        updateCellSize();
       });
 
-      categorySelect.addEventListener("change", () => {
-        playTone(480, 0.06);
-        generateNewPuzzle();
+      document.getElementById("hintLocateBtn").addEventListener("click", () => {
+        const remaining = placedWords.filter((w) => !foundWords.has(w.clean));
+        if (remaining.length === 0) return;
+        const target = remaining[0];
+        const firstCell = target.cells[0];
+        const el = getCellElement(firstCell.r, firstCell.c);
+        if (el) {
+          el.classList.add("anchor");
+          playTone(620, 0.1, "triangle");
+          setTimeout(() => el.classList.remove("anchor"), 1800);
+        }
       });
 
-      difficultySelect.addEventListener("change", () => {
-        playTone(480, 0.06);
-        generateNewPuzzle();
-      });
-
-      document.getElementById("newGridBtn").addEventListener("click", () => {
-        playTone(520, 0.07);
-        generateNewPuzzle();
+      document.getElementById("newGameBtn").addEventListener("click", () => {
+        playTone(500, 0.07);
+        startNewGame();
       });
 
       document.getElementById("closeWinBtn").addEventListener("click", () => {
         winModal.classList.remove("open");
       });
 
-      document.getElementById("nextWinGridBtn").addEventListener("click", () => {
+      document.getElementById("nextGridBtn").addEventListener("click", () => {
         winModal.classList.remove("open");
-        generateNewPuzzle();
+        startNewGame();
       });
 
       document.getElementById("soundBtn").addEventListener("click", (e) => {
@@ -1516,20 +1169,16 @@
 
       document.getElementById("themeBtn").addEventListener("click", () => {
         const html = document.documentElement;
-        html.setAttribute("data-theme", html.getAttribute("data-theme") === "dark" ? "light" : "dark");
+        const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", next);
         playTone(440, 0.06);
       });
 
-      window.addEventListener("resize", applyBoardScale);
-      if (typeof ResizeObserver !== "undefined") {
-        const ro = new ResizeObserver(applyBoardScale);
-        ro.observe(boardPanel);
-        ro.observe(appHeader);
-      }
+      const resizeObserver = new ResizeObserver(() => updateCellSize());
+      resizeObserver.observe(document.body);
+      window.addEventListener("resize", updateCellSize);
 
-      populateCategories();
-      generateNewPuzzle();
-      syncExternalDatabase();
+      loadDatabase();
     })();
   </script>
 </body>
