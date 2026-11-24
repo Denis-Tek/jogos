@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  
+  <rect x="18" y="18" width="164" height="164" rx="14" fill="#131926" stroke="#2a354d" stroke-width="2.2" />
+
+  
+  <rect x="26" y="25" width="148" height="16" rx="4" fill="#1a2234" />
+  <rect x="29" y="28" width="10" height="10" rx="2.5" fill="#d97706" />
+  <path d="M34 30 V36 M32 32 H36" stroke="#ffffff" stroke-width="1.3" stroke-linecap="round" />
+  <rect x="43" y="31" width="54" height="4" rx="2" fill="#f1f5f9" />
+  <rect x="152" y="28" width="19" height="10" rx="3" fill="#10b981" />
+
+  
+  <rect x="26" y="44" width="148" height="11" rx="3" fill="#182032" stroke="#f59e0b" stroke-width="0.6" />
+  <rect x="30" y="47.5" width="38" height="4" rx="2" fill="#f59e0b" opacity="0.85" />
+  <rect x="132" y="47.5" width="38" height="4" rx="2" fill="#64748b" />
+
+  
+  <rect x="26" y="59" width="148" height="92" rx="6" fill="#182132" stroke="#28354e" stroke-width="1.2" />
+
+  
+  
+  <rect x="33" y="81" width="88" height="14" rx="5" fill="#10b981" opacity="0.26" stroke="#10b981" stroke-width="1.2" />
+
+  
+  <line x1="42" y1="106" x2="88" y2="142" stroke="#38bdf8" stroke-width="13" stroke-linecap="round" opacity="0.26" />
+  <line x1="42" y1="106" x2="88" y2="142" stroke="#38bdf8" stroke-width="1.2" stroke-linecap="round" opacity="0.85" />
+
+  
+  <rect x="150" y="81" width="14" height="32" rx="5" fill="#f59e0b" opacity="0.26" stroke="#f59e0b" stroke-width="1.2" />
+
+  
+  <g font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="9.5" text-anchor="middle" fill="#e2e8f0">
+    
+    <text x="42" y="73.5">P</text>
+    <text x="65" y="73.5">T</text>
+    <text x="88" y="73.5">H</text>
+    <text x="111" y="73.5">A</text>
+    <text x="134" y="73.5">X</text>
+    <text x="157" y="73.5">M</text>
+
+    
+    <text x="42" y="91.5" fill="#6ee7b7">A</text>
+    <text x="65" y="91.5" fill="#6ee7b7">M</text>
+    <text x="88" y="91.5" fill="#6ee7b7">O</text>
+    <text x="111" y="91.5" fill="#6ee7b7">R</text>
+    <text x="134" y="91.5">K</text>
+    <text x="157" y="91.5" fill="#fcd34d">F</text>
+
+    
+    <text x="42" y="109.5" fill="#7dd3fc">L</text>
+    <text x="65" y="109.5">I</text>
+    <text x="88" y="109.5">D</text>
+    <text x="111" y="109.5">S</text>
+    <text x="134" y="109.5">N</text>
+    <text x="157" y="109.5" fill="#fcd34d">É</text>
+
+    
+    <text x="42" y="127.5">O</text>
+    <text x="65" y="127.5" fill="#7dd3fc">U</text>
+    <text x="88" y="127.5">V</text>
+    <text x="111" y="127.5">B</text>
+    <text x="134" y="127.5">P</text>
+    <text x="157" y="127.5">G</text>
+
+    
+    <text x="42" y="145.5">C</text>
+    <text x="65" y="145.5">E</text>
+    <text x="88" y="145.5" fill="#7dd3fc">Z</text>
+    <text x="111" y="145.5">R</text>
+    <text x="134" y="145.5">T</text>
+    <text x="157" y="145.5">A</text>
+  </g>
+
+  
+  <rect x="26" y="155" width="148" height="20" rx="4" fill="#182132" stroke="#28354e" stroke-width="1" />
+  <rect x="31" y="160" width="42" height="10" rx="3" fill="#064e3b" stroke="#10b981" stroke-width="0.9" />
+  <rect x="36" y="164" width="26" height="2.4" rx="1.2" fill="#6ee7b7" />
+
+  <rect x="78" y="160" width="44" height="10" rx="3" fill="#0c4a6e" stroke="#38bdf8" stroke-width="0.9" />
+  <rect x="83" y="164" width="28" height="2.4" rx="1.2" fill="#7dd3fc" />
+
+  <rect x="127" y="160" width="42" height="10" rx="3" fill="#451a03" stroke="#f59e0b" stroke-width="0.9" />
+  <rect x="132" y="164" width="26" height="2.4" rx="1.2" fill="#fcd34d" />
+</svg>

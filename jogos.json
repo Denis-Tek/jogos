@@ -17,6 +17,22 @@
       ]
     },
     {
+      "id": "caca-palavras",
+      "titulo": "Caça-Palavras Bíblico",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-cacapalavras",
+      "url": "./caca-palavras/",
+      "thumb": "./caca-palavras/thumb.svg",
+      "keywords": "caca palavras biblico estudo dicas referencias grade svg json",
+      "descricao": "Gerador procedural de grades em 3 dificuldades com 73 palavras bíblicas, Modo Estudo baseado em dicas, traçado vetorial colorido em SVG e referências bíblicas.",
+      "tags": [
+        "Modo Estudo",
+        "Traçado SVG",
+        "Web Audio API"
+      ]
+    },
+    {
       "id": "campo-minado",
       "titulo": "Campo Minado Pro",
       "categoria": "puzzle",
