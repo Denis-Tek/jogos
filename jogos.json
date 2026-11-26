@@ -207,6 +207,28 @@
       }
     },
     {
+      "id": "grand-prix-3d",
+      "titulo": "Grand Prix 3D",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-grandprix3d",
+      "url": "./grand-prix-3d/",
+      "thumb": "./grand-prix-3d/thumb.svg",
+      "keywords": "grand prix 3d formula 1 f1 corrida cockpit pit stop drs interlagos monaco monza",
+      "descricao": "Simulador de Fórmula 1 pseudo-3D com câmeras Externa e Cockpit, 4 circuitos (Interlagos, Mônaco, Monza e Silverstone), Pit Stop com escolha de pneus, DRS, vácuo e clima dinâmico.",
+      "tags": [
+        "Externa & Cockpit",
+        "Pit Stop & DRS",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "tempo-seg",
+        "chaves": [
+          "gp3d_rec_"
+        ]
+      }
+    },
+    {
       "id": "jogo-da-forca",
       "titulo": "Jogo da Forca",
       "categoria": "puzzle",

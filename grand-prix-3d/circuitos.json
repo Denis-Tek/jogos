@@ -1,0 +1,416 @@
+{
+  "version": "1.0",
+  "game": "Grand Prix 3D",
+  "circuitos": [
+    {
+      "id": "interlagos",
+      "nome": "Interlagos (Brasil)",
+      "pais": "Brasil",
+      "extensao_km": 4.309,
+      "voltas": 3,
+      "dificuldade": "Médio",
+      "clima_padrao": "sol",
+      "chance_chuva": 0.35,
+      "paleta": {
+        "ceu_topo": "#1d4ed8",
+        "ceu_base": "#93c5fd",
+        "horizonte": "#1e3a8a",
+        "grama_clara": "#16a34a",
+        "grama_escura": "#15803d",
+        "asfalto_claro": "#374151",
+        "asfalto_escuro": "#303946",
+        "zebra_1": "#ef4444",
+        "zebra_2": "#f8fafc"
+      },
+      "segmentos": [
+        {
+          "tamanho": 70,
+          "curva": 0.0,
+          "inclinacao": 0.0,
+          "descricao": "Reta dos Boxes"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.6,
+          "inclinacao": -25.0,
+          "descricao": "S do Senna (Descida)"
+        },
+        {
+          "tamanho": 40,
+          "curva": 3.2,
+          "inclinacao": -15.0,
+          "descricao": "Saída do S"
+        },
+        {
+          "tamanho": 85,
+          "curva": -1.4,
+          "inclinacao": -10.0,
+          "descricao": "Curva do Sol"
+        },
+        {
+          "tamanho": 110,
+          "curva": 0.0,
+          "inclinacao": 5.0,
+          "descricao": "Reta Oposta (Zona DRS)"
+        },
+        {
+          "tamanho": 55,
+          "curva": -2.8,
+          "inclinacao": 10.0,
+          "descricao": "Descida do Lago"
+        },
+        {
+          "tamanho": 50,
+          "curva": 0.0,
+          "inclinacao": 15.0,
+          "descricao": "Reta do Lago"
+        },
+        {
+          "tamanho": 65,
+          "curva": 3.4,
+          "inclinacao": 20.0,
+          "descricao": "Ferradura"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.8,
+          "inclinacao": 0.0,
+          "descricao": "Laranjinha"
+        },
+        {
+          "tamanho": 50,
+          "curva": 4.0,
+          "inclinacao": -15.0,
+          "descricao": "Pinheirinho"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.5,
+          "inclinacao": -10.0,
+          "descricao": "Bico de Pato"
+        },
+        {
+          "tamanho": 55,
+          "curva": 2.9,
+          "inclinacao": 15.0,
+          "descricao": "Mergulho / Junção"
+        },
+        {
+          "tamanho": 95,
+          "curva": -1.2,
+          "inclinacao": 35.0,
+          "descricao": "Subida dos Boxes (Zona DRS)"
+        }
+      ]
+    },
+    {
+      "id": "monaco",
+      "nome": "Monte Carlo (Mônaco)",
+      "pais": "Mônaco",
+      "extensao_km": 3.337,
+      "voltas": 3,
+      "dificuldade": "Difícil",
+      "clima_padrao": "sol",
+      "chance_chuva": 0.15,
+      "paleta": {
+        "ceu_topo": "#0284c7",
+        "ceu_base": "#bae6fd",
+        "horizonte": "#0369a1",
+        "grama_clara": "#64748b",
+        "grama_escura": "#475569",
+        "asfalto_claro": "#334155",
+        "asfalto_escuro": "#293548",
+        "zebra_1": "#dc2626",
+        "zebra_2": "#ffffff"
+      },
+      "segmentos": [
+        {
+          "tamanho": 60,
+          "curva": 0.5,
+          "inclinacao": 0.0,
+          "descricao": "Reta Principal"
+        },
+        {
+          "tamanho": 38,
+          "curva": 4.4,
+          "inclinacao": 20.0,
+          "descricao": "Sainte-Dévote"
+        },
+        {
+          "tamanho": 75,
+          "curva": -1.2,
+          "inclinacao": 40.0,
+          "descricao": "Subida Beau Rivage"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.5,
+          "inclinacao": 10.0,
+          "descricao": "Massenet"
+        },
+        {
+          "tamanho": 40,
+          "curva": 3.8,
+          "inclinacao": -15.0,
+          "descricao": "Cassino"
+        },
+        {
+          "tamanho": 45,
+          "curva": 2.6,
+          "inclinacao": -25.0,
+          "descricao": "Mirabeau"
+        },
+        {
+          "tamanho": 36,
+          "curva": -4.8,
+          "inclinacao": -20.0,
+          "descricao": "Grampo Fairmont"
+        },
+        {
+          "tamanho": 45,
+          "curva": 3.6,
+          "inclinacao": -15.0,
+          "descricao": "Portier"
+        },
+        {
+          "tamanho": 90,
+          "curva": 1.1,
+          "inclinacao": -5.0,
+          "descricao": "Túnel do Porto (Zona DRS)"
+        },
+        {
+          "tamanho": 42,
+          "curva": -4.2,
+          "inclinacao": 0.0,
+          "descricao": "Chicane Nouvelle"
+        },
+        {
+          "tamanho": 50,
+          "curva": -2.8,
+          "inclinacao": 0.0,
+          "descricao": "Tabac"
+        },
+        {
+          "tamanho": 55,
+          "curva": 3.5,
+          "inclinacao": 5.0,
+          "descricao": "Piscina"
+        },
+        {
+          "tamanho": 42,
+          "curva": 4.5,
+          "inclinacao": 5.0,
+          "descricao": "La Rascasse"
+        },
+        {
+          "tamanho": 45,
+          "curva": 3.2,
+          "inclinacao": 0.0,
+          "descricao": "Anthony Noghès"
+        }
+      ]
+    },
+    {
+      "id": "monza",
+      "nome": "Monza (Itália)",
+      "pais": "Itália",
+      "extensao_km": 5.793,
+      "voltas": 3,
+      "dificuldade": "Fácil",
+      "clima_padrao": "sol",
+      "chance_chuva": 0.25,
+      "paleta": {
+        "ceu_topo": "#2563eb",
+        "ceu_base": "#dbeafe",
+        "horizonte": "#1e40af",
+        "grama_clara": "#22c55e",
+        "grama_escura": "#16a34a",
+        "asfalto_claro": "#3f3f46",
+        "asfalto_escuro": "#323238",
+        "zebra_1": "#16a34a",
+        "zebra_2": "#ffffff"
+      },
+      "segmentos": [
+        {
+          "tamanho": 130,
+          "curva": 0.0,
+          "inclinacao": 0.0,
+          "descricao": "Reta Principal (Zona DRS)"
+        },
+        {
+          "tamanho": 35,
+          "curva": 4.2,
+          "inclinacao": 0.0,
+          "descricao": "Prima Variante (Chicane)"
+        },
+        {
+          "tamanho": 35,
+          "curva": -4.0,
+          "inclinacao": 0.0,
+          "descricao": "Saída da Chicane"
+        },
+        {
+          "tamanho": 95,
+          "curva": 1.8,
+          "inclinacao": 12.0,
+          "descricao": "Curva Biassono"
+        },
+        {
+          "tamanho": 42,
+          "curva": 3.9,
+          "inclinacao": -10.0,
+          "descricao": "Variante della Roggia"
+        },
+        {
+          "tamanho": 48,
+          "curva": 3.2,
+          "inclinacao": 0.0,
+          "descricao": "Lesmo 1"
+        },
+        {
+          "tamanho": 50,
+          "curva": 3.4,
+          "inclinacao": -8.0,
+          "descricao": "Lesmo 2"
+        },
+        {
+          "tamanho": 115,
+          "curva": -0.8,
+          "inclinacao": -12.0,
+          "descricao": "Reta Serraglio (Zona DRS)"
+        },
+        {
+          "tamanho": 65,
+          "curva": -3.1,
+          "inclinacao": 10.0,
+          "descricao": "Variante Ascari"
+        },
+        {
+          "tamanho": 120,
+          "curva": 0.0,
+          "inclinacao": 0.0,
+          "descricao": "Retão Oposto (Zona DRS)"
+        },
+        {
+          "tamanho": 75,
+          "curva": 3.3,
+          "inclinacao": 8.0,
+          "descricao": "Curva Parabólica"
+        }
+      ]
+    },
+    {
+      "id": "silverstone",
+      "nome": "Silverstone (Reino Unido)",
+      "pais": "Reino Unido",
+      "extensao_km": 5.891,
+      "voltas": 3,
+      "dificuldade": "Médio",
+      "clima_padrao": "chuva",
+      "chance_chuva": 0.65,
+      "paleta": {
+        "ceu_topo": "#334155",
+        "ceu_base": "#94a3b8",
+        "horizonte": "#1e293b",
+        "grama_clara": "#15803d",
+        "grama_escura": "#14532d",
+        "asfalto_claro": "#1e293b",
+        "asfalto_escuro": "#0f172a",
+        "zebra_1": "#ef4444",
+        "zebra_2": "#f8fafc"
+      },
+      "segmentos": [
+        {
+          "tamanho": 85,
+          "curva": 0.0,
+          "inclinacao": 0.0,
+          "descricao": "Reta Hamilton (Zona DRS)"
+        },
+        {
+          "tamanho": 55,
+          "curva": 2.4,
+          "inclinacao": 10.0,
+          "descricao": "Abbey"
+        },
+        {
+          "tamanho": 50,
+          "curva": -2.2,
+          "inclinacao": -10.0,
+          "descricao": "Farm"
+        },
+        {
+          "tamanho": 48,
+          "curva": 3.7,
+          "inclinacao": 0.0,
+          "descricao": "Village"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.6,
+          "inclinacao": 5.0,
+          "descricao": "The Loop"
+        },
+        {
+          "tamanho": 105,
+          "curva": 0.0,
+          "inclinacao": 12.0,
+          "descricao": "Reta Wellington (Zona DRS)"
+        },
+        {
+          "tamanho": 55,
+          "curva": -3.0,
+          "inclinacao": -8.0,
+          "descricao": "Brooklands"
+        },
+        {
+          "tamanho": 60,
+          "curva": 2.9,
+          "inclinacao": 0.0,
+          "descricao": "Luffield"
+        },
+        {
+          "tamanho": 75,
+          "curva": 2.1,
+          "inclinacao": 15.0,
+          "descricao": "Copse"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.4,
+          "inclinacao": -10.0,
+          "descricao": "Maggotts"
+        },
+        {
+          "tamanho": 45,
+          "curva": 3.5,
+          "inclinacao": -10.0,
+          "descricao": "Becketts"
+        },
+        {
+          "tamanho": 45,
+          "curva": -3.2,
+          "inclinacao": 0.0,
+          "descricao": "Chapel"
+        },
+        {
+          "tamanho": 110,
+          "curva": 0.0,
+          "inclinacao": 5.0,
+          "descricao": "Reta Hangar (Zona DRS)"
+        },
+        {
+          "tamanho": 60,
+          "curva": 3.4,
+          "inclinacao": 10.0,
+          "descricao": "Stowe"
+        },
+        {
+          "tamanho": 55,
+          "curva": -3.3,
+          "inclinacao": -5.0,
+          "descricao": "Vale & Club"
+        }
+      ]
+    }
+  ]
+}
