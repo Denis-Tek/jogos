@@ -1,6 +1,29 @@
 {
   "jogos": [
     {
+      "id": "2048",
+      "titulo": "2048",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-2048",
+      "url": "./2048/",
+      "thumb": "./2048/thumb.svg",
+      "keywords": "2048 puzzle numeros potencias deslize blocos fusao 4x4 5x5 logica",
+      "descricao": "Deslize blocos numerados em grades 4×4 ou 5×5 para fundir potências de 2 até alcançar o bloco 2048 e além. Inclui botão Desfazer, temas Claro/Escuro e áudio ascendente.",
+      "tags": [
+        "Grades 4×4 e 5×5",
+        "Desfazer & Auto-Save",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "2048"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
       "id": "arkanoid-pong",
       "titulo": "Arkanoid & Pong",
       "categoria": "puzzle",

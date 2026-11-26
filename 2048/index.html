@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>2048 — Jogo de Lógica e Deslize</title>
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & TEMAS (DARK PADRÃO / LIGHT CLÁSSICO ACONCHEGANTE)
+       ========================================================================== */
+    :root {
+      --bg-app: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-surface-alt: #334155;
+      --bg-board: #182234;
+      --bg-cell: rgba(148, 163, 184, 0.12);
+      --border-subtle: rgba(148, 163, 184, 0.18);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --btn-bg: #263349;
+      --btn-hover: #334461;
+      --shadow-board: 0 18px 40px -10px rgba(0, 0, 0, 0.55);
+      --shadow-card: 0 6px 16px -4px rgba(0, 0, 0, 0.35);
+      --grid-gap: 10px;
+      --board-pad: 10px;
+      --radius-board: 16px;
+      --radius-tile: 10px;
+    }
+
+    [data-theme="light"] {
+      --bg-app: #faf8ef;
+      --bg-surface: #efeae1;
+      --bg-surface-alt: #e4ddd2;
+      --bg-board: #bbada0;
+      --bg-cell: rgba(238, 228, 218, 0.42);
+      --border-subtle: rgba(119, 110, 101, 0.18);
+      --text-primary: #776e65;
+      --text-secondary: #8f7a66;
+      --accent: #ed8936;
+      --accent-hover: #dd6b20;
+      --btn-bg: #8f7a66;
+      --btn-hover: #7f6a56;
+      --shadow-board: 0 16px 34px -10px rgba(119, 110, 101, 0.28);
+      --shadow-card: 0 4px 12px -2px rgba(119, 110, 101, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-primary);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* ==========================================================================
+       LAYOUT ZERO-SCROLL (100dvh)
+       ========================================================================== */
+    .app-container {
+      width: 100%;
+      max-width: 520px;
+      height: 100dvh;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Cabeçalho */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-left: 38px;
+    }
+
+    @media (min-width: 640px) {
+      .header {
+        padding-left: 0;
+      }
+    }
+
+    .brand-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title {
+      font-size: clamp(1.75rem, 5vw, 2.3rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .brand-title {
+      background: none;
+      -webkit-text-fill-color: #776e65;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Placares */
+    .scores-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-box {
+      position: relative;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 6px 12px;
+      min-width: 78px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      transition: background-color 0.25s ease, border-color 0.25s ease;
+    }
+
+    .score-label {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .score-value {
+      display: block;
+      font-size: 1.15rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: var(--text-primary);
+      margin-top: 1px;
+    }
+
+    /* Indicador flutuante de pontos (+4, +16, etc.) */
+    .score-addition {
+      position: absolute;
+      right: 10px;
+      top: 4px;
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: #f59e0b;
+      pointer-events: none;
+      animation: floatScore 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      z-index: 20;
+    }
+
+    @keyframes floatScore {
+      0% {
+        opacity: 1;
+        transform: translateY(0) scale(0.95);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-28px) scale(1.12);
+      }
+    }
+
+    /* Barra de Controles e Modos */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .mode-switcher {
+      display: inline-flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 5px 10px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+    }
+
+    .actions-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      border: 1px solid var(--border-subtle);
+      background: var(--btn-bg);
+      color: #f8fafc;
+      font-size: 0.8rem;
+      font-weight: 700;
+      height: 36px;
+      padding: 0 11px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      transition: transform 0.12s ease, background-color 0.18s ease, opacity 0.18s ease;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--btn-hover);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.95);
+    }
+
+    .btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .btn-icon {
+      width: 36px;
+      padding: 0;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-color: transparent;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #fbbf24, #d97706);
+    }
+
+    /* ==========================================================================
+       ÁREA DO TABULEIRO (ALINHAMENTO MILIMÉTRICO VIA MESMA ORIGEM INTERNA)
+       ========================================================================== */
+    .board-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .board-container {
+      position: relative;
+      width: min(100%, calc(100dvh - 185px), 460px);
+      height: min(100%, calc(100dvh - 185px), 460px);
+      aspect-ratio: 1 / 1;
+      background-color: var(--bg-board);
+      border-radius: var(--radius-board);
+      padding: var(--board-pad);
+      box-shadow: var(--shadow-board);
+      border: 1px solid var(--border-subtle);
+      touch-action: none;
+      transition: background-color 0.25s ease;
+    }
+
+    /* Wrapper interno garante que #grid-cells e #tiles-layer partam exatamente da mesma origem (0,0) */
+    .board-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Grid de fundo fixo */
+    #grid-cells {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      gap: var(--grid-gap);
+    }
+
+    .grid-cell {
+      background-color: var(--bg-cell);
+      border-radius: var(--radius-tile);
+      transition: background-color 0.25s ease;
+    }
+
+    /* Camada de peças animadas exatamente sobreposta ao #grid-cells */
+    #tiles-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .tile {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: var(--radius-tile);
+      transition: transform 120ms cubic-bezier(0.2, 0.85, 0.32, 1);
+      will-change: transform;
+      z-index: 2;
+    }
+
+    .tile.tile-merged-under {
+      z-index: 1;
+    }
+
+    .tile-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius-tile);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.22);
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .tile-new .tile-inner {
+      animation: tileAppear 160ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+      animation-delay: 65ms;
+    }
+
+    .tile-merged .tile-inner {
+      animation: tilePop 190ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes tileAppear {
+      0% {
+        opacity: 0;
+        transform: scale(0.25);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes tilePop {
+      0% {
+        transform: scale(0.85);
+      }
+      55% {
+        transform: scale(1.14);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* ==========================================================================
+       PALETA PROGRESSIVA DE CORES DAS POTÊNCIAS DE 2
+       ========================================================================== */
+    .tile-2 .tile-inner {
+      background: #eee4da;
+      color: #776e65;
+    }
+    .tile-4 .tile-inner {
+      background: #ede0c8;
+      color: #776e65;
+    }
+    .tile-8 .tile-inner {
+      background: #f2b179;
+      color: #f9f6f2;
+    }
+    .tile-16 .tile-inner {
+      background: #f59563;
+      color: #f9f6f2;
+    }
+    .tile-32 .tile-inner {
+      background: #f67c5f;
+      color: #f9f6f2;
+    }
+    .tile-64 .tile-inner {
+      background: #f65e3b;
+      color: #f9f6f2;
+    }
+    .tile-128 .tile-inner {
+      background: #edcf72;
+      color: #f9f6f2;
+      box-shadow: 0 0 18px rgba(237, 207, 114, 0.45);
+    }
+    .tile-256 .tile-inner {
+      background: #edcc61;
+      color: #f9f6f2;
+      box-shadow: 0 0 22px rgba(237, 204, 97, 0.55);
+    }
+    .tile-512 .tile-inner {
+      background: #edc850;
+      color: #f9f6f2;
+      box-shadow: 0 0 26px rgba(237, 200, 80, 0.62);
+    }
+    .tile-1024 .tile-inner {
+      background: #edc53f;
+      color: #f9f6f2;
+      box-shadow: 0 0 30px rgba(237, 197, 63, 0.72);
+    }
+    .tile-2048 .tile-inner {
+      background: linear-gradient(135deg, #fde047, #eab308);
+      color: #ffffff;
+      text-shadow: 0 2px 6px rgba(161, 98, 7, 0.45);
+      box-shadow: 0 0 36px rgba(250, 204, 21, 0.88);
+    }
+    .tile-super .tile-inner {
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: #ffffff;
+      box-shadow: 0 0 36px rgba(236, 72, 153, 0.78);
+    }
+
+    /* Rodapé discreto */
+    .footer-hint {
+      text-align: center;
+      font-size: 0.73rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      padding-bottom: 2px;
+    }
+
+    /* ==========================================================================
+       MODAIS (VITÓRIA 2048, GAME OVER E AJUDA)
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+      animation: modalPop 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-emoji {
+      font-size: 3rem;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .modal-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .modal-desc {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+    }
+
+    .modal-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .modal-stat-item {
+      background: var(--bg-surface-alt);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .modal-stat-item span {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .modal-stat-item strong {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      margin-top: 2px;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-actions .btn {
+      width: 100%;
+      height: 42px;
+      font-size: 0.9rem;
+    }
+
+    .rules-list {
+      text-align: left;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .rules-list strong {
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 400px) {
+      .app-container {
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      .score-box {
+        min-width: 70px;
+        padding: 5px 9px;
+      }
+      .score-value {
+        font-size: 1.05rem;
+      }
+      .btn {
+        padding: 0 8px;
+        font-size: 0.75rem;
+        height: 34px;
+      }
+      .btn-icon {
+        width: 34px;
+      }
+      .mode-btn {
+        padding: 4px 8px;
+        font-size: 0.74rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Cabeçalho com Título e Placares -->
+    <header class="header">
+      <div class="brand-group">
+        <h1 class="brand-title">2048</h1>
+        <span class="brand-subtitle">Una os números até 2048!</span>
+      </div>
+
+      <div class="scores-group">
+        <div class="score-box" id="scoreBox">
+          <span class="score-label">Pontos</span>
+          <span class="score-value" id="scoreValue">0</span>
+        </div>
+        <div class="score-box">
+          <span class="score-label">Recorde</span>
+          <span class="score-value" id="bestValue">0</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Barra de Ações Rápidas e Seletor de Grade -->
+    <section class="toolbar" aria-label="Controles do jogo">
+      <div class="mode-switcher" role="group" aria-label="Tamanho da grade">
+        <button type="button" class="mode-btn active" id="mode4Btn" data-size="4">4×4</button>
+        <button type="button" class="mode-btn" id="mode5Btn" data-size="5">5×5</button>
+      </div>
+
+      <div class="actions-group">
+        <button type="button" class="btn btn-primary" id="newGameBtn" title="Novo Jogo (R)">Novo</button>
+        <button type="button" class="btn" id="undoBtn" title="Desfazer Jogada (Z)" disabled>↩ Desfazer</button>
+        <button type="button" class="btn btn-icon" id="soundBtn" title="Alternar Som" aria-label="Alternar Som">🔊</button>
+        <button type="button" class="btn btn-icon" id="themeBtn" title="Alternar Tema" aria-label="Alternar Tema">🌙</button>
+        <button type="button" class="btn btn-icon" id="helpBtn" title="Como Jogar" aria-label="Como Jogar">?</button>
+      </div>
+    </section>
+
+    <!-- Palco Central do Tabuleiro -->
+    <main class="board-stage">
+      <div class="board-container" id="boardContainer" aria-label="Tabuleiro 2048">
+        <div class="board-inner">
+          <div id="grid-cells"></div>
+          <div id="tiles-layer"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Instrução Resumida -->
+    <footer class="footer-hint">
+      Deslize no tabuleiro ou use as setas / WASD • Z desfaz
+    </footer>
+  </div>
+
+  <!-- Modal: Vitória (Bloco 2048 Alcançado) -->
+  <div class="modal-backdrop" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="modal-card">
+      <div class="modal-emoji">🏆</div>
+      <h2 class="modal-title" id="winTitle">Você formou 2048!</h2>
+      <p class="modal-desc">Parabéns! Você atingiu o objetivo clássico. Deseja continuar jogando no modo infinito para buscar 4096 e além?</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="continueBtn">Continuar Jogando</button>
+        <button type="button" class="btn" id="winNewGameBtn">Iniciar Novo Jogo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Fim de Jogo (Game Over) -->
+  <div class="modal-backdrop" id="gameOverModal" role="dialog" aria-modal="true" aria-labelledby="overTitle">
+    <div class="modal-card">
+      <div class="modal-emoji">🧩</div>
+      <h2 class="modal-title" id="overTitle">Fim de Jogo!</h2>
+      <p class="modal-desc">Não há mais movimentos ou fusões disponíveis no tabuleiro.</p>
+      <div class="modal-stats">
+        <div class="modal-stat-item">
+          <span>Pontuação Final</span>
+          <strong id="finalScore">0</strong>
+        </div>
+        <div class="modal-stat-item">
+          <span>Maior Bloco</span>
+          <strong id="maxTile">0</strong>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="retryBtn">Jogar Novamente</button>
+        <button type="button" class="btn" id="overUndoBtn">↩ Desfazer Última Jogada</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Ajuda / Regras -->
+  <div class="modal-backdrop" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <div class="modal-card">
+      <div class="modal-emoji">💡</div>
+      <h2 class="modal-title" id="helpTitle">Como Jogar 2048</h2>
+      <div class="rules-list">
+        <p>• <strong>Movimento:</strong> Deslize o dedo no tabuleiro ou use as teclas <strong>Setas / WASD</strong> para mover todos os blocos em uma direção.</p>
+        <p>• <strong>Fusão:</strong> Quando dois blocos com o <strong>mesmo número</strong> colidem, eles se fundem em um único bloco com a soma dos valores.</p>
+        <p>• <strong>Objetivo:</strong> Alcance o bloco <strong>2048</strong> (e continue jogando se quiser bater recordes maiores como 4096 ou 8192).</p>
+        <p>• <strong>Atalhos:</strong> Pressione <strong>Z</strong> (ou Ctrl+Z) para desfazer até 10 jogadas e <strong>R</strong> para reiniciar.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-primary" id="closeHelpBtn">Entendi, vamos jogar!</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* ========================================================================
+         1. MOTOR DE ÁUDIO PROCEDURAL (WEB AUDIO API - SEM ARQUIVOS EXTERNOS)
+         ======================================================================== */
+      class SoundEngine {
+        constructor() {
+          this.enabled = localStorage.getItem('2048_sound') !== 'false';
+          this.ctx = null;
+          // Escala pentatônica maior em Hz para fusões cada vez mais musicais
+          this.scale = [
+            261.63, // 4   (C4)
+            293.66, // 8   (D4)
+            329.63, // 16  (E4)
+            392.00, // 32  (G4)
+            440.00, // 64  (A4)
+            523.25, // 128 (C5)
+            587.33, // 256 (D5)
+            659.25, // 512 (E5)
+            783.99, // 1024 (G5)
+            880.00, // 2048 (A5)
+            1046.50 // 4096+ (C6)
+          ];
+        }
+
+        ensureContext() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        }
+
+        playSlide() {
+          if (!this.enabled) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(140, now);
+          osc.frequency.exponentialRampToValueAtTime(210, now + 0.055);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.045, now + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.07);
+        }
+
+        playMerge(maxMergedValue) {
+          if (!this.enabled) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const power = Math.max(2, Math.round(Math.log2(maxMergedValue)));
+          const idx = Math.min(power - 2, this.scale.length - 1);
+          const freq = this.scale[idx];
+          const now = this.ctx.currentTime;
+
+          // Nota principal
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.14, now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.19);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+
+          // Harmônico suave para blocos >= 128
+          if (maxMergedValue >= 128) {
+            const harmOsc = this.ctx.createOscillator();
+            const harmGain = this.ctx.createGain();
+            harmOsc.type = 'sine';
+            harmOsc.frequency.setValueAtTime(freq * 1.5, now + 0.03);
+
+            harmGain.gain.setValueAtTime(0.001, now + 0.03);
+            harmGain.gain.exponentialRampToValueAtTime(0.07, now + 0.05);
+            harmGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+            harmOsc.connect(harmGain);
+            harmGain.connect(this.ctx.destination);
+            harmOsc.start(now + 0.03);
+            harmOsc.stop(now + 0.25);
+          }
+        }
+
+        playBlocked() {
+          if (!this.enabled) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(115, now);
+          osc.frequency.linearRampToValueAtTime(92, now + 0.08);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.04, now + 0.01);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        }
+
+        playWin() {
+          if (!this.enabled) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+          notes.forEach((freq, i) => {
+            const now = this.ctx.currentTime + i * 0.085;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.15, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.34);
+          });
+        }
+
+        playGameOver() {
+          if (!this.enabled) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          const notes = [349.23, 311.13, 277.18, 220.00];
+          notes.forEach((freq, i) => {
+            const now = this.ctx.currentTime + i * 0.12;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.11, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.3);
+          });
+        }
+      }
+
+      const sound = new SoundEngine();
+
+      /* ========================================================================
+         2. ESTADO GLOBAL & CONSTANTES
+         ======================================================================== */
+      const MAX_UNDO_HISTORY = 10;
+      const STORAGE_PREFIX = 'denis_tek_2048_';
+
+      let nextTileId = 1;
+      const state = {
+        size: 4,
+        grid: [],        // Matriz [r][c] contendo objeto tile { id, value, r, c } ou null
+        score: 0,
+        bestScores: {
+          4: Number(localStorage.getItem(`${STORAGE_PREFIX}best_4`) || 0),
+          5: Number(localStorage.getItem(`${STORAGE_PREFIX}best_5`) || 0)
+        },
+        won: false,      // Já atingiu 2048 nesta partida
+        keepPlaying: false,
+        over: false,
+        history: [],     // Pilha de até 10 estados anteriores
+        isAnimating: false
+      };
+
+      /* ========================================================================
+         3. REFERÊNCIAS DO DOM
+         ======================================================================== */
+      const boardContainer = document.getElementById('boardContainer');
+      const gridCellsEl = document.getElementById('grid-cells');
+      const tilesLayerEl = document.getElementById('tiles-layer');
+      const scoreBox = document.getElementById('scoreBox');
+      const scoreValueEl = document.getElementById('scoreValue');
+      const bestValueEl = document.getElementById('bestValue');
+
+      const mode4Btn = document.getElementById('mode4Btn');
+      const mode5Btn = document.getElementById('mode5Btn');
+      const newGameBtn = document.getElementById('newGameBtn');
+      const undoBtn = document.getElementById('undoBtn');
+      const soundBtn = document.getElementById('soundBtn');
+      const themeBtn = document.getElementById('themeBtn');
+      const helpBtn = document.getElementById('helpBtn');
+
+      const winModal = document.getElementById('winModal');
+      const continueBtn = document.getElementById('continueBtn');
+      const winNewGameBtn = document.getElementById('winNewGameBtn');
+
+      const gameOverModal = document.getElementById('gameOverModal');
+      const finalScoreEl = document.getElementById('finalScore');
+      const maxTileEl = document.getElementById('maxTile');
+      const retryBtn = document.getElementById('retryBtn');
+      const overUndoBtn = document.getElementById('overUndoBtn');
+
+      const helpModal = document.getElementById('helpModal');
+      const closeHelpBtn = document.getElementById('closeHelpBtn');
+
+      /* ========================================================================
+         4. TEMA E PREFERÊNCIAS INICIAIS
+         ======================================================================== */
+      let currentTheme = localStorage.getItem(`${STORAGE_PREFIX}theme`) || 'dark';
+      function applyTheme() {
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        themeBtn.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+      }
+      applyTheme();
+
+      soundBtn.textContent = sound.enabled ? '🔊' : '🔇';
+
+      themeBtn.addEventListener('click', () => {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem(`${STORAGE_PREFIX}theme`, currentTheme);
+        applyTheme();
+      });
+
+      soundBtn.addEventListener('click', () => {
+        sound.enabled = !sound.enabled;
+        localStorage.setItem('2048_sound', String(sound.enabled));
+        soundBtn.textContent = sound.enabled ? '🔊' : '🔇';
+        if (sound.enabled) sound.playSlide();
+      });
+
+      /* ========================================================================
+         5. CONSTRUÇÃO DO GRID E MEDIÇÃO MILIMÉTRICA VIA OFFSET DA PRÓPRIA GRADE
+         ======================================================================== */
+      let gridCellElements = []; // Matriz [r][c] com as referências reais às células de fundo
+
+      function buildGridBackground() {
+        const n = state.size;
+        const gap = n === 5 ? 8 : 10;
+        const pad = n === 5 ? 8 : 10;
+
+        document.documentElement.style.setProperty('--grid-gap', `${gap}px`);
+        document.documentElement.style.setProperty('--board-pad', `${pad}px`);
+
+        gridCellsEl.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+        gridCellsEl.style.gridTemplateRows = `repeat(${n}, 1fr)`;
+        gridCellsEl.innerHTML = '';
+        gridCellElements = Array.from({ length: n }, () => Array(n).fill(null));
+
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            gridCellsEl.appendChild(cell);
+            gridCellElements[r][c] = cell;
+          }
+        }
+      }
+
+      /**
+       * Retorna a posição (x, y) e dimensões (width, height) exatas em pixels
+       * diretamente da célula [r][c] dentro de #grid-cells. Como #tiles-layer
+       * compartilha exatamente o mesmo contêiner pai (.board-inner) com inset: 0,
+       * o alinhamento é 100% milimétrico em qualquer tela ou fração de pixel.
+       */
+      function getExactCellRect(r, c) {
+        const cellEl = gridCellElements[r] && gridCellElements[r][c];
+        if (!cellEl) {
+          return { x: 0, y: 0, width: 60, height: 60 };
+        }
+        return {
+          x: cellEl.offsetLeft,
+          y: cellEl.offsetTop,
+          width: cellEl.offsetWidth,
+          height: cellEl.offsetHeight
+        };
+      }
+
+      function getFontSizeForValue(value, cellSize) {
+        const digits = String(value).length;
+        if (digits <= 2) return Math.round(cellSize * 0.48);
+        if (digits === 3) return Math.round(cellSize * 0.40);
+        if (digits === 4) return Math.round(cellSize * 0.32);
+        return Math.round(cellSize * 0.26);
+      }
+
+      function getTileClass(value) {
+        return value <= 2048 ? `tile-${value}` : 'tile-super';
+      }
+
+      /* ========================================================================
+         6. RENDERIZAÇÃO COMPLETA E SINCRONIZAÇÃO DE PEÇAS
+         ======================================================================== */
+      function renderAllTiles(spawnedTile = null) {
+        tilesLayerEl.innerHTML = '';
+
+        for (let r = 0; r < state.size; r++) {
+          for (let c = 0; c < state.size; c++) {
+            const tile = state.grid[r][c];
+            if (!tile) continue;
+
+            const isNew = spawnedTile && spawnedTile.id === tile.id;
+            const el = createTileElement(tile, {
+              isNew,
+              isMerged: Boolean(tile.justMerged)
+            });
+            tile.justMerged = false;
+            tilesLayerEl.appendChild(el);
+          }
+        }
+      }
+
+      function createTileElement(tile, flags = {}) {
+        const rect = getExactCellRect(tile.r, tile.c);
+        const el = document.createElement('div');
+        el.className = `tile ${getTileClass(tile.value)}`;
+        if (flags.isNew) el.classList.add('tile-new');
+        if (flags.isMerged) el.classList.add('tile-merged');
+        if (flags.under) el.classList.add('tile-merged-under');
+
+        el.style.width = `${rect.width}px`;
+        el.style.height = `${rect.height}px`;
+        el.style.transform = `translate3d(${rect.x}px, ${rect.y}px, 0)`;
+
+        const inner = document.createElement('div');
+        inner.className = 'tile-inner';
+        inner.style.fontSize = `${getFontSizeForValue(tile.value, rect.width)}px`;
+        inner.textContent = tile.value;
+
+        el.appendChild(inner);
+        return el;
+      }
+
+      function updateScoreUI(addedPoints = 0) {
+        scoreValueEl.textContent = state.score;
+
+        if (state.score > state.bestScores[state.size]) {
+          state.bestScores[state.size] = state.score;
+          localStorage.setItem(`${STORAGE_PREFIX}best_${state.size}`, String(state.score));
+        }
+        bestValueEl.textContent = state.bestScores[state.size];
+
+        if (addedPoints > 0) {
+          const badge = document.createElement('span');
+          badge.className = 'score-addition';
+          badge.textContent = `+${addedPoints}`;
+          scoreBox.appendChild(badge);
+          badge.addEventListener('animationend', () => badge.remove());
+        }
+
+        undoBtn.disabled = state.history.length === 0;
+        overUndoBtn.disabled = state.history.length === 0;
+      }
+
+      /* ========================================================================
+         7. PERSISTÊNCIA DO ESTADO DA PARTIDA NO LOCALSTORAGE
+         ======================================================================== */
+      function saveGameState() {
+        const serializedGrid = state.grid.map(row =>
+          row.map(cell => (cell ? cell.value : 0))
+        );
+
+        const payload = {
+          size: state.size,
+          grid: serializedGrid,
+          score: state.score,
+          won: state.won,
+          keepPlaying: state.keepPlaying,
+          over: state.over,
+          history: state.history
+        };
+
+        try {
+          localStorage.setItem(`${STORAGE_PREFIX}state_${state.size}`, JSON.stringify(payload));
+          localStorage.setItem(`${STORAGE_PREFIX}active_size`, String(state.size));
+        } catch (e) {
+          // Ignora erro caso storage esteja cheio/bloqueado
+        }
+      }
+
+      function loadGameState(size) {
+        try {
+          const raw = localStorage.getItem(`${STORAGE_PREFIX}state_${size}`);
+          if (!raw) return false;
+          const data = JSON.parse(raw);
+          if (!data || !Array.isArray(data.grid) || data.grid.length !== size) return false;
+
+          state.size = size;
+          state.score = Number(data.score || 0);
+          state.won = Boolean(data.won);
+          state.keepPlaying = Boolean(data.keepPlaying);
+          state.over = Boolean(data.over);
+          state.history = Array.isArray(data.history) ? data.history.slice(-MAX_UNDO_HISTORY) : [];
+          state.grid = Array.from({ length: size }, (_, r) =>
+            Array.from({ length: size }, (_, c) => {
+              const val = Number(data.grid[r][c] || 0);
+              return val > 0 ? { id: nextTileId++, value: val, r, c } : null;
+            })
+          );
+
+          const count = state.grid.flat().filter(Boolean).length;
+          if (count < 2) return false;
+
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      /* ========================================================================
+         8. INICIALIZAÇÃO, SPAWN DE BLOCOS E UNDO
+         ======================================================================== */
+      function initGame(size = state.size, forceNew = false) {
+        state.size = size;
+        state.isAnimating = false;
+
+        mode4Btn.classList.toggle('active', size === 4);
+        mode5Btn.classList.toggle('active', size === 5);
+
+        closeAllModals();
+        buildGridBackground();
+
+        if (!forceNew && loadGameState(size)) {
+          updateScoreUI(0);
+          renderAllTiles();
+          if (state.over) {
+            showGameOverModal();
+          }
+          return;
+        }
+
+        // Inicia nova partida limpa
+        state.grid = Array.from({ length: size }, () => Array(size).fill(null));
+        state.score = 0;
+        state.won = false;
+        state.keepPlaying = false;
+        state.over = false;
+        state.history = [];
+
+        spawnRandomTile();
+        spawnRandomTile();
+
+        updateScoreUI(0);
+        renderAllTiles();
+        saveGameState();
+      }
+
+      function spawnRandomTile() {
+        const emptyCells = [];
+        for (let r = 0; r < state.size; r++) {
+          for (let c = 0; c < state.size; c++) {
+            if (!state.grid[r][c]) emptyCells.push({ r, c });
+          }
+        }
+        if (emptyCells.length === 0) return null;
+
+        const chosen = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        const value = Math.random() < 0.9 ? 2 : 4;
+        const tile = { id: nextTileId++, value, r: chosen.r, c: chosen.c };
+        state.grid[chosen.r][chosen.c] = tile;
+        return tile;
+      }
+
+      function undoMove() {
+        if (state.history.length === 0 || state.isAnimating) return;
+
+        const prev = state.history.pop();
+        state.score = prev.score;
+        state.won = prev.won;
+        state.keepPlaying = prev.keepPlaying;
+        state.over = false;
+
+        state.grid = prev.grid.map((row, r) =>
+          row.map((val, c) => (val > 0 ? { id: nextTileId++, value: val, r, c } : null))
+        );
+
+        closeAllModals();
+        sound.playSlide();
+        updateScoreUI(0);
+        renderAllTiles();
+        saveGameState();
+      }
+
+      /* ========================================================================
+         9. LÓGICA DE MOVIMENTAÇÃO, FUSÃO E ANIMAÇÃO DESLIZANTE (120ms)
+         ======================================================================== */
+      const VECTORS = {
+        up:    { r: -1, c: 0 },
+        down:  { r: 1,  c: 0 },
+        left:  { r: 0,  c: -1 },
+        right: { r: 0,  c: 1 }
+      };
+
+      function buildTraversals(vector) {
+        const rows = [];
+        const cols = [];
+        for (let i = 0; i < state.size; i++) {
+          rows.push(i);
+          cols.push(i);
+        }
+        if (vector.r === 1) rows.reverse();
+        if (vector.c === 1) cols.reverse();
+        return { rows, cols };
+      }
+
+      function isWithinBounds(r, c) {
+        return r >= 0 && r < state.size && c >= 0 && c < state.size;
+      }
+
+      function move(direction) {
+        if (state.isAnimating || state.over) return;
+        if (winModal.classList.contains('open') || helpModal.classList.contains('open')) return;
+
+        const vector = VECTORS[direction];
+        if (!vector) return;
+
+        const n = state.size;
+        const traversals = buildTraversals(vector);
+
+        const preSnapshot = {
+          grid: state.grid.map(row => row.map(cell => (cell ? cell.value : 0))),
+          score: state.score,
+          won: state.won,
+          keepPlaying: state.keepPlaying
+        };
+
+        const nextGrid = Array.from({ length: n }, () => Array(n).fill(null));
+        const mergedFlag = Array.from({ length: n }, () => Array(n).fill(false));
+        const animations = [];
+
+        let moved = false;
+        let pointsEarned = 0;
+        let maxMergedValue = 0;
+        let reached2048Now = false;
+
+        for (const r of traversals.rows) {
+          for (const c of traversals.cols) {
+            const tile = state.grid[r][c];
+            if (!tile) continue;
+
+            let currR = r;
+            let currC = c;
+            let nextR = r + vector.r;
+            let nextC = c + vector.c;
+
+            while (isWithinBounds(nextR, nextC) && !nextGrid[nextR][nextC]) {
+              currR = nextR;
+              currC = nextC;
+              nextR += vector.r;
+              nextC += vector.c;
+            }
+
+            if (
+              isWithinBounds(nextR, nextC) &&
+              nextGrid[nextR][nextC] &&
+              nextGrid[nextR][nextC].value === tile.value &&
+              !mergedFlag[nextR][nextC]
+            ) {
+              const targetTile = nextGrid[nextR][nextC];
+              const newValue = tile.value * 2;
+
+              animations.push({
+                tile,
+                fromR: r,
+                fromC: c,
+                toR: nextR,
+                toC: nextC,
+                under: true
+              });
+
+              targetTile.value = newValue;
+              targetTile.justMerged = true;
+              mergedFlag[nextR][nextC] = true;
+
+              pointsEarned += newValue;
+              if (newValue > maxMergedValue) maxMergedValue = newValue;
+              if (newValue === 2048 && !state.won) {
+                reached2048Now = true;
+              }
+
+              moved = true;
+            } else {
+              animations.push({
+                tile,
+                fromR: r,
+                fromC: c,
+                toR: currR,
+                toC: currC,
+                under: false
+              });
+
+              nextGrid[currR][currC] = {
+                id: tile.id,
+                value: tile.value,
+                r: currR,
+                c: currC
+              };
+
+              if (currR !== r || currC !== c) {
+                moved = true;
+              }
+            }
+          }
+        }
+
+        if (!moved) {
+          sound.playBlocked();
+          return;
+        }
+
+        state.history.push(preSnapshot);
+        if (state.history.length > MAX_UNDO_HISTORY) {
+          state.history.shift();
+        }
+
+        // Executa animação suave de deslizamento usando as coordenadas exatas das células
+        state.isAnimating = true;
+        tilesLayerEl.innerHTML = '';
+
+        const domPairs = animations.map(item => {
+          const startTile = {
+            id: item.tile.id,
+            value: item.tile.value,
+            r: item.fromR,
+            c: item.fromC
+          };
+          const el = createTileElement(startTile, { under: item.under });
+          tilesLayerEl.appendChild(el);
+          return { el, toR: item.toR, toC: item.toC };
+        });
+
+        // Força reflow para garantir a transição CSS
+        void tilesLayerEl.offsetWidth;
+
+        domPairs.forEach(({ el, toR, toC }) => {
+          const targetRect = getExactCellRect(toR, toC);
+          el.style.transform = `translate3d(${targetRect.x}px, ${targetRect.y}px, 0)`;
+        });
+
+        if (maxMergedValue > 0) {
+          sound.playMerge(maxMergedValue);
+        } else {
+          sound.playSlide();
+        }
+
+        setTimeout(() => {
+          state.grid = nextGrid;
+          state.score += pointsEarned;
+
+          const spawned = spawnRandomTile();
+          updateScoreUI(pointsEarned);
+          renderAllTiles(spawned);
+
+          state.isAnimating = false;
+
+          if (reached2048Now && !state.keepPlaying) {
+            state.won = true;
+            saveGameState();
+            sound.playWin();
+            winModal.classList.add('open');
+            return;
+          }
+
+          if (!hasAvailableMoves()) {
+            state.over = true;
+            saveGameState();
+            sound.playGameOver();
+            showGameOverModal();
+            return;
+          }
+
+          saveGameState();
+        }, 125);
+      }
+
+      /* ========================================================================
+         10. VERIFICAÇÃO DE GAME OVER E MODAIS
+         ======================================================================== */
+      function hasAvailableMoves() {
+        const n = state.size;
+        for (let r = 0; r < n; r++) {
+          for (let c = 0; c < n; c++) {
+            const tile = state.grid[r][c];
+            if (!tile) return true;
+
+            if (r + 1 < n && state.grid[r + 1][c] && state.grid[r + 1][c].value === tile.value) {
+              return true;
+            }
+            if (c + 1 < n && state.grid[r][c + 1] && state.grid[r][c + 1].value === tile.value) {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+
+      function getHighestTileValue() {
+        let maxVal = 0;
+        for (let r = 0; r < state.size; r++) {
+          for (let c = 0; c < state.size; c++) {
+            if (state.grid[r][c] && state.grid[r][c].value > maxVal) {
+              maxVal = state.grid[r][c].value;
+            }
+          }
+        }
+        return maxVal;
+      }
+
+      function showGameOverModal() {
+        finalScoreEl.textContent = state.score;
+        maxTileEl.textContent = getHighestTileValue();
+        overUndoBtn.disabled = state.history.length === 0;
+        gameOverModal.classList.add('open');
+      }
+
+      function closeAllModals() {
+        winModal.classList.remove('open');
+        gameOverModal.classList.remove('open');
+        helpModal.classList.remove('open');
+      }
+
+      /* ========================================================================
+         11. CONTROLES DE TECLADO, SWIPE (POINTER EVENTS) E RESIZEOBSERVER
+         ======================================================================== */
+      window.addEventListener('keydown', (e) => {
+        if (e.metaKey || e.altKey) return;
+
+        if (e.key === 'z' || e.key === 'Z') {
+          e.preventDefault();
+          undoMove();
+          return;
+        }
+
+        if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey) {
+          e.preventDefault();
+          initGame(state.size, true);
+          return;
+        }
+
+        if (e.key === 'Escape') {
+          closeAllModals();
+          return;
+        }
+
+        const keyMap = {
+          ArrowUp: 'up',    w: 'up',    W: 'up',
+          ArrowDown: 'down',  s: 'down',  S: 'down',
+          ArrowLeft: 'left',  a: 'left',  A: 'left',
+          ArrowRight: 'right', d: 'right', D: 'right'
+        };
+
+        const dir = keyMap[e.key];
+        if (dir) {
+          e.preventDefault();
+          move(dir);
+        }
+      });
+
+      // Gestos de deslize (Swipe) com Pointer Events
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerActive = false;
+      const SWIPE_THRESHOLD = 26;
+
+      boardContainer.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+        pointerActive = true;
+      });
+
+      boardContainer.addEventListener('pointermove', (e) => {
+        if (!pointerActive) return;
+        const dx = e.clientX - pointerStartX;
+        const dy = e.clientY - pointerStartY;
+
+        if (Math.abs(dx) > SWIPE_THRESHOLD || Math.abs(dy) > SWIPE_THRESHOLD) {
+          pointerActive = false;
+          if (Math.abs(dx) > Math.abs(dy)) {
+            move(dx > 0 ? 'right' : 'left');
+          } else {
+            move(dy > 0 ? 'down' : 'up');
+          }
+        }
+      });
+
+      window.addEventListener('pointerup', () => {
+        pointerActive = false;
+      });
+
+      window.addEventListener('pointercancel', () => {
+        pointerActive = false;
+      });
+
+      // Botões da interface
+      mode4Btn.addEventListener('click', () => {
+        if (state.size !== 4) initGame(4, false);
+      });
+
+      mode5Btn.addEventListener('click', () => {
+        if (state.size !== 5) initGame(5, false);
+      });
+
+      newGameBtn.addEventListener('click', () => initGame(state.size, true));
+      undoBtn.addEventListener('click', undoMove);
+
+      continueBtn.addEventListener('click', () => {
+        state.keepPlaying = true;
+        winModal.classList.remove('open');
+        saveGameState();
+      });
+
+      winNewGameBtn.addEventListener('click', () => initGame(state.size, true));
+      retryBtn.addEventListener('click', () => initGame(state.size, true));
+      overUndoBtn.addEventListener('click', undoMove);
+
+      helpBtn.addEventListener('click', () => helpModal.classList.add('open'));
+      closeHelpBtn.addEventListener('click', () => helpModal.classList.remove('open'));
+
+      [winModal, gameOverModal, helpModal].forEach(backdrop => {
+        backdrop.addEventListener('click', (e) => {
+          if (e.target === backdrop && backdrop === helpModal) {
+            helpModal.classList.remove('open');
+          }
+        });
+      });
+
+      // ResizeObserver garante reposicionamento milimétrico sempre que o tabuleiro mudar de tamanho
+      if (typeof ResizeObserver !== 'undefined') {
+        const boardObserver = new ResizeObserver(() => {
+          if (!state.isAnimating) {
+            renderAllTiles();
+          }
+        });
+        boardObserver.observe(boardContainer);
+      } else {
+        window.addEventListener('resize', () => {
+          if (!state.isAnimating) renderAllTiles();
+        });
+      }
+
+      // Inicializa no último tamanho ativo salvo ou 4×4 padrão
+      const savedActiveSize = Number(localStorage.getItem(`${STORAGE_PREFIX}active_size`) || 4);
+      initGame(savedActiveSize === 5 ? 5 : 4, false);
+    })();
+  </script>
+</body>
+</html>

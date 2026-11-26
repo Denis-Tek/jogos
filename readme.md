@@ -15,6 +15,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 
 | Jogo | Categoria | Descrição | Link Direto |
 | :--- | :--- | :--- | :--- |
+| **[2048](./2048/)** | Lógica & Números | Puzzle matemático de deslize e fusão de blocos em grades `4×4` e `5×5` até o bloco `2048` e além, com histórico de **Desfazer**, auto-save e escala sonora ascendente. | [Jogar 2048](https://denis-tek.github.io/jogos/2048/) |
 | **[Arkanoid & Pong](./arkanoid-pong/)** | Arcade & Reflexos | Dois clássicos dos arcades em um só app: *Arkanoid Pro* com 5 fases cíclicas e 5 cápsulas de Power-Up, além de *Pong 1P* (vs IA) e *2P* local na mesma tela. | [Jogar Arkanoid & Pong](https://denis-tek.github.io/jogos/arkanoid-pong/) |
 | **[Batalha Naval](./batalha-naval/)** | Estratégia & Tabuleiro | Comando tático de frota em grade `10×10` com estética de radar naval, posicionamento interativo, modo 2 jogadores com cortina de privacidade e IA probabilística. | [Jogar Batalha Naval](https://denis-tek.github.io/jogos/batalha-naval/) |
 | **[Caça-Palavras Bíblico](./caca-palavras/)** | Palavras & Dedução | Gerador procedural de grades em 3 dificuldades com 73 palavras bíblicas, Modo Estudo baseado em dicas, traçado vetorial colorido em SVG e referências bíblicas. | [Jogar Caça-Palavras](https://denis-tek.github.io/jogos/caca-palavras/) |
@@ -44,10 +45,10 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Architecture** (cada jogo encapsulado em seu próprio `index.html`, com catálogo desacoplado em `jogos.json` e miniaturas `thumb.svg` dedicadas no launcher), garantindo portabilidade instantânea, carregamento ultrarrápido e compatibilidade nativa com qualquer navegador moderno ou hospedagem estática:
 
 * **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton e símbolos culturais vetoriais (*Mahjong Brasil*), recortes de quebra-cabeça por curvas de Bézier cúbicas, traçados vetoriais dinâmicos (*Caça-Palavras Bíblico*), ilustrações vetoriais (`thumb.svg`) para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$ e renderização High-DPI com partículas no *Arkanoid & Pong*).
-* **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, `scroll-snap`, Web Animations API e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
+* **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, `scroll-snap`, Web Animations API, transformações aceleradas por GPU (`translate3d` no *2048*) e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
 * **JavaScript Nativo (ES2020+) & JSON:** Carregamento dinâmico de catálogos e bancos de palavras (`jogos.json` e `palavras.json`), lógica de estados, física contínua em sub-passos com efeito lateral (*Spin*) e IA preditiva (*Arkanoid & Pong*), algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, geração procedural de palavras cruzadas e caça-palavras com incentivo a cruzamentos e validação de adjacências, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / *multi-touch* / *Long Press*) e atalhos de teclado.
 * **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, fluxos líquidos, pings de sonar, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
-* **Web Storage API (`localStorage`):** Persistência local automática dos recordes, jogos favoritados no launcher, fases desbloqueadas e preferências de tema/áudio em cada jogo.
+* **Web Storage API (`localStorage`):** Persistência local automática dos recordes, jogos favoritados no launcher, fases desbloqueadas, partidas em andamento e preferências de tema/áudio em cada jogo.
 
 ---
 
@@ -60,6 +61,11 @@ jogos/
 ├── levantar-servidor-python.bat   # Atalho Windows para iniciar servidor HTTP local na porta 8000
 ├── Abrir no navegador.url         # Atalho direto para http://localhost:8000/
 ├── README.md                      # Documentação geral do repositório
+├── 2048/
+│   ├── index.html                 # Aplicação completa do 2048 (grades 4×4 e 5×5)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, controles e mecânicas do 2048
 ├── arkanoid-pong/
 │   ├── index.html                 # Aplicação completa do Arkanoid & Pong (3 modos arcade)
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
