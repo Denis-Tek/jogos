@@ -1,0 +1,2271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Super Mario Web — Aventura Clássica</title>
+  <style>
+    :root {
+      --bg-dark: #0f172a;
+      --hud-bg: rgba(15, 23, 42, 0.88);
+      --hud-border: rgba(255, 255, 255, 0.16);
+      --gold: #facc15;
+      --red: #ef4444;
+      --green: #22c55e;
+      --blue: #38bdf8;
+      --text: #f8fafc;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg-dark);
+      color: var(--text);
+      font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      touch-action: none;
+    }
+
+    #game-shell {
+      position: relative;
+      width: 100%;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #5c94fc;
+    }
+
+    /* HUD Superior Compacto */
+    #hud {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 6px 10px 6px 46px;
+      background: var(--hud-bg);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--hud-border);
+      min-height: 44px;
+      flex-shrink: 0;
+    }
+
+    .hud-stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      flex: 1;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.05;
+      min-width: 44px;
+    }
+
+    .stat-label {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .stat-val {
+      font-size: 0.88rem;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      color: #ffffff;
+    }
+
+    .stat-val.gold { color: var(--gold); }
+    .stat-val.green { color: #4ade80; }
+    .stat-val.red { color: #f87171; }
+
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .hud-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(30, 41, 59, 0.9);
+      color: #fff;
+      font-size: 1rem;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.15s ease;
+    }
+
+    .hud-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* Área do Canvas */
+    #canvas-wrap {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+
+    /* Controles Touch Inferiores */
+    #touch-controls {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.98));
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      flex-shrink: 0;
+      gap: 10px;
+    }
+
+    .dpad-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .ctrl-btn {
+      width: 60px;
+      height: 54px;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.22);
+      background: linear-gradient(180deg, #334155, #1e293b);
+      color: #f8fafc;
+      font-size: 1.35rem;
+      font-weight: 900;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 0 #090d16, 0 8px 16px rgba(0, 0, 0, 0.45);
+      cursor: pointer;
+      transition: transform 0.05s ease, box-shadow 0.05s ease, filter 0.1s ease;
+    }
+
+    .ctrl-btn span.sub {
+      font-size: 0.56rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      opacity: 0.85;
+      margin-top: 1px;
+    }
+
+    .ctrl-btn.pressed {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #090d16, 0 2px 6px rgba(0, 0, 0, 0.4);
+      filter: brightness(1.25);
+    }
+
+    .btn-run {
+      width: 64px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #f59e0b, #b45309);
+      border-color: #fde68a;
+      box-shadow: 0 5px 0 #78350f, 0 8px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .btn-jump {
+      width: 68px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #ef4444, #b91c1c);
+      border-color: #fecaca;
+      box-shadow: 0 5px 0 #7f1d1d, 0 8px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    @media (min-width: 900px) and (pointer: fine) {
+      #touch-controls {
+        padding: 6px 18px;
+      }
+      .ctrl-btn {
+        width: 50px;
+        height: 42px;
+        font-size: 1.05rem;
+      }
+      .btn-run, .btn-jump {
+        width: 52px;
+        height: 46px;
+      }
+    }
+
+    /* Modais / Telas Sobrepostas */
+    .overlay-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      background: rgba(2, 6, 23, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .overlay-modal.hidden {
+      display: none;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border: 2px solid rgba(250, 204, 21, 0.45);
+      border-radius: 22px;
+      padding: 22px 20px;
+      text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+      animation: modalPop 0.22s ease-out;
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.92) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .badge-title {
+      display: inline-block;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      font-weight: 900;
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+
+    .modal-card h1, .modal-card h2 {
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: #facc15;
+      text-shadow: 0 3px 0 #713f12;
+      margin-bottom: 8px;
+      line-height: 1.15;
+    }
+
+    .modal-card p {
+      font-size: 0.92rem;
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-bottom: 14px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 10px;
+      margin-bottom: 16px;
+      text-align: left;
+      font-size: 0.78rem;
+      color: #e2e8f0;
+    }
+
+    .controls-grid div strong {
+      color: #38bdf8;
+      display: block;
+      font-size: 0.72rem;
+    }
+
+    .stage-selector {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .stage-chip {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(30, 41, 59, 0.9);
+      color: #cbd5e1;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .stage-chip.active {
+      background: linear-gradient(180deg, #2563eb, #1d4ed8);
+      border-color: #93c5fd;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 13px 18px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #22c55e, #15803d);
+      color: #fff;
+      font-size: 1.05rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      box-shadow: 0 5px 0 #14532d, 0 10px 20px rgba(34, 197, 94, 0.35);
+      cursor: pointer;
+      transition: transform 0.08s ease;
+    }
+
+    .primary-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #14532d;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(15, 23, 42, 0.8);
+      border-radius: 12px;
+      padding: 10px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .summary-item span {
+      display: block;
+      font-size: 0.68rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .summary-item strong {
+      font-size: 1.15rem;
+      color: #facc15;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-shell">
+    <!-- HUD Superior -->
+    <header id="hud">
+      <div class="hud-stats">
+        <div class="stat-box">
+          <span class="stat-label">Pontos</span>
+          <span id="hud-score" class="stat-val">000000</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Moedas</span>
+          <span id="hud-coins" class="stat-val gold">🪙 00</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Fase</span>
+          <span id="hud-stage" class="stat-val green">1-1</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Vidas</span>
+          <span id="hud-lives" class="stat-val red">❤️ 3</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Tempo</span>
+          <span id="hud-time" class="stat-val">300</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-label">Recorde</span>
+          <span id="hud-high" class="stat-val gold">000000</span>
+        </div>
+      </div>
+      <div class="hud-actions">
+        <button id="btn-sound" class="hud-btn" title="Alternar Som" aria-label="Alternar Som">🔊</button>
+        <button id="btn-pause" class="hud-btn" title="Pausar (P)" aria-label="Pausar">⏸️</button>
+      </div>
+    </header>
+
+    <!-- Área de Renderização -->
+    <main id="canvas-wrap">
+      <canvas id="gameCanvas"></canvas>
+    </main>
+
+    <!-- Controles Touch Multi-Touch -->
+    <footer id="touch-controls">
+      <div class="dpad-group">
+        <button class="ctrl-btn" data-action="left" aria-label="Esquerda">◀<span class="sub">Esq</span></button>
+        <button class="ctrl-btn" data-action="right" aria-label="Direita">▶<span class="sub">Dir</span></button>
+      </div>
+      <div class="action-group">
+        <button class="ctrl-btn btn-run" data-action="run" aria-label="Correr e Atirar">🔥<span class="sub">Correr/Fogo</span></button>
+        <button class="ctrl-btn btn-jump" data-action="jump" aria-label="Pular">⬆️<span class="sub">Pular</span></button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal Inicial -->
+  <div id="start-modal" class="overlay-modal">
+    <div class="modal-card">
+      <div class="badge-title">Edição Clássica HTML5</div>
+      <h1>SUPER MARIO WEB</h1>
+      <p>Corra, pule sobre Goombas e Koopas, colete Super Cogumelos e Flores de Fogo e alcance o mastro da bandeira nas 3 fases!</p>
+
+      <div class="stage-selector" id="stage-selector">
+        <button class="stage-chip active" data-stage="0">1-1 Reino</button>
+        <button class="stage-chip" data-stage="1">1-2 Caverna</button>
+        <button class="stage-chip" data-stage="2">1-3 Fortaleza</button>
+      </div>
+
+      <div class="controls-grid">
+        <div><strong>Mover</strong>Setas / WASD ou Botões ◀ ▶</div>
+        <div><strong>Pular (Variável)</strong>Espaço / Z / ↑ ou Botão ⬆️</div>
+        <div><strong>Correr & Bola de Fogo</strong>Shift / X ou Botão 🔥</div>
+        <div><strong>Pausar Jogo</strong>Tecla P ou Botão ⏸️</div>
+      </div>
+
+      <button id="btn-start-game" class="primary-btn">▶ Jogar Agora</button>
+    </div>
+  </div>
+
+  <!-- Modal de Pausa -->
+  <div id="pause-modal" class="overlay-modal hidden">
+    <div class="modal-card">
+      <div class="badge-title">Jogo Pausado</div>
+      <h2>PAUSA</h2>
+      <p>Respire fundo e prepare o próximo salto pelo Reino dos Cogumelos.</p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button id="btn-resume" class="primary-btn">▶ Continuar</button>
+        <button id="btn-restart-menu" class="stage-chip" style="padding:12px; font-size:0.9rem;">🏠 Voltar ao Menu / Trocar Fase</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Fim de Jogo / Vitória -->
+  <div id="end-modal" class="overlay-modal hidden">
+    <div class="modal-card">
+      <div id="end-badge" class="badge-title">Fim de Jogo</div>
+      <h2 id="end-title">GAME OVER</h2>
+      <p id="end-desc">Você ficou sem vidas, mas pode tentar novamente agora mesmo!</p>
+      <div class="summary-row">
+        <div class="summary-item">
+          <span>Pontuação</span>
+          <strong id="end-score">0</strong>
+        </div>
+        <div class="summary-item">
+          <span>Moedas</span>
+          <strong id="end-coins">0</strong>
+        </div>
+        <div class="summary-item">
+          <span>Recorde</span>
+          <strong id="end-high">0</strong>
+        </div>
+      </div>
+      <button id="btn-play-again" class="primary-btn">🔄 Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // =========================================================================
+      // 1. MOTOR DE ÁUDIO RETRÔ SINTETIZADO (WEB AUDIO API - ZERO EXTERNOS)
+      // =========================================================================
+      class RetroAudio {
+        constructor() {
+          this.ctx = null;
+          this.muted = localStorage.getItem('smb_web_muted') === '1';
+          this.bgmTimer = null;
+          this.bgmStep = 0;
+        }
+
+        init() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        }
+
+        toggleMute() {
+          this.muted = !this.muted;
+          localStorage.setItem('smb_web_muted', this.muted ? '1' : '0');
+          if (this.muted) this.stopBGM();
+          return this.muted;
+        }
+
+        tone(freq, duration, type = 'square', gainVal = 0.08, delay = 0, slideTo = null) {
+          if (this.muted) return;
+          this.init();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          if (slideTo) {
+            osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+          }
+
+          gain.gain.setValueAtTime(gainVal, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + duration + 0.01);
+        }
+
+        playJump(isBig = false) {
+          this.tone(isBig ? 190 : 260, 0.18, 'square', 0.08, 0, isBig ? 520 : 680);
+        }
+
+        playCoin() {
+          this.tone(987.77, 0.07, 'square', 0.08, 0);
+          this.tone(1318.51, 0.22, 'square', 0.08, 0.07);
+        }
+
+        playBump() {
+          this.tone(140, 0.09, 'triangle', 0.14, 0, 65);
+        }
+
+        playBreakBrick() {
+          this.tone(220, 0.06, 'sawtooth', 0.11, 0, 90);
+          this.tone(160, 0.08, 'square', 0.11, 0.05, 55);
+        }
+
+        playPowerupSpawn() {
+          const notes = [330, 392, 659, 523, 587, 784];
+          notes.forEach((n, i) => this.tone(n, 0.06, 'triangle', 0.08, i * 0.055));
+        }
+
+        playPowerup() {
+          const notes = [330, 392, 659, 523, 587, 784, 440, 523, 880, 698, 784, 1046];
+          notes.forEach((n, i) => this.tone(n, 0.055, 'square', 0.075, i * 0.045));
+        }
+
+        playPowerdown() {
+          const notes = [659, 523, 392, 330, 261, 196];
+          notes.forEach((n, i) => this.tone(n, 0.065, 'sawtooth', 0.08, i * 0.055));
+        }
+
+        playStomp() {
+          this.tone(360, 0.06, 'square', 0.1, 0, 120);
+          this.tone(520, 0.08, 'triangle', 0.09, 0.05, 760);
+        }
+
+        playKick() {
+          this.tone(240, 0.11, 'square', 0.1, 0, 580);
+        }
+
+        playFireball() {
+          this.tone(720, 0.07, 'square', 0.07, 0, 240);
+        }
+
+        play1Up() {
+          const notes = [330, 392, 659, 523, 587, 784];
+          notes.forEach((n, i) => this.tone(n, 0.08, 'square', 0.08, i * 0.075));
+        }
+
+        playDie() {
+          this.stopBGM();
+          this.tone(493.88, 0.1, 'square', 0.09, 0);
+          this.tone(698.46, 0.12, 'square', 0.09, 0.12);
+          const desc = [698.46, 659.25, 587.33, 523.25, 392.00, 329.63, 261.63];
+          desc.forEach((n, i) => this.tone(n, 0.11, 'square', 0.085, 0.28 + i * 0.1));
+        }
+
+        playStageClear() {
+          this.stopBGM();
+          const melody = [
+            [392, 0.11], [523.25, 0.11], [659.25, 0.11], [783.99, 0.11],
+            [659.25, 0.11], [783.99, 0.28],
+            [415.30, 0.11], [523.25, 0.11], [622.25, 0.11], [830.61, 0.11],
+            [622.25, 0.11], [830.61, 0.28],
+            [466.16, 0.11], [587.33, 0.11], [698.46, 0.11], [932.33, 0.11],
+            [932.33, 0.11], [932.33, 0.11], [1046.50, 0.45]
+          ];
+          let t = 0;
+          melody.forEach(([f, d]) => {
+            this.tone(f, d * 0.92, 'square', 0.08, t);
+            t += d;
+          });
+        }
+
+        startBGM(themeIndex = 0) {
+          this.stopBGM();
+          if (this.muted) return;
+          this.init();
+
+          const patterns = [
+            // 0: Reino dos Cogumelos
+            [659, 659, 0, 659, 0, 523, 659, 0, 784, 0, 0, 0, 392, 0, 0, 0,
+             523, 0, 0, 392, 0, 0, 330, 0, 440, 0, 494, 0, 466, 440, 0, 0],
+            // 1: Subterrâneo
+            [261, 523, 220, 440, 233, 466, 0, 0, 261, 523, 220, 440, 233, 466, 0, 0,
+             174, 349, 146, 293, 155, 311, 0, 0, 174, 349, 146, 293, 155, 311, 0, 0],
+            // 2: Fortaleza
+            [220, 233, 220, 246, 220, 261, 220, 246, 196, 207, 196, 220, 196, 233, 196, 220,
+             164, 174, 164, 185, 164, 196, 164, 185, 146, 155, 146, 164, 146, 174, 164, 155]
+          ];
+
+          const seq = patterns[themeIndex % patterns.length];
+          const tempo = themeIndex === 2 ? 145 : 165;
+          this.bgmStep = 0;
+
+          this.bgmTimer = setInterval(() => {
+            if (this.muted) return;
+            const freq = seq[this.bgmStep % seq.length];
+            if (freq > 0) {
+              this.tone(freq, 0.11, themeIndex === 1 ? 'triangle' : 'square', 0.026, 0);
+            }
+            this.bgmStep++;
+          }, tempo);
+        }
+
+        stopBGM() {
+          if (this.bgmTimer) {
+            clearInterval(this.bgmTimer);
+            this.bgmTimer = null;
+          }
+        }
+      }
+
+      const audio = new RetroAudio();
+
+      // =========================================================================
+      // 2. DEFINIÇÃO DAS 3 FASES PROGRESSIVAS
+      // =========================================================================
+      // Matriz de 14 linhas (row 0 = topo, row 12-13 = chão):
+      // - Chão no topo da linha 12 (y = 12 * TILE)
+      // - Tubos médios/altos: topo na linha 9 ou 10 (altura = 2 ou 3 blocos acima do chão)
+      // - Fileira baixa de blocos '?' e tijolos: linha 8 (exatos 3 blocos livres acima do chão!)
+      // - Fileira alta de blocos '?' e tijolos: linha 4 (exatos 3 blocos livres acima da fileira baixa!)
+      const STAGES = [
+        {
+          id: '1-1',
+          name: 'Reino dos Cogumelos',
+          theme: 'overworld',
+          skyTop: '#3b82f6',
+          skyBottom: '#93c5fd',
+          timeLimit: 300,
+          movingPlatforms: [],
+          enemies: [
+            { type: 'goomba', tx: 16, ty: 11 },
+            { type: 'goomba', tx: 29, ty: 11 },
+            { type: 'koopa',  tx: 41, ty: 10 },
+            { type: 'goomba', tx: 54, ty: 11 },
+            { type: 'goomba', tx: 56, ty: 11 },
+            { type: 'koopa',  tx: 72, ty: 10 },
+            { type: 'goomba', tx: 88, ty: 11 },
+            { type: 'goomba', tx: 90, ty: 11 },
+            { type: 'koopa',  tx: 104, ty: 10 }
+          ],
+          map: [
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            ".........................................................................CCC................................................",
+            "..................................................BBBBBBBB.............BBBBBBB..............................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "..............?....BMB?B..........................?.........................................B?B.............................",
+            ".....................................TT........................TT...................HH...............TT....................",
+            ".........................TT..........PP............TT..........PP..................HHH...............PP...................",
+            ".............C...C.......PP..........PP............PP..........PP.................HHHH...............PP................F....",
+            "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG..GGGGGGGGGGGGGGGGGGGGGGGG..GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+            "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG..GGGGGGGGGGGGGGGGGGGGGGGG..GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+          ]
+        },
+        {
+          id: '1-2',
+          name: 'Subterrâneo Azul',
+          theme: 'underground',
+          skyTop: '#020617',
+          skyBottom: '#0f172a',
+          timeLimit: 300,
+          movingPlatforms: [
+            { x: 47, y: 9.5, w: 3, rangeX: 3.5, rangeY: 0, speed: 1.8 },
+            { x: 83, y: 9.0, w: 3, rangeX: 0, rangeY: 2.2, speed: 1.7 }
+          ],
+          enemies: [
+            { type: 'goomba', tx: 14, ty: 11 },
+            { type: 'koopa',  tx: 24, ty: 10 },
+            { type: 'goomba', tx: 35, ty: 11 },
+            { type: 'goomba', tx: 37, ty: 11 },
+            { type: 'koopa',  tx: 60, ty: 10 },
+            { type: 'goomba', tx: 71, ty: 11 },
+            { type: 'koopa',  tx: 94, ty: 10 },
+            { type: 'goomba', tx: 102, ty: 11 }
+          ],
+          map: [
+            "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            ".........................CCCCC............................................CCCCC.............................................",
+            "........................BBBBBBB..........................................BBBBBBB............................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "..........B?BMB?B....................B?B..................................................BMB...............................",
+            ".....................................................HH...................................................HH................",
+            ".....................TT..............................HHH......................TT..........................HHH...............",
+            "........C...C........PP.............................HHHH......................PP.........................HHHH..........F....",
+            "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.......GGGGGGGGGGGGGGGGGGGGG.......GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+            "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG.......GGGGGGGGGGGGGGGGGGGGG.......GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+          ]
+        },
+        {
+          id: '1-3',
+          name: 'Fortaleza do Crepúsculo',
+          theme: 'castle',
+          skyTop: '#31102f',
+          skyBottom: '#9a3412',
+          timeLimit: 320,
+          movingPlatforms: [
+            { x: 25, y: 9.8, w: 3, rangeX: 3.2, rangeY: 0, speed: 2.1 },
+            { x: 56, y: 9.2, w: 3, rangeX: 0, rangeY: 2.4, speed: 2.0 },
+            { x: 77, y: 9.5, w: 3.5, rangeX: 4.0, rangeY: 0, speed: 2.3 }
+          ],
+          enemies: [
+            { type: 'koopa',  tx: 15, ty: 10 },
+            { type: 'goomba', tx: 36, ty: 11 },
+            { type: 'koopa',  tx: 43, ty: 10 },
+            { type: 'goomba', tx: 66, ty: 11 },
+            { type: 'goomba', tx: 68, ty: 11 },
+            { type: 'koopa',  tx: 91, ty: 10 },
+            { type: 'goomba', tx: 99, ty: 11 },
+            { type: 'koopa',  tx: 105, ty: 10 }
+          ],
+          map: [
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "..............................................CCC.................................................CCC.......................",
+            "............................................BBBBBBB.............................................BBBBBBB.....................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            "............................................................................................................................",
+            ".........BMB?B................................................B?B........................................BMB................",
+            "....................HH.................................................HH...........................................HH......",
+            "...................HHH................................................HHH..........................................HHH......",
+            ".......C...C......HHHH...............................................HHHH.........................................HHHH..F...",
+            "GGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+            "GGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+          ]
+        }
+      ];
+
+      // =========================================================================
+      // 3. CONFIGURAÇÃO DO CANVAS E PARÂMETROS DE FÍSICA CALIBRADOS
+      // =========================================================================
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      const canvasWrap = document.getElementById('canvas-wrap');
+
+      const TILE = 36;
+      const WORLD_ROWS = 14;
+      const WORLD_HEIGHT = WORLD_ROWS * TILE; // 504px virtuais de altura
+
+      // Constantes de física recalibradas para alcance confortável (~4.35 blocos máx, ~3.35 blocos médio):
+      // Com JUMP_VEL = -735, GRAVITY_HOLD = 1480 durante até 0.24s e GRAVITY_NORMAL = 2550:
+      // - Pulo curto (tap): ~2.6 blocos (94px)
+      // - Pulo médio: ~3.4 blocos (122px) -> alcança facilmente tubos de 2 a 3 blocos e fileiras a 3 blocos!
+      // - Pulo completo segurado: ~4.35 blocos (157px) -> escalada folgada e batida firme em blocos ?
+      const PHYS = {
+        GRAVITY_NORMAL: 2550,
+        GRAVITY_HOLD: 1480,
+        MAX_FALL_SPEED: 860,
+        JUMP_VEL: -735,
+        JUMP_RUN_BONUS: -42,
+        JUMP_HOLD_MAX: 0.24,
+        COYOTE_TIME: 0.11,
+        JUMP_BUFFER: 0.12,
+        CORNER_CORRECTION: 8,
+        WALK_SPEED: 205,
+        RUN_SPEED: 305,
+        ACCEL_GROUND: 1250,
+        ACCEL_AIR: 860,
+        FRICTION_GROUND: 1180,
+        FRICTION_AIR: 260
+      };
+
+      let viewW = 800;
+      let viewH = WORLD_HEIGHT;
+      let renderScale = 1;
+
+      function resizeCanvas() {
+        const rect = canvasWrap.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+        canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+        renderScale = canvas.height / WORLD_HEIGHT;
+        viewW = canvas.width / renderScale;
+        viewH = WORLD_HEIGHT;
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      // Estado Global
+      const state = {
+        mode: 'menu', // 'menu' | 'playing' | 'paused' | 'flagpole' | 'gameover' | 'victory'
+        stageIdx: 0,
+        score: 0,
+        highScore: Number(localStorage.getItem('smb_web_highscore') || 0),
+        coins: 0,
+        lives: 3,
+        time: 300,
+        timeAcc: 0,
+        cameraX: 0,
+        worldCols: 124,
+        grid: [],
+        blockBumps: [],
+        items: [],
+        enemies: [],
+        fireballs: [],
+        particles: [],
+        floatingTexts: [],
+        movingPlatforms: [],
+        flagpole: { x: 0, topY: 0, baseY: 0, flagY: 0, reached: false, castleX: 0 },
+        animClock: 0
+      };
+
+      // Jogador
+      const player = {
+        x: 3 * TILE,
+        y: 10 * TILE,
+        vx: 0,
+        vy: 0,
+        w: 26,
+        h: 34,
+        facing: 1,
+        onGround: false,
+        onPlatform: null,
+        power: 0, // 0: Pequeno, 1: Super Mario, 2: Mario de Fogo
+        invuln: 0,
+        dead: false,
+        deathTimer: 0,
+        jumpHoldTimer: 0,
+        coyoteTimer: 0,
+        jumpBufferTimer: 0,
+        walkFrame: 0,
+        fireCooldown: 0
+      };
+
+      // Controles unificados
+      const input = {
+        left: false,
+        right: false,
+        jump: false,
+        jumpJustPressed: false,
+        run: false,
+        fireJustPressed: false
+      };
+
+      // =========================================================================
+      // 4. CONSTRUÇÃO DE FASE E ENTIDADES
+      // =========================================================================
+      function loadStage(index, preservePower = true) {
+        state.stageIdx = index;
+        const stage = STAGES[index];
+        state.time = stage.timeLimit;
+        state.timeAcc = 0;
+        state.cameraX = 0;
+        state.worldCols = stage.map[0].length;
+        state.grid = [];
+        state.blockBumps = [];
+        state.items = [];
+        state.enemies = [];
+        state.fireballs = [];
+        state.particles = [];
+        state.floatingTexts = [];
+        state.movingPlatforms = [];
+
+        if (!preservePower) {
+          player.power = 0;
+        }
+
+        player.w = 26;
+        player.h = player.power > 0 ? 54 : 34;
+        player.x = 3 * TILE;
+        player.y = 12 * TILE - player.h;
+        player.vx = 0;
+        player.vy = 0;
+        player.facing = 1;
+        player.onGround = false;
+        player.onPlatform = null;
+        player.invuln = 0;
+        player.dead = false;
+        player.deathTimer = 0;
+        player.jumpHoldTimer = 0;
+        player.coyoteTimer = 0;
+        player.jumpBufferTimer = 0;
+
+        let flagCol = state.worldCols - 8;
+
+        for (let r = 0; r < WORLD_ROWS; r++) {
+          const rowStr = stage.map[r] || '.'.repeat(state.worldCols);
+          const rowArr = [];
+          for (let c = 0; c < state.worldCols; c++) {
+            const ch = rowStr[c] || '.';
+            if (ch === 'C') {
+              state.items.push({
+                type: 'coin',
+                x: c * TILE + (TILE - 18) / 2,
+                y: r * TILE + (TILE - 22) / 2,
+                w: 18,
+                h: 22,
+                vx: 0,
+                vy: 0,
+                collected: false
+              });
+              rowArr.push('.');
+            } else if (ch === 'F') {
+              flagCol = c;
+              rowArr.push('.');
+            } else {
+              rowArr.push(ch);
+            }
+          }
+          state.grid.push(rowArr);
+        }
+
+        state.flagpole = {
+          x: flagCol * TILE + TILE / 2 - 2,
+          topY: 3 * TILE,
+          baseY: 12 * TILE,
+          flagY: 3 * TILE + 12,
+          reached: false,
+          castleX: (flagCol + 4) * TILE
+        };
+
+        // Plataformas móveis
+        stage.movingPlatforms.forEach(mp => {
+          state.movingPlatforms.push({
+            baseX: mp.x * TILE,
+            baseY: mp.y * TILE,
+            x: mp.x * TILE,
+            y: mp.y * TILE,
+            prevX: mp.x * TILE,
+            prevY: mp.y * TILE,
+            w: mp.w * TILE,
+            h: 15,
+            rangeX: mp.rangeX * TILE,
+            rangeY: mp.rangeY * TILE,
+            speed: mp.speed,
+            phase: 0
+          });
+        });
+
+        // Inimigos
+        stage.enemies.forEach(en => {
+          const eh = en.type === 'koopa' ? 40 : 28;
+          state.enemies.push({
+            type: en.type,
+            x: en.tx * TILE + 4,
+            y: 12 * TILE - eh,
+            w: 28,
+            h: eh,
+            vx: -62,
+            vy: 0,
+            onGround: false,
+            state: 'walk', // 'walk' | 'shell' | 'shell_slide' | 'squashed'
+            timer: 0,
+            facing: -1,
+            dead: false
+          });
+        });
+
+        updateHUD();
+      }
+
+      function addScore(pts, x = null, y = null, label = null) {
+        state.score += pts;
+        if (state.score > state.highScore) {
+          state.highScore = state.score;
+          localStorage.setItem('smb_web_highscore', String(state.highScore));
+        }
+        if (x !== null && y !== null) {
+          state.floatingTexts.push({
+            text: label || `+${pts}`,
+            x,
+            y,
+            vy: -54,
+            life: 0.85
+          });
+        }
+        updateHUD();
+      }
+
+      function addCoin(x, y) {
+        state.coins++;
+        audio.playCoin();
+        addScore(100, x, y, '+100');
+        if (state.coins >= 100) {
+          state.coins -= 100;
+          state.lives++;
+          audio.play1Up();
+          addScore(1000, x, y - 18, '1-UP!');
+        }
+        updateHUD();
+      }
+
+      function updateHUD() {
+        document.getElementById('hud-score').textContent = String(state.score).padStart(6, '0');
+        document.getElementById('hud-coins').textContent = `🪙 ${String(state.coins).padStart(2, '0')}`;
+        document.getElementById('hud-stage').textContent = STAGES[state.stageIdx].id;
+        document.getElementById('hud-lives').textContent = `❤️ ${Math.max(0, state.lives)}`;
+        document.getElementById('hud-time').textContent = String(Math.ceil(state.time)).padStart(3, '0');
+        document.getElementById('hud-high').textContent = String(state.highScore).padStart(6, '0');
+      }
+
+      // =========================================================================
+      // 5. FÍSICA, COLISÕES COM CORNER CORRECTION E INTERAÇÕES COM BLOCOS
+      // =========================================================================
+      function isSolidTile(ch) {
+        return ch === 'G' || ch === 'B' || ch === '?' || ch === 'M' || ch === 'U' || ch === 'H' || ch === 'P' || ch === 'T';
+      }
+
+      function getTile(c, r) {
+        if (c < 0 || c >= state.worldCols) return 'H';
+        if (r < 0) return '.';
+        if (r >= WORLD_ROWS) return '.';
+        return state.grid[r][c];
+      }
+
+      function setTile(c, r, val) {
+        if (c >= 0 && c < state.worldCols && r >= 0 && r < WORLD_ROWS) {
+          state.grid[r][c] = val;
+        }
+      }
+
+      function spawnParticles(x, y, color, count = 8, speed = 190) {
+        for (let i = 0; i < count; i++) {
+          const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+          const spd = speed * (0.5 + Math.random() * 0.6);
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd - 105,
+            size: 5 + Math.random() * 4,
+            color,
+            life: 0.55 + Math.random() * 0.25
+          });
+        }
+      }
+
+      function hitBlockFromBelow(c, r) {
+        const tile = getTile(c, r);
+        const bx = c * TILE + TILE / 2;
+        const by = r * TILE;
+
+        // Derrota inimigos apoiados exatamente sobre o bloco atingido
+        state.enemies.forEach(en => {
+          if (!en.dead && en.onGround) {
+            const ec = Math.floor((en.x + en.w / 2) / TILE);
+            const er = Math.floor((en.y + en.h + 2) / TILE);
+            if (ec === c && er === r) {
+              en.dead = true;
+              en.vy = -290;
+              en.vx = (en.x > bx ? 1 : -1) * 105;
+              audio.playKick();
+              addScore(200, en.x, en.y, '+200');
+            }
+          }
+        });
+
+        if (tile === '?') {
+          setTile(c, r, 'U');
+          state.blockBumps.push({ c, r, offset: -9, timer: 0.16 });
+          addCoin(bx, by - 16);
+          spawnParticles(bx, by - 10, '#facc15', 6, 140);
+        } else if (tile === 'M') {
+          setTile(c, r, 'U');
+          state.blockBumps.push({ c, r, offset: -9, timer: 0.16 });
+          audio.playPowerupSpawn();
+          const pType = player.power === 0 ? 'mushroom' : 'flower';
+          state.items.push({
+            type: pType,
+            x: c * TILE + (TILE - 26) / 2,
+            y: r * TILE - 26,
+            w: 26,
+            h: 26,
+            vx: pType === 'mushroom' ? 78 : 0,
+            vy: -75,
+            collected: false
+          });
+        } else if (tile === 'B') {
+          if (player.power > 0) {
+            setTile(c, r, '.');
+            audio.playBreakBrick();
+            addScore(50);
+            const theme = STAGES[state.stageIdx].theme;
+            const col = theme === 'underground' ? '#38bdf8' : theme === 'castle' ? '#94a3b8' : '#d97706';
+            spawnParticles(bx, by + TILE / 2, col, 10, 230);
+          } else {
+            state.blockBumps.push({ c, r, offset: -8, timer: 0.15 });
+            audio.playBump();
+          }
+        } else {
+          audio.playBump();
+        }
+      }
+
+      function canOccupyRect(x, y, w, h) {
+        const lCol = Math.floor((x + 1) / TILE);
+        const rCol = Math.floor((x + w - 1.01) / TILE);
+        const tRow = Math.floor((y + 1) / TILE);
+        const bRow = Math.floor((y + h - 1.01) / TILE);
+        for (let r = tRow; r <= bRow; r++) {
+          for (let c = lCol; c <= rCol; c++) {
+            if (isSolidTile(getTile(c, r))) return false;
+          }
+        }
+        return true;
+      }
+
+      function moveEntityWithGrid(ent, dt, onCeilingHit = null, allowCornerCorrection = false) {
+        // Eixo X
+        ent.x += ent.vx * dt;
+        const leftCol = Math.floor(ent.x / TILE);
+        const rightCol = Math.floor((ent.x + ent.w - 0.01) / TILE);
+        const topRow = Math.floor((ent.y + 2) / TILE);
+        const botRow = Math.floor((ent.y + ent.h - 2) / TILE);
+
+        let hitWall = false;
+        for (let r = topRow; r <= botRow; r++) {
+          if (ent.vx < 0 && isSolidTile(getTile(leftCol, r))) {
+            ent.x = (leftCol + 1) * TILE;
+            ent.vx = 0;
+            hitWall = true;
+            break;
+          }
+          if (ent.vx > 0 && isSolidTile(getTile(rightCol, r))) {
+            ent.x = rightCol * TILE - ent.w;
+            ent.vx = 0;
+            hitWall = true;
+            break;
+          }
+        }
+
+        // Eixo Y
+        ent.y += ent.vy * dt;
+        ent.onGround = false;
+        const lCol = Math.floor((ent.x + 2) / TILE);
+        const rCol = Math.floor((ent.x + ent.w - 2.01) / TILE);
+        const tRow = Math.floor(ent.y / TILE);
+        const bRow = Math.floor((ent.y + ent.h - 0.01) / TILE);
+
+        if (ent.vy < 0) {
+          let blocked = false;
+          for (let c = lCol; c <= rCol; c++) {
+            if (isSolidTile(getTile(c, tRow))) {
+              blocked = true;
+              break;
+            }
+          }
+
+          if (blocked) {
+            // Corner Correction: se apenas a quina (<= 8px) roçou o bloco durante o salto,
+            // desliza lateralmente para não interromper o salto nem travar a cabeça
+            let corrected = false;
+            if (allowCornerCorrection) {
+              for (let shift = 1; shift <= PHYS.CORNER_CORRECTION; shift++) {
+                if (canOccupyRect(ent.x + shift, ent.y, ent.w, ent.h)) {
+                  ent.x += shift;
+                  corrected = true;
+                  break;
+                }
+                if (canOccupyRect(ent.x - shift, ent.y, ent.w, ent.h)) {
+                  ent.x -= shift;
+                  corrected = true;
+                  break;
+                }
+              }
+            }
+
+            if (!corrected) {
+              ent.y = (tRow + 1) * TILE;
+              ent.vy = 0;
+              if (onCeilingHit) {
+                const centerCol = Math.floor((ent.x + ent.w / 2) / TILE);
+                const hitCol = isSolidTile(getTile(centerCol, tRow)) ? centerCol : lCol;
+                onCeilingHit(hitCol, tRow);
+              }
+            }
+          }
+        } else if (ent.vy >= 0) {
+          for (let c = lCol; c <= rCol; c++) {
+            if (isSolidTile(getTile(c, bRow))) {
+              ent.y = bRow * TILE - ent.h;
+              ent.vy = 0;
+              ent.onGround = true;
+              break;
+            }
+          }
+        }
+
+        return hitWall;
+      }
+
+      function rectsOverlap(a, b) {
+        return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+      }
+
+      // =========================================================================
+      // 6. ATUALIZAÇÃO DO JOGADOR, INIMIGOS, ITENS E PROJÉTEIS
+      // =========================================================================
+      function killPlayer() {
+        if (player.dead) return;
+        player.dead = true;
+        player.deathTimer = 1.8;
+        player.vx = 0;
+        player.vy = -520;
+        player.power = 0;
+        audio.playDie();
+      }
+
+      function damagePlayer() {
+        if (player.invuln > 0 || player.dead) return;
+        if (player.power > 0) {
+          player.power = 0;
+          const oldH = player.h;
+          player.h = 34;
+          player.y += (oldH - player.h);
+          player.invuln = 1.8;
+          audio.playPowerdown();
+          spawnParticles(player.x + player.w / 2, player.y + player.h / 2, '#f87171', 10, 160);
+        } else {
+          killPlayer();
+        }
+      }
+
+      function shootFireball() {
+        if (player.power !== 2 || player.fireCooldown > 0) return;
+        if (state.fireballs.length >= 2) return;
+        player.fireCooldown = 0.28;
+        audio.playFireball();
+        state.fireballs.push({
+          x: player.facing === 1 ? player.x + player.w : player.x - 11,
+          y: player.y + 20,
+          w: 11,
+          h: 11,
+          vx: player.facing * 380,
+          vy: 160,
+          bounces: 0
+        });
+      }
+
+      function updatePlaying(dt) {
+        state.animClock += dt;
+
+        // Atualiza animações de blocos batidos
+        for (let i = state.blockBumps.length - 1; i >= 0; i--) {
+          const b = state.blockBumps[i];
+          b.timer -= dt;
+          if (b.timer <= 0) state.blockBumps.splice(i, 1);
+        }
+
+        // Atualiza plataformas móveis
+        state.movingPlatforms.forEach(mp => {
+          mp.prevX = mp.x;
+          mp.prevY = mp.y;
+          mp.phase += mp.speed * dt;
+          mp.x = mp.baseX + Math.sin(mp.phase) * mp.rangeX;
+          mp.y = mp.baseY + Math.sin(mp.phase) * mp.rangeY;
+        });
+
+        // Se jogador morreu, executa animação clássica de queda
+        if (player.dead) {
+          player.deathTimer -= dt;
+          player.vy += 1450 * dt;
+          player.y += player.vy * dt;
+          if (player.deathTimer <= 0) {
+            state.lives--;
+            updateHUD();
+            if (state.lives <= 0) {
+              endGame(false);
+            } else {
+              loadStage(state.stageIdx, false);
+              audio.startBGM(state.stageIdx);
+            }
+          }
+          return;
+        }
+
+        // Cronômetro da fase
+        state.timeAcc += dt;
+        if (state.timeAcc >= 1) {
+          state.timeAcc -= 1;
+          state.time--;
+          updateHUD();
+          if (state.time <= 0) {
+            killPlayer();
+            return;
+          }
+        }
+
+        if (player.invuln > 0) player.invuln -= dt;
+        if (player.fireCooldown > 0) player.fireCooldown -= dt;
+
+        // Disparo de bola de fogo
+        if (input.fireJustPressed) {
+          shootFireball();
+          input.fireJustPressed = false;
+        }
+
+        // Movimento horizontal do Mario
+        const maxSpeed = input.run ? PHYS.RUN_SPEED : PHYS.WALK_SPEED;
+        const accel = player.onGround ? PHYS.ACCEL_GROUND : PHYS.ACCEL_AIR;
+        const friction = player.onGround ? PHYS.FRICTION_GROUND : PHYS.FRICTION_AIR;
+
+        if (input.left && !input.right) {
+          player.facing = -1;
+          player.vx -= accel * dt;
+          if (player.vx < -maxSpeed) player.vx = -maxSpeed;
+        } else if (input.right && !input.left) {
+          player.facing = 1;
+          player.vx += accel * dt;
+          if (player.vx > maxSpeed) player.vx = maxSpeed;
+        } else {
+          if (Math.abs(player.vx) <= friction * dt) {
+            player.vx = 0;
+          } else {
+            player.vx -= Math.sign(player.vx) * friction * dt;
+          }
+        }
+
+        // Coyote Time (0.11s) e Jump Buffer (0.12s)
+        if (player.onGround) {
+          player.coyoteTimer = PHYS.COYOTE_TIME;
+        } else {
+          player.coyoteTimer -= dt;
+        }
+
+        if (input.jumpJustPressed) {
+          player.jumpBufferTimer = PHYS.JUMP_BUFFER;
+          input.jumpJustPressed = false;
+        } else {
+          player.jumpBufferTimer -= dt;
+        }
+
+        // Execução do Pulo (com impulso proporcional ao correr)
+        if (player.jumpBufferTimer > 0 && player.coyoteTimer > 0) {
+          const speedRatio = Math.min(1, Math.abs(player.vx) / PHYS.RUN_SPEED);
+          player.vy = PHYS.JUMP_VEL + speedRatio * PHYS.JUMP_RUN_BONUS;
+          player.onGround = false;
+          player.coyoteTimer = 0;
+          player.jumpBufferTimer = 0;
+          player.jumpHoldTimer = PHYS.JUMP_HOLD_MAX;
+          audio.playJump(player.power > 0);
+        }
+
+        // Gravidade variável: reduzida enquanto mantém o botão de pulo segurado na subida
+        if (player.vy < 0 && input.jump && player.jumpHoldTimer > 0) {
+          player.jumpHoldTimer -= dt;
+          player.vy += PHYS.GRAVITY_HOLD * dt;
+        } else {
+          player.jumpHoldTimer = 0;
+          player.vy += PHYS.GRAVITY_NORMAL * dt;
+        }
+
+        if (player.vy > PHYS.MAX_FALL_SPEED) player.vy = PHYS.MAX_FALL_SPEED;
+
+        // Carrega o Mario junto da plataforma móvel se estiver apoiado nela
+        if (player.onPlatform) {
+          player.x += (player.onPlatform.x - player.onPlatform.prevX);
+          player.y += (player.onPlatform.y - player.onPlatform.prevY);
+        }
+        player.onPlatform = null;
+
+        // Colisão com o cenário (com corner correction ativada na subida)
+        moveEntityWithGrid(player, dt, hitBlockFromBelow, true);
+
+        // Impede voltar além da borda esquerda da câmera
+        if (player.x < state.cameraX) {
+          player.x = state.cameraX;
+          if (player.vx < 0) player.vx = 0;
+        }
+
+        // Colisão com plataformas móveis (por cima)
+        if (player.vy >= 0) {
+          for (const mp of state.movingPlatforms) {
+            const prevBottom = player.y + player.h - player.vy * dt;
+            if (
+              player.x + player.w > mp.x + 2 &&
+              player.x < mp.x + mp.w - 2 &&
+              prevBottom <= mp.y + 10 &&
+              player.y + player.h >= mp.y
+            ) {
+              player.y = mp.y - player.h;
+              player.vy = 0;
+              player.onGround = true;
+              player.onPlatform = mp;
+              break;
+            }
+          }
+        }
+
+        // Verifica lava ou queda em buraco
+        const footRow = Math.floor((player.y + player.h - 2) / TILE);
+        const midCol = Math.floor((player.x + player.w / 2) / TILE);
+        if (getTile(midCol, footRow) === 'L' || player.y > WORLD_HEIGHT + 20) {
+          killPlayer();
+          return;
+        }
+
+        // Animação de caminhada
+        if (player.onGround && Math.abs(player.vx) > 12) {
+          player.walkFrame += Math.abs(player.vx) * dt * 0.055;
+        } else {
+          player.walkFrame = 0;
+        }
+
+        // Atualiza câmera horizontal (rolagem suave para frente)
+        const targetCam = player.x - viewW * 0.36;
+        if (targetCam > state.cameraX) {
+          state.cameraX = Math.min(targetCam, state.worldCols * TILE - viewW);
+        }
+
+        // Verifica alcance da Bandeira de Fim de Fase
+        if (!state.flagpole.reached && player.x + player.w >= state.flagpole.x) {
+          state.flagpole.reached = true;
+          state.mode = 'flagpole';
+          player.x = state.flagpole.x - player.w + 6;
+          player.vx = 0;
+          player.vy = 0;
+          const heightRatio = Math.max(0, Math.min(1, (state.flagpole.baseY - player.y) / (state.flagpole.baseY - state.flagpole.topY)));
+          const flagBonus = Math.round((100 + heightRatio * 1900) / 100) * 100;
+          addScore(flagBonus, player.x, player.y, `+${flagBonus}`);
+          audio.playStageClear();
+          return;
+        }
+
+        // Atualiza Itens (Moedas, Super Cogumelo, Flor de Fogo)
+        for (let i = state.items.length - 1; i >= 0; i--) {
+          const it = state.items[i];
+          if (it.collected) {
+            state.items.splice(i, 1);
+            continue;
+          }
+          if (it.type === 'mushroom') {
+            it.vy += 1250 * dt;
+            const prevVx = it.vx;
+            const hit = moveEntityWithGrid(it, dt);
+            if (hit) it.vx = -prevVx;
+            if (it.y > WORLD_HEIGHT + 40) it.collected = true;
+          }
+
+          if (rectsOverlap(player, it)) {
+            it.collected = true;
+            if (it.type === 'coin') {
+              addCoin(it.x, it.y);
+            } else if (it.type === 'mushroom') {
+              audio.playPowerup();
+              addScore(1000, it.x, it.y, 'SUPER!');
+              if (player.power === 0) {
+                player.power = 1;
+                player.y -= 20;
+                player.h = 54;
+              }
+            } else if (it.type === 'flower') {
+              audio.playPowerup();
+              addScore(1000, it.x, it.y, 'FOGO!');
+              if (player.power === 0) {
+                player.y -= 20;
+                player.h = 54;
+              }
+              player.power = 2;
+            }
+          }
+        }
+
+        // Atualiza Bolas de Fogo
+        for (let i = state.fireballs.length - 1; i >= 0; i--) {
+          const fb = state.fireballs[i];
+          fb.vy += 1450 * dt;
+          const hitWall = moveEntityWithGrid(fb, dt);
+          if (fb.onGround) {
+            fb.vy = -340;
+            fb.bounces++;
+          }
+          if (hitWall || fb.bounces > 5 || fb.x < state.cameraX - 40 || fb.x > state.cameraX + viewW + 40 || fb.y > WORLD_HEIGHT) {
+            spawnParticles(fb.x + 5, fb.y + 5, '#fb923c', 6, 150);
+            state.fireballs.splice(i, 1);
+            continue;
+          }
+
+          // Colisão bola de fogo x inimigos
+          for (const en of state.enemies) {
+            if (!en.dead && en.state !== 'squashed' && rectsOverlap(fb, en)) {
+              en.dead = true;
+              en.vy = -270;
+              en.vx = Math.sign(fb.vx) * 105;
+              audio.playKick();
+              addScore(200, en.x, en.y, '+200');
+              spawnParticles(fb.x + 5, fb.y + 5, '#facc15', 8, 170);
+              state.fireballs.splice(i, 1);
+              break;
+            }
+          }
+        }
+
+        // Atualiza Inimigos (Goomba e Koopa Troopa)
+        for (let i = state.enemies.length - 1; i >= 0; i--) {
+          const en = state.enemies[i];
+
+          // Ativa apenas inimigos próximos da tela
+          if (en.x > state.cameraX + viewW + 150) continue;
+
+          if (en.dead) {
+            en.vy += 1250 * dt;
+            en.x += en.vx * dt;
+            en.y += en.vy * dt;
+            if (en.y > WORLD_HEIGHT + 60) state.enemies.splice(i, 1);
+            continue;
+          }
+
+          if (en.state === 'squashed') {
+            en.timer -= dt;
+            if (en.timer <= 0) state.enemies.splice(i, 1);
+            continue;
+          }
+
+          en.vy += 1250 * dt;
+          const prevVx = en.vx;
+          const hitWall = moveEntityWithGrid(en, dt);
+          if (hitWall) {
+            en.vx = -prevVx;
+            en.facing = Math.sign(en.vx) || -1;
+            if (en.state === 'shell_slide') audio.playBump();
+          }
+
+          if (en.y > WORLD_HEIGHT + 40) {
+            state.enemies.splice(i, 1);
+            continue;
+          }
+
+          // Casco deslizando derrota outros inimigos em cadeia
+          if (en.state === 'shell_slide') {
+            for (const other of state.enemies) {
+              if (other !== en && !other.dead && other.state !== 'squashed' && rectsOverlap(en, other)) {
+                other.dead = true;
+                other.vy = -280;
+                other.vx = Math.sign(en.vx) * 125;
+                audio.playKick();
+                addScore(400, other.x, other.y, '+400');
+              }
+            }
+          }
+
+          // Colisão Jogador x Inimigo
+          if (rectsOverlap(player, en)) {
+            const playerBottom = player.y + player.h;
+            const isStomp = player.vy > 0 && playerBottom - player.vy * dt <= en.y + en.h * 0.58;
+
+            if (en.state === 'shell') {
+              // Chutar casco parado
+              const dir = (player.x + player.w / 2 < en.x + en.w / 2) ? 1 : -1;
+              en.state = 'shell_slide';
+              en.vx = dir * 370;
+              player.vy = isStomp ? -360 : player.vy;
+              audio.playKick();
+              addScore(400, en.x, en.y, 'CHUTE!');
+            } else if (isStomp) {
+              player.vy = -410;
+              audio.playStomp();
+              if (en.type === 'goomba') {
+                en.state = 'squashed';
+                en.timer = 0.35;
+                en.vx = 0;
+                addScore(200, en.x, en.y, '+200');
+              } else if (en.type === 'koopa') {
+                en.state = 'shell';
+                en.vx = 0;
+                en.y += (en.h - 26);
+                en.h = 26;
+                addScore(200, en.x, en.y, '+200');
+              }
+            } else {
+              damagePlayer();
+            }
+          }
+        }
+
+        // Atualiza Partículas e Textos Flutuantes
+        updateEffects(dt);
+      }
+
+      function updateFlagpoleSequence(dt) {
+        state.animClock += dt;
+        updateEffects(dt);
+
+        const groundY = state.flagpole.baseY - player.h;
+        if (player.y < groundY || state.flagpole.flagY < state.flagpole.baseY - 40) {
+          player.y = Math.min(groundY, player.y + 210 * dt);
+          state.flagpole.flagY = Math.min(state.flagpole.baseY - 40, state.flagpole.flagY + 210 * dt);
+        } else {
+          // Caminha até o castelo
+          player.facing = 1;
+          player.walkFrame += 150 * dt * 0.055;
+          player.x += 135 * dt;
+          if (player.x >= state.flagpole.castleX) {
+            const timeBonus = Math.max(0, Math.ceil(state.time)) * 10;
+            addScore(timeBonus);
+            if (state.stageIdx + 1 < STAGES.length) {
+              loadStage(state.stageIdx + 1, true);
+              state.mode = 'playing';
+              audio.startBGM(state.stageIdx);
+            } else {
+              endGame(true);
+            }
+          }
+        }
+      }
+
+      function updateEffects(dt) {
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          p.life -= dt;
+          p.vy += 820 * dt;
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          if (p.life <= 0) state.particles.splice(i, 1);
+        }
+
+        for (let i = state.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = state.floatingTexts[i];
+          ft.life -= dt;
+          ft.y += ft.vy * dt;
+          if (ft.life <= 0) state.floatingTexts.splice(i, 1);
+        }
+      }
+
+      function endGame(isVictory) {
+        state.mode = isVictory ? 'victory' : 'gameover';
+        audio.stopBGM();
+        document.getElementById('end-badge').textContent = isVictory ? 'Missão Cumprida!' : 'Fim da Jornada';
+        document.getElementById('end-title').textContent = isVictory ? '🏆 VOCÊ VENCEU!' : '💀 GAME OVER';
+        document.getElementById('end-desc').textContent = isVictory
+          ? 'Parabéns! Você conquistou o Reino dos Cogumelos, o Subterrâneo e a Fortaleza!'
+          : 'Não desista! Ajuste o ritmo dos saltos e tente conquistar todas as 3 fases.';
+        document.getElementById('end-score').textContent = state.score;
+        document.getElementById('end-coins').textContent = state.coins;
+        document.getElementById('end-high').textContent = state.highScore;
+        document.getElementById('end-modal').classList.remove('hidden');
+      }
+
+      // =========================================================================
+      // 7. RENDERIZAÇÃO GRÁFICA (CANVAS 2D DETALHADO)
+      // =========================================================================
+      function drawBackground(stage) {
+        const grad = ctx.createLinearGradient(0, 0, 0, WORLD_HEIGHT);
+        grad.addColorStop(0, stage.skyTop);
+        grad.addColorStop(1, stage.skyBottom);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, viewW, WORLD_HEIGHT);
+
+        if (stage.theme === 'overworld') {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+          for (let i = 0; i < 14; i++) {
+            const cx = ((i * 310 - state.cameraX * 0.25) % (viewW + 320) + (viewW + 320)) % (viewW + 320) - 120;
+            const cy = 52 + (i % 3) * 36;
+            ctx.beginPath();
+            ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+            ctx.arc(cx + 20, cy - 7, 24, 0, Math.PI * 2);
+            ctx.arc(cx + 42, cy, 20, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.fillStyle = '#16a34a';
+          for (let i = 0; i < 12; i++) {
+            const hx = ((i * 360 - state.cameraX * 0.45) % (viewW + 380) + (viewW + 380)) % (viewW + 380) - 160;
+            ctx.beginPath();
+            ctx.arc(hx, 12 * TILE, 92, Math.PI, 0);
+            ctx.fill();
+          }
+        } else if (stage.theme === 'underground') {
+          ctx.fillStyle = 'rgba(30, 58, 138, 0.45)';
+          for (let i = 0; i < 18; i++) {
+            const sx = ((i * 220 - state.cameraX * 0.35) % (viewW + 240) + (viewW + 240)) % (viewW + 240) - 60;
+            ctx.beginPath();
+            ctx.moveTo(sx, TILE);
+            ctx.lineTo(sx + 26, TILE);
+            ctx.lineTo(sx + 13, 92 + (i % 3) * 26);
+            ctx.closePath();
+            ctx.fill();
+          }
+        } else if (stage.theme === 'castle') {
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.52)';
+          for (let i = 0; i < 16; i++) {
+            const px = ((i * 240 - state.cameraX * 0.4) % (viewW + 260) + (viewW + 260)) % (viewW + 260) - 60;
+            ctx.fillRect(px, 0, 42, WORLD_HEIGHT);
+          }
+        }
+      }
+
+      function drawTile(ch, x, y, theme) {
+        if (ch === 'G') {
+          if (theme === 'overworld') {
+            ctx.fillStyle = '#92400e';
+            ctx.fillRect(x, y, TILE, TILE);
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(x, y, TILE, 9);
+            ctx.fillStyle = '#15803d';
+            ctx.fillRect(x, y + 7, TILE, 3);
+            ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+            ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
+          } else if (theme === 'underground') {
+            ctx.fillStyle = '#1e3a8a';
+            ctx.fillRect(x, y, TILE, TILE);
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(x, y, TILE, 6);
+            ctx.strokeStyle = '#0f172a';
+            ctx.strokeRect(x + 0.5, y + 0.5, TILE - 1, TILE - 1);
+          } else {
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(x, y, TILE, TILE);
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2);
+            ctx.beginPath();
+            ctx.moveTo(x, y + TILE / 2);
+            ctx.lineTo(x + TILE, y + TILE / 2);
+            ctx.moveTo(x + TILE / 2, y);
+            ctx.lineTo(x + TILE / 2, y + TILE / 2);
+            ctx.stroke();
+          }
+        } else if (ch === 'B') {
+          ctx.fillStyle = theme === 'underground' ? '#0284c7' : theme === 'castle' ? '#64748b' : '#c2410c';
+          ctx.fillRect(x, y, TILE, TILE);
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2);
+          ctx.beginPath();
+          ctx.moveTo(x, y + TILE / 2);
+          ctx.lineTo(x + TILE, y + TILE / 2);
+          ctx.moveTo(x + TILE / 2, y);
+          ctx.lineTo(x + TILE / 2, y + TILE / 2);
+          ctx.moveTo(x + TILE * 0.25, y + TILE / 2);
+          ctx.lineTo(x + TILE * 0.25, y + TILE);
+          ctx.moveTo(x + TILE * 0.75, y + TILE / 2);
+          ctx.lineTo(x + TILE * 0.75, y + TILE);
+          ctx.stroke();
+        } else if (ch === '?' || ch === 'M') {
+          const pulse = Math.sin(state.animClock * 7) * 0.5 + 0.5;
+          ctx.fillStyle = pulse > 0.5 ? '#f59e0b' : '#eab308';
+          ctx.fillRect(x, y, TILE, TILE);
+          ctx.strokeStyle = '#78350f';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2);
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(x + 3, y + 3, 2, 2);
+          ctx.fillRect(x + TILE - 5, y + 3, 2, 2);
+          ctx.fillRect(x + 3, y + TILE - 5, 2, 2);
+          ctx.fillRect(x + TILE - 5, y + TILE - 5, 2, 2);
+          ctx.fillStyle = '#fffbeb';
+          ctx.font = '900 22px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('?', x + TILE / 2, y + TILE / 2 + 1);
+        } else if (ch === 'U') {
+          ctx.fillStyle = '#64748b';
+          ctx.fillRect(x, y, TILE, TILE);
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2);
+        } else if (ch === 'H') {
+          ctx.fillStyle = theme === 'castle' ? '#475569' : '#b45309';
+          ctx.fillRect(x, y, TILE, TILE);
+          ctx.fillStyle = 'rgba(255,255,255,0.18)';
+          ctx.fillRect(x + 2, y + 2, TILE - 4, 4);
+          ctx.strokeStyle = '#1e293b';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 1, y + 1, TILE - 2, TILE - 2);
+        } else if (ch === 'T') {
+          ctx.fillStyle = '#16a34a';
+          ctx.fillRect(x - 2, y, TILE + 4, TILE);
+          ctx.fillStyle = '#4ade80';
+          ctx.fillRect(x + 2, y + 2, 7, TILE - 4);
+          ctx.strokeStyle = '#052e16';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x - 2, y + 1, TILE + 4, TILE - 2);
+        } else if (ch === 'P') {
+          ctx.fillStyle = '#15803d';
+          ctx.fillRect(x + 1, y, TILE - 2, TILE);
+          ctx.fillStyle = '#4ade80';
+          ctx.fillRect(x + 4, y, 6, TILE);
+          ctx.strokeStyle = '#052e16';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + 1, y, TILE - 2, TILE);
+        } else if (ch === 'L') {
+          const wave = Math.sin(state.animClock * 6 + x * 0.1) * 3;
+          ctx.fillStyle = '#dc2626';
+          ctx.fillRect(x, y + 4, TILE, TILE - 4);
+          ctx.fillStyle = '#f97316';
+          ctx.fillRect(x, y + 4 + wave, TILE, 7);
+        }
+      }
+
+      function drawCastleAndFlag() {
+        const fp = state.flagpole;
+        const cx = fp.castleX - 16;
+        const cy = fp.baseY - 104;
+        ctx.fillStyle = '#b45309';
+        ctx.fillRect(cx, cy + 30, 92, 74);
+        ctx.fillRect(cx + 16, cy, 60, 32);
+        ctx.fillStyle = '#78350f';
+        for (let i = 0; i < 5; i++) {
+          ctx.fillRect(cx + i * 20, cy + 24, 11, 8);
+        }
+        ctx.fillStyle = '#090d16';
+        ctx.beginPath();
+        ctx.arc(cx + 46, cy + 78, 15, Math.PI, 0);
+        ctx.lineTo(cx + 61, cy + 104);
+        ctx.lineTo(cx + 31, cy + 104);
+        ctx.closePath();
+        ctx.fill();
+
+        // Mastro da Bandeira
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(fp.x, fp.topY, 4, fp.baseY - fp.topY);
+        ctx.fillStyle = '#facc15';
+        ctx.beginPath();
+        ctx.arc(fp.x + 2, fp.topY, 7, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bandeira triangular verde
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.moveTo(fp.x, fp.flagY);
+        ctx.lineTo(fp.x - 36, fp.flagY + 13);
+        ctx.lineTo(fp.x, fp.flagY + 26);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      function drawMario() {
+        if (player.invuln > 0 && Math.floor(player.invuln * 16) % 2 === 0) return;
+
+        ctx.save();
+        const cx = player.x + player.w / 2;
+        const cy = player.y + player.h / 2;
+        ctx.translate(cx, cy);
+        ctx.scale(player.facing, 1);
+
+        const isBig = player.power > 0;
+        const isFire = player.power === 2;
+        const shirtCol = isFire ? '#ffffff' : '#ef4444';
+        const overallCol = isFire ? '#ef4444' : '#2563eb';
+        const capCol = isFire ? '#ffffff' : '#ef4444';
+
+        const w = player.w;
+        const h = player.h;
+        const top = -h / 2;
+
+        // Boné
+        ctx.fillStyle = capCol;
+        ctx.fillRect(-w / 2 + 2, top, w - 4, isBig ? 9 : 7);
+        ctx.fillRect(-w / 2 + 4, top + (isBig ? 5 : 3), w - 2, 4);
+
+        // Rosto e nariz
+        ctx.fillStyle = '#fed7aa';
+        ctx.fillRect(-w / 2 + 4, top + (isBig ? 9 : 7), w - 7, isBig ? 14 : 10);
+        ctx.fillRect(w / 2 - 5, top + (isBig ? 12 : 9), 5, 4);
+
+        // Olho e bigode
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(3, top + (isBig ? 10 : 8), 2, 3);
+        ctx.fillRect(1, top + (isBig ? 17 : 13), 9, 2);
+
+        // Tronco / Macacão
+        const bodyY = top + (isBig ? 23 : 17);
+        const bodyH = isBig ? 20 : 10;
+        ctx.fillStyle = shirtCol;
+        ctx.fillRect(-w / 2 + 3, bodyY, w - 6, bodyH);
+        ctx.fillStyle = overallCol;
+        ctx.fillRect(-w / 2 + 5, bodyY + 2, w - 10, bodyH - 2);
+
+        // Botões dourados
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(-2, bodyY + 5, 2, 2);
+        ctx.fillRect(3, bodyY + 5, 2, 2);
+
+        // Pernas e botas animadas
+        const legY = bodyY + bodyH;
+        const legH = h - (legY - top);
+        const stride = player.onGround ? Math.sin(player.walkFrame * 3.5) * 4 : 4;
+
+        ctx.fillStyle = overallCol;
+        ctx.fillRect(-w / 2 + 4 - stride * 0.5, legY, 6, legH - 3);
+        ctx.fillRect(w / 2 - 10 + stride * 0.5, legY, 6, legH - 3);
+
+        ctx.fillStyle = '#78350f';
+        ctx.fillRect(-w / 2 + 3 - stride * 0.5, legY + legH - 4, 9, 4);
+        ctx.fillRect(w / 2 - 10 + stride * 0.5, legY + legH - 4, 9, 4);
+
+        ctx.restore();
+      }
+
+      function drawEnemy(en) {
+        if (en.type === 'goomba') {
+          const squashH = en.state === 'squashed' ? 11 : en.h;
+          const drawY = en.y + (en.h - squashH);
+          ctx.fillStyle = '#92400e';
+          ctx.beginPath();
+          ctx.arc(en.x + en.w / 2, drawY + squashH * 0.45, en.w / 2, Math.PI, 0);
+          ctx.lineTo(en.x + en.w, drawY + squashH * 0.65);
+          ctx.lineTo(en.x, drawY + squashH * 0.65);
+          ctx.closePath();
+          ctx.fill();
+
+          if (en.state !== 'squashed') {
+            ctx.fillStyle = '#fde68a';
+            ctx.fillRect(en.x + 6, drawY + 15, en.w - 12, 9);
+            const step = Math.sin(state.animClock * 10) * 2;
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(en.x + 2 + step, drawY + 22, 10, 6);
+            ctx.fillRect(en.x + en.w - 12 - step, drawY + 22, 10, 6);
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(en.x + 7, drawY + 7, 4, 6);
+            ctx.fillRect(en.x + en.w - 11, drawY + 7, 4, 6);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(en.x + 8, drawY + 9, 2, 4);
+            ctx.fillRect(en.x + en.w - 10, drawY + 9, 2, 4);
+          }
+        } else if (en.type === 'koopa') {
+          if (en.state === 'shell' || en.state === 'shell_slide') {
+            ctx.fillStyle = '#16a34a';
+            ctx.beginPath();
+            ctx.arc(en.x + en.w / 2, en.y + 15, 14, Math.PI, 0);
+            ctx.fill();
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(en.x + 1, en.y + 15, en.w - 2, 7);
+            ctx.strokeStyle = '#052e16';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(en.x + 2, en.y + 6, en.w - 4, 18);
+          } else {
+            const hx = en.facing === 1 ? en.x + en.w - 11 : en.x;
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(hx, en.y + 2, 11, 13);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(en.facing === 1 ? hx + 7 : hx + 2, en.y + 5, 2, 4);
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(en.x + 4, en.y + 11, en.w - 8, 22);
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(en.x + 5, en.y + 12, en.w - 10, 20);
+            const step = Math.sin(state.animClock * 10) * 2;
+            ctx.fillStyle = '#f59e0b';
+            ctx.fillRect(en.x + 4 + step, en.y + 33, 9, 7);
+            ctx.fillRect(en.x + en.w - 13 - step, en.y + 33, 9, 7);
+          }
+        }
+      }
+
+      function drawItem(it) {
+        if (it.type === 'coin') {
+          const spinW = Math.max(4, Math.abs(Math.cos(state.animClock * 5 + it.x * 0.05)) * 16);
+          const cx = it.x + it.w / 2;
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.ellipse(cx, it.y + it.h / 2, spinW / 2, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#b45309';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        } else if (it.type === 'mushroom') {
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(it.x + 13, it.y + 13, 13, Math.PI, 0);
+          ctx.fill();
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(it.x + 8, it.y + 7, 3.2, 0, Math.PI * 2);
+          ctx.arc(it.x + 18, it.y + 7, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fde68a';
+          ctx.fillRect(it.x + 6, it.y + 13, 14, 12);
+        } else if (it.type === 'flower') {
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(it.x + 11, it.y + 14, 4, 12);
+          const flash = Math.floor(state.animClock * 12) % 2 === 0;
+          ctx.fillStyle = flash ? '#ef4444' : '#f97316';
+          ctx.beginPath();
+          ctx.ellipse(it.x + 13, it.y + 9, 12, 8, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.ellipse(it.x + 13, it.y + 9, 6.5, 4, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function render() {
+        const stage = STAGES[state.stageIdx];
+        ctx.save();
+        ctx.scale(renderScale, renderScale);
+
+        drawBackground(stage);
+
+        ctx.save();
+        ctx.translate(-Math.floor(state.cameraX), 0);
+
+        drawCastleAndFlag();
+
+        // Tiles visíveis na câmera
+        const startCol = Math.max(0, Math.floor(state.cameraX / TILE) - 1);
+        const endCol = Math.min(state.worldCols - 1, Math.ceil((state.cameraX + viewW) / TILE) + 1);
+
+        for (let r = 0; r < WORLD_ROWS; r++) {
+          for (let c = startCol; c <= endCol; c++) {
+            const ch = getTile(c, r);
+            if (ch === '.') continue;
+            let bumpY = 0;
+            const bump = state.blockBumps.find(b => b.c === c && b.r === r);
+            if (bump) bumpY = Math.sin((bump.timer / 0.16) * Math.PI) * bump.offset;
+            drawTile(ch, c * TILE, r * TILE + bumpY, stage.theme);
+          }
+        }
+
+        // Plataformas móveis
+        state.movingPlatforms.forEach(mp => {
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillRect(mp.x, mp.y, mp.w, mp.h);
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(mp.x + 2, mp.y + 2, mp.w - 4, 3);
+          ctx.strokeStyle = '#78350f';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(mp.x, mp.y, mp.w, mp.h);
+        });
+
+        // Itens
+        state.items.forEach(drawItem);
+
+        // Inimigos
+        state.enemies.forEach(drawEnemy);
+
+        // Bolas de Fogo
+        state.fireballs.forEach(fb => {
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.arc(fb.x + 5.5, fb.y + 5.5, 5.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(fb.x + 5.5, fb.y + 5.5, 2.8, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Jogador
+        drawMario();
+
+        // Partículas
+        state.particles.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+        });
+
+        // Textos flutuantes de pontuação
+        ctx.font = '900 14px sans-serif';
+        ctx.textAlign = 'center';
+        state.floatingTexts.forEach(ft => {
+          ctx.fillStyle = '#0f172a';
+          ctx.fillText(ft.text, ft.x + 1, ft.y + 1);
+          ctx.fillStyle = '#facc15';
+          ctx.fillText(ft.text, ft.x, ft.y);
+        });
+
+        ctx.restore();
+        ctx.restore();
+      }
+
+      // =========================================================================
+      // 8. LOOP PRINCIPAL (DELTA CLAMP)
+      // =========================================================================
+      let lastTime = 0;
+      function gameLoop(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+        lastTime = timestamp;
+
+        if (state.mode === 'playing') {
+          updatePlaying(dt);
+        } else if (state.mode === 'flagpole') {
+          updateFlagpoleSequence(dt);
+        }
+
+        render();
+        requestAnimationFrame(gameLoop);
+      }
+
+      // =========================================================================
+      // 9. CONTROLES HÍBRIDOS (TECLADO + MULTI-TOUCH + BOTÕES UI)
+      // =========================================================================
+      function setAction(action, active) {
+        if (action === 'left') input.left = active;
+        if (action === 'right') input.right = active;
+        if (action === 'jump') {
+          if (active && !input.jump) input.jumpJustPressed = true;
+          input.jump = active;
+        }
+        if (action === 'run') {
+          if (active && !input.run) input.fireJustPressed = true;
+          input.run = active;
+        }
+
+        const btn = document.querySelector(`.ctrl-btn[data-action="${action}"]`);
+        if (btn) btn.classList.toggle('pressed', active);
+      }
+
+      window.addEventListener('keydown', e => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', ' '].includes(e.key)) {
+          e.preventDefault();
+        }
+        if (e.repeat) return;
+
+        const k = e.key.toLowerCase();
+        if (k === 'arrowleft' || k === 'a') setAction('left', true);
+        if (k === 'arrowright' || k === 'd') setAction('right', true);
+        if (k === ' ' || k === 'z' || k === 'w' || k === 'arrowup') setAction('jump', true);
+        if (k === 'shift' || k === 'x' || k === 'j') setAction('run', true);
+        if (k === 'p' || k === 'escape') togglePause();
+      });
+
+      window.addEventListener('keyup', e => {
+        const k = e.key.toLowerCase();
+        if (k === 'arrowleft' || k === 'a') setAction('left', false);
+        if (k === 'arrowright' || k === 'd') setAction('right', false);
+        if (k === ' ' || k === 'z' || k === 'w' || k === 'arrowup') setAction('jump', false);
+        if (k === 'shift' || k === 'x' || k === 'j') setAction('run', false);
+      });
+
+      // Suporte Multi-Touch e Mouse nos botões inferiores
+      document.querySelectorAll('.ctrl-btn').forEach(btn => {
+        const action = btn.dataset.action;
+
+        btn.addEventListener('pointerdown', e => {
+          e.preventDefault();
+          audio.init();
+          btn.setPointerCapture(e.pointerId);
+          setAction(action, true);
+        });
+
+        const release = e => {
+          e.preventDefault();
+          setAction(action, false);
+        };
+
+        btn.addEventListener('pointerup', release);
+        btn.addEventListener('pointercancel', release);
+      });
+
+      // Seletor de fase no modal inicial
+      let selectedStartStage = 0;
+      document.querySelectorAll('#stage-selector .stage-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('#stage-selector .stage-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          selectedStartStage = Number(chip.dataset.stage);
+          loadStage(selectedStartStage, false);
+        });
+      });
+
+      function startNewGame(stageIndex = selectedStartStage) {
+        audio.init();
+        state.score = 0;
+        state.coins = 0;
+        state.lives = 3;
+        loadStage(stageIndex, false);
+        state.mode = 'playing';
+        document.getElementById('start-modal').classList.add('hidden');
+        document.getElementById('pause-modal').classList.add('hidden');
+        document.getElementById('end-modal').classList.add('hidden');
+        audio.startBGM(stageIndex);
+      }
+
+      function togglePause() {
+        if (state.mode === 'playing') {
+          state.mode = 'paused';
+          audio.stopBGM();
+          document.getElementById('pause-modal').classList.remove('hidden');
+        } else if (state.mode === 'paused') {
+          state.mode = 'playing';
+          document.getElementById('pause-modal').classList.add('hidden');
+          audio.startBGM(state.stageIdx);
+        }
+      }
+
+      document.getElementById('btn-start-game').addEventListener('click', () => startNewGame(selectedStartStage));
+      document.getElementById('btn-play-again').addEventListener('click', () => startNewGame(0));
+      document.getElementById('btn-pause').addEventListener('click', togglePause);
+      document.getElementById('btn-resume').addEventListener('click', togglePause);
+
+      document.getElementById('btn-restart-menu').addEventListener('click', () => {
+        state.mode = 'menu';
+        audio.stopBGM();
+        document.getElementById('pause-modal').classList.add('hidden');
+        document.getElementById('start-modal').classList.remove('hidden');
+      });
+
+      const soundBtn = document.getElementById('btn-sound');
+      soundBtn.textContent = audio.muted ? '🔇' : '🔊';
+      soundBtn.addEventListener('click', () => {
+        const isMuted = audio.toggleMute();
+        soundBtn.textContent = isMuted ? '🔇' : '🔊';
+        if (!isMuted && state.mode === 'playing') {
+          audio.startBGM(state.stageIdx);
+        }
+      });
+
+      // Inicialização visual da fase 1-1 no plano de fundo
+      loadStage(0, false);
+      updateHUD();
+      requestAnimationFrame(gameLoop);
+    })();
+  </script>
+</body>
+</html>

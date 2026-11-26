@@ -111,7 +111,7 @@
       "visualClass": "visual-comecome",
       "url": "./come-come/",
       "thumb": "./come-come/thumb.svg",
-      "keywords": "come come pac-man pacman labirinto fantasmas pastilhas arcade pilulas poder",
+      "keywords": "come come pac-man pacman labirinto fantasmas arcade pilulas poder",
       "descricao": "Clássico arcade de labirinto com IA individual para os 4 fantasmas (Blinky, Pinky, Inky e Clyde), pílulas de poder, frutas bônus, túneis de teletransporte e áudio procedural.",
       "tags": [
         "IA dos 4 Fantasmas",
@@ -363,7 +363,7 @@
       "url": "./snake/",
       "thumb": "./snake/thumb.svg",
       "keywords": "snake cobrinha neon nokia 3310 arcade fruta",
-      "descricao": "Clássico Jogo da Cobrinha em Canvas 2D com temas Neon Moderno e Nokia 3310 LCD, arenas com ou sem paredes, fruta bônus temporária e controles por swipe ou D-Pad.",
+      "descricao": "Clássico Jogo da Cobrinha em Canvas 2D com temas Neon Moderno e Nokia 3310 LCD, arenas com ou sem paredes, fruta bônus dourada e controles por swipe ou D-Pad.",
       "tags": [
         "Neon & Nokia 3310",
         "Input Buffering",
@@ -397,6 +397,32 @@
         "chaves": [
           "sudoku"
         ]
+      }
+    },
+    {
+      "id": "super-mario",
+      "titulo": "Super Mario Web",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-supermario",
+      "url": "./super-mario/",
+      "thumb": "./super-mario/thumb.svg",
+      "keywords": "super mario bros plataforma fases cogumelo flor de fogo goomba koopa arcade",
+      "descricao": "Aventura de plataforma side-scrolling em 3 fases progressivas com física clássica, Super Cogumelo, Flor de Fogo, Goombas, Koopas, controles multi-touch e áudio chiptune.",
+      "tags": [
+        "Plataforma 3 Fases",
+        "Multi-Touch",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "supermario",
+          "super_mario",
+          "super-mario",
+          "mario"
+        ],
+        "sufixo": " pts"
       }
     },
     {
