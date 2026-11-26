@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Come-Come — Clássico Arcade</title>
+  <style>
+    :root {
+      --bg-main: #060814;
+      --bg-panel: #0e1326;
+      --bg-panel-border: #1e2a52;
+      --accent-yellow: #ffd60a;
+      --accent-blue: #2563eb;
+      --accent-cyan: #38bdf8;
+      --accent-pink: #f472b6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #0d1430 0%, var(--bg-main) 75%);
+      color: var(--text-main);
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      touch-action: none;
+    }
+
+    /* Cabeçalho Compacto */
+    header {
+      width: 100%;
+      max-width: 760px;
+      padding: 6px 10px 4px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: rgba(14, 19, 38, 0.9);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 12px;
+      padding: 5px 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 800;
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      letter-spacing: 0.4px;
+      color: var(--accent-yellow);
+      text-shadow: 0 0 10px rgba(255, 214, 10, 0.45);
+      white-space: nowrap;
+    }
+
+    .brand-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .controls-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: nowrap;
+    }
+
+    button, select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #161f3d;
+      color: var(--text-main);
+      border: 1px solid #2b3b70;
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    button:hover, select:hover {
+      background: #1f2c56;
+      border-color: var(--accent-cyan);
+    }
+
+    button:active {
+      transform: scale(0.94);
+    }
+
+    button.btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #090d16;
+      border-color: #fbbf24;
+    }
+
+    button.btn-primary:hover {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    }
+
+    select {
+      padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+    }
+
+    /* Barra de Placar e Vidas */
+    .hud-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr 0.7fr 1.1fr;
+      gap: 6px;
+      background: rgba(14, 19, 38, 0.85);
+      border: 1px solid var(--bg-panel-border);
+      border-radius: 10px;
+      padding: 4px 8px;
+      align-items: center;
+    }
+
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+    }
+
+    .hud-label {
+      font-size: 0.63rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .hud-value {
+      font-size: clamp(0.85rem, 2.3vw, 1.05rem);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      color: #ffffff;
+    }
+
+    .hud-value.highlight {
+      color: var(--accent-yellow);
+    }
+
+    .lives-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 18px;
+    }
+
+    /* Palco Central do Canvas */
+    main {
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      position: relative;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      padding: 4px;
+      background: #04060e;
+      border: 2px solid #1d3575;
+      box-shadow:
+        0 0 24px rgba(37, 99, 235, 0.28),
+        inset 0 0 14px rgba(37, 99, 235, 0.2);
+    }
+
+    canvas {
+      display: block;
+      border-radius: 10px;
+      background: #03050c;
+    }
+
+    /* Overlay Discreto (PRONTO! / PAUSADO) */
+    .stage-banner {
+      position: absolute;
+      left: 50%;
+      top: 56.5%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      font-weight: 900;
+      font-size: clamp(0.95rem, 3vw, 1.3rem);
+      letter-spacing: 1.5px;
+      padding: 4px 14px;
+      border-radius: 8px;
+      background: rgba(3, 5, 12, 0.86);
+      border: 1px solid rgba(255, 214, 10, 0.45);
+      color: var(--accent-yellow);
+      text-shadow: 0 0 10px rgba(255, 214, 10, 0.8);
+      white-space: nowrap;
+      z-index: 15;
+      transition: opacity 0.15s ease;
+    }
+
+    .stage-banner.paused {
+      color: var(--accent-cyan);
+      border-color: rgba(56, 189, 248, 0.55);
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .stage-banner.hidden {
+      opacity: 0;
+    }
+
+    /* Controles Táteis Inferiores (D-Pad Mobile / Telas Estreitas) */
+    footer {
+      width: 100%;
+      max-width: 520px;
+      padding: 2px 12px 8px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 54px);
+      grid-template-rows: repeat(2, 46px);
+      gap: 6px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .dpad-btn {
+      width: 54px;
+      height: 46px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #1b264b 0%, #101730 100%);
+      border: 1.5px solid #2e407a;
+      color: #e2e8f0;
+      box-shadow: 0 4px 0 #090d1c, 0 6px 12px rgba(0, 0, 0, 0.4);
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    .dpad-btn:active, .dpad-btn.active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #090d1c;
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+      border-color: #60a5fa;
+      color: #ffffff;
+    }
+
+    .dpad-up { grid-column: 2; grid-row: 1; }
+    .dpad-left { grid-column: 1; grid-row: 2; }
+    .dpad-down { grid-column: 2; grid-row: 2; }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+
+    .desktop-hint {
+      display: none;
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      padding: 3px 0;
+      text-align: center;
+    }
+
+    @media (min-width: 820px) and (pointer: fine) {
+      .dpad {
+        display: none;
+      }
+      .desktop-hint {
+        display: block;
+      }
+    }
+
+    /* Modal de Fim de Jogo (Game Over) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 6, 16, 0.82);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-backdrop.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 340px;
+      background: linear-gradient(180deg, #111833 0%, #090d1f 100%);
+      border: 2px solid #2b4494;
+      border-radius: 18px;
+      padding: 22px 20px;
+      text-align: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 28px rgba(37, 99, 235, 0.35);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #ef4444;
+      letter-spacing: 1px;
+      text-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+    }
+
+    .modal-stats {
+      background: rgba(6, 9, 22, 0.75);
+      border: 1px solid #1e2d5e;
+      border-radius: 12px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .modal-stat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .modal-stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .modal-stat-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .modal-stat-val.gold {
+      color: var(--accent-yellow);
+    }
+
+    .new-record-badge {
+      display: inline-block;
+      margin: 0 auto;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(255, 214, 10, 0.16);
+      border: 1px solid rgba(255, 214, 10, 0.5);
+      color: var(--accent-yellow);
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .new-record-badge.hidden {
+      display: none;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabeçalho Compacto -->
+  <header id="app-header">
+    <div class="top-bar">
+      <div class="brand">
+        <svg class="brand-icon" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 2 A14 14 0 1 0 28.1 23 L16 16 L28.1 9 A14 14 0 0 0 16 2 Z" fill="#ffd60a"/>
+          <circle cx="17" cy="8.5" r="2" fill="#060814"/>
+        </svg>
+        <span>Come-Come</span>
+      </div>
+
+      <div class="controls-group">
+        <select id="difficulty-select" aria-label="Dificuldade" title="Nível de Dificuldade">
+          <option value="easy">Fácil</option>
+          <option value="normal" selected>Normal</option>
+          <option value="hard">Difícil</option>
+        </select>
+        <button id="btn-pause" type="button" title="Pausar ou Continuar (P)" aria-label="Pausar">⏸️</button>
+        <button id="btn-sound" type="button" title="Alternar Som" aria-label="Som">🔊</button>
+        <button id="btn-new" type="button" class="btn-primary" title="Iniciar Nova Partida">Novo</button>
+      </div>
+    </div>
+
+    <div class="hud-bar">
+      <div class="hud-item">
+        <span class="hud-label">Pontos</span>
+        <span class="hud-value" id="hud-score">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Recorde</span>
+        <span class="hud-value highlight" id="hud-high">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Fase</span>
+        <span class="hud-value" id="hud-level">1</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">Vidas</span>
+        <div class="lives-container" id="hud-lives" aria-label="Vidas restantes"></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Área Central do Jogo -->
+  <main id="game-stage">
+    <div class="canvas-wrapper" id="canvas-wrapper">
+      <canvas id="game-canvas"></canvas>
+      <div id="stage-banner" class="stage-banner">PRONTO!</div>
+    </div>
+  </main>
+
+  <!-- Rodapé com D-Pad Tátil (Mobile) / Dica (Desktop) -->
+  <footer id="app-footer">
+    <div class="dpad" role="group" aria-label="Controles Direcionais">
+      <button type="button" class="dpad-btn dpad-up" data-dir="UP" aria-label="Cima">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      </button>
+      <button type="button" class="dpad-btn dpad-left" data-dir="LEFT" aria-label="Esquerda">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button type="button" class="dpad-btn dpad-down" data-dir="DOWN" aria-label="Baixo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <button type="button" class="dpad-btn dpad-right" data-dir="RIGHT" aria-label="Direita">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="desktop-hint">Use <strong>Setas</strong> ou <strong>WASD</strong> para mover • <strong>P</strong> para pausar • Deslize na tela no celular</div>
+  </footer>
+
+  <!-- Modal de Fim de Jogo -->
+  <div id="gameover-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-title" id="modal-title">FIM DE JOGO</div>
+      <div class="new-record-badge hidden" id="new-record-badge">🏆 NOVO RECORDE!</div>
+      <div class="modal-stats">
+        <div class="modal-stat-box">
+          <span class="modal-stat-label">Pontuação Final</span>
+          <span class="modal-stat-val" id="modal-score">0</span>
+        </div>
+        <div class="modal-stat-box">
+          <span class="modal-stat-label">Recorde</span>
+          <span class="modal-stat-val gold" id="modal-high">0</span>
+        </div>
+      </div>
+      <button type="button" id="btn-restart" class="btn-primary modal-btn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      /* =========================================================================
+       * 1. CONSTANTES E CONFIGURAÇÕES DO LABIRINTO (19x21 CÉLULAS)
+       * Legenda do mapa:
+       *   '#' = Parede azul neon
+       *   '.' = Pastilha normal (10 pts)
+       *   'o' = Pílula de poder (50 pts)
+       *   '-' = Portão rosa da casa dos fantasmas
+       *   'G' = Interior da casa dos fantasmas (apenas fantasmas)
+       *   ' ' = Corredor vazio / Túnel lateral
+       *   'P' = Posição inicial do Come-Come
+       *   'F' = Posição de surgimento das Frutas Bônus
+       * ========================================================================= */
+      const BASE_MAP = [
+        "###################",
+        "#o.......#.......o#",
+        "#.##.###.#.###.##.#",
+        "#.##.###.#.###.##.#",
+        "#.................#",
+        "#.##.#.#####.#.##.#",
+        "#....#...#...#....#",
+        "####.### # ###.####",
+        "   #.#       #.#   ",
+        "####.# ##-## #.####",
+        "    .  #GGG#  .    ",
+        "####.# ##### #.####",
+        "   #.#   F   #.#   ",
+        "####.#.#####.#.####",
+        "#........#........#",
+        "#.##.###.#.###.##.#",
+        "#o.#.....P.....#.o#",
+        "##.#.#.#####.#.#.##",
+        "#....#...#...#....#",
+        "#.######.#.######.#",
+        "#.................#",
+        "###################"
+      ];
+
+      const ROWS = BASE_MAP.length;       // 22 linhas
+      const COLS = BASE_MAP[0].length;    // 19 colunas
+
+      const DIRS = {
+        NONE:  { x: 0,  y: 0,  name: 'NONE',  angle: 0 },
+        UP:    { x: 0,  y: -1, name: 'UP',    angle: -Math.PI / 2 },
+        DOWN:  { x: 0,  y: 1,  name: 'DOWN',  angle: Math.PI / 2 },
+        LEFT:  { x: -1, y: 0,  name: 'LEFT',  angle: Math.PI },
+        RIGHT: { x: 1,  y: 0,  name: 'RIGHT', angle: 0 }
+      };
+
+      const OPPOSITE_DIR = {
+        UP: 'DOWN',
+        DOWN: 'UP',
+        LEFT: 'RIGHT',
+        RIGHT: 'LEFT',
+        NONE: 'NONE'
+      };
+
+      const DIFFICULTY_PRESETS = {
+        easy: {
+          label: 'Fácil',
+          pacSpeed: 5.8,
+          ghostSpeed: 4.8,
+          frightSpeed: 2.9,
+          frightDuration: 8.5,
+          scatterScale: 1.25
+        },
+        normal: {
+          label: 'Normal',
+          pacSpeed: 6.3,
+          ghostSpeed: 5.6,
+          frightSpeed: 3.2,
+          frightDuration: 6.5,
+          scatterScale: 1.0
+        },
+        hard: {
+          label: 'Difícil',
+          pacSpeed: 6.7,
+          ghostSpeed: 6.4,
+          frightSpeed: 3.6,
+          frightDuration: 4.5,
+          scatterScale: 0.75
+        }
+      };
+
+      const BONUS_FRUITS = [
+        { name: 'Cereja',  points: 100, color: '#ef4444' },
+        { name: 'Morango', points: 300, color: '#f43f5e' },
+        { name: 'Laranja', points: 500, color: '#f97316' },
+        { name: 'Maçã',    points: 700, color: '#22c55e' }
+      ];
+
+      const STORAGE_HIGH_KEY = 'comecome_highscore_v1';
+      const STORAGE_MUTE_KEY = 'comecome_muted_v1';
+      const STORAGE_DIFF_KEY = 'comecome_difficulty_v1';
+
+      /* =========================================================================
+       * 2. MOTOR DE ÁUDIO PROCEDURAL (WEB AUDIO API — ZERO ARQUIVOS EXTERNOS)
+       * ========================================================================= */
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.muted = localStorage.getItem(STORAGE_MUTE_KEY) === 'true';
+          this.wakaToggle = false;
+          this.sirenTimer = 0;
+          this.sirenPhase = 0;
+        }
+
+        ensureContext() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+              this.ctx = new AudioCtx();
+            }
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        }
+
+        toggleMute() {
+          this.muted = !this.muted;
+          localStorage.setItem(STORAGE_MUTE_KEY, String(this.muted));
+          return this.muted;
+        }
+
+        playTone(freqStart, freqEnd, duration, type = 'triangle', gainVal = 0.12, delay = 0) {
+          if (this.muted) return;
+          this.ensureContext();
+          if (!this.ctx) return;
+
+          try {
+            const now = this.ctx.currentTime + delay;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc.type = type;
+            osc.frequency.setValueAtTime(freqStart, now);
+            if (freqEnd !== freqStart) {
+              osc.frequency.exponentialRampToValueAtTime(Math.max(20, freqEnd), now + duration);
+            }
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(gainVal, now + Math.min(0.015, duration * 0.25));
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc.start(now);
+            osc.stop(now + duration + 0.02);
+          } catch (_) {
+            // Ignora falhas de áudio antes de interação do usuário
+          }
+        }
+
+        playIntro() {
+          if (this.muted) return;
+          // Melodia clássica inspirada na abertura do arcade
+          const notes = [
+            [493.88, 0.11, 0.00], // B4
+            [987.77, 0.11, 0.13], // B5
+            [739.99, 0.11, 0.26], // F#5
+            [622.25, 0.11, 0.39], // D#5
+            [987.77, 0.08, 0.52], // B5
+            [739.99, 0.16, 0.61], // F#5
+            [622.25, 0.22, 0.79], // D#5
+
+            [523.25, 0.11, 1.05], // C5
+            [1046.50, 0.11, 1.18],// C6
+            [783.99, 0.11, 1.31], // G5
+            [659.25, 0.11, 1.44], // E5
+            [1046.50, 0.08, 1.57],// C6
+            [783.99, 0.16, 1.66], // G5
+            [659.25, 0.24, 1.84]  // E5
+          ];
+          notes.forEach(([freq, dur, off]) => {
+            this.playTone(freq, freq, dur, 'square', 0.075, off);
+          });
+        }
+
+        playWaka() {
+          this.wakaToggle = !this.wakaToggle;
+          if (this.wakaToggle) {
+            this.playTone(260, 440, 0.085, 'triangle', 0.11);
+          } else {
+            this.playTone(440, 240, 0.085, 'triangle', 0.11);
+          }
+        }
+
+        playPowerPellet() {
+          this.playTone(330, 660, 0.14, 'sine', 0.14, 0);
+          this.playTone(440, 880, 0.16, 'sine', 0.14, 0.1);
+        }
+
+        playEatFruit() {
+          const seq = [523.25, 659.25, 783.99, 1046.5];
+          seq.forEach((f, idx) => {
+            this.playTone(f, f * 1.04, 0.08, 'triangle', 0.13, idx * 0.06);
+          });
+        }
+
+        playEatGhost() {
+          this.playTone(220, 920, 0.28, 'sawtooth', 0.13, 0);
+          this.playTone(440, 1280, 0.22, 'sine', 0.12, 0.12);
+        }
+
+        playDeath() {
+          const steps = 11;
+          for (let i = 0; i < steps; i++) {
+            const base = 620 - i * 42;
+            this.playTone(base, base - 75, 0.09, 'sawtooth', 0.11, i * 0.085);
+          }
+          this.playTone(140, 55, 0.28, 'triangle', 0.14, steps * 0.085);
+        }
+
+        playStageClear() {
+          const fanfare = [
+            [523.25, 0.12, 0.00],
+            [659.25, 0.12, 0.13],
+            [783.99, 0.12, 0.26],
+            [1046.50, 0.24, 0.39],
+            [783.99, 0.12, 0.66],
+            [1046.50, 0.38, 0.80]
+          ];
+          fanfare.forEach(([f, d, o]) => {
+            this.playTone(f, f, d, 'triangle', 0.14, o);
+          });
+        }
+
+        updateSiren(dt, ratioRemaining, isFrightened) {
+          if (this.muted) return;
+          const interval = isFrightened ? 0.26 : Math.max(0.22, 0.48 - (1 - ratioRemaining) * 0.24);
+          this.sirenTimer += dt;
+          if (this.sirenTimer >= interval) {
+            this.sirenTimer = 0;
+            this.sirenPhase = (this.sirenPhase + 1) % 2;
+            if (isFrightened) {
+              const f1 = this.sirenPhase === 0 ? 480 : 620;
+              const f2 = this.sirenPhase === 0 ? 620 : 480;
+              this.playTone(f1, f2, interval * 0.85, 'sine', 0.032);
+            } else {
+              const pitchBoost = (1 - ratioRemaining) * 140;
+              const f1 = (this.sirenPhase === 0 ? 115 : 155) + pitchBoost;
+              const f2 = (this.sirenPhase === 0 ? 155 : 115) + pitchBoost;
+              this.playTone(f1, f2, interval * 0.9, 'sine', 0.035);
+            }
+          }
+        }
+      }
+
+      /* =========================================================================
+       * 3. REFERÊNCIAS DE DOM E ESTADO GLOBAL DO JOGO
+       * ========================================================================= */
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+      const canvasWrapper = document.getElementById('canvas-wrapper');
+      const stageBanner = document.getElementById('stage-banner');
+
+      const hudScore = document.getElementById('hud-score');
+      const hudHigh = document.getElementById('hud-high');
+      const hudLevel = document.getElementById('hud-level');
+      const hudLives = document.getElementById('hud-lives');
+
+      const btnPause = document.getElementById('btn-pause');
+      const btnSound = document.getElementById('btn-sound');
+      const btnNew = document.getElementById('btn-new');
+      const diffSelect = document.getElementById('difficulty-select');
+
+      const gameoverModal = document.getElementById('gameover-modal');
+      const modalScore = document.getElementById('modal-score');
+      const modalHigh = document.getElementById('modal-high');
+      const newRecordBadge = document.getElementById('new-record-badge');
+      const btnRestart = document.getElementById('btn-restart');
+
+      const sound = new SoundEngine();
+
+      // Carrega preferências salvas
+      const savedDiff = localStorage.getItem(STORAGE_DIFF_KEY);
+      if (savedDiff && DIFFICULTY_PRESETS[savedDiff]) {
+        diffSelect.value = savedDiff;
+      }
+      btnSound.textContent = sound.muted ? '🔇' : '🔊';
+
+      let tileSize = 24;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      const game = {
+        grid: [],
+        totalDots: 0,
+        dotsEaten: 0,
+        score: 0,
+        highScore: parseInt(localStorage.getItem(STORAGE_HIGH_KEY) || '0', 10) || 0,
+        level: 1,
+        lives: 3,
+        extraLifeAwarded: false,
+        difficulty: diffSelect.value,
+
+        // Estados: 'READY', 'PLAYING', 'PAUSED', 'DYING', 'LEVEL_CLEAR', 'GAME_OVER'
+        state: 'READY',
+        stateTimer: 0,
+        globalTime: 0,
+
+        // Modo global dos fantasmas ('SCATTER' | 'CHASE')
+        waveMode: 'SCATTER',
+        waveTimer: 0,
+        waveIndex: 0,
+
+        // Pílula de poder
+        frightTimer: 0,
+        ghostCombo: 0,
+
+        // Fruta bônus
+        fruit: {
+          active: false,
+          x: 9,
+          y: 12,
+          timer: 0,
+          typeIndex: 0,
+          spawned70: false,
+          spawned170: false
+        },
+
+        // Popups de pontuação no canvas
+        popups: [],
+
+        // Entidades
+        pacman: null,
+        ghosts: []
+      };
+
+      /* =========================================================================
+       * 4. DIMENSIONAMENTO RESPONSIVO (ZERO-SCROLL 100dvh)
+       * ========================================================================= */
+      function resizeCanvas() {
+        const headerH = document.getElementById('app-header').offsetHeight;
+        const footerH = document.getElementById('app-footer').offsetHeight;
+        const availW = window.innerWidth - 24;
+        const availH = window.innerHeight - headerH - footerH - 18;
+
+        const rawTile = Math.floor(Math.min(availW / COLS, availH / ROWS));
+        tileSize = Math.max(12, rawTile);
+
+        const cssW = tileSize * COLS;
+        const cssH = tileSize * ROWS;
+
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.style.width = cssW + 'px';
+        canvas.style.height = cssH + 'px';
+        canvas.width = Math.floor(cssW * dpr);
+        canvas.height = Math.floor(cssH * dpr);
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => resizeCanvas());
+        ro.observe(document.body);
+      }
+
+      /* =========================================================================
+       * 5. INICIALIZAÇÃO DO LABIRINTO E ENTIDADES
+       * ========================================================================= */
+      function buildMaze() {
+        game.grid = [];
+        game.totalDots = 0;
+        game.dotsEaten = 0;
+
+        for (let r = 0; r < ROWS; r++) {
+          const row = [];
+          for (let c = 0; c < COLS; c++) {
+            const ch = BASE_MAP[r][c];
+            if (ch === '.') {
+              game.totalDots++;
+              row.push('.');
+            } else if (ch === 'o') {
+              game.totalDots++;
+              row.push('o');
+            } else if (ch === 'P') {
+              row.push(' ');
+            } else if (ch === 'F') {
+              game.fruit.x = c;
+              game.fruit.y = r;
+              row.push(' ');
+            } else {
+              row.push(ch);
+            }
+          }
+          game.grid.push(row);
+        }
+
+        game.fruit.active = false;
+        game.fruit.timer = 0;
+        game.fruit.spawned70 = false;
+        game.fruit.spawned170 = false;
+        game.fruit.typeIndex = Math.min(game.level - 1, BONUS_FRUITS.length - 1);
+      }
+
+      function resetPositions() {
+        game.pacman = {
+          x: 9,
+          y: 16,
+          dir: 'LEFT',
+          nextDir: 'LEFT',
+          moving: false,
+          mouthPhase: 0,
+          deathProgress: 0
+        };
+
+        game.ghosts = [
+          {
+            id: 'blinky',
+            name: 'Blinky',
+            color: '#ef4444',
+            x: 9,
+            y: 8,
+            dir: 'LEFT',
+            scatterTarget: { x: COLS - 2, y: 1 },
+            homePos: { x: 9, y: 10 },
+            state: 'ACTIVE', // 'IN_HOUSE', 'EXITING', 'ACTIVE', 'EATEN'
+            releaseDelay: 0,
+            bobPhase: 0
+          },
+          {
+            id: 'pinky',
+            name: 'Pinky',
+            color: '#f472b6',
+            x: 9,
+            y: 10,
+            dir: 'UP',
+            scatterTarget: { x: 1, y: 1 },
+            homePos: { x: 9, y: 10 },
+            state: 'IN_HOUSE',
+            releaseDelay: 1.5,
+            bobPhase: 1.2
+          },
+          {
+            id: 'inky',
+            name: 'Inky',
+            color: '#38bdf8',
+            x: 8,
+            y: 10,
+            dir: 'UP',
+            scatterTarget: { x: COLS - 2, y: ROWS - 2 },
+            homePos: { x: 8, y: 10 },
+            state: 'IN_HOUSE',
+            releaseDelay: 4.0,
+            bobPhase: 2.4
+          },
+          {
+            id: 'clyde',
+            name: 'Clyde',
+            color: '#fb923c',
+            x: 10,
+            y: 10,
+            dir: 'UP',
+            scatterTarget: { x: 1, y: ROWS - 2 },
+            homePos: { x: 10, y: 10 },
+            state: 'IN_HOUSE',
+            releaseDelay: 6.5,
+            bobPhase: 3.6
+          }
+        ];
+
+        game.waveMode = 'SCATTER';
+        game.waveIndex = 0;
+        game.waveTimer = 0;
+        game.frightTimer = 0;
+        game.ghostCombo = 0;
+        game.popups = [];
+      }
+
+      function startNewGame(playAudio = true) {
+        gameoverModal.classList.add('hidden');
+        newRecordBadge.classList.add('hidden');
+        game.score = 0;
+        game.level = 1;
+        game.lives = 3;
+        game.extraLifeAwarded = false;
+        game.difficulty = diffSelect.value;
+
+        buildMaze();
+        resetPositions();
+        updateHUD();
+
+        setState('READY', playAudio ? 1.85 : 1.0);
+        if (playAudio) {
+          sound.playIntro();
+        }
+      }
+
+      function setState(newState, duration = 0) {
+        game.state = newState;
+        game.stateTimer = duration;
+
+        if (newState === 'READY') {
+          stageBanner.textContent = 'PRONTO!';
+          stageBanner.classList.remove('hidden', 'paused');
+          btnPause.textContent = '⏸️';
+        } else if (newState === 'PAUSED') {
+          stageBanner.textContent = 'PAUSADO';
+          stageBanner.classList.remove('hidden');
+          stageBanner.classList.add('paused');
+          btnPause.textContent = '▶️';
+        } else if (newState === 'LEVEL_CLEAR') {
+          stageBanner.textContent = `FASE ${game.level} CONCLUÍDA!`;
+          stageBanner.classList.remove('hidden', 'paused');
+        } else {
+          stageBanner.classList.add('hidden');
+          stageBanner.classList.remove('paused');
+          btnPause.textContent = '⏸️';
+        }
+      }
+
+      /* =========================================================================
+       * 6. ATUALIZAÇÃO DO HUD E PONTUAÇÃO
+       * ========================================================================= */
+      function addScore(pts) {
+        game.score += pts;
+        if (!game.extraLifeAwarded && game.score >= 10000) {
+          game.extraLifeAwarded = true;
+          game.lives = Math.min(5, game.lives + 1);
+          spawnPopup(game.pacman.x, game.pacman.y - 0.5, '1UP!', '#4ade80');
+          sound.playEatFruit();
+        }
+        if (game.score > game.highScore) {
+          game.highScore = game.score;
+          localStorage.setItem(STORAGE_HIGH_KEY, String(game.highScore));
+        }
+        updateHUD();
+      }
+
+      function updateHUD() {
+        hudScore.textContent = game.score.toLocaleString('pt-BR');
+        hudHigh.textContent = game.highScore.toLocaleString('pt-BR');
+        hudLevel.textContent = game.level;
+
+        // Renderiza mini ícones SVG das vidas restantes
+        const livesToShow = Math.max(0, game.lives);
+        if (hudLives.childElementCount !== livesToShow) {
+          hudLives.innerHTML = '';
+          for (let i = 0; i < livesToShow; i++) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.setAttribute('width', '16');
+            svg.setAttribute('height', '16');
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M12 2 A10 10 0 1 0 20.6 17 L12 12 L20.6 7 A10 10 0 0 0 12 2 Z');
+            path.setAttribute('fill', '#ffd60a');
+            svg.appendChild(path);
+            hudLives.appendChild(svg);
+          }
+        }
+      }
+
+      function spawnPopup(gx, gy, text, color = '#38bdf8') {
+        game.popups.push({
+          x: gx,
+          y: gy,
+          text,
+          color,
+          timer: 1.05
+        });
+      }
+
+      /* =========================================================================
+       * 7. NAVEGAÇÃO EM GRADE, COLISÕES E INPUT BUFFERING
+       * ========================================================================= */
+      function wrapCol(c) {
+        if (c < 0) return COLS - 1;
+        if (c >= COLS) return 0;
+        return c;
+      }
+
+      function isWalkableForPacman(col, row) {
+        if (row < 0 || row >= ROWS) return false;
+        const wc = wrapCol(col);
+        const cell = game.grid[row][wc];
+        return cell !== '#' && cell !== '-' && cell !== 'G';
+      }
+
+      function isWalkableForGhost(col, row, ghost) {
+        if (row < 0 || row >= ROWS) return false;
+        const wc = wrapCol(col);
+        const cell = game.grid[row][wc];
+        if (cell === '#') return false;
+        if (cell === '-' || cell === 'G') {
+          return ghost.state === 'IN_HOUSE' || ghost.state === 'EXITING' || ghost.state === 'EATEN';
+        }
+        return true;
+      }
+
+      function setDesiredDirection(dirName) {
+        if (!DIRS[dirName] || dirName === 'NONE') return;
+        sound.ensureContext();
+        if (game.pacman) {
+          game.pacman.nextDir = dirName;
+        }
+      }
+
+      function updatePacman(dt) {
+        const pac = game.pacman;
+        const preset = DIFFICULTY_PRESETS[game.difficulty];
+        const levelBonus = Math.min(1.4, (game.level - 1) * 0.14);
+        const speed = preset.pacSpeed + levelBonus;
+
+        // Reversão imediata caso a direção desejada seja oposta à atual
+        if (pac.nextDir !== pac.dir && pac.nextDir === OPPOSITE_DIR[pac.dir]) {
+          pac.dir = pac.nextDir;
+        }
+
+        const cx = Math.round(pac.x);
+        const cy = Math.round(pac.y);
+        const distToCenter = Math.hypot(pac.x - cx, pac.y - cy);
+
+        // Input Buffering: vira suavemente ao passar próximo ao centro de uma interseção
+        if (pac.nextDir !== 'NONE' && pac.nextDir !== pac.dir) {
+          const nd = DIRS[pac.nextDir];
+          if (isWalkableForPacman(cx + nd.x, cy + nd.y) && distToCenter <= 0.28) {
+            pac.x = cx;
+            pac.y = cy;
+            pac.dir = pac.nextDir;
+          }
+        }
+
+        const d = DIRS[pac.dir];
+        if (d.x === 0 && d.y === 0) {
+          pac.moving = false;
+          return;
+        }
+
+        // Alinha suavemente ao eixo perpendicular ao movimento
+        if (d.x !== 0) {
+          pac.y += (cy - pac.y) * Math.min(1, dt * 22);
+        } else if (d.y !== 0) {
+          pac.x += (cx - pac.x) * Math.min(1, dt * 22);
+        }
+
+        const nextX = pac.x + d.x * speed * dt;
+        const nextY = pac.y + d.y * speed * dt;
+
+        // Verifica bloqueio à frente
+        const aheadCol = cx + d.x;
+        const aheadRow = cy + d.y;
+        const canContinue = isWalkableForPacman(aheadCol, aheadRow);
+
+        if (!canContinue) {
+          if (d.x > 0 && nextX > cx) { pac.x = cx; pac.moving = false; }
+          else if (d.x < 0 && nextX < cx) { pac.x = cx; pac.moving = false; }
+          else if (d.y > 0 && nextY > cy) { pac.y = cy; pac.moving = false; }
+          else if (d.y < 0 && nextY < cy) { pac.y = cy; pac.moving = false; }
+          else {
+            pac.x = nextX;
+            pac.y = nextY;
+            pac.moving = true;
+          }
+        } else {
+          pac.x = nextX;
+          pac.y = nextY;
+          pac.moving = true;
+        }
+
+        // Teletransporte pelos túneis laterais
+        if (pac.x < -0.5) pac.x += COLS;
+        if (pac.x >= COLS - 0.5) pac.x -= COLS;
+
+        // Animação da boca
+        if (pac.moving) {
+          pac.mouthPhase += dt * 13;
+        } else {
+          pac.mouthPhase = 0.35;
+        }
+
+        // Coleta de pastilhas, pílulas de poder e frutas bônus
+        const tileC = wrapCol(Math.round(pac.x));
+        const tileR = Math.round(pac.y);
+        if (tileR >= 0 && tileR < ROWS) {
+          const item = game.grid[tileR][tileC];
+          if (item === '.' || item === 'o') {
+            game.grid[tileR][tileC] = ' ';
+            game.dotsEaten++;
+
+            if (item === '.') {
+              addScore(10);
+              sound.playWaka();
+            } else {
+              addScore(50);
+              sound.playPowerPellet();
+              activateFrightenedMode();
+            }
+
+            // Verifica surgimento da fruta bônus (após 65 e 145 pastilhas)
+            if (!game.fruit.spawned70 && game.dotsEaten >= 65) {
+              game.fruit.spawned70 = true;
+              spawnBonusFruit();
+            } else if (!game.fruit.spawned170 && game.dotsEaten >= 145) {
+              game.fruit.spawned170 = true;
+              spawnBonusFruit();
+            }
+
+            // Verifica conclusão da fase
+            if (game.dotsEaten >= game.totalDots) {
+              sound.playStageClear();
+              setState('LEVEL_CLEAR', 2.2);
+              return;
+            }
+          }
+        }
+
+        // Coleta de fruta bônus
+        if (game.fruit.active) {
+          const distFruit = Math.hypot(pac.x - game.fruit.x, pac.y - game.fruit.y);
+          if (distFruit < 0.65) {
+            const fData = BONUS_FRUITS[game.fruit.typeIndex];
+            game.fruit.active = false;
+            addScore(fData.points);
+            spawnPopup(game.fruit.x, game.fruit.y, `+${fData.points}`, '#fbbf24');
+            sound.playEatFruit();
+          }
+        }
+      }
+
+      function spawnBonusFruit() {
+        game.fruit.active = true;
+        game.fruit.timer = 9.5;
+        game.fruit.typeIndex = Math.min(game.level - 1, BONUS_FRUITS.length - 1);
+      }
+
+      /* =========================================================================
+       * 8. INTELIGÊNCIA ARTIFICIAL DOS 4 FANTASMAS (MÁQUINA DE ESTADOS)
+       * ========================================================================= */
+      function activateFrightenedMode() {
+        const preset = DIFFICULTY_PRESETS[game.difficulty];
+        const duration = Math.max(2.2, preset.frightDuration - (game.level - 1) * 0.35);
+        game.frightTimer = duration;
+        game.ghostCombo = 0;
+
+        game.ghosts.forEach(g => {
+          if (g.state === 'ACTIVE') {
+            g.dir = OPPOSITE_DIR[g.dir] || g.dir;
+          }
+        });
+      }
+
+      function updateWaveSchedule(dt) {
+        if (game.frightTimer > 0) {
+          game.frightTimer = Math.max(0, game.frightTimer - dt);
+          if (game.frightTimer === 0) {
+            game.ghostCombo = 0;
+          }
+          return;
+        }
+
+        const scale = DIFFICULTY_PRESETS[game.difficulty].scatterScale;
+        const schedule = [
+          { mode: 'SCATTER', dur: 7 * scale },
+          { mode: 'CHASE',   dur: 20 },
+          { mode: 'SCATTER', dur: 7 * scale },
+          { mode: 'CHASE',   dur: 20 },
+          { mode: 'SCATTER', dur: 5 * scale },
+          { mode: 'CHASE',   dur: Infinity }
+        ];
+
+        const currentPhase = schedule[Math.min(game.waveIndex, schedule.length - 1)];
+        game.waveMode = currentPhase.mode;
+        game.waveTimer += dt;
+
+        if (game.waveTimer >= currentPhase.dur) {
+          game.waveTimer = 0;
+          game.waveIndex++;
+          const nextPhase = schedule[Math.min(game.waveIndex, schedule.length - 1)];
+          if (nextPhase.mode !== game.waveMode) {
+            game.waveMode = nextPhase.mode;
+            // Reverte direção na transição Scatter <-> Chase como no arcade original
+            game.ghosts.forEach(g => {
+              if (g.state === 'ACTIVE') {
+                g.dir = OPPOSITE_DIR[g.dir] || g.dir;
+              }
+            });
+          }
+        }
+      }
+
+      function getGhostTargetTile(ghost) {
+        // Quando capturado, retorna exatamente à porta/centro da casa
+        if (ghost.state === 'EATEN') {
+          return { x: 9, y: 10 };
+        }
+
+        // Modo Dispersão (Scatter): cada fantasma vai para seu canto do labirinto
+        if (game.waveMode === 'SCATTER') {
+          return ghost.scatterTarget;
+        }
+
+        // Modo Perseguição (Chase): personalidade única de cada fantasma
+        const pac = game.pacman;
+        const pacCol = Math.round(pac.x);
+        const pacRow = Math.round(pac.y);
+        const pDir = DIRS[pac.dir] || DIRS.LEFT;
+
+        if (ghost.id === 'blinky') {
+          // Vermelho: persegue diretamente o Come-Come
+          return { x: pacCol, y: pacRow };
+        }
+
+        if (ghost.id === 'pinky') {
+          // Rosa: emboscada 4 células à frente da direção do Come-Come
+          return {
+            x: pacCol + pDir.x * 4,
+            y: pacRow + pDir.y * 4
+          };
+        }
+
+        if (ghost.id === 'inky') {
+          // Ciano: vetor combinado entre Blinky e 2 células à frente do Come-Come
+          const blinky = game.ghosts[0];
+          const pivotX = pacCol + pDir.x * 2;
+          const pivotY = pacRow + pDir.y * 2;
+          return {
+            x: pivotX + (pivotX - Math.round(blinky.x)),
+            y: pivotY + (pivotY - Math.round(blinky.y))
+          };
+        }
+
+        // Clyde (Laranja): persegue quando está longe (> 6 células) e recua para seu canto quando perto
+        const dist = Math.hypot(ghost.x - pac.x, ghost.y - pac.y);
+        if (dist > 6) {
+          return { x: pacCol, y: pacRow };
+        }
+        return ghost.scatterTarget;
+      }
+
+      function chooseNextGhostDirection(ghost, cx, cy, isFrightened) {
+        const order = ['UP', 'LEFT', 'DOWN', 'RIGHT'];
+        const reverse = OPPOSITE_DIR[ghost.dir];
+        const candidates = [];
+
+        for (const dirName of order) {
+          if (dirName === reverse) continue;
+          const d = DIRS[dirName];
+          const nc = cx + d.x;
+          const nr = cy + d.y;
+          if (isWalkableForGhost(nc, nr, ghost)) {
+            candidates.push({ dirName, nc, nr });
+          }
+        }
+
+        // Fallback se estiver num beco sem saída
+        if (candidates.length === 0) {
+          const revDir = DIRS[reverse];
+          if (revDir && isWalkableForGhost(cx + revDir.x, cy + revDir.y, ghost)) {
+            return reverse;
+          }
+          return ghost.dir;
+        }
+
+        if (candidates.length === 1) {
+          return candidates[0].dirName;
+        }
+
+        // No modo Assustado, escolhe direção pseudo-aleatória nas interseções
+        if (isFrightened && ghost.state === 'ACTIVE') {
+          const pick = candidates[Math.floor(Math.random() * candidates.length)];
+          return pick.dirName;
+        }
+
+        // Escolhe a direção que minimiza a distância euclidiana ao alvo
+        const target = getGhostTargetTile(ghost);
+        let bestDir = candidates[0].dirName;
+        let bestDist = Infinity;
+
+        for (const cand of candidates) {
+          const dist = Math.hypot(cand.nc - target.x, cand.nr - target.y);
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestDir = cand.dirName;
+          }
+        }
+
+        return bestDir;
+      }
+
+      function updateGhosts(dt) {
+        const preset = DIFFICULTY_PRESETS[game.difficulty];
+        const levelBonus = Math.min(1.5, (game.level - 1) * 0.16);
+        const baseSpeed = preset.ghostSpeed + levelBonus;
+
+        game.ghosts.forEach(ghost => {
+          ghost.bobPhase += dt * 7;
+
+          // 1. Dentro da casa central aguardando liberação
+          if (ghost.state === 'IN_HOUSE') {
+            ghost.releaseDelay -= dt;
+            ghost.y = ghost.homePos.y + Math.sin(ghost.bobPhase) * 0.16;
+            if (ghost.releaseDelay <= 0) {
+              ghost.state = 'EXITING';
+            }
+            return;
+          }
+
+          // 2. Saindo pelo portão rosa até a linha 8
+          if (ghost.state === 'EXITING') {
+            const exitSpeed = baseSpeed * 0.7;
+            // Primeiro alinha no eixo X (coluna 9)
+            if (Math.abs(ghost.x - 9) > 0.06) {
+              ghost.x += Math.sign(9 - ghost.x) * Math.min(Math.abs(9 - ghost.x), exitSpeed * dt);
+              ghost.dir = 9 > ghost.x ? 'RIGHT' : 'LEFT';
+            } else {
+              ghost.x = 9;
+              ghost.dir = 'UP';
+              ghost.y -= exitSpeed * dt;
+              if (ghost.y <= 8) {
+                ghost.y = 8;
+                ghost.state = 'ACTIVE';
+                ghost.dir = Math.random() < 0.5 ? 'LEFT' : 'RIGHT';
+              }
+            }
+            return;
+          }
+
+          // 3. Ativo no labirinto ou retornando como olhos (EATEN)
+          const isFrightened = game.frightTimer > 0 && ghost.state === 'ACTIVE';
+          let speed = baseSpeed;
+          if (ghost.state === 'EATEN') {
+            speed = baseSpeed * 1.95;
+          } else if (isFrightened) {
+            speed = preset.frightSpeed;
+          } else if (Math.round(ghost.y) === 10 && (ghost.x < 3 || ghost.x > COLS - 4)) {
+            // Desaceleração clássica nos túneis laterais
+            speed = baseSpeed * 0.55;
+          }
+
+          // Verifica se regenerou ao chegar dentro da casa no estado EATEN
+          if (ghost.state === 'EATEN' && Math.hypot(ghost.x - 9, ghost.y - 10) < 0.35) {
+            ghost.x = 9;
+            ghost.y = 10;
+            ghost.state = 'EXITING';
+            return;
+          }
+
+          const d = DIRS[ghost.dir] || DIRS.LEFT;
+          const prevX = ghost.x;
+          const prevY = ghost.y;
+
+          ghost.x += d.x * speed * dt;
+          ghost.y += d.y * speed * dt;
+
+          // Teletransporte pelos túneis laterais
+          if (ghost.x < -0.5) ghost.x += COLS;
+          if (ghost.x >= COLS - 0.5) ghost.x -= COLS;
+
+          const cx = Math.round(ghost.x);
+          const cy = Math.round(ghost.y);
+
+          // Detecta cruzamento pelo centro da célula para decidir nova curva
+          const crossedCenter =
+            (d.x > 0 && prevX < cx && ghost.x >= cx) ||
+            (d.x < 0 && prevX > cx && ghost.x <= cx) ||
+            (d.y > 0 && prevY < cy && ghost.y >= cy) ||
+            (d.y < 0 && prevY > cy && ghost.y <= cy);
+
+          if (crossedCenter) {
+            ghost.x = cx;
+            ghost.y = cy;
+            ghost.dir = chooseNextGhostDirection(ghost, cx, cy, isFrightened);
+          } else {
+            // Segurança caso fique bloqueado sem cruzar centro
+            const nextC = cx + d.x;
+            const nextR = cy + d.y;
+            if (!isWalkableForGhost(nextC, nextR, ghost) && Math.hypot(ghost.x - cx, ghost.y - cy) < 0.15) {
+              ghost.x = cx;
+              ghost.y = cy;
+              ghost.dir = chooseNextGhostDirection(ghost, cx, cy, isFrightened);
+            }
+          }
+        });
+      }
+
+      function checkEntityCollisions() {
+        const pac = game.pacman;
+
+        for (const ghost of game.ghosts) {
+          if (ghost.state === 'IN_HOUSE' || ghost.state === 'EATEN') continue;
+
+          const dist = Math.hypot(pac.x - ghost.x, pac.y - ghost.y);
+          if (dist < 0.62) {
+            if (game.frightTimer > 0 && ghost.state === 'ACTIVE') {
+              // Captura o fantasma assustado!
+              ghost.state = 'EATEN';
+              game.ghostCombo = Math.min(4, game.ghostCombo + 1);
+              const pts = 200 * Math.pow(2, game.ghostCombo - 1); // 200, 400, 800, 1600
+              addScore(pts);
+              spawnPopup(ghost.x, ghost.y, `+${pts}`, '#38bdf8');
+              sound.playEatGhost();
+            } else if (ghost.state === 'ACTIVE') {
+              // Perde uma vida
+              sound.playDeath();
+              pac.deathProgress = 0;
+              setState('DYING', 1.35);
+              return;
+            }
+          }
+        }
+      }
+
+      /* =========================================================================
+       * 9. LOOP PRINCIPAL DE ATUALIZAÇÃO (FIXED/CLAMPED DELTA TIME)
+       * ========================================================================= */
+      let lastTimestamp = 0;
+
+      function update(dt) {
+        game.globalTime += dt;
+
+        // Atualiza popups flutuantes
+        for (let i = game.popups.length - 1; i >= 0; i--) {
+          game.popups[i].timer -= dt;
+          game.popups[i].y -= dt * 0.9;
+          if (game.popups[i].timer <= 0) {
+            game.popups.splice(i, 1);
+          }
+        }
+
+        if (game.state === 'PAUSED' || game.state === 'GAME_OVER') {
+          return;
+        }
+
+        if (game.state === 'READY') {
+          game.stateTimer -= dt;
+          if (game.stateTimer <= 0) {
+            setState('PLAYING');
+          }
+          return;
+        }
+
+        if (game.state === 'DYING') {
+          game.stateTimer -= dt;
+          game.pacman.deathProgress = Math.min(1, 1 - game.stateTimer / 1.35);
+          if (game.stateTimer <= 0) {
+            game.lives--;
+            updateHUD();
+            if (game.lives <= 0) {
+              triggerGameOver();
+            } else {
+              resetPositions();
+              setState('READY', 1.4);
+            }
+          }
+          return;
+        }
+
+        if (game.state === 'LEVEL_CLEAR') {
+          game.stateTimer -= dt;
+          if (game.stateTimer <= 0) {
+            game.level++;
+            buildMaze();
+            resetPositions();
+            updateHUD();
+            setState('READY', 1.5);
+          }
+          return;
+        }
+
+        // Estado PLAYING
+        if (game.fruit.active) {
+          game.fruit.timer -= dt;
+          if (game.fruit.timer <= 0) {
+            game.fruit.active = false;
+          }
+        }
+
+        updateWaveSchedule(dt);
+        updatePacman(dt);
+        if (game.state === 'PLAYING') {
+          updateGhosts(dt);
+          checkEntityCollisions();
+          const remainingRatio = Math.max(0, (game.totalDots - game.dotsEaten) / Math.max(1, game.totalDots));
+          sound.updateSiren(dt, remainingRatio, game.frightTimer > 0);
+        }
+      }
+
+      function triggerGameOver() {
+        setState('GAME_OVER');
+        modalScore.textContent = game.score.toLocaleString('pt-BR');
+        modalHigh.textContent = game.highScore.toLocaleString('pt-BR');
+        if (game.score > 0 && game.score >= game.highScore) {
+          newRecordBadge.classList.remove('hidden');
+        } else {
+          newRecordBadge.classList.add('hidden');
+        }
+        gameoverModal.classList.remove('hidden');
+      }
+
+      /* =========================================================================
+       * 10. RENDERIZAÇÃO DO LABIRINTO, PERSONAGENS E EFEITOS NO CANVAS
+       * ========================================================================= */
+      function drawMaze() {
+        const ts = tileSize;
+        const flashWhite = game.state === 'LEVEL_CLEAR' && Math.floor(game.globalTime * 8) % 2 === 0;
+        const wallStroke = flashWhite ? '#f8fafc' : '#2563eb';
+        const wallGlow = flashWhite ? 'rgba(255, 255, 255, 0.65)' : 'rgba(56, 189, 248, 0.35)';
+
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Paredes conectadas com estética neon arredondada
+        for (let r = 0; r < ROWS; r++) {
+          for (let c = 0; c < COLS; c++) {
+            const cell = game.grid[r][c];
+            const px = c * ts;
+            const py = r * ts;
+
+            if (cell === '#') {
+              const up = r > 0 && game.grid[r - 1][c] === '#';
+              const down = r < ROWS - 1 && game.grid[r + 1][c] === '#';
+              const left = c > 0 && game.grid[r][c - 1] === '#';
+              const right = c < COLS - 1 && game.grid[r][c + 1] === '#';
+
+              // Preenchimento sutil do bloco
+              ctx.fillStyle = flashWhite ? 'rgba(255,255,255,0.16)' : 'rgba(29, 78, 216, 0.16)';
+              const pad = ts * 0.14;
+              ctx.beginPath();
+              ctx.roundRect(
+                px + (left ? 0 : pad),
+                py + (up ? 0 : pad),
+                ts - (left ? 0 : pad) - (right ? 0 : pad),
+                ts - (up ? 0 : pad) - (down ? 0 : pad),
+                ts * 0.24
+              );
+              ctx.fill();
+
+              // Contorno externo luminoso apenas nas bordas livres
+              ctx.strokeStyle = wallStroke;
+              ctx.shadowColor = wallGlow;
+              ctx.shadowBlur = 6;
+              ctx.lineWidth = Math.max(1.8, ts * 0.11);
+
+              const inset = ts * 0.16;
+              ctx.beginPath();
+              if (!up) {
+                ctx.moveTo(px + (left ? 0 : inset), py + inset);
+                ctx.lineTo(px + ts - (right ? 0 : inset), py + inset);
+              }
+              if (!down) {
+                ctx.moveTo(px + (left ? 0 : inset), py + ts - inset);
+                ctx.lineTo(px + ts - (right ? 0 : inset), py + ts - inset);
+              }
+              if (!left) {
+                ctx.moveTo(px + inset, py + (up ? 0 : inset));
+                ctx.lineTo(px + inset, py + ts - (down ? 0 : inset));
+              }
+              if (!right) {
+                ctx.moveTo(px + ts - inset, py + (up ? 0 : inset));
+                ctx.lineTo(px + ts - inset, py + ts - (down ? 0 : inset));
+              }
+              ctx.stroke();
+              ctx.shadowBlur = 0;
+
+            } else if (cell === '-') {
+              // Portão rosa da casa dos fantasmas
+              ctx.strokeStyle = '#f472b6';
+              ctx.shadowColor = 'rgba(244, 114, 182, 0.6)';
+              ctx.shadowBlur = 6;
+              ctx.lineWidth = Math.max(2.5, ts * 0.16);
+              ctx.beginPath();
+              ctx.moveTo(px, py + ts * 0.5);
+              ctx.lineTo(px + ts, py + ts * 0.5);
+              ctx.stroke();
+              ctx.shadowBlur = 0;
+
+            } else if (cell === '.') {
+              // Pastilha normal
+              ctx.fillStyle = '#fde68a';
+              ctx.beginPath();
+              ctx.arc(px + ts * 0.5, py + ts * 0.5, Math.max(1.8, ts * 0.11), 0, Math.PI * 2);
+              ctx.fill();
+
+            } else if (cell === 'o') {
+              // Pílula de poder pulsante
+              const pulse = 0.78 + 0.25 * Math.sin(game.globalTime * 7);
+              ctx.fillStyle = '#fef08a';
+              ctx.shadowColor = '#facc15';
+              ctx.shadowBlur = 9;
+              ctx.beginPath();
+              ctx.arc(px + ts * 0.5, py + ts * 0.5, Math.max(3.5, ts * 0.27 * pulse), 0, Math.PI * 2);
+              ctx.fill();
+              ctx.shadowBlur = 0;
+            }
+          }
+        }
+        ctx.restore();
+      }
+
+      function drawBonusFruit() {
+        if (!game.fruit.active) return;
+        const ts = tileSize;
+        const cx = (game.fruit.x + 0.5) * ts;
+        const cy = (game.fruit.y + 0.5) * ts + Math.sin(game.globalTime * 5) * (ts * 0.06);
+        const r = ts * 0.34;
+        const fType = BONUS_FRUITS[game.fruit.typeIndex];
+
+        ctx.save();
+        if (fType.name === 'Cereja') {
+          // Cabos verdes
+          ctx.strokeStyle = '#4ade80';
+          ctx.lineWidth = Math.max(1.5, ts * 0.08);
+          ctx.beginPath();
+          ctx.moveTo(cx - r * 0.4, cy + r * 0.2);
+          ctx.quadraticCurveTo(cx - r * 0.1, cy - r * 0.9, cx + r * 0.45, cy - r * 0.75);
+          ctx.moveTo(cx + r * 0.35, cy + r * 0.35);
+          ctx.quadraticCurveTo(cx + r * 0.35, cy - r * 0.4, cx + r * 0.45, cy - r * 0.75);
+          ctx.stroke();
+
+          // Duas cerejas vermelhas
+          ctx.fillStyle = '#ef4444';
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.42, cy + r * 0.25, r * 0.45, 0, Math.PI * 2);
+          ctx.arc(cx + r * 0.35, cy + r * 0.38, r * 0.45, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Brilhos
+          ctx.fillStyle = '#fecaca';
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.55, cy + r * 0.12, r * 0.13, 0, Math.PI * 2);
+          ctx.arc(cx + r * 0.22, cy + r * 0.24, r * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Morango / Laranja / Maçã estilizados
+          ctx.fillStyle = fType.color;
+          ctx.shadowColor = fType.color;
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(cx, cy + r * 0.08, r * 0.78, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+
+          // Folha no topo
+          ctx.fillStyle = '#4ade80';
+          ctx.beginPath();
+          ctx.ellipse(cx + r * 0.15, cy - r * 0.68, r * 0.32, r * 0.16, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Brilho especular
+          ctx.fillStyle = 'rgba(255,255,255,0.55)';
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.28, cy - r * 0.18, r * 0.18, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function drawPacman() {
+        const pac = game.pacman;
+        const ts = tileSize;
+        const cx = (pac.x + 0.5) * ts;
+        const cy = (pac.y + 0.5) * ts;
+        const radius = ts * 0.44;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        if (game.state === 'DYING') {
+          // Animação clássica de derrota: boca abre até 360 graus e recolhe
+          const p = pac.deathProgress;
+          if (p < 0.85) {
+            const openAngle = (p / 0.85) * Math.PI;
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillStyle = '#ffd60a';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.arc(0, 0, radius * (1 - p * 0.25), openAngle, Math.PI * 2 - openAngle);
+            ctx.closePath();
+            ctx.fill();
+          } else {
+            // Pequena explosão de raios no final
+            const burst = (p - 0.85) / 0.15;
+            ctx.strokeStyle = '#ffd60a';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 8; i++) {
+              const a = (i * Math.PI) / 4;
+              ctx.beginPath();
+              ctx.moveTo(Math.cos(a) * radius * 0.2, Math.sin(a) * radius * 0.2);
+              ctx.lineTo(Math.cos(a) * radius * (0.4 + burst * 0.7), Math.sin(a) * radius * (0.4 + burst * 0.7));
+              ctx.stroke();
+            }
+          }
+          ctx.restore();
+          return;
+        }
+
+        const dirObj = DIRS[pac.dir] || DIRS.RIGHT;
+        ctx.rotate(dirObj.angle);
+
+        const mouthOpen = 0.06 + Math.abs(Math.sin(pac.mouthPhase)) * 0.34;
+        ctx.fillStyle = '#ffd60a';
+        ctx.shadowColor = 'rgba(255, 214, 10, 0.45)';
+        ctx.shadowBlur = 7;
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, mouthOpen * Math.PI, (2 - mouthOpen) * Math.PI);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.restore();
+      }
+
+      function drawGhost(ghost) {
+        const ts = tileSize;
+        const cx = (ghost.x + 0.5) * ts;
+        const cy = (ghost.y + 0.5) * ts;
+        const r = ts * 0.43;
+
+        const isFrightened = game.frightTimer > 0 && ghost.state === 'ACTIVE';
+        const isFlashing = isFrightened && game.frightTimer <= 2.0 && Math.floor(game.globalTime * 8) % 2 === 0;
+        const isEaten = ghost.state === 'EATEN';
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Corpo do fantasma (omitido quando é apenas olhos retornando à casa)
+        if (!isEaten) {
+          let bodyColor = ghost.color;
+          if (isFrightened) {
+            bodyColor = isFlashing ? '#f8fafc' : '#2563eb';
+          }
+
+          ctx.fillStyle = bodyColor;
+          ctx.shadowColor = isFrightened ? 'rgba(59, 130, 246, 0.5)' : 'rgba(0,0,0,0.35)';
+          ctx.shadowBlur = 5;
+
+          ctx.beginPath();
+          ctx.arc(0, -r * 0.12, r, Math.PI, 0, false);
+          ctx.lineTo(r, r * 0.85);
+
+          // Saiote ondulado na base (3 ondas animadas)
+          const waveShift = Math.sin(game.globalTime * 14 + ghost.bobPhase) * (r * 0.1);
+          const waves = 3;
+          const step = (r * 2) / waves;
+          for (let i = 0; i < waves; i++) {
+            const rightEdge = r - i * step;
+            const leftEdge = rightEdge - step;
+            const midX = (rightEdge + leftEdge) / 2;
+            ctx.quadraticCurveTo(
+              rightEdge - step * 0.25,
+              r * 0.58 + waveShift,
+              midX,
+              r * 0.85
+            );
+            ctx.quadraticCurveTo(
+              leftEdge + step * 0.25,
+              r * 1.05 - waveShift,
+              leftEdge,
+              r * 0.85
+            );
+          }
+
+          ctx.closePath();
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+
+        // Expressão facial
+        if (isFrightened) {
+          const faceColor = isFlashing ? '#ef4444' : '#fde047';
+          ctx.fillStyle = faceColor;
+          // Olhinhos
+          ctx.beginPath();
+          ctx.arc(-r * 0.32, -r * 0.16, r * 0.13, 0, Math.PI * 2);
+          ctx.arc(r * 0.32, -r * 0.16, r * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Boca ondulada assustada
+          ctx.strokeStyle = faceColor;
+          ctx.lineWidth = Math.max(1.4, ts * 0.065);
+          ctx.beginPath();
+          const mouthY = r * 0.28;
+          ctx.moveTo(-r * 0.55, mouthY);
+          for (let i = 0; i < 4; i++) {
+            const x1 = -r * 0.55 + (i + 0.5) * ((r * 1.1) / 4);
+            const x2 = -r * 0.55 + (i + 1) * ((r * 1.1) / 4);
+            const y1 = mouthY + (i % 2 === 0 ? -r * 0.12 : r * 0.12);
+            ctx.lineTo(x1, y1);
+            ctx.lineTo(x2, mouthY);
+          }
+          ctx.stroke();
+        } else {
+          // Olhos normais olhando na direção do movimento
+          const d = DIRS[ghost.dir] || DIRS.LEFT;
+          const lookX = d.x * (r * 0.16);
+          const lookY = d.y * (r * 0.16);
+
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.ellipse(-r * 0.34 + lookX * 0.5, -r * 0.16 + lookY * 0.5, r * 0.25, r * 0.32, 0, 0, Math.PI * 2);
+          ctx.ellipse(r * 0.34 + lookX * 0.5, -r * 0.16 + lookY * 0.5, r * 0.25, r * 0.32, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = '#1d4ed8';
+          ctx.beginPath();
+          ctx.arc(-r * 0.34 + lookX, -r * 0.16 + lookY, r * 0.13, 0, Math.PI * 2);
+          ctx.arc(r * 0.34 + lookX, -r * 0.16 + lookY, r * 0.13, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      function drawPopups() {
+        const ts = tileSize;
+        ctx.save();
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = `900 ${Math.max(11, Math.floor(ts * 0.52))}px system-ui, sans-serif`;
+
+        for (const p of game.popups) {
+          const alpha = Math.min(1, p.timer * 1.6);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = '#03050c';
+          ctx.fillText(p.text, (p.x + 0.5) * ts + 1, (p.y + 0.5) * ts + 1);
+          ctx.fillStyle = p.color;
+          ctx.fillText(p.text, (p.x + 0.5) * ts, (p.y + 0.5) * ts);
+        }
+        ctx.restore();
+      }
+
+      function render() {
+        const cssW = tileSize * COLS;
+        const cssH = tileSize * ROWS;
+        ctx.clearRect(0, 0, cssW, cssH);
+
+        drawMaze();
+        drawBonusFruit();
+        drawPacman();
+        game.ghosts.forEach(drawGhost);
+        drawPopups();
+      }
+
+      function gameLoop(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+        lastTimestamp = timestamp;
+
+        update(dt);
+        render();
+        requestAnimationFrame(gameLoop);
+      }
+
+      /* =========================================================================
+       * 11. CONTROLES (TECLADO, D-PAD TÁTIL, SWIPE NO CANVAS E BOTÕES)
+       * ========================================================================= */
+      window.addEventListener('keydown', (e) => {
+        const key = e.key.toLowerCase();
+        if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) {
+          e.preventDefault();
+        }
+
+        if (key === 'arrowup' || key === 'w') setDesiredDirection('UP');
+        else if (key === 'arrowdown' || key === 's') setDesiredDirection('DOWN');
+        else if (key === 'arrowleft' || key === 'a') setDesiredDirection('LEFT');
+        else if (key === 'arrowright' || key === 'd') setDesiredDirection('RIGHT');
+        else if (key === 'p') togglePause();
+      });
+
+      // D-Pad tátil com resposta imediata (pointerdown)
+      document.querySelectorAll('.dpad-btn').forEach(btn => {
+        const dir = btn.getAttribute('data-dir');
+        const press = (e) => {
+          e.preventDefault();
+          btn.classList.add('active');
+          setDesiredDirection(dir);
+        };
+        const release = () => btn.classList.remove('active');
+
+        btn.addEventListener('pointerdown', press);
+        btn.addEventListener('pointerup', release);
+        btn.addEventListener('pointerleave', release);
+        btn.addEventListener('pointercancel', release);
+      });
+
+      // Gestos de deslize (Swipe) direto no palco/canvas
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let swiping = false;
+
+      canvasWrapper.addEventListener('pointerdown', (e) => {
+        touchStartX = e.clientX;
+        touchStartY = e.clientY;
+        swiping = true;
+        sound.ensureContext();
+      });
+
+      canvasWrapper.addEventListener('pointermove', (e) => {
+        if (!swiping) return;
+        const dx = e.clientX - touchStartX;
+        const dy = e.clientY - touchStartY;
+        const threshold = 18;
+
+        if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            setDesiredDirection(dx > 0 ? 'RIGHT' : 'LEFT');
+          } else {
+            setDesiredDirection(dy > 0 ? 'DOWN' : 'UP');
+          }
+          // Atualiza âncora para permitir curvas encadeadas sem tirar o dedo
+          touchStartX = e.clientX;
+          touchStartY = e.clientY;
+        }
+      });
+
+      window.addEventListener('pointerup', () => { swiping = false; });
+      window.addEventListener('pointercancel', () => { swiping = false; });
+
+      // Botões da barra superior e modal
+      function togglePause() {
+        if (game.state === 'PLAYING') {
+          setState('PAUSED');
+        } else if (game.state === 'PAUSED') {
+          setState('PLAYING');
+        }
+      }
+
+      btnPause.addEventListener('click', () => {
+        sound.ensureContext();
+        togglePause();
+      });
+
+      btnSound.addEventListener('click', () => {
+        const muted = sound.toggleMute();
+        btnSound.textContent = muted ? '🔇' : '🔊';
+        if (!muted) sound.playWaka();
+      });
+
+      btnNew.addEventListener('click', () => {
+        sound.ensureContext();
+        startNewGame(true);
+      });
+
+      btnRestart.addEventListener('click', () => {
+        sound.ensureContext();
+        startNewGame(true);
+      });
+
+      diffSelect.addEventListener('change', () => {
+        localStorage.setItem(STORAGE_DIFF_KEY, diffSelect.value);
+        sound.ensureContext();
+        startNewGame(true);
+      });
+
+      // Inicialização
+      resizeCanvas();
+      startNewGame(false);
+      requestAnimationFrame(gameLoop);
+    })();
+  </script>
+</body>
+</html>

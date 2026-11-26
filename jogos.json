@@ -104,6 +104,31 @@
       }
     },
     {
+      "id": "come-come",
+      "titulo": "Come-Come",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-comecome",
+      "url": "./come-come/",
+      "thumb": "./come-come/thumb.svg",
+      "keywords": "come come pac-man pacman labirinto fantasmas pastilhas arcade pilulas poder",
+      "descricao": "Clássico arcade de labirinto com IA individual para os 4 fantasmas (Blinky, Pinky, Inky e Clyde), pílulas de poder, frutas bônus, túneis de teletransporte e áudio procedural.",
+      "tags": [
+        "IA dos 4 Fantasmas",
+        "Swipe & D-Pad",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "comecome",
+          "come_come",
+          "pacman"
+        ],
+        "sufixo": " pts"
+      }
+    },
+    {
       "id": "cubo-magico",
       "titulo": "Cubo Mágico 3x3",
       "categoria": "puzzle",

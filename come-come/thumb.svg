@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    
+    <filter id="mazeGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.4" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  
+  <rect x="18" y="18" width="164" height="164" rx="14" fill="#090e1a" stroke="#25324b" stroke-width="2.2" />
+
+  
+  <rect x="26" y="24" width="148" height="13" rx="4" fill="#111827" />
+  <path d="M 33.5 30.5 L 36.8 28.4 A 3.8 3.8 0 1 0 36.8 32.6 Z" fill="#facc15" />
+  <rect x="40" y="29" width="44" height="3.2" rx="1.6" fill="#facc15" />
+  <rect x="153" y="26.5" width="18" height="8" rx="2.5" fill="#d97706" />
+
+  
+  <rect x="26" y="39" width="148" height="9" rx="3" fill="#0f172a" stroke="#1e293b" stroke-width="0.8" />
+  <rect x="33" y="42.3" width="16" height="2.4" rx="1.2" fill="#94a3b8" />
+  <rect x="88" y="42.3" width="16" height="2.4" rx="1.2" fill="#facc15" />
+  <path d="M 154 43.5 L 156.2 42.1 A 2.4 2.4 0 1 0 156.2 44.9 Z" fill="#facc15" />
+  <path d="M 161 43.5 L 163.2 42.1 A 2.4 2.4 0 1 0 163.2 44.9 Z" fill="#facc15" />
+
+  
+  <rect x="31" y="51" width="138" height="123" rx="6" fill="#050811" stroke="#1e3a8a" stroke-width="1.3" />
+
+  
+  <g filter="url(#mazeGlow)" fill="none" stroke="#2563eb" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    
+    <rect x="36" y="55" width="128" height="115" rx="3" />
+
+    
+    <line x1="100" y1="55" x2="100" y2="73" />
+
+    
+    <rect x="46" y="64" width="14" height="9" rx="1.5" />
+    <rect x="70" y="64" width="20" height="9" rx="1.5" />
+    <rect x="110" y="64" width="20" height="9" rx="1.5" />
+    <rect x="140" y="64" width="14" height="9" rx="1.5" />
+
+    
+    <line x1="46" y1="82" x2="60" y2="82" />
+    <line x1="140" y1="82" x2="154" y2="82" />
+    <path d="M 82 82 H 118 M 100 82 V 95" />
+    <path d="M 70 82 V 104 M 70 93 H 86" />
+    <path d="M 130 82 V 104 M 114 93 H 130" />
+
+    
+    <path d="M 36 93 H 56 V 105 H 36" />
+    <path d="M 164 93 H 144 V 105 H 164" />
+
+    
+    <path d="M 93 103 H 83 V 121 H 117 V 103 H 107" />
+    <line x1="94" y1="103" x2="106" y2="103" stroke="#f472b6" stroke-width="2" />
+
+    
+    <line x1="70" y1="112" x2="70" y2="127" />
+    <line x1="130" y1="112" x2="130" y2="127" />
+    <path d="M 36 116 H 56 V 128 H 36" />
+    <path d="M 164 116 H 144 V 128 H 164" />
+
+    
+    <path d="M 82 130 H 118 M 100 130 V 143" />
+    <line x1="70" y1="140" x2="88" y2="140" />
+    <line x1="112" y1="140" x2="130" y2="140" />
+
+    
+    <path d="M 48 139 H 58 V 153" />
+    <path d="M 152 139 H 142 V 153" />
+    <path d="M 82 152 H 118 M 100 152 V 163" />
+    <line x1="46" y1="162" x2="86" y2="162" />
+    <line x1="114" y1="162" x2="154" y2="162" />
+  </g>
+
+  
+  <g fill="#fde047">
+    
+    <circle cx="41" cy="60" r="2.3" />
+    <circle cx="159" cy="60" r="2.3" />
+    <circle cx="41" cy="147" r="2.3" />
+    <circle cx="159" cy="147" r="2.3" />
+
+    
+    <circle cx="53" cy="60" r="1.2" /><circle cx="65" cy="60" r="1.2" /><circle cx="79" cy="60" r="1.2" /><circle cx="92" cy="60" r="1.2" />
+    <circle cx="108" cy="60" r="1.2" /><circle cx="121" cy="60" r="1.2" /><circle cx="135" cy="60" r="1.2" /><circle cx="147" cy="60" r="1.2" />
+
+    <circle cx="41" cy="77" r="1.2" /><circle cx="53" cy="77" r="1.2" /><circle cx="65" cy="77" r="1.2" /><circle cx="82" cy="77" r="1.2" />
+    <circle cx="118" cy="77" r="1.2" /><circle cx="135" cy="77" r="1.2" /><circle cx="147" cy="77" r="1.2" /><circle cx="159" cy="77" r="1.2" />
+
+    <circle cx="65" cy="90" r="1.2" /><circle cx="65" cy="105" r="1.2" /><circle cx="65" cy="120" r="1.2" /><circle cx="65" cy="134" r="1.2" />
+    <circle cx="135" cy="90" r="1.2" /><circle cx="135" cy="105" r="1.2" /><circle cx="135" cy="120" r="1.2" /><circle cx="135" cy="134" r="1.2" />
+
+    <circle cx="41" cy="134" r="1.2" /><circle cx="53" cy="134" r="1.2" /><circle cx="147" cy="134" r="1.2" /><circle cx="159" cy="134" r="1.2" />
+    <circle cx="41" cy="158" r="1.2" /><circle cx="53" cy="158" r="1.2" /><circle cx="76" cy="158" r="1.2" /><circle cx="91" cy="158" r="1.2" />
+    <circle cx="109" cy="158" r="1.2" /><circle cx="124" cy="158" r="1.2" /><circle cx="147" cy="158" r="1.2" /><circle cx="159" cy="158" r="1.2" />
+  </g>
+
+  
+  <g transform="translate(38, 65)">
+    <path d="M 0 4 A 3.5 3.5 0 0 1 7 4 V 8.5 L 5.6 7.3 L 4.2 8.5 L 2.8 7.3 L 1.4 8.5 L 0 7.3 Z" fill="#f472b6" />
+    <circle cx="2.3" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="5.1" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="2.6" cy="3.5" r="0.55" fill="#1e3a8a" />
+    <circle cx="5.4" cy="3.5" r="0.55" fill="#1e3a8a" />
+  </g>
+
+  
+  <g transform="translate(155, 62)">
+    <path d="M 0 4 A 3.5 3.5 0 0 1 7 4 V 8.5 L 5.6 7.3 L 4.2 8.5 L 2.8 7.3 L 1.4 8.5 L 0 7.3 Z" fill="#ef4444" />
+    <circle cx="2" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="4.8" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="1.7" cy="3.5" r="0.55" fill="#1e3a8a" />
+    <circle cx="4.5" cy="3.5" r="0.55" fill="#1e3a8a" />
+  </g>
+
+  
+  <g transform="translate(105, 110)">
+    <path d="M 0 4 A 3.5 3.5 0 0 1 7 4 V 8.5 L 5.6 7.3 L 4.2 8.5 L 2.8 7.3 L 1.4 8.5 L 0 7.3 Z" fill="#fb923c" />
+    <circle cx="2.2" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="5" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="2.2" cy="3" r="0.55" fill="#1e3a8a" />
+    <circle cx="5" cy="3" r="0.55" fill="#1e3a8a" />
+  </g>
+
+  
+  <g transform="translate(121, 121)">
+    <path d="M 0 4 A 3.5 3.5 0 0 1 7 4 V 8.5 L 5.6 7.3 L 4.2 8.5 L 2.8 7.3 L 1.4 8.5 L 0 7.3 Z" fill="#38bdf8" />
+    <circle cx="2.1" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="4.9" cy="3.5" r="1.1" fill="#ffffff" />
+    <circle cx="2.1" cy="4" r="0.55" fill="#1e3a8a" />
+    <circle cx="4.9" cy="4" r="0.55" fill="#1e3a8a" />
+  </g>
+
+  
+  <path d="M 65 147 L 61.2 144.6 A 4.4 4.4 0 1 1 61.2 149.4 Z" fill="#facc15" />
+</svg>
