@@ -932,10 +932,14 @@
 
       async function loadGames() {
         try {
-          const response = await fetch('./jogos.json');
+          const response = await fetch('./jogos.json', { cache: 'no-cache' });
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           const data = await response.json();
           const list = Array.isArray(data) ? data : (data.jogos || []);
+
+          list.sort((a, b) =>
+            (a.titulo || '').localeCompare(b.titulo || '', 'pt-BR', { sensitivity: 'base' })
+          );
 
           totalCountEl.textContent = list.length;
           grid.innerHTML = '';
