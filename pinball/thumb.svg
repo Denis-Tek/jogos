@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <filter id="pinballGlow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="1.6" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <pattern id="pinballGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+      <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#151f33" stroke-width="0.6" />
+    </pattern>
+  </defs>
+
+  
+  <rect x="18" y="18" width="164" height="164" rx="14" fill="#0b101b" stroke="#26334d" stroke-width="2.2" />
+
+  
+  <rect x="26" y="23" width="148" height="12" rx="3.5" fill="#131b2e" />
+  <rect x="28.5" y="25" width="8" height="8" rx="2" fill="#ec4899" />
+  <circle cx="32.5" cy="29" r="1.8" fill="#38bdf8" />
+  <rect x="39" y="27.5" width="38" height="3" rx="1.5" fill="#f8fafc" />
+  <rect x="80" y="26.5" width="18" height="5" rx="2" fill="#291d0e" stroke="#f59e0b" stroke-width="0.6" />
+
+  
+  <rect x="26" y="37" width="148" height="9" rx="2.5" fill="#0f172a" stroke="#1e293b" stroke-width="0.7" />
+  <rect x="31" y="40.3" width="12" height="2.4" rx="1.2" fill="#38bdf8" />
+  <rect x="72" y="40.3" width="12" height="2.4" rx="1.2" fill="#94a3b8" />
+  <circle cx="114" cy="41.5" r="1.4" fill="#ffffff" />
+  <circle cx="118.5" cy="41.5" r="1.4" fill="#ffffff" />
+  <circle cx="123" cy="41.5" r="1.4" fill="#ffffff" />
+  <rect x="154" y="40.3" width="12" height="2.4" rx="1.2" fill="#facc15" />
+
+  
+  <rect x="31" y="49" width="138" height="114" rx="6" fill="#090e18" stroke="#1e293b" stroke-width="1.1" />
+  <rect x="32" y="50" width="136" height="112" rx="5" fill="url(#pinballGrid)" />
+
+  
+  <g fill="none" stroke="#4c1d2e" stroke-width="0.7" opacity="0.75">
+    <circle cx="94" cy="113" r="10" />
+    <circle cx="94" cy="113" r="16" />
+    <circle cx="94" cy="113" r="22" />
+  </g>
+
+  
+  <path d="M 118 67 Q 134 92 124 114" fill="none" stroke="#1e3a5f" stroke-width="6" stroke-linecap="round" opacity="0.7" />
+  <path d="M 118 67 Q 134 92 124 114" fill="none" stroke="#38bdf8" stroke-width="0.9" stroke-dasharray="2.2 2.2" opacity="0.85" />
+
+  
+  <g filter="url(#pinballGlow)" stroke-linecap="round" stroke-linejoin="round">
+    
+    <path d="M 68 153 L 44 134 V 76 L 56 60 L 82 54 H 116 L 146 62 L 154 78 V 150 H 146 V 76 L 142 84" fill="none" stroke="#38bdf8" stroke-width="1.8" />
+
+    
+    <path d="M 55 72 L 66 64 L 78 60" fill="none" stroke="#38bdf8" stroke-width="1.5" />
+
+    
+    <line x1="84" y1="57" x2="84" y2="65" stroke="#38bdf8" stroke-width="1.3" />
+    <line x1="97" y1="57" x2="97" y2="65" stroke="#38bdf8" stroke-width="1.3" />
+    <line x1="110" y1="57" x2="110" y2="65" stroke="#38bdf8" stroke-width="1.3" />
+    <line x1="123" y1="57" x2="123" y2="65" stroke="#38bdf8" stroke-width="1.3" />
+
+    
+    <circle cx="88" cy="79" r="5.5" fill="#090e18" stroke="#2dd4bf" stroke-width="2.4" />
+    <circle cx="111" cy="79" r="5.5" fill="#090e18" stroke="#f43f5e" stroke-width="2.4" />
+    <circle cx="99.5" cy="91" r="5.5" fill="#090e18" stroke="#facc15" stroke-width="2.4" />
+
+    
+    <rect x="48" y="88" width="2.8" height="6.5" rx="1" fill="#fbbf24" stroke="#fef08a" stroke-width="0.6" />
+    <rect x="48" y="96.5" width="2.8" height="6.5" rx="1" fill="#fbbf24" stroke="#fef08a" stroke-width="0.6" />
+    <rect x="48" y="105" width="2.8" height="6.5" rx="1" fill="#fbbf24" stroke="#fef08a" stroke-width="0.6" />
+    <rect x="48" y="113.5" width="2.8" height="6.5" rx="1" fill="#fbbf24" stroke="#fef08a" stroke-width="0.6" />
+
+    
+    <circle cx="66" cy="100" r="4.8" fill="#090e18" stroke="#a855f7" stroke-width="2" />
+
+    
+    <line x1="133" y1="90" x2="140" y2="90" stroke="#a855f7" stroke-width="2" />
+
+    
+    <polygon points="62,126 62,137 74,142" fill="#4c1d2e" stroke="#f43f5e" stroke-width="1.2" />
+    <polygon points="126,126 126,137 114,142" fill="#4c1d2e" stroke="#f43f5e" stroke-width="1.2" />
+
+    
+    <path d="M 54 130 V 141 L 74 152" fill="none" stroke="#38bdf8" stroke-width="1.5" />
+    <path d="M 134 130 V 141 L 114 152" fill="none" stroke="#38bdf8" stroke-width="1.5" />
+
+    
+    <line x1="76" y1="152" x2="92" y2="157" stroke="#38bdf8" stroke-width="3.2" />
+    <line x1="112" y1="157" x2="128" y2="152" stroke="#38bdf8" stroke-width="3.2" />
+  </g>
+
+  
+  <g fill="#f43f5e" stroke="#ffffff" stroke-width="0.5">
+    <circle cx="84" cy="66" r="1.4" />
+    <circle cx="97" cy="66" r="1.4" />
+    <circle cx="110" cy="66" r="1.4" />
+    <circle cx="123" cy="66" r="1.4" />
+    <circle cx="142" cy="80" r="1.4" />
+    <circle cx="54" cy="129" r="1.4" />
+    <circle cx="134" cy="129" r="1.4" />
+  </g>
+  <rect x="48" y="138" width="3.5" height="2.2" rx="0.8" fill="#10b981" />
+  <rect x="136.5" y="138" width="3.5" height="2.2" rx="0.8" fill="#10b981" />
+
+  
+  <circle cx="150" cy="145" r="2.6" fill="#f8fafc" />
+  <rect x="147.2" y="147.8" width="5.6" height="1.8" rx="0.7" fill="#f43f5e" />
+  <path d="M 148 151 L 152 153 L 148 155 L 152 157 L 148 159" fill="none" stroke="#94a3b8" stroke-width="1.1" stroke-linecap="round" />
+
+  
+  <rect x="26" y="166" width="34" height="10" rx="2.5" fill="#162035" stroke="#334155" stroke-width="0.7" />
+  <rect x="63" y="166" width="22" height="10" rx="2.5" fill="#162035" stroke="#334155" stroke-width="0.7" />
+  <rect x="88" y="166" width="22" height="10" rx="2.5" fill="#162035" stroke="#334155" stroke-width="0.7" />
+  <rect x="113" y="166" width="24" height="10" rx="2.5" fill="#361826" stroke="#f43f5e" stroke-width="0.8" />
+  <rect x="140" y="166" width="34" height="10" rx="2.5" fill="#162035" stroke="#334155" stroke-width="0.7" />
+</svg>

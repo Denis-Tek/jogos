@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Gerador de Labirintos — Maze Studio</title>
+  <style>
+    :root {
+      --bg-body: #0b1120;
+      --bg-panel: #111827;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: rgba(148, 163, 184, 0.2);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.35);
+      --gold: #f59e0b;
+      --success: #10b981;
+      --danger: #f43f5e;
+      --maze-floor: #0f172a;
+      --maze-wall: #38bdf8;
+      --maze-wall-shadow: rgba(56, 189, 248, 0.35);
+      --maze-visited: rgba(56, 189, 248, 0.14);
+      --maze-trail: rgba(16, 185, 129, 0.55);
+      --maze-bfs: rgba(168, 85, 247, 0.28);
+      --maze-solution: #f59e0b;
+      --shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    [data-theme="light"] {
+      --bg-body: #eef2f6;
+      --bg-panel: #ffffff;
+      --bg-card: #f1f5f9;
+      --bg-card-hover: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: rgba(15, 23, 42, 0.14);
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.22);
+      --gold: #d97706;
+      --success: #059669;
+      --danger: #e11d48;
+      --maze-floor: #f8fafc;
+      --maze-wall: #1e293b;
+      --maze-wall-shadow: rgba(15, 23, 42, 0.12);
+      --maze-visited: rgba(2, 132, 199, 0.12);
+      --maze-trail: rgba(5, 150, 105, 0.45);
+      --maze-bfs: rgba(124, 58, 237, 0.22);
+      --maze-solution: #ea580c;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      height: 100dvh;
+      width: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* Cabeçalho Compacto */
+    header {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.4rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-width: 0;
+    }
+
+    .logo-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(14, 165, 233, 0.35);
+    }
+
+    .title-box h1 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      line-height: 1.15;
+    }
+
+    .title-box span {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .controls-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-chip, select {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.32rem 0.55rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.28rem;
+      min-height: 30px;
+      transition: all 0.16s ease;
+      white-space: nowrap;
+    }
+
+    .btn-chip:hover, select:hover {
+      border-color: var(--accent);
+      background: var(--bg-card-hover);
+    }
+
+    .btn-chip.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    .btn-chip.warning-active {
+      background: var(--gold);
+      color: #ffffff;
+      border-color: transparent;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.32rem 0.68rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.28rem;
+      min-height: 30px;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.28);
+      transition: transform 0.15s ease, filter 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:active, .btn-chip:active {
+      transform: scale(0.96);
+    }
+
+    /* Barra de Status */
+    .status-bar {
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.32rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    .algo-badge {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 0.14rem 0.52rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.71rem;
+    }
+
+    .status-metrics {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .status-metrics strong {
+      color: var(--text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric-record strong {
+      color: var(--gold);
+    }
+
+    /* Área Principal do Canvas */
+    main {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .canvas-stage {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    canvas#mazeCanvas {
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      background: var(--maze-floor);
+      touch-action: none;
+      display: block;
+    }
+
+    /* Toast Discreto de Feedback */
+    .floating-toast {
+      position: absolute;
+      top: 0.75rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-12px);
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--accent);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 30;
+      white-space: nowrap;
+    }
+
+    .floating-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* D-Pad Compacto para Mobile / Touch */
+    .mobile-controls {
+      display: none;
+      flex-shrink: 0;
+      padding-top: 0.4rem;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .dpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 42px);
+      grid-template-rows: repeat(2, 38px);
+      gap: 4px;
+    }
+
+    .dpad-btn {
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+      transition: background-color 0.1s ease, transform 0.08s ease;
+    }
+
+    .dpad-btn:active {
+      background: var(--accent);
+      color: #ffffff;
+      transform: scale(0.93);
+    }
+
+    .dpad-up { grid-column: 2; grid-row: 1; }
+    .dpad-left { grid-column: 1; grid-row: 2; }
+    .dpad-down { grid-column: 2; grid-row: 2; }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+
+    .touch-hint {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      max-width: 140px;
+      line-height: 1.3;
+    }
+
+    @media (hover: none) and (pointer: coarse), (max-width: 768px) {
+      .mobile-controls {
+        display: flex;
+      }
+      .title-box span {
+        display: none;
+      }
+      header {
+        padding: 0.35rem 0.55rem;
+        gap: 0.32rem;
+      }
+      .btn-chip, select, .btn-primary {
+        padding: 0.28rem 0.46rem;
+        font-size: 0.72rem;
+        min-height: 28px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .header-left {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .controls-toolbar {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* Modal de Vitória (z-index máximo garantido) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 999999;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      max-width: 420px;
+      width: 100%;
+      padding: 1.35rem;
+      box-shadow: 0 24px 54px rgba(0, 0, 0, 0.6);
+      animation: modalPop 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.92) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-trophy {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 1.35rem;
+      flex-shrink: 0;
+    }
+
+    .modal-header h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .modal-header p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.55rem;
+      margin: 0.9rem 0;
+    }
+
+    .stat-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.6rem 0.75rem;
+    }
+
+    .stat-box span {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 0.15rem;
+    }
+
+    .stat-box strong {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .stat-box.highlight strong {
+      color: var(--gold);
+    }
+
+    .record-banner {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--gold);
+      border-radius: 10px;
+      padding: 0.45rem 0.7rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.85rem;
+      display: none;
+    }
+
+    .record-banner.show {
+      display: block;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.55rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <div class="logo-badge" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3h18v18H3z" />
+          <path d="M9 3v6h6V3" />
+          <path d="M3 15h6v6" />
+          <path d="M15 21v-6h6" />
+          <path d="M9 12h6" />
+        </svg>
+      </div>
+      <div class="title-box">
+        <h1>Gerador de Labirintos</h1>
+        <span>Maze Studio • DFS, Prim, Kruskal &amp; Solver BFS</span>
+      </div>
+    </div>
+
+    <div class="controls-toolbar">
+      <select id="algoSelect" title="Algoritmo de Geração" aria-label="Algoritmo de Geração">
+        <option value="dfs">🌀 DFS Backtracker</option>
+        <option value="prim">🌿 Prim (Orgânico)</option>
+        <option value="kruskal">🧩 Kruskal (Simétrico)</option>
+      </select>
+
+      <select id="sizeSelect" title="Tamanho da Grade" aria-label="Tamanho da Grade">
+        <option value="15">Pequeno (15×15)</option>
+        <option value="25" selected>Médio (25×25)</option>
+        <option value="37">Grande (37×37)</option>
+      </select>
+
+      <button id="fogBtn" class="btn-chip" type="button" title="Alternar Névoa de Guerra (Tecla F)">👁️ Visão Total</button>
+      <button id="animGenBtn" class="btn-chip" type="button" title="Assistir construção passo a passo">⚡ Animar: OFF</button>
+      <button id="trailBtn" class="btn-chip active" type="button" title="Mostrar/Ocultar rastro de passos">👣 Rastro</button>
+      <button id="solveBtn" class="btn-chip" type="button" title="Resolver caminho ótimo via BFS (Tecla H)">💡 Resolver</button>
+      <button id="newBtn" class="btn-primary" type="button" title="Gerar Novo Labirinto (Tecla R)">↻ Novo</button>
+      <button id="themeBtn" class="btn-chip" type="button" title="Alternar Tema Claro/Escuro" aria-label="Alternar Tema">🌓</button>
+      <button id="soundBtn" class="btn-chip" type="button" title="Alternar Som" aria-label="Alternar Som">🔊</button>
+    </div>
+  </header>
+
+  <div class="status-bar">
+    <div class="status-left">
+      <span class="algo-badge" id="statusAlgoBadge">DFS Backtracker</span>
+      <span id="statusSizeLabel" style="color:var(--text-muted);font-weight:700;">25×25</span>
+    </div>
+
+    <div class="status-metrics">
+      <span>Passos: <strong id="stepsDisplay">0</strong></span>
+      <span>Ótimo: <strong id="optimalDisplay">--</strong></span>
+      <span class="metric-record">Recorde: <strong id="recordDisplay">--:--</strong></span>
+      <span>Tempo: <strong id="timerDisplay">00:00</strong></span>
+    </div>
+  </div>
+
+  <main>
+    <div class="floating-toast" id="floatingToast">Labirinto gerado!</div>
+
+    <div class="canvas-stage" id="canvasStage">
+      <canvas id="mazeCanvas" aria-label="Tabuleiro do Labirinto"></canvas>
+    </div>
+
+    <div class="mobile-controls" aria-label="Controles Direcionais">
+      <div class="dpad-grid">
+        <button class="dpad-btn dpad-up" data-dir="0,-1" type="button" aria-label="Mover para Cima">▲</button>
+        <button class="dpad-btn dpad-left" data-dir="-1,0" type="button" aria-label="Mover para Esquerda">◀</button>
+        <button class="dpad-btn dpad-down" data-dir="0,1" type="button" aria-label="Mover para Baixo">▼</button>
+        <button class="dpad-btn dpad-right" data-dir="1,0" type="button" aria-label="Mover para Direita">▶</button>
+      </div>
+      <div class="touch-hint">Deslize no labirinto ou use as setas para navegar até a saída.</div>
+    </div>
+  </main>
+
+  <!-- Modal de Vitória -->
+  <div class="modal-backdrop" id="winModal" role="dialog" aria-modal="true" aria-labelledby="winTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-trophy">🏆</div>
+        <div>
+          <h2 id="winTitle">Labirinto Concluído!</h2>
+          <p id="winSubtitle">Você encontrou a saída com sucesso.</p>
+        </div>
+      </div>
+
+      <div class="record-banner" id="newRecordBanner">⭐ Novo Recorde Pessoal neste modo!</div>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span>Tempo Total</span>
+          <strong id="winTime">00:00</strong>
+        </div>
+        <div class="stat-box">
+          <span>Eficiência de Rota</span>
+          <strong id="winEfficiency">100%</strong>
+        </div>
+        <div class="stat-box">
+          <span>Seus Passos</span>
+          <strong id="winSteps">0</strong>
+        </div>
+        <div class="stat-box highlight">
+          <span>Caminho Ótimo (BFS)</span>
+          <strong id="winOptimal">0</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="closeModalBtn" class="btn-chip" type="button">Ver Labirinto</button>
+        <button id="nextMazeBtn" class="btn-primary" type="button">↻ Próximo Labirinto</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Bitmasks de paredes abertas por célula (1 = passagem aberta)
+      const TOP = 1;
+      const RIGHT = 2;
+      const BOTTOM = 4;
+      const LEFT = 8;
+
+      const DIRS = [
+        { dx: 0, dy: -1, wall: TOP, opp: BOTTOM },
+        { dx: 1, dy: 0, wall: RIGHT, opp: LEFT },
+        { dx: 0, dy: 1, wall: BOTTOM, opp: TOP },
+        { dx: -1, dy: 0, wall: LEFT, opp: RIGHT }
+      ];
+
+      const ALGO_NAMES = {
+        dfs: "DFS Backtracker",
+        prim: "Prim (Orgânico)",
+        kruskal: "Kruskal (Simétrico)"
+      };
+
+      // Estado Global
+      let cols = 25;
+      let rows = 25;
+      let algorithm = "dfs";
+      let fogOfWar = false;
+      let animateGeneration = false;
+      let showTrail = true;
+      let soundEnabled = true;
+
+      // Estrutura da grade: passages[y][x] guarda bitmask das passagens abertas
+      let passages = [];
+      let carvedCells = []; // Células já escavadas (útil na animação)
+      let activeCarveCell = null;
+
+      // Estado do Jogador
+      let player = { x: 0, y: 0 };
+      let renderPlayer = { x: 0, y: 0 };
+      let visitedSet = new Set();
+      let trailPath = [];
+      let steps = 0;
+      let optimalLength = 0;
+
+      // Estado de Geração Animada & Solver BFS
+      let isGenerating = false;
+      let genGenerator = null;
+      let isSolving = false;
+      let solverQueue = [];
+      let solverExplored = [];
+      let solverPath = [];
+      let usedSolver = false;
+
+      // Cronômetro & Vitória
+      let gameStarted = false;
+      let gameWon = false;
+      let elapsedSeconds = 0;
+      let timerInterval = null;
+
+      // Áudio Web Audio API
+      let audioCtx = null;
+
+      // Referências DOM
+      const canvas = document.getElementById("mazeCanvas");
+      const ctx = canvas.getContext("2d");
+      const canvasStage = document.getElementById("canvasStage");
+
+      const algoSelect = document.getElementById("algoSelect");
+      const sizeSelect = document.getElementById("sizeSelect");
+      const fogBtn = document.getElementById("fogBtn");
+      const animGenBtn = document.getElementById("animGenBtn");
+      const trailBtn = document.getElementById("trailBtn");
+      const solveBtn = document.getElementById("solveBtn");
+      const newBtn = document.getElementById("newBtn");
+      const themeBtn = document.getElementById("themeBtn");
+      const soundBtn = document.getElementById("soundBtn");
+
+      const statusAlgoBadge = document.getElementById("statusAlgoBadge");
+      const statusSizeLabel = document.getElementById("statusSizeLabel");
+      const stepsDisplay = document.getElementById("stepsDisplay");
+      const optimalDisplay = document.getElementById("optimalDisplay");
+      const recordDisplay = document.getElementById("recordDisplay");
+      const timerDisplay = document.getElementById("timerDisplay");
+      const floatingToast = document.getElementById("floatingToast");
+
+      const winModal = document.getElementById("winModal");
+      const closeModalBtn = document.getElementById("closeModalBtn");
+      const nextMazeBtn = document.getElementById("nextMazeBtn");
+
+      let toastTimeout = null;
+      function showToast(msg) {
+        floatingToast.textContent = msg;
+        floatingToast.classList.add("show");
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          floatingToast.classList.remove("show");
+        }, 1800);
+      }
+
+      // Síntese Sonora Procedural
+      function playSound(type) {
+        if (!soundEnabled) return;
+        try {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === "suspended") audioCtx.resume();
+
+          const now = audioCtx.currentTime;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          if (type === "step") {
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(260 + Math.random() * 45, now);
+            osc.frequency.exponentialRampToValueAtTime(140, now + 0.045);
+            gain.gain.setValueAtTime(0.045, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.05);
+          } else if (type === "bump") {
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(115, now);
+            osc.frequency.exponentialRampToValueAtTime(75, now + 0.06);
+            gain.gain.setValueAtTime(0.04, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.065);
+          } else if (type === "carve") {
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(320 + (Math.random() * 240), now);
+            gain.gain.setValueAtTime(0.015, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.025);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.03);
+          } else if (type === "solve") {
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(440, now);
+            osc.frequency.exponentialRampToValueAtTime(660, now + 0.14);
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + 0.16);
+          } else if (type === "win") {
+            const notes = [523.25, 659.25, 783.99, 1046.5];
+            notes.forEach((freq, idx) => {
+              const o = audioCtx.createOscillator();
+              const g = audioCtx.createGain();
+              o.type = "triangle";
+              o.frequency.setValueAtTime(freq, now + idx * 0.09);
+              g.gain.setValueAtTime(0.075, now + idx * 0.09);
+              g.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.09 + 0.25);
+              o.connect(g);
+              g.connect(audioCtx.destination);
+              o.start(now + idx * 0.09);
+              o.stop(now + idx * 0.09 + 0.26);
+            });
+          }
+        } catch (e) {}
+      }
+
+      // Formatação de Tempo
+      function formatTime(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, "0");
+        const s = String(sec % 60).padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      // Persistência de Recordes (por tamanho + modo de visão)
+      function getRecordKey() {
+        return `maze_rec_${cols}_${fogOfWar ? "fog" : "full"}`;
+      }
+
+      function loadRecord() {
+        const val = localStorage.getItem(getRecordKey());
+        recordDisplay.textContent = val ? formatTime(Number(val)) : "--:--";
+      }
+
+      function saveRecordIfBest(seconds) {
+        if (usedSolver) return false;
+        const key = getRecordKey();
+        const prev = localStorage.getItem(key);
+        if (!prev || seconds < Number(prev)) {
+          localStorage.setItem(key, String(seconds));
+          recordDisplay.textContent = formatTime(seconds);
+          return true;
+        }
+        return false;
+      }
+
+      // Cronômetro
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        elapsedSeconds = 0;
+        gameStarted = false;
+        timerDisplay.textContent = "00:00";
+      }
+
+      function ensureTimerRunning() {
+        if (gameStarted || gameWon || isGenerating) return;
+        gameStarted = true;
+        timerInterval = setInterval(() => {
+          elapsedSeconds++;
+          timerDisplay.textContent = formatTime(elapsedSeconds);
+        }, 1000);
+      }
+
+      // Utilitário Shuffle
+      function shuffledDirs() {
+        const arr = [...DIRS];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      // ==========================================
+      // ALGORITMOS DE GERAÇÃO (Generators)
+      // ==========================================
+
+      // 1. Recursive Backtracker (DFS)
+      function* generateDFS() {
+        const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+        const stack = [{ x: 0, y: 0 }];
+        visited[0][0] = true;
+        carvedCells[0][0] = true;
+        activeCarveCell = { x: 0, y: 0 };
+        yield;
+
+        while (stack.length > 0) {
+          const curr = stack[stack.length - 1];
+          activeCarveCell = curr;
+          const neighbors = [];
+
+          for (const d of shuffledDirs()) {
+            const nx = curr.x + d.dx;
+            const ny = curr.y + d.dy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !visited[ny][nx]) {
+              neighbors.push({ nx, ny, d });
+            }
+          }
+
+          if (neighbors.length > 0) {
+            const { nx, ny, d } = neighbors[0];
+            passages[curr.y][curr.x] |= d.wall;
+            passages[ny][nx] |= d.opp;
+            visited[ny][nx] = true;
+            carvedCells[ny][nx] = true;
+            stack.push({ x: nx, y: ny });
+            activeCarveCell = { x: nx, y: ny };
+            yield;
+          } else {
+            stack.pop();
+          }
+        }
+        activeCarveCell = null;
+      }
+
+      // 2. Randomized Prim's Algorithm
+      function* generatePrim() {
+        const inMaze = Array.from({ length: rows }, () => Array(cols).fill(false));
+        const frontier = [];
+
+        function addFrontier(x, y) {
+          for (const d of DIRS) {
+            const nx = x + d.dx;
+            const ny = y + d.dy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !inMaze[ny][nx]) {
+              frontier.push({ x: nx, y: ny });
+            }
+          }
+        }
+
+        const startX = Math.floor(cols / 2);
+        const startY = Math.floor(rows / 2);
+        inMaze[startY][startX] = true;
+        carvedCells[startY][startX] = true;
+        addFrontier(startX, startY);
+        activeCarveCell = { x: startX, y: startY };
+        yield;
+
+        while (frontier.length > 0) {
+          const idx = Math.floor(Math.random() * frontier.length);
+          const cell = frontier.splice(idx, 1)[0];
+          if (inMaze[cell.y][cell.x]) continue;
+
+          const carvedNeighbors = [];
+          for (const d of DIRS) {
+            const nx = cell.x + d.dx;
+            const ny = cell.y + d.dy;
+            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && inMaze[ny][nx]) {
+              carvedNeighbors.push({ nx, ny, d });
+            }
+          }
+
+          if (carvedNeighbors.length > 0) {
+            const pick = carvedNeighbors[Math.floor(Math.random() * carvedNeighbors.length)];
+            passages[cell.y][cell.x] |= pick.d.wall;
+            passages[pick.ny][pick.nx] |= pick.d.opp;
+            inMaze[cell.y][cell.x] = true;
+            carvedCells[cell.y][cell.x] = true;
+            activeCarveCell = { x: cell.x, y: cell.y };
+            addFrontier(cell.x, cell.y);
+            yield;
+          }
+        }
+        activeCarveCell = null;
+      }
+
+      // 3. Randomized Kruskal's Algorithm (Union-Find)
+      function* generateKruskal() {
+        const parent = Array.from({ length: cols * rows }, (_, i) => i);
+        function find(i) {
+          while (parent[i] !== i) {
+            parent[i] = parent[parent[i]];
+            i = parent[i];
+          }
+          return i;
+        }
+        function union(a, b) {
+          const rootA = find(a);
+          const rootB = find(b);
+          if (rootA === rootB) return false;
+          parent[rootA] = rootB;
+          return true;
+        }
+
+        const edges = [];
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            if (x + 1 < cols) edges.push({ x, y, d: DIRS[1] }); // RIGHT
+            if (y + 1 < rows) edges.push({ x, y, d: DIRS[2] }); // BOTTOM
+          }
+        }
+
+        // Embaralha arestas
+        for (let i = edges.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [edges[i], edges[j]] = [edges[j], edges[i]];
+        }
+
+        for (const edge of edges) {
+          const { x, y, d } = edge;
+          const nx = x + d.dx;
+          const ny = y + d.dy;
+          const id1 = y * cols + x;
+          const id2 = ny * cols + nx;
+
+          if (union(id1, id2)) {
+            passages[y][x] |= d.wall;
+            passages[ny][nx] |= d.opp;
+            carvedCells[y][x] = true;
+            carvedCells[ny][nx] = true;
+            activeCarveCell = { x: nx, y: ny };
+            yield;
+          }
+        }
+        activeCarveCell = null;
+      }
+
+      // ==========================================
+      // BUSCA EM LARGURA (BFS) PARA ÓTIMO & SOLVER
+      // ==========================================
+      function computeShortestPath(startX, startY, endX, endY) {
+        const visited = Array.from({ length: rows }, () => Array(cols).fill(false));
+        const parent = Array.from({ length: rows }, () => Array(cols).fill(null));
+        const queue = [{ x: startX, y: startY }];
+        const explorationOrder = [];
+        visited[startY][startX] = true;
+
+        while (queue.length > 0) {
+          const curr = queue.shift();
+          explorationOrder.push(curr);
+
+          if (curr.x === endX && curr.y === endY) {
+            const path = [];
+            let trace = curr;
+            while (trace) {
+              path.push(trace);
+              trace = parent[trace.y][trace.x];
+            }
+            path.reverse();
+            return { path, explorationOrder };
+          }
+
+          const mask = passages[curr.y][curr.x];
+          for (const d of DIRS) {
+            if (mask & d.wall) {
+              const nx = curr.x + d.dx;
+              const ny = curr.y + d.dy;
+              if (nx >= 0 && nx < cols && ny >= 0 && ny < rows && !visited[ny][nx]) {
+                visited[ny][nx] = true;
+                parent[ny][nx] = curr;
+                queue.push({ x: nx, y: ny });
+              }
+            }
+          }
+        }
+        return { path: [], explorationOrder };
+      }
+
+      // Inicializar Novo Labirinto
+      function initMaze() {
+        cols = Number(sizeSelect.value);
+        rows = cols;
+        algorithm = algoSelect.value;
+
+        statusAlgoBadge.textContent = ALGO_NAMES[algorithm];
+        statusSizeLabel.textContent = `${cols}×${rows}`;
+        loadRecord();
+
+        passages = Array.from({ length: rows }, () => Array(cols).fill(0));
+        carvedCells = Array.from({ length: rows }, () => Array(cols).fill(false));
+        activeCarveCell = null;
+
+        player = { x: 0, y: 0 };
+        renderPlayer = { x: 0, y: 0 };
+        visitedSet = new Set(["0,0"]);
+        trailPath = [{ x: 0, y: 0 }];
+        steps = 0;
+        stepsDisplay.textContent = "0";
+        optimalDisplay.textContent = "--";
+
+        isSolving = false;
+        solverQueue = [];
+        solverExplored = [];
+        solverPath = [];
+        usedSolver = false;
+        gameWon = false;
+        winModal.classList.remove("open");
+        resetTimer();
+
+        if (algorithm === "dfs") genGenerator = generateDFS();
+        else if (algorithm === "prim") genGenerator = generatePrim();
+        else genGenerator = generateKruskal();
+
+        if (animateGeneration) {
+          isGenerating = true;
+          showToast(`Construindo via ${ALGO_NAMES[algorithm]}...`);
+        } else {
+          // Execução instantânea completa
+          while (!genGenerator.next().done) {}
+          isGenerating = false;
+          finalizeMazeSetup();
+        }
+      }
+
+      function finalizeMazeSetup() {
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            carvedCells[y][x] = true;
+          }
+        }
+        const { path } = computeShortestPath(0, 0, cols - 1, rows - 1);
+        optimalLength = Math.max(0, path.length - 1);
+        optimalDisplay.textContent = String(optimalLength);
+      }
+
+      // Acionar Solucionador Visual BFS
+      function triggerVisualSolver() {
+        if (isGenerating || gameWon) return;
+        const { path, explorationOrder } = computeShortestPath(player.x, player.y, cols - 1, rows - 1);
+        if (path.length === 0) return;
+
+        usedSolver = true;
+        isSolving = true;
+        solverExplored = [];
+        solverPath = [];
+        solverQueue = explorationOrder;
+        solverTargetPath = path;
+        playSound("solve");
+        showToast("Buscando menor rota via BFS...");
+      }
+      let solverTargetPath = [];
+
+      // Movimentação do Jogador
+      function movePlayer(dx, dy) {
+        if (isGenerating || gameWon) return;
+
+        const dirObj = DIRS.find((d) => d.dx === dx && d.dy === dy);
+        if (!dirObj) return;
+
+        const mask = passages[player.y][player.x];
+        if (!(mask & dirObj.wall)) {
+          playSound("bump");
+          return;
+        }
+
+        ensureTimerRunning();
+
+        player.x += dx;
+        player.y += dy;
+        steps++;
+        stepsDisplay.textContent = String(steps);
+        visitedSet.add(`${player.x},${player.y}`);
+
+        // Atualiza rastro inteligente (remove loops de ida e volta no rastro ativo)
+        const existingIdx = trailPath.findIndex((p) => p.x === player.x && p.y === player.y);
+        if (existingIdx !== -1) {
+          trailPath = trailPath.slice(0, existingIdx + 1);
+        } else {
+          trailPath.push({ x: player.x, y: player.y });
+        }
+
+        // Atualiza solução restante se o solver estiver visível
+        if (solverPath.length > 0) {
+          const { path } = computeShortestPath(player.x, player.y, cols - 1, rows - 1);
+          solverPath = path;
+        }
+
+        playSound("step");
+
+        // Verifica chegada à saída
+        if (player.x === cols - 1 && player.y === rows - 1) {
+          handleVictory();
+        }
+      }
+
+      function handleVictory() {
+        gameWon = true;
+        clearInterval(timerInterval);
+        playSound("win");
+
+        const isNewRecord = saveRecordIfBest(elapsedSeconds);
+        const efficiency = steps > 0 ? Math.min(100, Math.round((optimalLength / steps) * 100)) : 100;
+
+        document.getElementById("winSubtitle").textContent =
+          `${ALGO_NAMES[algorithm]} • Grade ${cols}×${rows}${fogOfWar ? " • Névoa de Guerra" : ""}`;
+        document.getElementById("winTime").textContent = formatTime(elapsedSeconds);
+        document.getElementById("winSteps").textContent = String(steps);
+        document.getElementById("winOptimal").textContent = String(optimalLength);
+        document.getElementById("winEfficiency").textContent = `${efficiency}%`;
+
+        const recBanner = document.getElementById("newRecordBanner");
+        recBanner.classList.toggle("show", isNewRecord);
+
+        setTimeout(() => {
+          winModal.classList.add("open");
+        }, 280);
+      }
+
+      // ==========================================
+      // RENDERIZAÇÃO HIGH-DPI NO CANVAS
+      // ==========================================
+      let cssCanvasSize = 400;
+
+      function resizeCanvas() {
+        const rect = canvasStage.getBoundingClientRect();
+        const availW = Math.max(220, rect.width - 8);
+        const availH = Math.max(220, rect.height - 8);
+        const size = Math.floor(Math.min(availW, availH));
+        cssCanvasSize = size;
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+        canvas.style.width = `${size}px`;
+        canvas.style.height = `${size}px`;
+        canvas.width = Math.floor(size * dpr);
+        canvas.height = Math.floor(size * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      function getThemeColors() {
+        const isLight = document.documentElement.getAttribute("data-theme") === "light";
+        return isLight
+          ? {
+              floor: "#f8fafc",
+              unvisited: "#e2e8f0",
+              wall: "#1e293b",
+              visited: "rgba(2, 132, 199, 0.11)",
+              trail: "#059669",
+              bfs: "rgba(124, 58, 237, 0.22)",
+              solution: "#ea580c",
+              carveHead: "#0284c7",
+              player: "#0284c7",
+              playerGlow: "rgba(2, 132, 199, 0.35)",
+              exit: "#10b981"
+            }
+          : {
+              floor: "#0f172a",
+              unvisited: "#060a13",
+              wall: "#38bdf8",
+              visited: "rgba(56, 189, 248, 0.10)",
+              trail: "#10b981",
+              bfs: "rgba(168, 85, 247, 0.28)",
+              solution: "#f59e0b",
+              carveHead: "#f43f5e",
+              player: "#38bdf8",
+              playerGlow: "rgba(56, 189, 248, 0.5)",
+              exit: "#10b981"
+            };
+      }
+
+      function drawMaze(timestamp) {
+        const colors = getThemeColors();
+        const pad = 8;
+        const innerSize = cssCanvasSize - pad * 2;
+        const cellSize = innerSize / cols;
+
+        // Fundo base
+        ctx.fillStyle = colors.floor;
+        ctx.fillRect(0, 0, cssCanvasSize, cssCanvasSize);
+
+        // Células não escavadas (durante animação de geração)
+        if (isGenerating) {
+          ctx.fillStyle = colors.unvisited;
+          for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+              if (!carvedCells[y][x]) {
+                ctx.fillRect(pad + x * cellSize, pad + y * cellSize, cellSize + 0.5, cellSize + 0.5);
+              }
+            }
+          }
+        }
+
+        // Células já visitadas pelo jogador
+        if (!isGenerating) {
+          ctx.fillStyle = colors.visited;
+          visitedSet.forEach((key) => {
+            const [vx, vy] = key.split(",").map(Number);
+            ctx.fillRect(pad + vx * cellSize, pad + vy * cellSize, cellSize, cellSize);
+          });
+        }
+
+        // Onda de exploração do Solver BFS
+        if (solverExplored.length > 0) {
+          ctx.fillStyle = colors.bfs;
+          for (const cell of solverExplored) {
+            ctx.fillRect(pad + cell.x * cellSize, pad + cell.y * cellSize, cellSize, cellSize);
+          }
+        }
+
+        // Rastro do jogador
+        if (showTrail && trailPath.length > 1 && !isGenerating) {
+          ctx.save();
+          ctx.strokeStyle = colors.trail;
+          ctx.lineWidth = Math.max(2, cellSize * 0.24);
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          trailPath.forEach((p, idx) => {
+            const cx = pad + (p.x + 0.5) * cellSize;
+            const cy = pad + (p.y + 0.5) * cellSize;
+            if (idx === 0) ctx.moveTo(cx, cy);
+            else ctx.lineTo(cx, cy);
+          });
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Caminho Ótimo do Solver
+        if (solverPath.length > 1) {
+          ctx.save();
+          ctx.strokeStyle = colors.solution;
+          ctx.lineWidth = Math.max(2.5, cellSize * 0.3);
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          solverPath.forEach((p, idx) => {
+            const cx = pad + (p.x + 0.5) * cellSize;
+            const cy = pad + (p.y + 0.5) * cellSize;
+            if (idx === 0) ctx.moveTo(cx, cy);
+            else ctx.lineTo(cx, cy);
+          });
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Cabeça de escavação durante geração animada
+        if (isGenerating && activeCarveCell) {
+          ctx.fillStyle = colors.carveHead;
+          ctx.fillRect(
+            pad + activeCarveCell.x * cellSize + 1,
+            pad + activeCarveCell.y * cellSize + 1,
+            Math.max(2, cellSize - 2),
+            Math.max(2, cellSize - 2)
+          );
+        }
+
+        // Marcador de Entrada (0, 0)
+        const startCx = pad + 0.5 * cellSize;
+        const startCy = pad + 0.5 * cellSize;
+        ctx.fillStyle = "rgba(16, 185, 129, 0.22)";
+        ctx.beginPath();
+        ctx.arc(startCx, startCy, cellSize * 0.34, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Marcador Pulsante de Saída (cols-1, rows-1)
+        const exitCx = pad + (cols - 0.5) * cellSize;
+        const exitCy = pad + (rows - 0.5) * cellSize;
+        const pulse = 0.28 + Math.sin(timestamp * 0.006) * 0.07;
+
+        ctx.save();
+        ctx.fillStyle = colors.exit;
+        ctx.shadowColor = colors.exit;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(exitCx, exitCy, cellSize * pulse, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bandeira/Estrela central na saída
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(exitCx, exitCy, cellSize * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Desenho das Paredes do Labirinto
+        ctx.save();
+        ctx.strokeStyle = colors.wall;
+        ctx.lineWidth = Math.max(1.5, Math.min(3.2, cellSize * 0.14));
+        ctx.lineCap = "round";
+        ctx.beginPath();
+
+        for (let y = 0; y < rows; y++) {
+          for (let x = 0; x < cols; x++) {
+            const x0 = pad + x * cellSize;
+            const y0 = pad + y * cellSize;
+            const x1 = x0 + cellSize;
+            const y1 = y0 + cellSize;
+            const mask = passages[y][x];
+
+            // Borda superior e esquerda apenas na primeira linha/coluna
+            if (y === 0 && !(mask & TOP)) {
+              ctx.moveTo(x0, y0);
+              ctx.lineTo(x1, y0);
+            }
+            if (x === 0 && !(mask & LEFT)) {
+              ctx.moveTo(x0, y0);
+              ctx.lineTo(x0, y1);
+            }
+            // Parede direita e inferior de cada célula
+            if (!(mask & RIGHT)) {
+              ctx.moveTo(x1, y0);
+              ctx.lineTo(x1, y1);
+            }
+            if (!(mask & BOTTOM)) {
+              ctx.moveTo(x0, y1);
+              ctx.lineTo(x1, y1);
+            }
+          }
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        // Interpolação suave do Jogador
+        renderPlayer.x += (player.x - renderPlayer.x) * 0.38;
+        renderPlayer.y += (player.y - renderPlayer.y) * 0.38;
+
+        const px = pad + (renderPlayer.x + 0.5) * cellSize;
+        const py = pad + (renderPlayer.y + 0.5) * cellSize;
+
+        // Máscara de Névoa de Guerra (Fog of War)
+        if (fogOfWar && !isGenerating && !gameWon) {
+          ctx.save();
+          const visionRadius = Math.max(cellSize * 3.4, cssCanvasSize * 0.18);
+          const grad = ctx.createRadialGradient(px, py, visionRadius * 0.25, px, py, visionRadius);
+          grad.addColorStop(0, "rgba(4, 7, 15, 0)");
+          grad.addColorStop(0.65, "rgba(4, 7, 15, 0.72)");
+          grad.addColorStop(1, "rgba(4, 7, 15, 0.96)");
+
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, cssCanvasSize, cssCanvasSize);
+
+          // Brilho sutil indicando a direção da saída mesmo na névoa
+          const exitDist = Math.hypot(exitCx - px, exitCy - py);
+          if (exitDist < visionRadius * 1.4) {
+            ctx.fillStyle = colors.exit;
+            ctx.beginPath();
+            ctx.arc(exitCx, exitCy, cellSize * 0.22, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        // Personagem (Orbe Luminoso)
+        ctx.save();
+        ctx.fillStyle = colors.player;
+        ctx.shadowColor = colors.playerGlow;
+        ctx.shadowBlur = 12;
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(3, cellSize * 0.31), 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(px - cellSize * 0.08, py - cellSize * 0.08, Math.max(1.2, cellSize * 0.1), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Loop Principal (60 FPS)
+      function mainLoop(timestamp) {
+        // Passo de Geração Animada
+        if (isGenerating && genGenerator) {
+          const stepsPerFrame = cols <= 15 ? 2 : cols <= 25 ? 6 : 16;
+          for (let i = 0; i < stepsPerFrame; i++) {
+            const res = genGenerator.next();
+            if (res.done) {
+              isGenerating = false;
+              finalizeMazeSetup();
+              showToast("Labirinto pronto! Boa exploração.");
+              break;
+            }
+          }
+          if (Math.random() < 0.35) playSound("carve");
+        }
+
+        // Passo de Animação do Solver BFS
+        if (isSolving) {
+          const batch = cols <= 15 ? 4 : cols <= 25 ? 12 : 28;
+          for (let i = 0; i < batch; i++) {
+            if (solverQueue.length > 0) {
+              solverExplored.push(solverQueue.shift());
+            } else {
+              isSolving = false;
+              solverPath = solverTargetPath;
+              showToast(`Rota ótima encontrada (${solverPath.length - 1} passos)!`);
+              break;
+            }
+          }
+        }
+
+        drawMaze(timestamp);
+        requestAnimationFrame(mainLoop);
+      }
+
+      // ==========================================
+      // EVENTOS DE CONTROLE (TECLADO, SWIPE, BOTÕES)
+      // ==========================================
+      window.addEventListener("keydown", (e) => {
+        if (winModal.classList.contains("open")) {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            initMaze();
+          }
+          return;
+        }
+
+        switch (e.key) {
+          case "ArrowUp":
+          case "w":
+          case "W":
+            e.preventDefault();
+            movePlayer(0, -1);
+            break;
+          case "ArrowDown":
+          case "s":
+          case "S":
+            e.preventDefault();
+            movePlayer(0, 1);
+            break;
+          case "ArrowLeft":
+          case "a":
+          case "A":
+            e.preventDefault();
+            movePlayer(-1, 0);
+            break;
+          case "ArrowRight":
+          case "d":
+          case "D":
+            e.preventDefault();
+            movePlayer(1, 0);
+            break;
+          case "r":
+          case "R":
+            initMaze();
+            break;
+          case "h":
+          case "H":
+            triggerVisualSolver();
+            break;
+          case "f":
+          case "F":
+            fogBtn.click();
+            break;
+        }
+      });
+
+      // Gestos de Deslize (Swipe / Arraste Contínuo no Canvas)
+      let touchStart = null;
+      canvas.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        touchStart = { x: e.clientX, y: e.clientY };
+      });
+
+      canvas.addEventListener("pointermove", (e) => {
+        if (!touchStart) return;
+        const dx = e.clientX - touchStart.x;
+        const dy = e.clientY - touchStart.y;
+        const threshold = Math.max(14, (cssCanvasSize / cols) * 0.75);
+
+        if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            movePlayer(dx > 0 ? 1 : -1, 0);
+          } else {
+            movePlayer(0, dy > 0 ? 1 : -1);
+          }
+          touchStart = { x: e.clientX, y: e.clientY };
+        }
+      });
+
+      window.addEventListener("pointerup", () => {
+        touchStart = null;
+      });
+
+      // D-Pad Mobile com suporte a segurar botão
+      let holdInterval = null;
+      document.querySelectorAll(".dpad-btn").forEach((btn) => {
+        const [dx, dy] = btn.dataset.dir.split(",").map(Number);
+
+        const startMove = (e) => {
+          e.preventDefault();
+          movePlayer(dx, dy);
+          clearInterval(holdInterval);
+          holdInterval = setInterval(() => movePlayer(dx, dy), 115);
+        };
+
+        const stopMove = () => {
+          clearInterval(holdInterval);
+          holdInterval = null;
+        };
+
+        btn.addEventListener("pointerdown", startMove);
+        btn.addEventListener("pointerup", stopMove);
+        btn.addEventListener("pointerleave", stopMove);
+        btn.addEventListener("pointercancel", stopMove);
+      });
+
+      // Botões da Barra Superior
+      algoSelect.addEventListener("change", () => initMaze());
+      sizeSelect.addEventListener("change", () => initMaze());
+
+      fogBtn.addEventListener("click", () => {
+        fogOfWar = !fogOfWar;
+        fogBtn.classList.toggle("warning-active", fogOfWar);
+        fogBtn.textContent = fogOfWar ? "🔦 Névoa de Guerra" : "👁️ Visão Total";
+        loadRecord();
+        showToast(fogOfWar ? "Modo Névoa de Guerra ativado!" : "Visão Total ativada.");
+      });
+
+      animGenBtn.addEventListener("click", () => {
+        animateGeneration = !animateGeneration;
+        animGenBtn.classList.toggle("active", animateGeneration);
+        animGenBtn.textContent = animateGeneration ? "⚡ Animar: ON" : "⚡ Animar: OFF";
+        if (animateGeneration) {
+          initMaze();
+        }
+      });
+
+      trailBtn.addEventListener("click", () => {
+        showTrail = !showTrail;
+        trailBtn.classList.toggle("active", showTrail);
+      });
+
+      solveBtn.addEventListener("click", () => triggerVisualSolver());
+      newBtn.addEventListener("click", () => initMaze());
+
+      themeBtn.addEventListener("click", () => {
+        const html = document.documentElement;
+        const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        html.setAttribute("data-theme", next);
+      });
+
+      soundBtn.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        soundBtn.textContent = soundEnabled ? "🔊" : "🔇";
+        if (soundEnabled) playSound("step");
+      });
+
+      closeModalBtn.addEventListener("click", () => {
+        winModal.classList.remove("open");
+      });
+
+      nextMazeBtn.addEventListener("click", () => {
+        winModal.classList.remove("open");
+        initMaze();
+      });
+
+      // Observador de Redimensionamento
+      const ro = new ResizeObserver(() => resizeCanvas());
+      ro.observe(canvasStage);
+      window.addEventListener("resize", resizeCanvas);
+
+      // Inicialização
+      resizeCanvas();
+      initMaze();
+      requestAnimationFrame(mainLoop);
+    })();
+  </script>
+</body>
+</html>

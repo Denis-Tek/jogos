@@ -1,0 +1,2606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Pinball Arcade — Space Cadet Edition | Denis-Tek</title>
+  <style>
+    /* ==========================================================================
+       VARIÁVEIS DE TEMA & LAYOUT ZERO-SCROLL (PADRÃO DENIS-TEK/JOGOS)
+       ========================================================================== */
+    :root {
+      --bg-app: #050812;
+      --bg-header: #0b1121;
+      --bg-panel: #121b33;
+      --border-ui: #23335c;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-2: #f43f5e;
+      --accent-3: #fbbf24;
+      --accent-4: #10b981;
+      --btn-bg: #172340;
+      --btn-hover: #22335c;
+      --btn-active: #0ea5e9;
+      --shadow-glow: 0 0 22px rgba(56, 189, 248, 0.24);
+      --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    }
+
+    body.theme-retro {
+      --bg-app: #19100a;
+      --bg-header: #29180f;
+      --bg-panel: #382114;
+      --border-ui: #78482a;
+      --text-main: #fef3c7;
+      --text-muted: #d6b899;
+      --accent: #f59e0b;
+      --accent-2: #dc2626;
+      --accent-3: #10b981;
+      --accent-4: #34d399;
+      --btn-bg: #4a2c1c;
+      --btn-hover: #633b26;
+      --btn-active: #d97706;
+      --shadow-glow: 0 0 22px rgba(245, 158, 11, 0.24);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       CABEÇALHO COMPACTO COM RECUO SEGURO NO MOBILE & PLACAR DIGITAL
+       ========================================================================== */
+    header {
+      flex: 0 0 auto;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-ui);
+      padding: 6px 10px 6px 50px; /* Recuo seguro para não colidir com o botão X mobile */
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 20;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    .brand-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .rank-pill {
+      background: rgba(251, 191, 36, 0.14);
+      color: var(--accent-3);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      background: var(--btn-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-ui);
+      border-radius: 7px;
+      height: 28px;
+      min-width: 28px;
+      padding: 0 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s ease, background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .icon-btn:hover {
+      background: var(--btn-hover);
+      border-color: var(--accent);
+    }
+
+    .icon-btn:active {
+      transform: scale(0.93);
+    }
+
+    .hud-row {
+      display: grid;
+      grid-template-columns: 1.35fr 1.15fr 0.72fr 0.62fr;
+      gap: 5px;
+    }
+
+    .hud-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-ui);
+      border-radius: 7px;
+      padding: 2px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .hud-label {
+      font-size: 0.55rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      line-height: 1.05;
+    }
+
+    .hud-value {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.18;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hud-value.score-highlight {
+      color: var(--accent);
+    }
+
+    .hud-value.mult-badge {
+      color: var(--accent-3);
+    }
+
+    /* ==========================================================================
+       ÁREA CENTRAL DA MESA DE PINBALL (CANVAS HIGH-DPI)
+       ========================================================================== */
+    main {
+      position: relative;
+      flex: 1 1 auto;
+      width: 100%;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 4px;
+    }
+
+    #pinball-canvas {
+      display: block;
+      border-radius: 14px;
+      box-shadow: var(--shadow-glow), 0 10px 30px rgba(0, 0, 0, 0.7);
+      touch-action: none;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       OVERLAY DE INÍCIO / PAUSA / GAME OVER
+       ========================================================================== */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(5, 8, 18, 0.86);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      pointer-events: auto;
+    }
+
+    .overlay.hidden {
+      display: none;
+      pointer-events: none;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--bg-header);
+      border: 1px solid var(--border-ui);
+      border-radius: 18px;
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-badge {
+      align-self: center;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .modal-title {
+      font-size: 1.38rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .modal-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.42;
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      text-align: left;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-ui);
+      border-radius: 12px;
+      padding: 9px;
+      font-size: 0.71rem;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-main);
+    }
+
+    .rule-item span.key {
+      background: var(--btn-bg);
+      border: 1px solid var(--border-ui);
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .final-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-ui);
+      border-radius: 12px;
+      padding: 9px;
+    }
+
+    .final-stats.hidden {
+      display: none;
+    }
+
+    .stat-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .primary-btn {
+      z-index: 60;
+      background: linear-gradient(135deg, var(--accent), #0284c7);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 0.96rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+      transition: transform 0.1s ease, filter 0.15s ease;
+    }
+
+    body.theme-retro .primary-btn {
+      background: linear-gradient(135deg, #f59e0b, #b45309);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4);
+    }
+
+    .primary-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .primary-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* ==========================================================================
+       CONTROLES TÁTEIS OPCIONAIS NA BASE (ESTILO SPACE CADET)
+       ========================================================================== */
+    footer.arcade-controls {
+      flex: 0 0 auto;
+      background: var(--bg-header);
+      border-top: 1px solid var(--border-ui);
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+      display: grid;
+      grid-template-columns: 1.25fr 0.65fr 0.65fr 0.85fr 1.25fr;
+      gap: 5px;
+      z-index: 20;
+    }
+
+    footer.arcade-controls.hidden {
+      display: none;
+    }
+
+    .pad-btn {
+      background: linear-gradient(180deg, var(--btn-hover), var(--btn-bg));
+      color: var(--text-main);
+      border: 1.5px solid var(--border-ui);
+      border-bottom-width: 3px;
+      border-radius: 10px;
+      height: 44px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      touch-action: none;
+      transition: transform 0.05s ease, border-color 0.1s ease, background 0.1s ease;
+    }
+
+    .pad-btn small {
+      font-size: 0.54rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .pad-btn.active,
+    .pad-btn:active {
+      transform: translateY(2px);
+      border-bottom-width: 1.5px;
+      border-color: var(--accent);
+      background: var(--btn-active);
+      color: #ffffff;
+    }
+
+    .pad-btn.active small,
+    .pad-btn:active small {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .pad-btn.plunger-btn {
+      border-color: rgba(244, 63, 94, 0.55);
+    }
+
+    .pad-btn.plunger-btn.active,
+    .pad-btn.plunger-btn:active {
+      background: var(--accent-2);
+      border-color: #fda4af;
+    }
+
+    .pad-btn.nudge-btn {
+      border-color: rgba(251, 191, 36, 0.45);
+    }
+
+    .pad-btn.nudge-btn.active,
+    .pad-btn.nudge-btn:active {
+      background: #d97706;
+      border-color: #fde68a;
+    }
+
+    @media (min-width: 820px) {
+      header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+      }
+      .hud-row {
+        min-width: 420px;
+      }
+      footer.arcade-controls {
+        max-width: 620px;
+        width: 100%;
+        margin: 0 auto;
+        border-left: 1px solid var(--border-ui);
+        border-right: 1px solid var(--border-ui);
+        border-top-left-radius: 14px;
+        border-top-right-radius: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- CABEÇALHO E PLACAR -->
+    <header>
+      <div class="top-row">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">🚀</div>
+          <h1 class="brand-title">Pinball Arcade</h1>
+          <span id="hud-rank" class="rank-pill">Cadete</span>
+        </div>
+        <div class="toolbar">
+          <button id="btn-theme" class="icon-btn" title="Alternar Tema (Neon / Retrô)" aria-label="Alternar Tema">🌌</button>
+          <button id="btn-pad" class="icon-btn" title="Exibir/Ocultar Barra Tátil" aria-label="Controles Táteis">🎮</button>
+          <button id="btn-sound" class="icon-btn" title="Ativar/Silenciar Áudio" aria-label="Alternar Áudio">🔊</button>
+          <button id="btn-pause" class="icon-btn" title="Pausar (P)" aria-label="Pausar">⏸</button>
+          <button id="btn-restart" class="icon-btn" title="Reiniciar Mesa" aria-label="Reiniciar">🔄</button>
+        </div>
+      </div>
+
+      <div class="hud-row">
+        <div class="hud-box">
+          <span class="hud-label">Pontos</span>
+          <span id="hud-score" class="hud-value score-highlight">0</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">Recorde</span>
+          <span id="hud-high" class="hud-value">0</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">Bolas</span>
+          <span id="hud-balls" class="hud-value">●●●</span>
+        </div>
+        <div class="hud-box">
+          <span class="hud-label">Mult</span>
+          <span id="hud-mult" class="hud-value mult-badge">1x</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MESA DE PINBALL -->
+    <main id="arena-container">
+      <canvas id="pinball-canvas" width="440" height="740"></canvas>
+
+      <!-- MODAL DE INÍCIO / PAUSA / GAME OVER -->
+      <div id="game-overlay" class="overlay">
+        <div class="modal-card">
+          <div id="modal-badge" class="modal-badge">Edição Space Cadet</div>
+          <h2 id="modal-title" class="modal-title">Pinball Arcade</h2>
+          <p id="modal-desc" class="modal-desc">
+            Arraste a <strong>mola</strong> na direita ou segure <strong>Espaço</strong> para dosar o lançamento. Entre no <strong>Wormhole</strong> para subir de patente, suba a <strong>Rampa</strong> e derrube os <strong>4 alvos</strong> para o <strong>MULTIBALL</strong>!
+          </p>
+
+          <div id="final-stats" class="final-stats hidden">
+            <div class="stat-cell">
+              <span class="hud-label">Pontuação</span>
+              <span id="final-score" class="hud-value score-highlight">0</span>
+            </div>
+            <div class="stat-cell">
+              <span class="hud-label">Patente</span>
+              <span id="final-rank" class="hud-value mult-badge">Cadete</span>
+            </div>
+            <div class="stat-cell">
+              <span class="hud-label">Recorde</span>
+              <span id="final-high" class="hud-value">0</span>
+            </div>
+          </div>
+
+          <div class="rules-grid">
+            <div class="rule-item"><span class="key">Toque Esq / A</span> Flipper Esq</div>
+            <div class="rule-item"><span class="key">Toque Dir / D</span> Flipper Dir</div>
+            <div class="rule-item"><span class="key">Arraste Mola</span> Força Exata</div>
+            <div class="rule-item"><span class="key">Z / / / ▲</span> Nudge Mesa</div>
+          </div>
+
+          <button id="btn-start" class="primary-btn" type="button">LANÇAR ESFERA</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- BARRA INFERIOR DE CONTROLES TÁTEIS (OPCIONAL / MULTI-TOUCH) -->
+    <footer id="arcade-footer" class="arcade-controls" aria-label="Controles do Fliperama">
+      <button id="ctrl-left" class="pad-btn" type="button">
+        <span>◀ FLIPPER</span>
+        <small>ESQUERDO</small>
+      </button>
+      <button id="ctrl-nudge-left" class="pad-btn nudge-btn" type="button" title="Empurrar Mesa para Esquerda">
+        <span>↖ NUDGE</span>
+        <small>ESQ</small>
+      </button>
+      <button id="ctrl-nudge-right" class="pad-btn nudge-btn" type="button" title="Empurrar Mesa para Direita">
+        <span>NUDGE ↗</span>
+        <small>DIR</small>
+      </button>
+      <button id="ctrl-plunger" class="pad-btn plunger-btn" type="button">
+        <span>🚀 MOLA</span>
+        <small>SEGURE</small>
+      </button>
+      <button id="ctrl-right" class="pad-btn" type="button">
+        <span>FLIPPER ▶</span>
+        <small>DIREITO</small>
+      </button>
+    </footer>
+  </div>
+
+  <script>
+    /**
+     * ============================================================================
+     * PINBALL ARCADE — EDIÇÃO SPACE CADET (DENIS-TEK/JOGOS)
+     * ============================================================================
+     * - Geometria 100% à prova de travamento (inlanes abertos desembocando na base
+     *   superior dos flippers, pinos de borracha nas pontas e anti-stuck automático).
+     * - Controles híbridos estilo Microsoft Space Cadet:
+     *   * Toque/clique direto nas metades esquerda/direita do canvas (multi-touch).
+     *   * Arraste físico direto no êmbolo da mola (plunger) para dosar Skill Shot.
+     *   * Empurrão direcional (Nudge Esq, Dir e Frente) com alerta progressivo de TILT.
+     * - Elementos icônicos: Patentes (Cadete -> Almirante), Buraco de Missão /
+     *   Wormhole (kickout hole), Rampa curva elevada, Kickbacks laterais, P-I-N
+     *   Skill Shot, 3 Pop Bumpers, Spinner e 4 Drop Targets -> Multiball 3x.
+     */
+    (() => {
+      'use strict';
+
+      // --------------------------------------------------------------------------
+      // 1. CONSTANTES FÍSICAS E DIMENSÕES LÓGICAS DA MESA
+      // --------------------------------------------------------------------------
+      const TABLE_W = 440;
+      const TABLE_H = 740;
+      const BALL_RADIUS = 10.5;
+      const GRAVITY = 750;          // px/s²
+      const SUBSTEPS = 8;           // 8 sub-passos por frame evitam tunneling
+      const MAX_SPEED = 1520;
+      const STORAGE_KEY = 'pinball_high_score';
+      const THEME_KEY = 'pinball_theme';
+      const SOUND_KEY = 'pinball_sound';
+      const PAD_KEY = 'pinball_pad_visible';
+
+      const RANKS = [
+        { name: 'Cadete', bonus: 500 },
+        { name: 'Tenente', bonus: 1200 },
+        { name: 'Capitão', bonus: 2500 },
+        { name: 'Comandante', bonus: 4500 },
+        { name: 'Almirante', bonus: 8000 }
+      ];
+
+      // --------------------------------------------------------------------------
+      // 2. SISTEMA DE ÁUDIO PROCEDURAL (WEB AUDIO API)
+      // --------------------------------------------------------------------------
+      class SoundEngine {
+        constructor() {
+          this.ctx = null;
+          this.enabled = localStorage.getItem(SOUND_KEY) !== 'off';
+        }
+
+        unlock() {
+          if (!this.enabled) return;
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume().catch(() => {});
+          }
+        }
+
+        toggle() {
+          this.enabled = !this.enabled;
+          localStorage.setItem(SOUND_KEY, this.enabled ? 'on' : 'off');
+          if (this.enabled) {
+            this.unlock();
+            this.playTone(660, 0.08, 'triangle', 0.14);
+          }
+          return this.enabled;
+        }
+
+        playTone(freq, duration, type = 'sine', volume = 0.15, slideTo = null, delay = 0) {
+          if (!this.enabled) return;
+          this.unlock();
+          if (!this.ctx) return;
+
+          const now = this.ctx.currentTime + delay;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, now);
+          if (slideTo) {
+            osc.frequency.exponentialRampToValueAtTime(Math.max(20, slideTo), now + duration);
+          }
+
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.linearRampToValueAtTime(volume, now + 0.008);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+
+          osc.start(now);
+          osc.stop(now + duration + 0.01);
+        }
+
+        playFlipper() {
+          this.playTone(175, 0.055, 'triangle', 0.18, 65);
+          this.playTone(340, 0.028, 'square', 0.06, 130);
+        }
+
+        playPlungerTick(ratio) {
+          this.playTone(150 + ratio * 230, 0.032, 'sawtooth', 0.05);
+        }
+
+        playPlungerLaunch(power) {
+          const topFreq = 260 + power * 460;
+          this.playTone(115, 0.22, 'sawtooth', 0.2, topFreq);
+          this.playTone(440, 0.15, 'triangle', 0.14, 920, 0.04);
+        }
+
+        playBumper(index = 0) {
+          const notes = [587.33, 698.46, 880.0];
+          const f = notes[index % notes.length];
+          this.playTone(f, 0.16, 'sine', 0.22, f * 1.38);
+          this.playTone(f * 2, 0.11, 'triangle', 0.12);
+        }
+
+        playRubberPost() {
+          this.playTone(380, 0.06, 'sine', 0.12, 240);
+        }
+
+        playSlingshot() {
+          this.playTone(295, 0.09, 'sawtooth', 0.16, 540);
+        }
+
+        playSpinner() {
+          this.playTone(1020, 0.026, 'square', 0.06, 1280);
+        }
+
+        playRamp() {
+          [440, 554.37, 659.25, 880].forEach((f, idx) => {
+            this.playTone(f, 0.11, 'triangle', 0.14, f * 1.06, idx * 0.045);
+          });
+        }
+
+        playWormholeCapture() {
+          this.playTone(260, 0.35, 'sine', 0.18, 780);
+          this.playTone(390, 0.35, 'triangle', 0.12, 1170, 0.05);
+        }
+
+        playWormholeEject() {
+          this.playTone(880, 0.2, 'sawtooth', 0.22, 220);
+          this.playTone(587.33, 0.24, 'triangle', 0.18, 1174.66, 0.05);
+        }
+
+        playKickback() {
+          this.playTone(190, 0.18, 'sawtooth', 0.22, 760);
+          this.playTone(523.25, 0.14, 'triangle', 0.16, 1046.5, 0.04);
+        }
+
+        playLane(count) {
+          const scale = [523.25, 659.25, 783.99];
+          this.playTone(scale[(count - 1) % 3], 0.14, 'triangle', 0.16);
+        }
+
+        playMultiplierUp(mult) {
+          const root = 440 + mult * 60;
+          [0, 4, 7, 12].forEach((semi, idx) => {
+            const freq = root * Math.pow(2, semi / 12);
+            this.playTone(freq, 0.18, 'triangle', 0.16, null, idx * 0.065);
+          });
+        }
+
+        playDropTarget(remaining) {
+          if (remaining > 0) {
+            this.playTone(240 + (4 - remaining) * 75, 0.12, 'square', 0.15, 160);
+          } else {
+            for (let i = 0; i < 6; i++) {
+              this.playTone(520, 0.11, 'sawtooth', 0.16, 980, i * 0.11);
+            }
+          }
+        }
+
+        playBallSaved() {
+          this.playTone(392, 0.12, 'triangle', 0.18, 587, 0);
+          this.playTone(587, 0.18, 'triangle', 0.18, 784, 0.11);
+        }
+
+        playNudge(level) {
+          if (level >= 3) {
+            // TILT
+            this.playTone(130, 0.48, 'sawtooth', 0.25, 52);
+          } else if (level === 2) {
+            // PERIGO
+            this.playTone(220, 0.12, 'square', 0.18, 160);
+            this.playTone(220, 0.12, 'square', 0.18, 140, 0.13);
+          } else {
+            this.playTone(98, 0.08, 'triangle', 0.22, 48);
+          }
+        }
+
+        playDrain() {
+          this.playTone(340, 0.36, 'sawtooth', 0.18, 82);
+        }
+
+        playGameOver() {
+          const notes = [392.0, 349.23, 329.63, 261.63];
+          notes.forEach((f, i) => {
+            this.playTone(f, 0.28, 'triangle', 0.18, f * 0.96, i * 0.22);
+          });
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      // 3. ELEMENTOS DA DOM & REFERÊNCIAS
+      // --------------------------------------------------------------------------
+      const canvas = document.getElementById('pinball-canvas');
+      const ctx = canvas.getContext('2d');
+      const arenaContainer = document.getElementById('arena-container');
+      const arcadeFooter = document.getElementById('arcade-footer');
+
+      const hudScore = document.getElementById('hud-score');
+      const hudHigh = document.getElementById('hud-high');
+      const hudBalls = document.getElementById('hud-balls');
+      const hudMult = document.getElementById('hud-mult');
+      const hudRank = document.getElementById('hud-rank');
+
+      const overlay = document.getElementById('game-overlay');
+      const modalBadge = document.getElementById('modal-badge');
+      const modalTitle = document.getElementById('modal-title');
+      const modalDesc = document.getElementById('modal-desc');
+      const finalStats = document.getElementById('final-stats');
+      const finalScore = document.getElementById('final-score');
+      const finalRank = document.getElementById('final-rank');
+      const finalHigh = document.getElementById('final-high');
+
+      const btnStart = document.getElementById('btn-start');
+      const btnTheme = document.getElementById('btn-theme');
+      const btnPad = document.getElementById('btn-pad');
+      const btnSound = document.getElementById('btn-sound');
+      const btnPause = document.getElementById('btn-pause');
+      const btnRestart = document.getElementById('btn-restart');
+
+      const ctrlLeft = document.getElementById('ctrl-left');
+      const ctrlRight = document.getElementById('ctrl-right');
+      const ctrlPlunger = document.getElementById('ctrl-plunger');
+      const ctrlNudgeLeft = document.getElementById('ctrl-nudge-left');
+      const ctrlNudgeRight = document.getElementById('ctrl-nudge-right');
+
+      const sound = new SoundEngine();
+
+      // --------------------------------------------------------------------------
+      // 4. ESTADO DO JOGO E GEOMETRIA À PROVA DE TRAVAMENTO (SPACE CADET)
+      // --------------------------------------------------------------------------
+      const state = {
+        mode: 'menu', // 'menu' | 'playing' | 'paused' | 'gameover'
+        theme: localStorage.getItem(THEME_KEY) || 'neon',
+        padVisible: localStorage.getItem(PAD_KEY) !== 'off',
+        score: 0,
+        highScore: parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10) || 0,
+        ballsLeft: 3,
+        multiplier: 1,
+        rankIndex: 0,
+        rampCombo: 0,
+        balls: [],
+        particles: [],
+        popups: [],
+        shakeTime: 0,
+        shakeIntensity: 0,
+        nudgeMeter: 0,
+        tilted: false,
+        tiltTimer: 0,
+        tiltBannerTimer: 0,
+        tiltBannerText: '',
+        ballSaverTimer: 0,
+        multiballBannerTimer: 0,
+        kickbacks: {
+          left: true,
+          right: true
+        },
+        plunger: {
+          x: 414,
+          yRest: 668,
+          maxPull: 72,
+          pull: 0,
+          charging: false,
+          dragging: false,
+          dragStartY: 0,
+          lastTickStep: 0
+        },
+        inputs: {
+          left: false,
+          right: false
+        }
+      };
+
+      // Flippers posicionados para receber perfeitamente o fluxo dos inlanes
+      // Folga interna entre inlane e outlane >= 32px (> 3x raio da bola)
+      const flippers = [
+        {
+          side: 'left',
+          pivotX: 132,
+          pivotY: 646,
+          length: 68,
+          radius: 8,
+          restAngle: 0.44,
+          activeAngle: -0.44,
+          angle: 0.44,
+          prevAngle: 0.44,
+          angularVel: 0,
+          speedUp: 22.0,
+          speedDown: 15.5
+        },
+        {
+          side: 'right',
+          pivotX: 266,
+          pivotY: 646,
+          length: 68,
+          radius: 8,
+          restAngle: Math.PI - 0.44,
+          activeAngle: Math.PI + 0.44,
+          angle: Math.PI - 0.44,
+          prevAngle: Math.PI - 0.44,
+          angularVel: 0,
+          speedUp: 22.0,
+          speedDown: 15.5
+        }
+      ];
+
+      // Paredes estáticas: ZERO cantos fechados ou "V" agudos!
+      // Os inlanes (corredores internos) desembocam diretamente sobre os pivôs (132, 646) e (266, 646).
+      const wallSegments = [
+        // Arco superior externo contínuo
+        { x1: 12, y1: 165, x2: 24, y2: 105, r: 0.55 },
+        { x1: 24, y1: 105, x2: 56, y2: 56, r: 0.55 },
+        { x1: 56, y1: 56, x2: 112, y2: 26, r: 0.55 },
+        { x1: 112, y1: 26, x2: 195, y2: 14, r: 0.55 },
+        { x1: 195, y1: 14, x2: 295, y2: 14, r: 0.55 },
+        { x1: 295, y1: 14, x2: 368, y2: 32, r: 0.55 },
+        { x1: 368, y1: 32, x2: 414, y2: 68, r: 0.55 },
+        { x1: 414, y1: 68, x2: 432, y2: 122, r: 0.55 },
+
+        // Canal do lançador direito (x = 396 .. 432)
+        { x1: 432, y1: 122, x2: 432, y2: 690, r: 0.4 },
+        { x1: 396, y1: 690, x2: 432, y2: 690, r: 0.3 },
+        { x1: 396, y1: 148, x2: 396, y2: 690, r: 0.45 },
+        { x1: 396, y1: 148, x2: 382, y2: 185, r: 0.5 },
+
+        // Parede externa esquerda + Corredor externo esquerdo (Outlane Esq: x = 12 .. 46)
+        { x1: 12, y1: 165, x2: 12, y2: 585, r: 0.5 },
+        { x1: 12, y1: 585, x2: 88, y2: 668, r: 0.45 },
+
+        // Guia contínua do Inlane Esquerdo (x = 46 .. 78, desemboca direto na base do flipper esq)
+        { x1: 46, y1: 515, x2: 46, y2: 576, r: 0.5 },
+        { x1: 46, y1: 576, x2: 132, y2: 646, r: 0.42 },
+
+        // Parede externa direita da arena + Corredor externo direito (Outlane Dir: x = 352 .. 386)
+        { x1: 386, y1: 185, x2: 386, y2: 585, r: 0.5 },
+        { x1: 386, y1: 585, x2: 310, y2: 668, r: 0.45 },
+
+        // Guia contínua do Inlane Direito (x = 320 .. 352, desemboca direto na base do flipper dir)
+        { x1: 352, y1: 515, x2: 352, y2: 576, r: 0.5 },
+        { x1: 352, y1: 576, x2: 266, y2: 646, r: 0.42 },
+
+        // Divisórias das 3 pistas superiores P - I - N
+        { x1: 158, y1: 46, x2: 158, y2: 96, r: 0.55 },
+        { x1: 214, y1: 46, x2: 214, y2: 96, r: 0.55 },
+        { x1: 270, y1: 46, x2: 270, y2: 96, r: 0.55 },
+        { x1: 326, y1: 46, x2: 326, y2: 96, r: 0.55 },
+
+        // Guia da órbita superior esquerda
+        { x1: 56, y1: 132, x2: 88, y2: 86, r: 0.55 },
+        { x1: 88, y1: 86, x2: 132, y2: 64, r: 0.55 }
+      ];
+
+      // Pinos elásticos arredondados (Rubber Posts) estilo Space Cadet
+      // Eliminam qualquer ponto morto nas pontas das divisórias e entradas de pista
+      const rubberPosts = [
+        { x: 46, y: 515, radius: 6.5, pulse: 0 },   // Ponta superior divisória esq
+        { x: 352, y: 515, radius: 6.5, pulse: 0 },  // Ponta superior divisória dir
+        { x: 158, y: 96, radius: 5.5, pulse: 0 },   // Pino pista P
+        { x: 214, y: 96, radius: 5.5, pulse: 0 },   // Pino pista I
+        { x: 270, y: 96, radius: 5.5, pulse: 0 },   // Pino pista N
+        { x: 326, y: 96, radius: 5.5, pulse: 0 },   // Pino órbita dir
+        { x: 382, y: 185, radius: 6.5, pulse: 0 }   // Pino saída do canal lançador
+      ];
+
+      // 3 Pop Bumpers energizados no núcleo central
+      const bumpers = [
+        { id: 0, x: 182, y: 175, radius: 22, points: 150, pulse: 0, color: '#00f5d4' },
+        { id: 1, x: 274, y: 175, radius: 22, points: 150, pulse: 0, color: '#f72585' },
+        { id: 2, x: 228, y: 242, radius: 24, points: 250, pulse: 0, color: '#fee440' }
+      ];
+
+      // 2 Slingshots triangulares acima dos inlanes (alinhados com folga >= 30px)
+      const slingshots = [
+        {
+          id: 'left',
+          pts: [
+            { x: 78, y: 492 },
+            { x: 78, y: 558 },
+            { x: 122, y: 582 }
+          ],
+          kickerFace: { x1: 78, y1: 492, x2: 122, y2: 582 },
+          pulse: 0
+        },
+        {
+          id: 'right',
+          pts: [
+            { x: 320, y: 492 },
+            { x: 320, y: 558 },
+            { x: 276, y: 582 }
+          ],
+          kickerFace: { x1: 320, y1: 492, x2: 276, y2: 582 },
+          pulse: 0
+        }
+      ];
+
+      // 3 Rollover Lanes no topo (P - I - N) + Skill Shot no lançamento
+      const lanes = [
+        { letter: 'P', x: 186, y: 72, radius: 13, lit: false, cooldown: 0 },
+        { letter: 'I', x: 242, y: 72, radius: 13, lit: false, cooldown: 0 },
+        { letter: 'N', x: 298, y: 72, radius: 13, lit: false, cooldown: 0 }
+      ];
+
+      // 4 Drop Targets na lateral esquerda -> Completa para MULTIBALL + rearma Kickbacks
+      const dropTargets = [
+        { id: 0, x: 24, y: 235, w: 12, h: 32, down: false, flash: 0 },
+        { id: 1, x: 24, y: 277, w: 12, h: 32, down: false, flash: 0 },
+        { id: 2, x: 24, y: 319, w: 12, h: 32, down: false, flash: 0 },
+        { id: 3, x: 24, y: 361, w: 12, h: 32, down: false, flash: 0 }
+      ];
+
+      // Buraco de Missão / Wormhole (Estilo Space Cadet)
+      // Captura a bola por 0.9s, promove a patente e a ejeta em direção aos bumpers/rampa
+      const wormhole = {
+        x: 92,
+        y: 298,
+        radius: 17,
+        capturedBall: null,
+        holdTimer: 0,
+        cooldown: 0,
+        pulse: 0
+      };
+
+      // Rampa Elevada Curva (Estilo Space Cadet)
+      // Entrada em (310, 355) -> curva suave pelo meio -> acelera em direção à órbita superior
+      const ramp = {
+        entryX: 306,
+        entryY: 368,
+        exitX: 298,
+        exitY: 118,
+        cooldown: 0,
+        pulse: 0
+      };
+
+      // Spinner rotativo na órbita direita
+      const spinner = {
+        x1: 344,
+        y1: 245,
+        x2: 382,
+        y2: 245,
+        angle: 0,
+        angVel: 0,
+        lastTick: 0
+      };
+
+      // --------------------------------------------------------------------------
+      // 5. GERENCIAMENTO DE PARTIDA, PATENTES & HUD
+      // --------------------------------------------------------------------------
+      function applyTheme(themeName) {
+        state.theme = themeName;
+        localStorage.setItem(THEME_KEY, themeName);
+        if (themeName === 'retro') {
+          document.body.classList.add('theme-retro');
+          btnTheme.textContent = '🕹️';
+        } else {
+          document.body.classList.remove('theme-retro');
+          btnTheme.textContent = '🌌';
+        }
+      }
+
+      function applyPadVisibility(visible) {
+        state.padVisible = visible;
+        localStorage.setItem(PAD_KEY, visible ? 'on' : 'off');
+        arcadeFooter.classList.toggle('hidden', !visible);
+        btnPad.style.opacity = visible ? '1' : '0.55';
+        resizeCanvas();
+      }
+
+      function updateSoundButton() {
+        btnSound.textContent = sound.enabled ? '🔊' : '🔇';
+      }
+
+      function updateHUD() {
+        hudScore.textContent = state.score.toLocaleString('pt-BR');
+        hudHigh.textContent = state.highScore.toLocaleString('pt-BR');
+        hudMult.textContent = `${state.multiplier}x`;
+        hudRank.textContent = RANKS[state.rankIndex].name;
+
+        const activeCount = Math.max(0, state.ballsLeft);
+        hudBalls.textContent = activeCount > 0 ? '●'.repeat(activeCount) : '0';
+      }
+
+      function addScore(basePoints, x = null, y = null, customLabel = null, color = null) {
+        const gained = Math.round(basePoints * state.multiplier);
+        state.score += gained;
+        if (state.score > state.highScore) {
+          state.highScore = state.score;
+          localStorage.setItem(STORAGE_KEY, String(state.highScore));
+        }
+        updateHUD();
+
+        if (x !== null && y !== null) {
+          state.popups.push({
+            x,
+            y,
+            text: customLabel || `+${gained}`,
+            color: color || (state.theme === 'neon' ? '#38bdf8' : '#fbbf24'),
+            life: 1.0,
+            maxLife: 1.0
+          });
+        }
+      }
+
+      function spawnParticles(x, y, color, count = 12, speed = 220) {
+        for (let i = 0; i < count; i++) {
+          const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+          const spd = speed * (0.4 + Math.random() * 0.75);
+          state.particles.push({
+            x,
+            y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            size: 2 + Math.random() * 2.5,
+            color,
+            life: 0.35 + Math.random() * 0.25,
+            maxLife: 0.6
+          });
+        }
+      }
+
+      function triggerShake(intensity = 5, duration = 0.14) {
+        state.shakeIntensity = Math.max(state.shakeIntensity, intensity);
+        state.shakeTime = Math.max(state.shakeTime, duration);
+      }
+
+      function createBall(x, y, vx = 0, vy = 0, inLane = true) {
+        return {
+          x,
+          y,
+          vx,
+          vy,
+          radius: BALL_RADIUS,
+          inPlungerLane: inLane,
+          justLaunched: inLane,
+          stuckTimer: 0,
+          trail: []
+        };
+      }
+
+      function spawnBallInPlunger() {
+        state.balls = [createBall(414, state.plunger.yRest - BALL_RADIUS - 2, 0, 0, true)];
+        state.plunger.pull = 0;
+        state.plunger.charging = false;
+        state.plunger.dragging = false;
+        state.tilted = false;
+        state.nudgeMeter = 0;
+        state.ballSaverTimer = 14.0;
+        wormhole.capturedBall = null;
+        wormhole.holdTimer = 0;
+      }
+
+      function triggerMultiball() {
+        state.multiballBannerTimer = 2.6;
+        triggerShake(8, 0.35);
+
+        // Rearma os dois kickbacks laterais como prêmio extra
+        state.kickbacks.left = true;
+        state.kickbacks.right = true;
+
+        const b1 = createBall(160, 120, -180, 140, false);
+        const b2 = createBall(270, 120, 180, 140, false);
+        state.balls.push(b1, b2);
+
+        spawnParticles(160, 120, '#fbbf24', 18, 280);
+        spawnParticles(270, 120, '#f43f5e', 18, 280);
+        addScore(2500, 204, 310, 'MULTIBALL 3X! +2500', '#fbbf24');
+
+        setTimeout(() => {
+          dropTargets.forEach((t) => {
+            t.down = false;
+            t.flash = 1;
+          });
+        }, 1200);
+      }
+
+      function startNewGame() {
+        sound.unlock();
+        state.score = 0;
+        state.ballsLeft = 3;
+        state.multiplier = 1;
+        state.rankIndex = 0;
+        state.rampCombo = 0;
+        state.particles = [];
+        state.popups = [];
+        state.tilted = false;
+        state.nudgeMeter = 0;
+        state.tiltBannerTimer = 0;
+        state.multiballBannerTimer = 0;
+        state.kickbacks.left = true;
+        state.kickbacks.right = true;
+
+        lanes.forEach((l) => {
+          l.lit = false;
+          l.cooldown = 0;
+        });
+        dropTargets.forEach((t) => {
+          t.down = false;
+          t.flash = 0;
+        });
+
+        spawnBallInPlunger();
+        updateHUD();
+
+        state.mode = 'playing';
+        overlay.classList.add('hidden');
+        btnPause.textContent = '⏸';
+      }
+
+      function showOverlay(badge, title, desc, btnLabel, showStats = false) {
+        modalBadge.textContent = badge;
+        modalTitle.textContent = title;
+        modalDesc.innerHTML = desc;
+        btnStart.textContent = btnLabel;
+
+        if (showStats) {
+          finalScore.textContent = state.score.toLocaleString('pt-BR');
+          finalRank.textContent = RANKS[state.rankIndex].name;
+          finalHigh.textContent = state.highScore.toLocaleString('pt-BR');
+          finalStats.classList.remove('hidden');
+        } else {
+          finalStats.classList.add('hidden');
+        }
+
+        overlay.classList.remove('hidden');
+      }
+
+      function togglePause() {
+        if (state.mode === 'playing') {
+          state.mode = 'paused';
+          btnPause.textContent = '▶️';
+          showOverlay(
+            'Jogo Pausado',
+            'Missão em Espera',
+            'Retome o comando da estação espacial quando estiver pronto.',
+            'CONTINUAR',
+            false
+          );
+        } else if (state.mode === 'paused') {
+          state.mode = 'playing';
+          btnPause.textContent = '⏸';
+          overlay.classList.add('hidden');
+        }
+      }
+
+      // Empurrão direcional (Nudge) estilo Space Cadet: 'left' | 'right' | 'up'
+      function nudgeTable(direction = 'up') {
+        if (state.mode !== 'playing' || state.tilted) return;
+
+        state.nudgeMeter += 1.0;
+
+        if (state.nudgeMeter >= 2.85) {
+          state.tilted = true;
+          state.tiltTimer = 4.0;
+          state.tiltBannerTimer = 2.2;
+          state.tiltBannerText = '⚠️ TILT! FLIPPERS TRAVADOS';
+          sound.playNudge(3);
+          triggerShake(11, 0.45);
+          return;
+        } else if (state.nudgeMeter >= 1.8) {
+          state.tiltBannerTimer = 1.4;
+          state.tiltBannerText = '⚡ PERIGO: TILT WARNING!';
+          sound.playNudge(2);
+          triggerShake(7, 0.22);
+        } else {
+          sound.playNudge(1);
+          triggerShake(5.5, 0.15);
+        }
+
+        let impulseX = 0;
+        let impulseY = -95;
+        if (direction === 'left') {
+          impulseX = -155;
+          impulseY = -75;
+        } else if (direction === 'right') {
+          impulseX = 155;
+          impulseY = -75;
+        }
+
+        state.balls.forEach((b) => {
+          if (!b.inPlungerLane && b !== wormhole.capturedBall) {
+            b.vx += impulseX;
+            b.vy += impulseY;
+          }
+        });
+      }
+
+      // --------------------------------------------------------------------------
+      // 6. MATEMÁTICA DE COLISÃO 2D (CÍRCULO VS SEGMENTO / PINO / FLIPPER)
+      // --------------------------------------------------------------------------
+      function closestPointOnSegment(px, py, x1, y1, x2, y2) {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const lenSq = dx * dx + dy * dy;
+        if (lenSq === 0) return { x: x1, y: y1, t: 0 };
+        let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+        return {
+          x: x1 + t * dx,
+          y: y1 + t * dy,
+          t
+        };
+      }
+
+      function resolveBallSegment(ball, x1, y1, x2, y2, restitution = 0.55, extraImpulse = 0) {
+        const cp = closestPointOnSegment(ball.x, ball.y, x1, y1, x2, y2);
+        const dx = ball.x - cp.x;
+        const dy = ball.y - cp.y;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < ball.radius * ball.radius) {
+          const dist = Math.sqrt(distSq) || 0.0001;
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          const overlap = ball.radius - dist;
+          ball.x += nx * overlap;
+          ball.y += ny * overlap;
+
+          const vn = ball.vx * nx + ball.vy * ny;
+          if (vn < 0) {
+            const impulse = -(1 + restitution) * vn + extraImpulse;
+            ball.vx += impulse * nx;
+            ball.vy += impulse * ny;
+            ball.vx *= 0.994;
+            ball.vy *= 0.994;
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function resolveBallFlipper(ball, flipper) {
+        const x1 = flipper.pivotX;
+        const y1 = flipper.pivotY;
+        const x2 = x1 + Math.cos(flipper.angle) * flipper.length;
+        const y2 = y1 + Math.sin(flipper.angle) * flipper.length;
+
+        const cp = closestPointOnSegment(ball.x, ball.y, x1, y1, x2, y2);
+        const dx = ball.x - cp.x;
+        const dy = ball.y - cp.y;
+        const minDist = ball.radius + flipper.radius;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < minDist * minDist) {
+          const dist = Math.sqrt(distSq) || 0.0001;
+          const nx = dx / dist;
+          const ny = dy / dist;
+
+          const overlap = minDist - dist;
+          ball.x += nx * overlap;
+          ball.y += ny * overlap;
+
+          const rx = cp.x - flipper.pivotX;
+          const ry = cp.y - flipper.pivotY;
+          const surfVx = -flipper.angularVel * ry;
+          const surfVy = flipper.angularVel * rx;
+
+          const relVx = ball.vx - surfVx;
+          const relVy = ball.vy - surfVy;
+          const vn = relVx * nx + relVy * ny;
+
+          if (vn < 0) {
+            const isSwingingUp =
+              (flipper.side === 'left' && flipper.angularVel < -1.0) ||
+              (flipper.side === 'right' && flipper.angularVel > 1.0);
+
+            const restitution = isSwingingUp ? 0.86 : 0.32;
+            ball.vx -= (1 + restitution) * vn * nx;
+            ball.vy -= (1 + restitution) * vn * ny;
+
+            if (isSwingingUp) {
+              const leverFactor = 0.45 + 0.55 * cp.t;
+              ball.vx += surfVx * 0.74 * leverFactor;
+              ball.vy += surfVy * 0.74 * leverFactor - 145 * leverFactor;
+              spawnParticles(cp.x, cp.y, '#38bdf8', 5, 130);
+            }
+          }
+        }
+      }
+
+      // --------------------------------------------------------------------------
+      // 7. ATUALIZAÇÃO DA FÍSICA E MECÂNICAS SPACE CADET
+      // --------------------------------------------------------------------------
+      function updatePhysics(dt) {
+        if (state.mode !== 'playing') return;
+
+        // Timers gerais
+        if (state.shakeTime > 0) state.shakeTime = Math.max(0, state.shakeTime - dt);
+        if (state.ballSaverTimer > 0) state.ballSaverTimer = Math.max(0, state.ballSaverTimer - dt);
+        if (state.multiballBannerTimer > 0) {
+          state.multiballBannerTimer = Math.max(0, state.multiballBannerTimer - dt);
+        }
+        if (state.tiltBannerTimer > 0) {
+          state.tiltBannerTimer = Math.max(0, state.tiltBannerTimer - dt);
+        }
+
+        if (state.nudgeMeter > 0) {
+          state.nudgeMeter = Math.max(0, state.nudgeMeter - dt * 0.52);
+        }
+        if (state.tilted) {
+          state.tiltTimer -= dt;
+          if (state.tiltTimer <= 0) {
+            state.tilted = false;
+            state.nudgeMeter = 0;
+          }
+        }
+
+        // Animações de elementos da mesa
+        bumpers.forEach((b) => {
+          if (b.pulse > 0) b.pulse = Math.max(0, b.pulse - dt * 4.5);
+        });
+        rubberPosts.forEach((p) => {
+          if (p.pulse > 0) p.pulse = Math.max(0, p.pulse - dt * 5.0);
+        });
+        slingshots.forEach((s) => {
+          if (s.pulse > 0) s.pulse = Math.max(0, s.pulse - dt * 5.0);
+        });
+        lanes.forEach((l) => {
+          if (l.cooldown > 0) l.cooldown = Math.max(0, l.cooldown - dt);
+        });
+        dropTargets.forEach((t) => {
+          if (t.flash > 0) t.flash = Math.max(0, t.flash - dt * 3.0);
+        });
+        if (wormhole.cooldown > 0) wormhole.cooldown = Math.max(0, wormhole.cooldown - dt);
+        if (wormhole.pulse > 0) wormhole.pulse = Math.max(0, wormhole.pulse - dt * 3.0);
+        if (ramp.cooldown > 0) ramp.cooldown = Math.max(0, ramp.cooldown - dt);
+        if (ramp.pulse > 0) ramp.pulse = Math.max(0, ramp.pulse - dt * 2.5);
+
+        // Gerenciamento da captura e ejeção no Wormhole (Buraco de Missão)
+        if (wormhole.capturedBall) {
+          wormhole.holdTimer -= dt;
+          wormhole.pulse = 1;
+          wormhole.capturedBall.x = wormhole.x;
+          wormhole.capturedBall.y = wormhole.y;
+          wormhole.capturedBall.vx = 0;
+          wormhole.capturedBall.vy = 0;
+
+          if (wormhole.holdTimer <= 0) {
+            const ejected = wormhole.capturedBall;
+            wormhole.capturedBall = null;
+            wormhole.cooldown = 1.6;
+
+            // Sobe de patente (Cadete -> Tenente -> Capitão -> Comandante -> Almirante)
+            if (state.rankIndex < RANKS.length - 1) {
+              state.rankIndex += 1;
+            }
+            const rankObj = RANKS[state.rankIndex];
+            updateHUD();
+
+            // Ejeta em alta velocidade na diagonal superior direita rumo aos bumpers
+            ejected.x = wormhole.x + 18;
+            ejected.y = wormhole.y - 14;
+            ejected.vx = 490;
+            ejected.vy = -420;
+
+            sound.playWormholeEject();
+            triggerShake(5.5, 0.16);
+            spawnParticles(wormhole.x, wormhole.y, '#a855f7', 16, 240);
+            addScore(rankObj.bonus, wormhole.x + 36, wormhole.y - 10, `PATENTE: ${rankObj.name.toUpperCase()}!`, '#c084fc');
+          }
+        }
+
+        // Spinner rotativo
+        if (Math.abs(spinner.angVel) > 0.05) {
+          spinner.angle += spinner.angVel * dt;
+          spinner.angVel *= Math.pow(0.28, dt);
+          const halfTurns = Math.floor(Math.abs(spinner.angle) / Math.PI);
+          if (halfTurns > spinner.lastTick) {
+            const diff = halfTurns - spinner.lastTick;
+            spinner.lastTick = halfTurns;
+            sound.playSpinner();
+            addScore(50 * diff);
+          }
+        } else {
+          spinner.angVel = 0;
+          spinner.lastTick = Math.floor(Math.abs(spinner.angle) / Math.PI);
+        }
+
+        // Carregamento do Plunger por botão/teclado
+        if (state.plunger.charging && !state.plunger.dragging) {
+          state.plunger.pull = Math.min(
+            state.plunger.maxPull,
+            state.plunger.pull + 96 * dt
+          );
+          const step = Math.floor(state.plunger.pull / 8);
+          if (step > state.plunger.lastTickStep) {
+            state.plunger.lastTickStep = step;
+            sound.playPlungerTick(state.plunger.pull / state.plunger.maxPull);
+          }
+        }
+
+        // Partículas e popups
+        for (let i = state.particles.length - 1; i >= 0; i--) {
+          const p = state.particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.vy += 240 * dt;
+          p.life -= dt;
+          if (p.life <= 0) state.particles.splice(i, 1);
+        }
+
+        for (let i = state.popups.length - 1; i >= 0; i--) {
+          const pop = state.popups[i];
+          pop.y -= 36 * dt;
+          pop.life -= dt;
+          if (pop.life <= 0) state.popups.splice(i, 1);
+        }
+
+        // Sub-steps de física
+        const subDt = dt / SUBSTEPS;
+
+        for (let step = 0; step < SUBSTEPS; step++) {
+          // Atualiza ângulo dos flippers
+          for (const fl of flippers) {
+            fl.prevAngle = fl.angle;
+            const active = !state.tilted && (fl.side === 'left' ? state.inputs.left : state.inputs.right);
+            const target = active ? fl.activeAngle : fl.restAngle;
+
+            if (fl.side === 'left') {
+              if (target < fl.angle) {
+                fl.angle = Math.max(target, fl.angle - fl.speedUp * subDt);
+              } else if (target > fl.angle) {
+                fl.angle = Math.min(target, fl.angle + fl.speedDown * subDt);
+              }
+            } else {
+              if (target > fl.angle) {
+                fl.angle = Math.min(target, fl.angle + fl.speedUp * subDt);
+              } else if (target < fl.angle) {
+                fl.angle = Math.max(target, fl.angle - fl.speedDown * subDt);
+              }
+            }
+            fl.angularVel = (fl.angle - fl.prevAngle) / subDt;
+          }
+
+          // Atualiza cada bola ativa
+          for (let bi = state.balls.length - 1; bi >= 0; bi--) {
+            const ball = state.balls[bi];
+            if (ball === wormhole.capturedBall) continue;
+
+            ball.vy += GRAVITY * subDt;
+
+            const spd = Math.hypot(ball.vx, ball.vy);
+            if (spd > MAX_SPEED) {
+              const scale = MAX_SPEED / spd;
+              ball.vx *= scale;
+              ball.vy *= scale;
+            }
+
+            ball.x += ball.vx * subDt;
+            ball.y += ball.vy * subDt;
+
+            // Suporte da mola do Plunger
+            if (ball.x > 396) {
+              const plungerTop = state.plunger.yRest + state.plunger.pull;
+              if (ball.y + ball.radius > plungerTop) {
+                ball.y = plungerTop - ball.radius;
+                if (ball.vy > 0) ball.vy = 0;
+              }
+            } else if (ball.inPlungerLane && ball.x < 390 && ball.y < 145) {
+              ball.inPlungerLane = false;
+              state.ballSaverTimer = 14.0;
+            }
+
+            // Portão unidirecional no topo do canal de lançamento
+            if (!ball.inPlungerLane && ball.y < 152) {
+              resolveBallSegment(ball, 396, 14, 396, 152, 0.5);
+            }
+
+            // Paredes estáticas
+            for (const w of wallSegments) {
+              resolveBallSegment(ball, w.x1, w.y1, w.x2, w.y2, w.r);
+            }
+
+            // Pinos elásticos arredondados (Rubber Posts)
+            for (const post of rubberPosts) {
+              const dx = ball.x - post.x;
+              const dy = ball.y - post.y;
+              const minDist = ball.radius + post.radius;
+              const distSq = dx * dx + dy * dy;
+              if (distSq < minDist * minDist) {
+                const dist = Math.sqrt(distSq) || 0.0001;
+                const nx = dx / dist;
+                const ny = dy / dist;
+                ball.x = post.x + nx * (minDist + 0.4);
+                ball.y = post.y + ny * (minDist + 0.4);
+
+                const vn = ball.vx * nx + ball.vy * ny;
+                if (vn < 0) {
+                  ball.vx -= 1.75 * vn * nx;
+                  ball.vy -= 1.75 * vn * ny;
+                  post.pulse = 1;
+                  sound.playRubberPost();
+                }
+              }
+            }
+
+            // Kickbacks laterais nos Outlanes (devolve a bola automaticamente quando armado!)
+            if (state.kickbacks.left && ball.x < 44 && ball.y > 555 && ball.y < 595 && ball.vy > 0) {
+              state.kickbacks.left = false;
+              ball.x = 30;
+              ball.y = 548;
+              ball.vx = 185;
+              ball.vy = -880;
+              sound.playKickback();
+              triggerShake(6, 0.16);
+              spawnParticles(30, 565, '#10b981', 14, 240);
+              addScore(500, 62, 530, 'KICKBACK! +500', '#10b981');
+            }
+            if (state.kickbacks.right && ball.x > 354 && ball.y > 555 && ball.y < 595 && ball.vy > 0) {
+              state.kickbacks.right = false;
+              ball.x = 368;
+              ball.y = 548;
+              ball.vx = -185;
+              ball.vy = -880;
+              sound.playKickback();
+              triggerShake(6, 0.16);
+              spawnParticles(368, 565, '#10b981', 14, 240);
+              addScore(500, 336, 530, 'KICKBACK! +500', '#10b981');
+            }
+
+            // Slingshots triangulares
+            for (const sling of slingshots) {
+              const [p0, p1, p2] = sling.pts;
+              if (
+                resolveBallSegment(
+                  ball,
+                  sling.kickerFace.x1,
+                  sling.kickerFace.y1,
+                  sling.kickerFace.x2,
+                  sling.kickerFace.y2,
+                  0.85,
+                  430
+                )
+              ) {
+                sling.pulse = 1;
+                sound.playSlingshot();
+                triggerShake(3.5, 0.08);
+                const mx = (sling.kickerFace.x1 + sling.kickerFace.x2) * 0.5;
+                const my = (sling.kickerFace.y1 + sling.kickerFace.y2) * 0.5;
+                spawnParticles(mx, my, '#f43f5e', 8, 170);
+                addScore(100, mx, my);
+              }
+              resolveBallSegment(ball, p0.x, p0.y, p1.x, p1.y, 0.55);
+              resolveBallSegment(ball, p1.x, p1.y, p2.x, p2.y, 0.55);
+            }
+
+            // 3 Pop Bumpers
+            for (const bmp of bumpers) {
+              const dx = ball.x - bmp.x;
+              const dy = ball.y - bmp.y;
+              const minDist = ball.radius + bmp.radius;
+              const distSq = dx * dx + dy * dy;
+              if (distSq < minDist * minDist) {
+                const dist = Math.sqrt(distSq) || 0.0001;
+                const nx = dx / dist;
+                const ny = dy / dist;
+
+                ball.x = bmp.x + nx * (minDist + 0.5);
+                ball.y = bmp.y + ny * (minDist + 0.5);
+
+                const kickSpeed = Math.max(550, Math.hypot(ball.vx, ball.vy) * 1.08);
+                ball.vx = nx * kickSpeed;
+                ball.vy = ny * kickSpeed;
+
+                bmp.pulse = 1;
+                sound.playBumper(bmp.id);
+                triggerShake(4, 0.09);
+                spawnParticles(bmp.x + nx * bmp.radius, bmp.y + ny * bmp.radius, bmp.color, 10, 210);
+                addScore(bmp.points, bmp.x, bmp.y - 16);
+              }
+            }
+
+            // Buraco de Missão / Wormhole (captura se velocidade moderada ou passagem direta)
+            if (!wormhole.capturedBall && wormhole.cooldown <= 0 && !ball.inPlungerLane) {
+              const dw = Math.hypot(ball.x - wormhole.x, ball.y - wormhole.y);
+              if (dw < wormhole.radius) {
+                wormhole.capturedBall = ball;
+                wormhole.holdTimer = 0.85;
+                ball.x = wormhole.x;
+                ball.y = wormhole.y;
+                ball.vx = 0;
+                ball.vy = 0;
+                sound.playWormholeCapture();
+                spawnParticles(wormhole.x, wormhole.y, '#c084fc', 12, 160);
+              }
+            }
+
+            // Entrada da Rampa Elevada Curva (acelera a bola pelo arco superior!)
+            if (ramp.cooldown <= 0 && !ball.inPlungerLane && ball.vy < -110) {
+              const dr = Math.hypot(ball.x - ramp.entryX, ball.y - ramp.entryY);
+              if (dr < 21) {
+                ramp.cooldown = 0.85;
+                ramp.pulse = 1;
+                state.rampCombo += 1;
+
+                // Teleporta suavemente pela rampa e lança na curva superior esquerda
+                ball.x = 290;
+                ball.y = 112;
+                ball.vx = -390;
+                ball.vy = -120;
+
+                const rampBonus = 400 * state.rampCombo;
+                sound.playRamp();
+                spawnParticles(ramp.entryX, ramp.entryY, '#38bdf8', 12, 200);
+                addScore(rampBonus, 260, 250, `RAMPA x${state.rampCombo}! +${rampBonus}`, '#38bdf8');
+              }
+            }
+
+            // 4 Drop Targets
+            for (const tgt of dropTargets) {
+              if (tgt.down) continue;
+
+              const cx = Math.max(tgt.x, Math.min(ball.x, tgt.x + tgt.w));
+              const cy = Math.max(tgt.y, Math.min(ball.y, tgt.y + tgt.h));
+              const dx = ball.x - cx;
+              const dy = ball.y - cy;
+
+              if (dx * dx + dy * dy < ball.radius * ball.radius) {
+                tgt.down = true;
+                tgt.flash = 1;
+                ball.vx = Math.abs(ball.vx) * 0.85 + 170;
+
+                const remaining = dropTargets.filter((d) => !d.down).length;
+                sound.playDropTarget(remaining);
+                spawnParticles(tgt.x + tgt.w, tgt.y + tgt.h * 0.5, '#fbbf24', 10, 180);
+                addScore(300, tgt.x + 28, tgt.y + 16);
+
+                if (remaining === 0) {
+                  triggerMultiball();
+                }
+              }
+            }
+
+            // Rollover Lanes (P - I - N) + Skill Shot no lançamento
+            for (const lane of lanes) {
+              if (lane.cooldown > 0) continue;
+              const d = Math.hypot(ball.x - lane.x, ball.y - lane.y);
+              if (d < ball.radius + lane.radius * 0.78) {
+                lane.cooldown = 0.45;
+
+                // Skill Shot se foi a primeira pista tocada logo após sair da mola!
+                if (ball.justLaunched) {
+                  ball.justLaunched = false;
+                  sound.playMultiplierUp(state.multiplier + 1);
+                  spawnParticles(lane.x, lane.y, '#fbbf24', 16, 230);
+                  addScore(1000, lane.x, lane.y + 24, 'SKILL SHOT! +1000', '#fbbf24');
+                }
+
+                if (!lane.lit) {
+                  lane.lit = true;
+                  const litCount = lanes.filter((l) => l.lit).length;
+                  sound.playLane(litCount);
+                  spawnParticles(lane.x, lane.y, '#38bdf8', 7, 120);
+                  addScore(200, lane.x, lane.y + 18);
+
+                  if (litCount === lanes.length) {
+                    const nextMult = state.multiplier === 1 ? 2 : state.multiplier === 2 ? 3 : 5;
+                    state.multiplier = nextMult;
+                    updateHUD();
+                    sound.playMultiplierUp(nextMult);
+                    addScore(500, 242, 110, `BÔNUS ${nextMult}X!`, '#fbbf24');
+                    setTimeout(() => {
+                      lanes.forEach((l) => (l.lit = false));
+                    }, 750);
+                  }
+                } else {
+                  sound.playLane(1);
+                  addScore(50);
+                }
+              }
+            }
+
+            // Spinner
+            const spCp = closestPointOnSegment(ball.x, ball.y, spinner.x1, spinner.y1, spinner.x2, spinner.y2);
+            if (Math.hypot(ball.x - spCp.x, ball.y - spCp.y) < ball.radius + 5) {
+              spinner.angVel = (ball.vy < 0 ? 1 : -1) * Math.max(18, Math.abs(ball.vy) * 0.045);
+            }
+
+            // Flippers
+            for (const fl of flippers) {
+              resolveBallFlipper(ball, fl);
+            }
+          }
+        }
+
+        // Detector anti-travamento automático (Anti-Stuck Nudge) & Dreno
+        for (let bi = state.balls.length - 1; bi >= 0; bi--) {
+          const ball = state.balls[bi];
+          ball.trail.push({ x: ball.x, y: ball.y });
+          if (ball.trail.length > 9) ball.trail.shift();
+
+          // Verifica se a bola ficou parada fora do canal do lançador e fora do wormhole
+          if (!ball.inPlungerLane && ball !== wormhole.capturedBall) {
+            const speed = Math.hypot(ball.vx, ball.vy);
+            if (speed < 18) {
+              ball.stuckTimer += dt;
+              if (ball.stuckTimer >= 0.6) {
+                ball.stuckTimer = 0;
+                ball.vx += (ball.x < 204 ? 1 : -1) * 165;
+                ball.vy -= 210;
+              }
+            } else {
+              ball.stuckTimer = 0;
+            }
+          }
+
+          if (ball.y - ball.radius > TABLE_H + 12) {
+            state.balls.splice(bi, 1);
+
+            if (state.balls.length === 0) {
+              if (state.ballSaverTimer > 0) {
+                sound.playBallSaved();
+                state.ballSaverTimer = 0;
+                spawnBallInPlunger();
+                addScore(0, 199, 560, 'ESFERA SALVA!', '#10b981');
+              } else {
+                sound.playDrain();
+                state.ballsLeft -= 1;
+                state.multiplier = 1;
+                state.rampCombo = 0;
+                lanes.forEach((l) => (l.lit = false));
+                updateHUD();
+
+                if (state.ballsLeft > 0) {
+                  spawnBallInPlunger();
+                } else {
+                  state.mode = 'gameover';
+                  sound.playGameOver();
+                  showOverlay(
+                    'Missão Encerrada',
+                    'Game Over!',
+                    'Todas as esferas foram drenadas. Lance novamente para superar sua patente!',
+                    'JOGAR NOVAMENTE',
+                    true
+                  );
+                }
+              }
+            }
+          }
+        }
+      }
+
+      function releasePlunger() {
+        const wasActive = state.plunger.charging || state.plunger.dragging;
+        if (!wasActive) return;
+
+        const ratio = state.plunger.pull / state.plunger.maxPull;
+        state.plunger.charging = false;
+        state.plunger.dragging = false;
+        state.plunger.lastTickStep = 0;
+
+        if (ratio > 0.08 && state.mode === 'playing') {
+          const launchVy = -(520 + ratio * 960);
+          state.balls.forEach((b) => {
+            if (b.x > 396 && b.y > 540) {
+              b.vy = launchVy;
+              b.justLaunched = true;
+            }
+          });
+          sound.playPlungerLaunch(ratio);
+          triggerShake(2.5 + ratio * 3.5, 0.1);
+        }
+        state.plunger.pull = 0;
+      }
+
+      // --------------------------------------------------------------------------
+      // 8. RENDERIZAÇÃO HIGH-DPI NO CANVAS 2D
+      // --------------------------------------------------------------------------
+      function resizeCanvas() {
+        const rect = arenaContainer.getBoundingClientRect();
+        const availW = Math.max(240, (rect.width || window.innerWidth) - 8);
+        const availH = Math.max(320, (rect.height || window.innerHeight - 140) - 8);
+
+        const aspect = TABLE_W / TABLE_H;
+        let displayW = availW;
+        let displayH = displayW / aspect;
+
+        if (displayH > availH) {
+          displayH = availH;
+          displayW = displayH * aspect;
+        }
+
+        const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+        canvas.style.width = `${Math.floor(displayW)}px`;
+        canvas.style.height = `${Math.floor(displayH)}px`;
+        canvas.width = Math.floor(displayW * dpr);
+        canvas.height = Math.floor(displayH * dpr);
+
+        ctx.setTransform(canvas.width / TABLE_W, 0, 0, canvas.height / TABLE_H, 0, 0);
+      }
+
+      function drawTable() {
+        const isNeon = state.theme === 'neon';
+
+        ctx.save();
+        if (state.shakeTime > 0) {
+          const sx = (Math.random() - 0.5) * state.shakeIntensity * 2;
+          const sy = (Math.random() - 0.5) * state.shakeIntensity * 2;
+          ctx.translate(sx, sy);
+        }
+
+        // 1. Fundo da Mesa Espacial
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, TABLE_H);
+        if (isNeon) {
+          bgGrad.addColorStop(0, '#070b19');
+          bgGrad.addColorStop(0.55, '#0b142c');
+          bgGrad.addColorStop(1, '#060a16');
+        } else {
+          bgGrad.addColorStop(0, '#2a180d');
+          bgGrad.addColorStop(0.5, '#3b2112');
+          bgGrad.addColorStop(1, '#221209');
+        }
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, TABLE_W, TABLE_H);
+
+        // Grade espacial sutil
+        ctx.strokeStyle = isNeon ? 'rgba(56, 189, 248, 0.055)' : 'rgba(251, 191, 36, 0.055)';
+        ctx.lineWidth = 1;
+        for (let x = 28; x < 396; x += 28) {
+          ctx.beginPath();
+          ctx.moveTo(x, 14);
+          ctx.lineTo(x, TABLE_H);
+          ctx.stroke();
+        }
+        for (let y = 28; y < TABLE_H; y += 28) {
+          ctx.beginPath();
+          ctx.moveTo(12, y);
+          ctx.lineTo(396, y);
+          ctx.stroke();
+        }
+
+        // 2. Rampa Elevada Curva (visual translúcido estilo Space Cadet)
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(306, 382);
+        ctx.bezierCurveTo(324, 280, 338, 175, 292, 112);
+        ctx.lineWidth = 26;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle =
+          ramp.pulse > 0.1
+            ? 'rgba(56, 189, 248, 0.35)'
+            : isNeon
+            ? 'rgba(56, 189, 248, 0.11)'
+            : 'rgba(245, 158, 11, 0.14)';
+        ctx.stroke();
+
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 6]);
+        ctx.strokeStyle = isNeon ? 'rgba(56, 189, 248, 0.45)' : 'rgba(251, 191, 36, 0.45)';
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Seta luminosa de entrada da rampa
+        ctx.fillStyle = isNeon ? '#38bdf8' : '#fbbf24';
+        ctx.font = '800 9px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('▲ RAMPA', 306, 396);
+        ctx.restore();
+
+        // 3. Emblema Central de Patentes (Space Cadet)
+        ctx.save();
+        ctx.translate(200, 405);
+        ctx.strokeStyle = isNeon ? 'rgba(244, 63, 94, 0.16)' : 'rgba(245, 158, 11, 0.16)';
+        ctx.lineWidth = 2;
+        [48, 80, 112].forEach((r) => {
+          ctx.beginPath();
+          ctx.arc(0, 0, r, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+        ctx.fillStyle = isNeon ? 'rgba(56, 189, 248, 0.18)' : 'rgba(254, 243, 199, 0.14)';
+        ctx.font = '900 15px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('SPACE CADET', 0, -6);
+        ctx.font = '700 10px Inter, sans-serif';
+        ctx.fillText(`PATENTE: ${RANKS[state.rankIndex].name.toUpperCase()}`, 0, 11);
+        ctx.restore();
+
+        // 4. Buraco de Missão / Wormhole (À esquerda abaixo dos drop targets)
+        ctx.save();
+        const whR = wormhole.radius + wormhole.pulse * 4;
+        const whGrad = ctx.createRadialGradient(wormhole.x, wormhole.y, 2, wormhole.x, wormhole.y, whR);
+        whGrad.addColorStop(0, '#000000');
+        whGrad.addColorStop(0.65, '#4c1d95');
+        whGrad.addColorStop(1, '#c084fc');
+        ctx.beginPath();
+        ctx.arc(wormhole.x, wormhole.y, whR, 0, Math.PI * 2);
+        ctx.fillStyle = whGrad;
+        ctx.shadowColor = '#a855f7';
+        ctx.shadowBlur = 14;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#e9d5ff';
+        ctx.stroke();
+
+        ctx.fillStyle = '#e9d5ff';
+        ctx.font = '800 8px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('MISSÃO', wormhole.x, wormhole.y + whR + 11);
+        ctx.restore();
+
+        // 5. Indicador de Ball Saver no centro entre os flippers
+        ctx.save();
+        const saveActive = state.ballSaverTimer > 0;
+        const saveBlink = saveActive && (state.ballSaverTimer > 3 || Math.floor(state.ballSaverTimer * 8) % 2 === 0);
+        ctx.beginPath();
+        ctx.arc(199, 696, 17, 0, Math.PI * 2);
+        ctx.fillStyle = saveBlink ? 'rgba(16, 185, 129, 0.25)' : 'rgba(255, 255, 255, 0.04)';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = saveBlink ? '#10b981' : 'rgba(148, 163, 184, 0.25)';
+        ctx.stroke();
+        ctx.fillStyle = saveBlink ? '#34d399' : 'rgba(148, 163, 184, 0.45)';
+        ctx.font = '800 8px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('SAVE', 199, 699);
+        ctx.restore();
+
+        // 6. Kickbacks Laterais nos Outlanes
+        if (state.kickbacks.left) {
+          ctx.save();
+          ctx.fillStyle = '#10b981';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.roundRect(22, 566, 16, 12, 3);
+          ctx.fill();
+          ctx.restore();
+        }
+        if (state.kickbacks.right) {
+          ctx.save();
+          ctx.fillStyle = '#10b981';
+          ctx.shadowColor = '#10b981';
+          ctx.shadowBlur = 10;
+          ctx.beginPath();
+          ctx.roundRect(360, 566, 16, 12, 3);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 7. Rollover Lanes (P - I - N)
+        lanes.forEach((lane) => {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(lane.x, lane.y, lane.radius, 0, Math.PI * 2);
+          if (lane.lit) {
+            ctx.fillStyle = isNeon ? '#38bdf8' : '#f59e0b';
+            ctx.shadowColor = isNeon ? '#38bdf8' : '#fbbf24';
+            ctx.shadowBlur = 14;
+          } else {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.07)';
+          }
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = lane.lit ? '#ffffff' : 'rgba(148, 163, 184, 0.35)';
+          ctx.stroke();
+
+          ctx.fillStyle = lane.lit ? '#060913' : '#94a3b8';
+          ctx.font = '900 13px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(lane.letter, lane.x, lane.y + 0.5);
+          ctx.restore();
+        });
+
+        // 8. Drop Targets (4 alvos à esquerda)
+        dropTargets.forEach((t) => {
+          ctx.save();
+          if (t.down) {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(t.x, t.y, 5, t.h, 2);
+            ctx.fill();
+            ctx.stroke();
+          } else {
+            ctx.fillStyle = isNeon ? '#fbbf24' : '#ef4444';
+            ctx.shadowColor = isNeon ? '#fbbf24' : '#ef4444';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.roundRect(t.x, t.y, t.w, t.h, 4);
+            ctx.fill();
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+          }
+          ctx.restore();
+        });
+
+        // 9. Spinner
+        ctx.save();
+        const spMidX = (spinner.x1 + spinner.x2) * 0.5;
+        const spMidY = spinner.y1;
+        const spWidth = Math.max(4, Math.abs(Math.cos(spinner.angle)) * 34);
+        ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(spinner.x1, spinner.y1);
+        ctx.lineTo(spinner.x2, spinner.y2);
+        ctx.stroke();
+
+        ctx.fillStyle = isNeon ? '#a855f7' : '#fbbf24';
+        ctx.beginPath();
+        ctx.roundRect(spMidX - spWidth * 0.5, spMidY - 4, spWidth, 8, 3);
+        ctx.fill();
+        ctx.restore();
+
+        // 10. Paredes e Guias Contínuas
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 4.5;
+        ctx.strokeStyle = isNeon ? '#38bdf8' : '#d97706';
+        if (isNeon) {
+          ctx.shadowColor = '#0284c7';
+          ctx.shadowBlur = 8;
+        }
+        wallSegments.forEach((w) => {
+          ctx.beginPath();
+          ctx.moveTo(w.x1, w.y1);
+          ctx.lineTo(w.x2, w.y2);
+          ctx.stroke();
+        });
+        ctx.restore();
+
+        // 11. Pinos Elásticos Arredondados (Rubber Posts)
+        rubberPosts.forEach((post) => {
+          ctx.save();
+          const r = post.radius + post.pulse * 2.5;
+          ctx.beginPath();
+          ctx.arc(post.x, post.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = post.pulse > 0.1 ? '#ffffff' : isNeon ? '#f43f5e' : '#fbbf24';
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#ffffff';
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // 12. Slingshots Triangulares
+        slingshots.forEach((sling) => {
+          ctx.save();
+          const [p0, p1, p2] = sling.pts;
+          const scale = 1 + sling.pulse * 0.08;
+          const cx = (p0.x + p1.x + p2.x) / 3;
+          const cy = (p0.y + p1.y + p2.y) / 3;
+
+          ctx.translate(cx, cy);
+          ctx.scale(scale, scale);
+          ctx.translate(-cx, -cy);
+
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.closePath();
+
+          ctx.fillStyle = isNeon ? 'rgba(244, 63, 94, 0.25)' : 'rgba(220, 38, 38, 0.32)';
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = sling.pulse > 0.1 ? '#ffffff' : isNeon ? '#f43f5e' : '#ef4444';
+          ctx.stroke();
+          ctx.restore();
+        });
+
+        // 13. Pop Bumpers
+        bumpers.forEach((bmp) => {
+          ctx.save();
+          const r = bmp.radius + bmp.pulse * 5.5;
+          const col = isNeon ? bmp.color : '#f59e0b';
+
+          ctx.beginPath();
+          ctx.arc(bmp.x, bmp.y, r + 4, 0, Math.PI * 2);
+          ctx.fillStyle = isNeon ? 'rgba(255, 255, 255, 0.07)' : 'rgba(251, 191, 36, 0.14)';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(bmp.x, bmp.y, r, 0, Math.PI * 2);
+          ctx.fillStyle = col;
+          ctx.shadowColor = col;
+          ctx.shadowBlur = 14 + bmp.pulse * 12;
+          ctx.fill();
+
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = '#ffffff';
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(bmp.x, bmp.y, r * 0.48, 0, Math.PI * 2);
+          ctx.fillStyle = '#090e1f';
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // 14. Plunger (Êmbolo / Mola de Lançamento interativa por arraste)
+        ctx.save();
+        const plungerTop = state.plunger.yRest + state.plunger.pull;
+        const plungerBottom = 738;
+
+        // Medidor lateral de tensão da mola
+        const pullRatio = state.plunger.pull / state.plunger.maxPull;
+        if (pullRatio > 0.02) {
+          ctx.fillStyle = pullRatio > 0.8 ? '#f43f5e' : pullRatio > 0.45 ? '#fbbf24' : '#38bdf8';
+          ctx.fillRect(427, state.plunger.yRest, 3, state.plunger.pull);
+        }
+
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        const coils = 7;
+        for (let i = 0; i <= coils; i++) {
+          const t = i / coils;
+          const cy = plungerTop + 6 + t * (plungerBottom - plungerTop - 8);
+          const cx = 414 + (i % 2 === 0 ? -9 : 9);
+          if (i === 0) ctx.moveTo(414, plungerTop + 4);
+          else ctx.lineTo(cx, cy);
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = isNeon ? '#f43f5e' : '#dc2626';
+        ctx.beginPath();
+        ctx.roundRect(401, plungerTop, 26, 11, 4);
+        ctx.fill();
+        ctx.restore();
+
+        // 15. Flippers
+        flippers.forEach((fl) => {
+          ctx.save();
+          ctx.translate(fl.pivotX, fl.pivotY);
+          ctx.rotate(fl.angle);
+
+          ctx.beginPath();
+          ctx.moveTo(0, -fl.radius);
+          ctx.lineTo(fl.length, -fl.radius * 0.68);
+          ctx.arc(fl.length, 0, fl.radius * 0.68, -Math.PI / 2, Math.PI / 2);
+          ctx.lineTo(0, fl.radius);
+          ctx.arc(0, 0, fl.radius, Math.PI / 2, -Math.PI / 2);
+          ctx.closePath();
+
+          ctx.fillStyle = state.tilted
+            ? '#64748b'
+            : isNeon
+            ? '#38bdf8'
+            : '#f59e0b';
+          ctx.shadowColor = isNeon ? '#38bdf8' : '#f59e0b';
+          ctx.shadowBlur = state.tilted ? 0 : 12;
+          ctx.fill();
+
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#ffffff';
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#0f172a';
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // 16. Esferas de Aço
+        state.balls.forEach((ball) => {
+          ball.trail.forEach((pt, idx) => {
+            const alpha = ((idx + 1) / ball.trail.length) * 0.25;
+            const r = ball.radius * ((idx + 1) / ball.trail.length) * 0.85;
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+            ctx.fillStyle = isNeon
+              ? `rgba(56, 189, 248, ${alpha})`
+              : `rgba(251, 191, 36, ${alpha})`;
+            ctx.fill();
+          });
+
+          ctx.save();
+          const ballGrad = ctx.createRadialGradient(
+            ball.x - 3.5,
+            ball.y - 3.5,
+            1.5,
+            ball.x,
+            ball.y,
+            ball.radius
+          );
+          ballGrad.addColorStop(0, '#ffffff');
+          ballGrad.addColorStop(0.45, '#e2e8f0');
+          ballGrad.addColorStop(1, '#64748b');
+
+          ctx.beginPath();
+          ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+          ctx.fillStyle = ballGrad;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+          ctx.shadowBlur = 6;
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // 17. Partículas e Popups
+        state.particles.forEach((p) => {
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        state.popups.forEach((pop) => {
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, (pop.life / pop.maxLife) * 1.4);
+          ctx.font = '900 13px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillStyle = pop.color;
+          ctx.shadowColor = '#000000';
+          ctx.shadowBlur = 6;
+          ctx.fillText(pop.text, pop.x, pop.y);
+          ctx.restore();
+        });
+
+        // 18. Banners de Multiball e Perigo / Tilt
+        if (state.multiballBannerTimer > 0) {
+          ctx.save();
+          const blink = Math.floor(state.multiballBannerTimer * 10) % 2 === 0;
+          ctx.fillStyle = blink ? '#fbbf24' : '#f43f5e';
+          ctx.font = '900 22px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = '#000000';
+          ctx.shadowBlur = 12;
+          ctx.fillText('★ MULTIBALL 3X ATIVO! ★', 200, 340);
+          ctx.restore();
+        }
+
+        if (state.tiltBannerTimer > 0) {
+          ctx.save();
+          ctx.fillStyle = state.tilted ? '#ef4444' : '#fbbf24';
+          ctx.font = '900 18px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.shadowColor = '#000000';
+          ctx.shadowBlur = 10;
+          ctx.fillText(state.tiltBannerText, 200, 465);
+          ctx.restore();
+        }
+
+        ctx.restore();
+      }
+
+      // --------------------------------------------------------------------------
+      // 9. CONTROLES HÍBRIDOS SPACE CADET (TOQUE DIRETO, ARRASTE MOLA & TECLADO)
+      // --------------------------------------------------------------------------
+      function setFlipperInput(side, active) {
+        if (state.inputs[side] === active) return;
+        state.inputs[side] = active;
+        if (side === 'left') {
+          ctrlLeft.classList.toggle('active', active);
+        } else {
+          ctrlRight.classList.toggle('active', active);
+        }
+        if (active && state.mode === 'playing' && !state.tilted) {
+          sound.playFlipper();
+        }
+      }
+
+      function setPlungerCharging(active) {
+        if (state.mode !== 'playing') return;
+        if (active) {
+          sound.unlock();
+          state.plunger.charging = true;
+          ctrlPlunger.classList.add('active');
+        } else {
+          ctrlPlunger.classList.remove('active');
+          releasePlunger();
+        }
+      }
+
+      // Teclado (Padrão Space Cadet + setas)
+      window.addEventListener('keydown', (e) => {
+        if (e.repeat) return;
+        const code = e.code;
+
+        if (code === 'ArrowLeft' || code === 'KeyA') {
+          e.preventDefault();
+          setFlipperInput('left', true);
+        } else if (code === 'ArrowRight' || code === 'KeyD' || code === 'KeyM') {
+          e.preventDefault();
+          setFlipperInput('right', true);
+        } else if (code === 'Space' || code === 'ArrowDown') {
+          e.preventDefault();
+          if (state.mode === 'menu' || state.mode === 'gameover') {
+            startNewGame();
+          } else {
+            // Se a bola está no canal do lançador, puxa a mola; se está em jogo, dá nudge para frente
+            const ballInPlunger = state.balls.some((b) => b.x > 396 && b.y > 540);
+            if (ballInPlunger || code === 'ArrowDown') {
+              setPlungerCharging(true);
+            } else {
+              nudgeTable('up');
+            }
+          }
+        } else if (code === 'KeyZ' || code === 'ControlLeft') {
+          e.preventDefault();
+          nudgeTable('left');
+        } else if (code === 'Slash' || code === 'AltRight' || code === 'KeyX') {
+          e.preventDefault();
+          nudgeTable('right');
+        } else if (code === 'ArrowUp' || code === 'KeyW') {
+          e.preventDefault();
+          nudgeTable('up');
+        } else if (code === 'KeyP') {
+          e.preventDefault();
+          togglePause();
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        const code = e.code;
+        if (code === 'ArrowLeft' || code === 'KeyA') {
+          setFlipperInput('left', false);
+        } else if (code === 'ArrowRight' || code === 'KeyD' || code === 'KeyM') {
+          setFlipperInput('right', false);
+        } else if (code === 'Space' || code === 'ArrowDown') {
+          setPlungerCharging(false);
+        }
+      });
+
+      // Botões táteis inferiores (Multi-Touch simultâneo)
+      function bindHoldButton(el, onDown, onUp) {
+        el.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          el.setPointerCapture(e.pointerId);
+          onDown();
+        });
+        const endHandler = (e) => {
+          e.preventDefault();
+          onUp();
+        };
+        el.addEventListener('pointerup', endHandler);
+        el.addEventListener('pointercancel', endHandler);
+      }
+
+      bindHoldButton(
+        ctrlLeft,
+        () => setFlipperInput('left', true),
+        () => setFlipperInput('left', false)
+      );
+      bindHoldButton(
+        ctrlRight,
+        () => setFlipperInput('right', true),
+        () => setFlipperInput('right', false)
+      );
+      bindHoldButton(
+        ctrlPlunger,
+        () => setPlungerCharging(true),
+        () => setPlungerCharging(false)
+      );
+
+      ctrlNudgeLeft.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        ctrlNudgeLeft.classList.add('active');
+        nudgeTable('left');
+        setTimeout(() => ctrlNudgeLeft.classList.remove('active'), 140);
+      });
+
+      ctrlNudgeRight.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        ctrlNudgeRight.classList.add('active');
+        nudgeTable('right');
+        setTimeout(() => ctrlNudgeRight.classList.remove('active'), 140);
+      });
+
+      // Controles Diretos no Canvas:
+      // - Canal direito (x > 87%): arraste físico no êmbolo da mola para dosar a força
+      // - Metade esquerda (x < 50%): Flipper Esquerdo
+      // - Metade direita (x >= 50%): Flipper Direito
+      const activeCanvasPointers = new Map();
+
+      canvas.addEventListener('pointerdown', (e) => {
+        if (state.mode !== 'playing') return;
+        e.preventDefault();
+        sound.unlock();
+        canvas.setPointerCapture(e.pointerId);
+
+        const rect = canvas.getBoundingClientRect();
+        const relX = (e.clientX - rect.left) / rect.width;
+        const relY = (e.clientY - rect.top) / rect.height;
+
+        if (relX >= 0.87 && relY >= 0.45) {
+          state.plunger.dragging = true;
+          state.plunger.dragStartY = e.clientY;
+          state.plunger.pull = Math.max(state.plunger.pull, 14);
+          ctrlPlunger.classList.add('active');
+          activeCanvasPointers.set(e.pointerId, { role: 'plunger', rectHeight: rect.height });
+        } else if (relX >= 0.5) {
+          setFlipperInput('right', true);
+          activeCanvasPointers.set(e.pointerId, { role: 'right' });
+        } else {
+          setFlipperInput('left', true);
+          activeCanvasPointers.set(e.pointerId, { role: 'left' });
+        }
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        const info = activeCanvasPointers.get(e.pointerId);
+        if (!info || info.role !== 'plunger' || !state.plunger.dragging) return;
+        e.preventDefault();
+
+        const deltaPx = Math.max(0, e.clientY - state.plunger.dragStartY);
+        const virtualDelta = (deltaPx / info.rectHeight) * TABLE_H;
+        state.plunger.pull = Math.min(state.plunger.maxPull, Math.max(10, virtualDelta * 1.15));
+
+        const step = Math.floor(state.plunger.pull / 8);
+        if (step > state.plunger.lastTickStep) {
+          state.plunger.lastTickStep = step;
+          sound.playPlungerTick(state.plunger.pull / state.plunger.maxPull);
+        }
+      });
+
+      function releaseCanvasPointer(e) {
+        const info = activeCanvasPointers.get(e.pointerId);
+        if (!info) return;
+        activeCanvasPointers.delete(e.pointerId);
+
+        if (info.role === 'plunger') {
+          ctrlPlunger.classList.remove('active');
+          releasePlunger();
+        } else {
+          const stillHeld = Array.from(activeCanvasPointers.values()).some((v) => v.role === info.role);
+          if (!stillHeld) setFlipperInput(info.role, false);
+        }
+      }
+
+      canvas.addEventListener('pointerup', releaseCanvasPointer);
+      canvas.addEventListener('pointercancel', releaseCanvasPointer);
+
+      // Botões da barra superior e modal
+      btnStart.addEventListener('click', () => {
+        if (state.mode === 'paused') {
+          togglePause();
+        } else {
+          startNewGame();
+        }
+      });
+
+      btnTheme.addEventListener('click', () => {
+        applyTheme(state.theme === 'neon' ? 'retro' : 'neon');
+      });
+
+      btnPad.addEventListener('click', () => {
+        applyPadVisibility(!state.padVisible);
+      });
+
+      btnSound.addEventListener('click', () => {
+        sound.toggle();
+        updateSoundButton();
+      });
+
+      btnPause.addEventListener('click', () => {
+        if (state.mode === 'playing' || state.mode === 'paused') {
+          togglePause();
+        }
+      });
+
+      btnRestart.addEventListener('click', () => {
+        startNewGame();
+      });
+
+      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('blur', () => {
+        setFlipperInput('left', false);
+        setFlipperInput('right', false);
+        setPlungerCharging(false);
+      });
+
+      // --------------------------------------------------------------------------
+      // 10. LOOP PRINCIPAL (60 FPS)
+      // --------------------------------------------------------------------------
+      let lastTime = 0;
+
+      function gameLoop(timestamp) {
+        if (!lastTime) lastTime = timestamp;
+        const rawDt = (timestamp - lastTime) / 1000;
+        lastTime = timestamp;
+
+        const dt = Math.min(rawDt, 0.033);
+
+        updatePhysics(dt);
+        drawTable();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // --------------------------------------------------------------------------
+      // 11. INICIALIZAÇÃO IMEDIATA
+      // --------------------------------------------------------------------------
+      function init() {
+        applyTheme(state.theme);
+        applyPadVisibility(state.padVisible);
+        updateSoundButton();
+        updateHUD();
+        resizeCanvas();
+        drawTable();
+        requestAnimationFrame(gameLoop);
+      }
+
+      window.addEventListener('load', init);
+      if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

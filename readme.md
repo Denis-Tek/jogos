@@ -16,6 +16,7 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | Jogo | Categoria | Descrição | Link Direto |
 | :--- | :--- | :--- | :--- |
 | **[2048](./2048/)** | Lógica & Números | Puzzle matemático de deslize e fusão de blocos em grades `4×4` e `5×5` até o bloco `2048` e além, com histórico de **Desfazer**, auto-save e escala sonora ascendente. | [Jogar 2048](https://denis-tek.github.io/jogos/2048/) |
+| **[Aquaplay](./aquaplay/)** | Arcade & Física | Recriação tátil do brinquedo aquático retrô com simulação de empuxo, correntes de jatos d'água acionadas por botões laterais, argolas coloridas e encaixe nos pinos. | [Jogar Aquaplay](https://denis-tek.github.io/jogos/aquaplay/) |
 | **[Arkanoid & Pong](./arkanoid-pong/)** | Arcade & Reflexos | Dois clássicos dos arcades em um só app: *Arkanoid Pro* com 5 fases cíclicas e 5 cápsulas de Power-Up, além de *Pong 1P* (vs IA) e *2P* local na mesma tela. | [Jogar Arkanoid & Pong](https://denis-tek.github.io/jogos/arkanoid-pong/) |
 | **[Batalha Naval](./batalha-naval/)** | Estratégia & Tabuleiro | Comando tático de frota em grade `10×10` com estética de radar naval, posicionamento interativo, modo 2 jogadores com cortina de privacidade e IA probabilística. | [Jogar Batalha Naval](https://denis-tek.github.io/jogos/batalha-naval/) |
 | **[Caça-Palavras Bíblico](./caca-palavras/)** | Palavras & Dedução | Gerador procedural de grades em 3 dificuldades com 73 palavras bíblicas, Modo Estudo baseado em dicas, traçado vetorial colorido em SVG e referências bíblicas. | [Jogar Caça-Palavras](https://denis-tek.github.io/jogos/caca-palavras/) |
@@ -28,9 +29,11 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 | **[Grand Prix 3D](./grand-prix-3d/)** | Arcade & Corrida | Simulador de Fórmula 1 pseudo-3D com câmeras *Externa* e *Cockpit*, 4 circuitos (*Interlagos*, *Mônaco*, *Monza* e *Silverstone*), *Pit Stop* com escolha de compostos, *DRS* e vácuo. | [Jogar Grand Prix 3D](https://denis-tek.github.io/jogos/grand-prix-3d/) |
 | **[Jogo da Forca](./jogo-da-forca/)** | Palavras & Dedução | Passatempo clássico de adivinhação de palavras e expressões bíblicas por categoria, com banco de dados em JSON, dicas, referências bíblicas e modo 2 jogadores. | [Jogar Jogo da Forca](https://denis-tek.github.io/jogos/jogo-da-forca/) |
 | **[Jogo de Damas](./damas/)** | Raciocínio & Tabuleiro | Edição de luxo em tabuleiro `8×8` com regras brasileiras (*Dama Voadora* e *Lei da Maioria*), modo casual, 2 jogadores e IA com algoritmo Minimax Alfa-Beta. | [Jogar Damas](https://denis-tek.github.io/jogos/damas/) |
+| **[Labirinto](./labirinto/)** | Puzzle & Exploração | Labirintos gerados proceduralmente em múltiplos níveis de dificuldade com modo *Névoa de Guerra*, solucionador de rota mínima via BFS e controles por teclado, swipe ou toque. | [Jogar Labirinto](https://denis-tek.github.io/jogos/labirinto/) |
 | **[Mahjong Brasil](./vita-mahjong/)** | Raciocínio & Tabuleiro | Edição Vita acessível em modo retrato com 34 peças vetoriais, 3 temas (*Bíblia*, *Brasil* e *Clássico*), 5 formatos verticais e gerador 100% solucionável. | [Jogar Mahjong Brasil](https://denis-tek.github.io/jogos/vita-mahjong/) |
 | **[Paciência Clássica](./paciencia/)** | Cartas & Estratégia | Versão completa do *Klondike Solitaire* com compra de 1 ou 3 cartas, detector de impasses via BFS, dicas inteligentes e temas Esmeralda e Meia-Noite. | [Jogar Paciência](https://denis-tek.github.io/jogos/paciencia/) |
 | **[Palavras Cruzadas Bíblicas](./palavras-cruzadas/)** | Palavras & Dedução | Gerador procedural de grades cruzadas inéditas com 73 palavras bíblicas em 6 temas, 3 tamanhos de tabuleiro, teclado virtual integrado e referências bíblicas. | [Jogar Palavras Cruzadas](https://denis-tek.github.io/jogos/palavras-cruzadas/) |
+| **[Pinball](./pinball/)** | Arcade & Física | Mesa de fliperama arcade em Canvas 2D com física contínua em sub-passos, flippers responsivos, bumpers luminosos, rampas, multiplicadores de bônus e áudio procedural. | [Jogar Pinball](https://denis-tek.github.io/jogos/pinball/) |
 | **[Quebra-Cabeça Studio](./quebra-cabeca/)** | Puzzle & Montagem | Jigsaw Puzzle com recorte realista por curvas de Bézier, 8 cenários procedurais, upload de fotos próprias, agrupamento magnético e modo rotação `90°`. | [Jogar Quebra-Cabeça](https://denis-tek.github.io/jogos/quebra-cabeca/) |
 | **[Resta Um](./resta-um/)** | Raciocínio & Tabuleiro | O clássico *Peg Solitaire* em tabuleiro circular de madeira nobre com 5 variantes, 4 acabamentos de peças e solucionador inteligente integrado. | [Jogar Resta Um](https://denis-tek.github.io/jogos/resta-um/) |
 | **[Snake](./snake/)** | Arcade & Reflexos | Clássico Jogo da Cobrinha em Canvas 2D com temas **Neon Moderno** e **Nokia 3310**, arenas com ou sem paredes, fruta bônus temporária e D-Pad tátil. | [Jogar Snake](https://denis-tek.github.io/jogos/snake/) |
@@ -47,10 +50,10 @@ Uma coleção interativa de brinquedos eletrônicos retrô, passatempos de tabul
 
 Todo o ecossistema foi projetado sob o conceito **Single-File Self-Contained Architecture** (cada jogo encapsulado em seu próprio `index.html`, com catálogo desacoplado em `jogos.json` e miniaturas `thumb.svg` dedicadas no launcher), garantindo portabilidade instantânea, carregamento ultrarrápido e compatibilidade nativa com qualquer navegador moderno ou hospedagem estática:
 
-* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton e símbolos culturais vetoriais (*Mahjong Brasil*), recortes de quebra-cabeça por curvas de Bézier cúbicas, traçados vetoriais dinâmicos (*Caça-Palavras Bíblico*), ilustrações vetoriais (`thumb.svg`) para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$, motor pseudo-3D *OutRun-style* com câmeras Externa/Cockpit e minimapa no *Grand Prix 3D*, rolagem lateral *side-scrolling* com câmera no *Super Mario Web* e renderização High-DPI com partículas no *Arkanoid & Pong* e *Come-Come*).
+* **HTML5 Semântico, Canvas 2D & SVG Vetorial:** Estruturação acessível (ARIA), peças Staunton e símbolos culturais vetoriais (*Mahjong Brasil*), recortes de quebra-cabeça por curvas de Bézier cúbicas, traçados vetoriais dinâmicos (*Caça-Palavras Bíblico*), ilustrações vetoriais (`thumb.svg`) para o menu inicial, grades interativas com áreas de toque ampliadas (`hit-area`) e renderização acelerada em 60 FPS no `<canvas>` (incluindo projeção 3D em software com matrizes ortonormais $3\times3$, motor pseudo-3D *OutRun-style* com câmeras Externa/Cockpit e minimapa no *Grand Prix 3D*, simulação de tanque aquático e argolas no *Aquaplay*, mesa de fliperama com iluminação dinâmica no *Pinball*, rolagem lateral *side-scrolling* com câmera no *Super Mario Web* e renderização High-DPI com partículas no *Arkanoid & Pong* e *Come-Come*).
 * **CSS3 Moderno & Tailwind CSS:** Uso de variáveis dinâmicas (`Custom Properties`), `CSS Grid`, `Flexbox`, `clamp()`, `100dvh`, `ResizeObserver`, `scroll-snap`, Web Animations API, transformações aceleradas por GPU (`translate3d` no *2048*) e gradientes radiais multicamada para texturas físicas e layouts *zero-scroll*.
-* **JavaScript Nativo (ES2020+) & JSON:** Carregamento dinâmico de catálogos, bancos de palavras e traçados de pistas (`jogos.json`, `palavras.json` e `circuitos.json`), lógica de estados, física de plataforma com pulo variável, *Coyote Time*, *Jump Buffering* e *Corner Correction* (*Super Mario Web*), física de corrida com força centrífuga, vácuo (*slipstream*), desgaste de compostos e IA de ultrapassagem (*Grand Prix 3D*), física contínua em sub-passos com efeito lateral (*Spin*) e IA preditiva (*Arkanoid & Pong*), máquina de estados comportamentais individualizada (*Come-Come*), algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, geração procedural de palavras cruzadas e caça-palavras com incentivo a cruzamentos e validação de adjacências, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / *multi-touch* / *Long Press*) e atalhos de teclado.
-* **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, ronco de motor por RPM, efeitos chiptune, fluxos líquidos, pings de sonar, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
+* **JavaScript Nativo (ES2020+) & JSON:** Carregamento dinâmico de catálogos, bancos de palavras e traçados de pistas (`jogos.json`, `palavras.json` e `circuitos.json`), lógica de estados, física de fluidos com empuxo, arrasto hidrodinâmico e jatos direcionais (*Aquaplay*), física contínua de corpo rígido 2D em sub-passos com colisões elásticas em arcos, flippers e rampas (*Pinball*), física de plataforma com pulo variável, *Coyote Time*, *Jump Buffering* e *Corner Correction* (*Super Mario Web*), física de corrida com força centrífuga, vácuo (*slipstream*), desgaste de compostos e IA de ultrapassagem (*Grand Prix 3D*), física contínua em sub-passos com efeito lateral (*Spin*) e IA preditiva (*Arkanoid & Pong*), máquina de estados comportamentais individualizada (*Come-Come*), algoritmos de busca, grafos e inteligência artificial (`Minimax` com poda Alfa-Beta e *Piece-Square Tables*, mapa de densidade probabilística e *Hunt & Target*, `DFS` com `BigInt` Bitboard e poda de estados, geração procedural de labirintos e solucionador de rota mínima via `BFS` no *Labirinto*, `BFS` com tabela de transposição e *Flood-Fill*, *backtracking* com verificação de unicidade, geração reversa solucionável em 3D com dispersão espacial, geração procedural de palavras cruzadas e caça-palavras com incentivo a cruzamentos e validação de adjacências, detecção de ciclos/loops e agrupamento magnético por grafos, avaliação heurística de cadeias e deduções lógicas), clusterização de cores (*K-Means*), embaralhamento *7-Bag* com *Wall Kicks*, *Input Buffering* com interpolação de quadros, álgebra vetorial 3D e câmera 2D, eventos unificados (`Pointer Events` / *multi-touch* / *Long Press*) e atalhos de teclado.
+* **Web Audio API:** Motor de síntese sonora 100% procedural (osciladores, ruído filtrado para bolhas d'água, escalas pentatônicas e envelopes ADSR) que gera em tempo real os tons musicais, ronco de motor por RPM, efeitos chiptune, efeitos mecânicos de fliperama, fluxos líquidos, pings de sonar, efeitos táteis e fanfarras — sem depender de arquivos `.mp3` ou `.wav`.
 * **Web Storage API (`localStorage`):** Persistência local automática dos recordes, jogos favoritados no launcher, fases desbloqueadas, partidas em andamento e preferências de tema/áudio em cada jogo.
 
 ---
@@ -69,6 +72,11 @@ jogos/
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
 │   ├── imagem.png                 # Captura de tela do jogo em execução
 │   └── README.md                  # Documentação técnica, controles e mecânicas do 2048
+├── aquaplay/
+│   ├── index.html                 # Aplicação completa do Aquaplay (brinquedo aquático retrô)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, física de fluidos e controles do Aquaplay
 ├── arkanoid-pong/
 │   ├── index.html                 # Aplicação completa do Arkanoid & Pong (3 modos arcade)
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
@@ -132,6 +140,11 @@ jogos/
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
 │   ├── imagem.png                 # Captura de tela do jogo em execução
 │   └── README.md                  # Documentação técnica, modos e estrutura do Jogo da Forca
+├── labirinto/
+│   ├── index.html                 # Aplicação completa do Labirinto (gerador procedural e solver BFS)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, algoritmos de geração e controles do Labirinto
 ├── paciencia/
 │   ├── index.html                 # Aplicação completa da Paciência Clássica (Klondike)
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
@@ -143,6 +156,11 @@ jogos/
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
 │   ├── imagem.png                 # Captura de tela do jogo em execução
 │   └── README.md                  # Documentação técnica, gerador dinâmico e regras do Palavras Cruzadas
+├── pinball/
+│   ├── index.html                 # Aplicação completa do Pinball (mesa de fliperama arcade)
+│   ├── thumb.svg                  # Miniatura vetorial exibida no launcher
+│   ├── imagem.png                 # Captura de tela do jogo em execução
+│   └── README.md                  # Documentação técnica, física 2D e controles do Pinball
 ├── quebra-cabeca/
 │   ├── index.html                 # Aplicação completa do Quebra-Cabeça Studio
 │   ├── thumb.svg                  # Miniatura vetorial exibida no launcher

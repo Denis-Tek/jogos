@@ -24,6 +24,28 @@
       }
     },
     {
+      "id": "aquaplay",
+      "titulo": "Aquaplay",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-aquaplay",
+      "url": "./aquaplay/",
+      "thumb": "./aquaplay/thumb.svg",
+      "keywords": "aquaplay waterful ring toss argolas agua brinquedo retro anos 80 90 fisica",
+      "descricao": "Recriação tátil do brinquedo aquático retrô com simulação de empuxo, correntes de jatos d'água acionadas por botões laterais, argolas coloridas e física de encaixe nos pinos.",
+      "tags": [
+        "Física de Fluidos",
+        "Brinquedo Retrô",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "tempo-seg",
+        "chaves": [
+          "aquaplay"
+        ]
+      }
+    },
+    {
       "id": "arkanoid-pong",
       "titulo": "Arkanoid & Pong",
       "categoria": "puzzle",
@@ -215,7 +237,7 @@
       "url": "./grand-prix-3d/",
       "thumb": "./grand-prix-3d/thumb.svg",
       "keywords": "grand prix 3d formula 1 f1 corrida cockpit pit stop drs interlagos monaco monza",
-      "descricao": "Simulador de Fórmula 1 pseudo-3D com câmeras Externa e Cockpit, 4 circuitos (Interlagos, Mônaco, Monza e Silverstone), Pit Stop com escolha de pneus, DRS, vácuo e clima dinâmico.",
+      "descricao": "Simulador de Fórmula 1 pseudo-3D com câmeras Externa e Cockpit, 4 circuitos (Interlagos, Mônaco, Monza e Silverstone), Pit Stop com escolha de compostos, DRS, vácuo e clima dinâmico.",
       "tags": [
         "Externa & Cockpit",
         "Pit Stop & DRS",
@@ -266,6 +288,29 @@
         "Dama Voadora",
         "Single-File"
       ]
+    },
+    {
+      "id": "labirinto",
+      "titulo": "Labirinto",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-labirinto",
+      "url": "./labirinto/",
+      "thumb": "./labirinto/thumb.svg",
+      "keywords": "labirinto maze gerador dfs bfs caminho minimo nevoa puzzle exploracao",
+      "descricao": "Labirintos gerados proceduralmente em múltiplos níveis de tamanho com modo Névoa de Guerra opcional, solucionador de rota mínima via BFS e controles por teclado, swipe ou toque.",
+      "tags": [
+        "Gerador Procedural",
+        "Solver BFS",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "tempo-seg",
+        "chaves": [
+          "labirinto",
+          "maze"
+        ]
+      }
     },
     {
       "id": "vita-mahjong",
@@ -330,6 +375,29 @@
         "Banco JSON",
         "Web Audio API"
       ]
+    },
+    {
+      "id": "pinball",
+      "titulo": "Pinball",
+      "categoria": "puzzle",
+      "categoriaLabel": "Estratégia & Lógica",
+      "visualClass": "visual-pinball",
+      "url": "./pinball/",
+      "thumb": "./pinball/thumb.svg",
+      "keywords": "pinball fliperama arcade flippers bumpers rampas multiball fisica",
+      "descricao": "Mesa de fliperama arcade em Canvas 2D com física contínua em sub-passos, flippers responsivos, bumpers luminosos, rampas, multiplicadores de bônus e áudio procedural.",
+      "tags": [
+        "Física 2D Sub-Steps",
+        "Arcade Fliperama",
+        "Web Audio API"
+      ],
+      "recorde": {
+        "tipo": "max",
+        "chaves": [
+          "pinball"
+        ],
+        "sufixo": " pts"
+      }
     },
     {
       "id": "quebra-cabeca",
